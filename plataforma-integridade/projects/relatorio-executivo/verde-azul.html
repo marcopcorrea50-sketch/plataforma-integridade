@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório Vale - Verde & Azul AMOLED</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #000000;
+            padding: 20px;
+            font-size: 11pt;
+        }
+
+        .container {
+            max-width: 210mm;
+            margin: 0 auto;
+            background: #0a1a0a;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,255,136,0.3);
+        }
+
+        /* Cabeçalho Vale */
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            border: 2px solid #00ff88;
+            background: #0d1a0d;
+        }
+
+        .header-table td {
+            border: 1px solid #00ff88;
+            padding: 5px;
+            font-size: 9pt;
+            color: #e0ffe0;
+        }
+
+        .header-title {
+            font-weight: bold;
+            text-align: center;
+            font-size: 10pt;
+            color: #00ff88;
+            background: #0a1a0a;
+        }
+
+        .header-label {
+            font-weight: bold;
+            width: 30%;
+            color: #e0ffe0;
+        }
+
+        .header-input {
+            border: none;
+            width: 100%;
+            padding: 2px;
+            font-size: 9pt;
+            background: #1a2a1a;
+            color: #e0ffe0;
+        }
+
+        .page-info {
+            text-align: right;
+            font-size: 9pt;
+            font-weight: bold;
+            color: #e0ffe0;
+        }
+
+        /* Tabela de Revisões */
+        .revision-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 8pt;
+            background: #0d1a0d;
+        }
+
+        .revision-table th,
+        .revision-table td {
+            border: 1px solid #00ff88;
+            padding: 3px;
+            text-align: center;
+            color: #e0ffe0;
+        }
+
+        .revision-table th {
+            background: #1a2a1a;
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        .revision-input {
+            border: none;
+            width: 100%;
+            text-align: center;
+            font-size: 8pt;
+            background: #1a2a1a;
+            color: #e0ffe0;
+        }
+
+        /* Botões de ação */
+        .action-buttons {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00ff88, #0088ff);
+            color: #00ff88;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #00dd77, #0077dd);
+        }
+
+        .btn-success {
+            background: #0d1a0d;
+            color: #00ff88;
+            border: 2px solid #00ff88;
+        }
+
+        .btn-success:hover {
+            background: #00ff88;
+            color: #00ff88;
+        }
+
+        .btn-danger {
+            background: #0d1a0d;
+            color: #ff4444;
+            border: 2px solid #ff4444;
+        }
+
+        .btn-danger:hover {
+            background: #ff4444;
+            color: #00ff88;
+        }
+
+        .btn-info {
+            background: #0d1a0d;
+            color: #0088ff;
+            border: 2px solid #0088ff;
+        }
+
+        .btn-info:hover {
+            background: #0088ff;
+            color: #00ff88;
+        }
+
+        /* Seções do documento */
+        .section {
+            margin: 30px 0;
+        }
+
+        .section-title {
+            font-weight: bold;
+            font-size: 12pt;
+            margin-bottom: 15px;
+            color: #00ff88;
+        }
+
+        .editable-content {
+            min-height: 100px;
+            padding: 10px;
+            border: 1px dashed #00ff88;
+            border-radius: 5px;
+            line-height: 1.6;
+            background: #0d1a0d;
+            color: #e0ffe0;
+        }
+
+        .editable-content:focus {
+            outline: 2px solid #00ff88;
+            border-color: #00ff88;
+        }
+
+        /* Índice */
+        .index-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .index-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px dotted #00ff88;
+            color: #e0ffe0;
+        }
+
+        /* Equipamento/Circuito */
+        .equipment-card {
+            border: 2px solid;
+            border-image: linear-gradient(135deg, #00ff88, #0088ff) 1;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            background: #0d1a0d;
+            position: relative;
+        }
+
+        .equipment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #00ff88;
+        }
+
+        .equipment-title {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #00ff88;
+            border: 1px solid #00ff88;
+            background: #1a2a1a;
+            padding: 8px 12px;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 500px;
+            cursor: text;
+            transition: all 0.3s;
+        }
+
+        .equipment-title:hover {
+            background: #0a1a0a;
+            border-color: #00ff88;
+        }
+
+        .equipment-title:focus {
+            outline: none;
+            background: #0a1a0a;
+            border-width: 2px;
+            box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.2);
+        }
+
+        .equipment-remove {
+            background: #ff4444;
+            color: #00ff88;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .equipment-remove:hover {
+            background: #c82333;
+        }
+
+        .equipment-field {
+            margin: 10px 0;
+        }
+
+        .equipment-field label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 10pt;
+            color: #e0ffe0;
+        }
+
+        .equipment-field input,
+        .equipment-field textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #00ff88;
+            border-radius: 4px;
+            font-size: 10pt;
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            background: #1a2a1a;
+            color: #e0ffe0;
+        }
+
+        .equipment-field textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Área de imagens */
+        .images-section {
+            margin-top: 20px;
+        }
+
+        .images-section h4, h3 {
+            color: #00ff88;
+        }
+
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .image-container {
+            border: 2px dashed;
+            border-image: linear-gradient(135deg, #00ff88, #0088ff) 1;
+            border-radius: 8px;
+            padding: 10px;
+            background: #0d1a0d;
+            position: relative;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .image-upload-area {
+            border: none;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #1a2a1a;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 250px;
+            color: #e0ffe0;
+        }
+
+        .image-upload-area:hover {
+            background: #0d1a0d;
+        }
+
+        .image-upload-area.dragover {
+            background: linear-gradient(135deg, #00ff88, #0088ff);
+            color: #00ff88;
+        }
+
+        .image-upload-area.has-image {
+            padding: 0;
+            background: transparent;
+            min-height: auto;
+        }
+
+        .image-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 5px;
+            display: block;
+        }
+
+        .image-caption {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #00ff88;
+            border-radius: 4px;
+            font-size: 10pt;
+            text-align: center;
+            color: #00ff88;
+            font-weight: 500;
+            margin-top: 8px;
+            background: #1a2a1a;
+            cursor: text;
+            transition: all 0.3s;
+            white-space: normal;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .image-caption:hover {
+            border-color: #00ff88;
+            background: #0d1a0d;
+        }
+
+        .image-caption:focus {
+            outline: none;
+            border-color: #00ff88;
+            border-width: 2px;
+            background: #0d1a0d;
+            box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.2);
+        }
+
+        .image-remove {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ff4444;
+            color: #00ff88;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .image-remove:hover {
+            background: #c82333;
+        }
+
+        .add-image-btn {
+            background: #0d1a0d;
+            color: #00ff88;
+            border: 2px solid #00ff88;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-top: 10px;
+        }
+
+        .add-image-btn:hover {
+            background: #218838;
+        }
+
+        /* Modal de salvar/carregar */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background: #0a1a0a;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 2px solid #00ff88;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #00ff88;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #e0ffe0;
+        }
+
+        .close-modal:hover {
+            color: #00ff88;
+        }
+
+        .saved-reports {
+            list-style: none;
+            padding: 0;
+        }
+
+        .report-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: #0d1a0d;
+            border-radius: 8px;
+            border: 1px solid #00ff88;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .report-item:hover {
+            background: #0d1a0d;
+            border-color: #0066cc;
+        }
+
+        .report-name {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #00ff88;
+        }
+
+        .report-date {
+            font-size: 12px;
+            color: #e0ffe0;
+        }
+
+        .report-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .report-btn {
+            padding: 5px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        /* Impressão */
+        @media print {
+            @page {
+                margin: 15mm;
+                size: A4;
+            }
+
+            /* Remover cabeçalho e rodapé padrão do navegador (URL, data, hora) */
+            @page {
+                margin-top: 15mm;
+                margin-bottom: 15mm;
+            }
+
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            /* Resetar cores para impressão */
+            body {
+                color: #000 !important;
+            }
+
+            .container {
+                background: white !important;
+            }
+
+            .header-table {
+                border: 2px solid #000 !important;
+                background: white !important;
+            }
+
+            .header-table td {
+                border: 1px solid #000 !important;
+                color: #000 !important;
+                background: white !important;
+            }
+
+            .header-title {
+                color: #000 !important;
+                background: white !important;
+            }
+
+            .header-label {
+                color: #000 !important;
+            }
+
+            .header-input {
+                background: white !important;
+                color: #000 !important;
+            }
+
+            .revision-table {
+                background: white !important;
+            }
+
+            .revision-table th {
+                background: #e0e0e0 !important;
+                color: #000 !important;
+                border: 1px solid #000 !important;
+            }
+
+            .revision-table td {
+                border: 1px solid #000 !important;
+                color: #000 !important;
+                background: white !important;
+            }
+
+            .revision-input {
+                background: white !important;
+                color: #000 !important;
+            }
+
+            .section-title {
+                color: #000 !important;
+            }
+
+            .editable-content {
+                background: white !important;
+                color: #000 !important;
+                border: none !important;
+            }
+
+            .index-item {
+                color: #000 !important;
+                border-bottom: 1px dotted #000 !important;
+            }
+
+            .equipment-card {
+                background: white !important;
+                border: 2px solid #000 !important;
+            }
+
+            .equipment-header {
+                border-bottom: 2px solid #000 !important;
+            }
+
+            .equipment-title {
+                color: #000 !important;
+                background: white !important;
+                border: 1px solid #000 !important;
+            }
+
+            .equipment-field label {
+                color: #000 !important;
+            }
+
+            .equipment-field input,
+            .equipment-field textarea {
+                background: white !important;
+                color: #000 !important;
+                border: 1px solid #000 !important;
+            }
+
+            .images-section h4, h3 {
+                color: #000 !important;
+            }
+
+            .image-container {
+                background: white !important;
+                border: 1px solid #ccc !important;
+            }
+
+            .image-caption {
+                background: white !important;
+                color: #000 !important;
+                border: 1px solid #ccc !important;
+            }
+
+
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+                padding: 10mm;
+                margin: 0;
+            }
+
+            .action-buttons,
+            .btn,
+            .equipment-remove,
+            .image-remove,
+            .add-image-btn {
+                display: none !important;
+            }
+
+            .image-upload-area {
+                background: transparent !important;
+                border: none !important;
+                padding: 0 !important;
+                min-height: auto !important;
+                display: block !important;
+            }
+
+            .image-upload-area p {
+                display: none !important;
+            }
+
+            .image-upload-area img,
+            .image-preview {
+                display: block !important;
+                visibility: visible !important;
+                width: 100% !important;
+                height: auto !important;
+                max-height: 400px !important;
+                object-fit: contain !important;
+                page-break-inside: avoid;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                opacity: 1 !important;
+            }
+
+            .image-container {
+                page-break-inside: avoid;
+                border: 1px solid #ccc !important;
+                min-height: auto !important;
+                display: block !important;
+                visibility: visible !important;
+            }
+
+            .image-caption {
+                display: block !important;
+                visibility: visible !important;
+                page-break-before: avoid;
+            }
+
+            .images-section {
+                display: block !important;
+                visibility: visible !important;
+            }
+
+            .editable-content {
+                border: none;
+            }
+
+            .equipment-card {
+                page-break-inside: avoid;
+            }
+
+            .images-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 15px !important;
+            }
+
+            @page {
+                margin: 15mm;
+                size: A4;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Botões de ação -->
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="salvarRelatorio()">💾 Salvar Relatório</button>
+            <button class="btn btn-info" onclick="carregarRelatorio()">📂 Carregar Relatório</button>
+            <button class="btn btn-success" onclick="exportarJSON()">📤 Exportar JSON</button>
+            <button class="btn btn-info" onclick="importarJSON()">📥 Importar JSON</button>
+            <button class="btn btn-primary" onclick="gerarPDF()">🖨️ Gerar PDF</button>
+        </div>
+
+        <!-- Cabeçalho -->
+        <table class="header-table">
+            <tr>
+                <td rowspan="4" style="width: 20%; text-align: center; vertical-align: middle;">
+                    <div onclick="document.getElementById('logoUpload').click()" style="cursor: pointer;">
+                        <img id="logoImage" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='60'%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='12' fill='%23666'%3EVALE%3C/text%3E%3C/svg%3E" alt="Logo" style="max-width: 100px; max-height: 60px;">
+                    </div>
+                    <input type="file" id="logoUpload" accept="image/*" style="display: none;" onchange="uploadLogo(event)">
+                </td>
+                <td colspan="3" class="header-title">INTEGRIDADE ESTRUTURAL</td>
+                <td rowspan="4" style="width: 15%; vertical-align: top; padding: 5px;">
+                    <table style="width: 100%; border: none; font-size: 9pt; font-weight: bold;">
+                        <tr>
+                            <td colspan="2" style="border: none; text-align: left; padding: 2px 0;">Nº VALE</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="border: none; padding: 2px 0;">
+                                <input type="text" class="header-input" id="numVale" placeholder="" style="width: 100%;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border: none; text-align: left; padding: 2px 0; padding-top: 8px;">PÁGINA</td>
+                            <td style="border: none; text-align: left; padding: 2px 0; padding-top: 8px;">Nº</td>
+                        </tr>
+                        <tr>
+                            <td style="border: none; padding: 2px 0;">
+                                <input type="text" class="header-input" id="pagina" value="1/1" style="width: 95%;">
+                            </td>
+                            <td style="border: none; padding: 2px 0;">
+                                <input type="text" class="header-input" id="numero" placeholder="" style="width: 95%;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="border: none; text-align: left; padding: 2px 0; padding-top: 8px;">REV.</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="border: none; padding: 2px 0;">
+                                <input type="text" class="header-input" id="revisao" value="A" style="width: 100%;">
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td class="header-label">USO INTERNO</td>
+                <td colspan="2"><input type="text" class="header-input" id="projeto" placeholder="PROJETO FERRO S11D"></td>
+            </tr>
+            <tr>
+                <td class="header-label">PROJETO DETALHADO</td>
+                <td colspan="2"><input type="text" class="header-input" id="circuito" placeholder="CIRCUITO - DESCRIÇÃO"></td>
+            </tr>
+            <tr>
+                <td class="header-label">INSPEÇÃO</td>
+                <td colspan="2"><input type="text" class="header-input" id="tipoDoc" value="INTEGRIDADE ESTRUTURAL - RELATÓRIO TÉCNICO – N1"></td>
+            </tr>
+        </table>
+
+        <!-- Tabela de Revisões -->
+        <div style="margin-bottom: 20px;">
+            <h3 style="font-size: 10pt; margin-bottom: 10px;">REVISÕES</h3>
+            <table class="revision-table">
+                <thead>
+                    <tr>
+                        <th style="width: 8%;">Rev.</th>
+                        <th style="width: 8%;">TE</th>
+                        <th style="width: 40%;">Descrição</th>
+                        <th style="width: 10%;">Por</th>
+                        <th style="width: 10%;">Ver.</th>
+                        <th style="width: 10%;">AP.</th>
+                        <th style="width: 10%;">Aut.</th>
+                        <th style="width: 14%;">Data</th>
+                    </tr>
+                </thead>
+                <tbody id="revisionTableBody">
+                    <tr>
+                        <td><input type="text" class="revision-input" value="A"></td>
+                        <td><input type="text" class="revision-input" value="A"></td>
+                        <td><input type="text" class="revision-input" value="PRELIMINAR"></td>
+                        <td><input type="text" class="revision-input" value="MAR"></td>
+                        <td><input type="text" class="revision-input" value=""></td>
+                        <td><input type="text" class="revision-input" value=""></td>
+                        <td><input type="text" class="revision-input" value=""></td>
+                        <td><input type="date" class="revision-input"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="btn btn-info" onclick="addRevision()" style="margin-top: 10px;">➕ Adicionar Revisão</button>
+        </div>
+
+        <!-- Legenda de Tipos de Emissão -->
+        <div style="font-size: 8pt; margin-bottom: 20px; padding: 10px; background: #0d1a0d; border-radius: 5px; border: 1px solid #00ff88; color: #e0ffe0;">
+            <strong style="color: #00ff88;">TE: TIPO EMISSÃO</strong><br>
+            A - PRELIMINAR | B - PARA APROVAÇÃO | C - PARA CONHECIMENTO | D - PARA COTAÇÃO |
+            E - PARA CONSTRUÇÃO | F - CONFORME COMPRADO | G - CONFORME CONSTRUÍDO | H - CANCELADO
+        </div>
+
+        <!-- Índice -->
+        <div class="section">
+            <div class="section-title">ÍNDICE</div>
+            <div id="indexContent" class="editable-content" contenteditable="true">
+                <div class="index-list">
+                    <div class="index-item"><span>2. OBJETIVO</span><span>6</span></div>
+                    <div class="index-item"><span>3. REFERÊNCIAS E NORMAS</span><span>6</span></div>
+                    <div class="index-item"><span>4. METODOLOGIA</span><span>6</span></div>
+                    <div class="index-item"><span>5. LISTA DOS PLANOS DE MANUTENÇÃO</span><span>11</span></div>
+                    <div class="index-item"><span>6. CIRCUITO MCR</span><span>18</span></div>
+                    <div class="index-item"><span>9. CONCLUSÃO</span><span>111</span></div>
+                    <div class="index-item"><span>10. RECOMENDAÇÕES</span><span>111</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Objetivo -->
+        <div class="section">
+            <div class="section-title">2. OBJETIVO</div>
+            <div id="objetivoContent" class="editable-content" contenteditable="true">
+                Este relatório tem como objetivo apresentar os resultados da inspeção de integridade estrutural realizada nos equipamentos do circuito.
+            </div>
+        </div>
+
+        <!-- 3. Referências e Normas -->
+        <div class="section">
+            <div class="section-title">3. REFERÊNCIAS E NORMAS</div>
+            <div id="referenciasContent" class="editable-content" contenteditable="true">
+                <ul>
+                    <li>NBR 15.597 - Inspeção de Estruturas Metálicas</li>
+                    <li>ABNT NBR 8800 - Projeto de estruturas de aço e de estruturas mistas</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 4. Metodologia -->
+        <div class="section">
+            <div class="section-title">4. METODOLOGIA</div>
+            <div id="metodologiaContent" class="editable-content" contenteditable="true">
+                A inspeção foi realizada através de inspeção visual detalhada, com registro fotográfico das condições encontradas.
+            </div>
+        </div>
+
+        <!-- 5. Lista de Planos -->
+        <div class="section">
+            <div class="section-title">5. LISTA DOS PLANOS DE MANUTENÇÃO E LOCAL DE INSTALAÇÃO</div>
+            <div id="planosContent" class="editable-content" contenteditable="true">
+                <p>Relação dos planos de manutenção aplicáveis aos equipamentos inspecionados.</p>
+            </div>
+            <div class="images-section">
+                <h4 style="font-size: 11pt; margin: 15px 0;">Foto Panorâmica do Ativo</h4>
+                <div id="panoramicImageArea" style="max-width: 100%; margin-bottom: 30px;"></div>
+                <button class="btn btn-success" onclick="addPanoramicImage()">➕ Adicionar Foto Panorâmica</button>
+
+                <h4 style="font-size: 11pt; margin: 30px 0 15px 0;">Desenhos de Referência</h4>
+                <button class="btn btn-success" onclick="addReferenceImage()">➕ Adicionar Desenho</button>
+                <div id="referenceImagesArea" class="images-grid"></div>
+            </div>
+        </div>
+
+        <!-- Área de Equipamentos/Circuitos -->
+        <div class="section">
+            <div class="section-title">6. REGISTROS FOTOGRÁFICOS</div>
+            <button class="btn btn-success" onclick="addEquipment()">➕ Adicionar Equipamento/Circuito</button>
+            <div id="equipmentsArea"></div>
+        </div>
+
+        <!-- 9. Conclusão -->
+        <div class="section">
+            <div class="section-title">9. CONCLUSÃO</div>
+            <div id="conclusaoContent" class="editable-content" contenteditable="true">
+                Digite aqui as conclusões do relatório de inspeção.
+            </div>
+        </div>
+
+        <!-- 10. Recomendações -->
+        <div class="section">
+            <div class="section-title">10. RECOMENDAÇÕES</div>
+            <div id="recomendacoesContent" class="editable-content" contenteditable="true">
+                Digite aqui as recomendações baseadas nos resultados da inspeção.
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Salvar -->
+    <div id="saveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">💾 Salvar Relatório</h2>
+                <button class="close-modal" onclick="closeSaveModal()">&times;</button>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 10px; font-weight: bold;">Nome do Relatório:</label>
+                <input type="text" id="reportName" placeholder="Digite o nome do relatório" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 20px;">
+                <button class="btn btn-success" onclick="confirmSave()">💾 Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Carregar -->
+    <div id="loadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">📂 Relatórios Salvos</h2>
+                <button class="close-modal" onclick="closeLoadModal()">&times;</button>
+            </div>
+            <ul id="savedReportsList" class="saved-reports"></ul>
+        </div>
+    </div>
+
+    <input type="file" id="jsonImportInput" accept=".json" style="display: none;" onchange="handleJSONImport(event)">
+
+    <script>
+        // Upload de logo
+        function uploadLogo(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('logoImage').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Adicionar revisão
+        function addRevision() {
+            const tbody = document.getElementById('revisionTableBody');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="revision-input"></td>
+                <td><input type="text" class="revision-input"></td>
+                <td><input type="text" class="revision-input"></td>
+                <td><input type="text" class="revision-input"></td>
+                <td><input type="text" class="revision-input"></td>
+                <td><input type="text" class="revision-input"></td>
+                <td><input type="text" class="revision-input"></td>
+                <td><input type="date" class="revision-input"></td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        // Adicionar foto panorâmica
+        function addPanoramicImage() {
+            const area = document.getElementById('panoramicImageArea');
+            // Limpar área se já existir uma foto
+            area.innerHTML = '';
+
+            const imageId = 'panoramic_' + Date.now();
+            const container = document.createElement('div');
+            container.style.cssText = 'border: 2px dashed #00ff88; border-radius: 8px; padding: 15px; background: #0d1a0d; position: relative; margin-bottom: 15px;';
+            container.id = imageId;
+
+            container.innerHTML = `
+                <button class="image-remove" onclick="removeImage('${imageId}')">&times;</button>
+                <div class="image-upload-area" onclick="document.getElementById('${imageId}_input').click()"
+                     ondrop="handleDrop(event, '${imageId}')"
+                     ondragover="handleDragOver(event)"
+                     ondragleave="handleDragLeave(event)">
+                    <p>📷 Clique ou arraste imagem</p>
+                    <p style="font-size: 9pt; color: #666; margin-top: 5px;">Foto panorâmica do ativo</p>
+                </div>
+                <input type="file" id="${imageId}_input" accept="image/*" style="display: none;" onchange="loadImage(event, '${imageId}')">
+                <input type="text" class="image-caption" placeholder="Foto panorâmica" style="margin-top: 10px;">
+            `;
+
+            area.appendChild(container);
+        }
+
+        // Adicionar desenho de referência
+        function addReferenceImage() {
+            const area = document.getElementById('referenceImagesArea');
+            const imageId = 'refImage_' + Date.now();
+
+            const container = document.createElement('div');
+            container.className = 'image-container';
+            container.id = imageId;
+
+            container.innerHTML = `
+                <button class="image-remove" onclick="removeImage('${imageId}')">&times;</button>
+                <div class="image-upload-area" onclick="document.getElementById('${imageId}_input').click()"
+                     ondrop="handleDrop(event, '${imageId}')"
+                     ondragover="handleDragOver(event)"
+                     ondragleave="handleDragLeave(event)">
+                    <p>📷 Clique ou arraste imagem</p>
+                    <p style="font-size: 9pt; color: #666; margin-top: 5px;">Desenho de referência</p>
+                </div>
+                <input type="file" id="${imageId}_input" accept="image/*" style="display: none;" onchange="loadImageAndRenumber(event, '${imageId}')">
+                <input type="text" class="image-caption" placeholder="Figura" style="margin-top: 10px;">
+            `;
+
+            area.appendChild(container);
+            renumberAllFigures();
+        }
+
+        // Adicionar equipamento/circuito
+        function addEquipment() {
+            const area = document.getElementById('equipmentsArea');
+            const equipId = 'equip_' + Date.now();
+
+            const card = document.createElement('div');
+            card.className = 'equipment-card';
+            card.id = equipId;
+
+            card.innerHTML = `
+                <div class="equipment-header">
+                    <input type="text" class="equipment-title" value="CIRCUITO MCR / EQUIPAMENTO" placeholder="Digite o título do equipamento/circuito">
+                    <button class="equipment-remove" onclick="removeEquipment('${equipId}')">🗑️ Remover</button>
+                </div>
+
+                <div class="equipment-field">
+                    <label>TAG / Identificação:</label>
+                    <input type="text" placeholder="Ex: TR1080KS-80" class="equip-tag">
+                </div>
+
+                <div class="equipment-field">
+                    <label>Parte do equipamento avaliado:</label>
+                    <input type="text" placeholder="Ex: Estrutura metálica, Base do britador, Suporte lateral" class="equip-location">
+                </div>
+
+                <div class="equipment-field">
+                    <label>Data da Inspeção:</label>
+                    <input type="date" class="equip-date">
+                </div>
+
+                <div class="equipment-field">
+                    <label>Observações / Descrição:</label>
+                    <textarea rows="4" placeholder="Descreva as condições encontradas, anomalias, estado de conservação, etc." class="equip-obs"></textarea>
+                </div>
+
+                <div class="images-section">
+                    <h4 style="font-size: 11pt; margin: 15px 0;">Evidências Fotográficas</h4>
+                    <input type="file" id="${equipId}_multiUpload" accept="image/*" multiple style="display: none;" onchange="loadMultipleImages(event, '${equipId}')">
+                    <button class="add-image-btn" onclick="document.getElementById('${equipId}_multiUpload').click()">➕ Adicionar Foto(s)</button>
+                    <div id="${equipId}_images" class="images-grid"></div>
+                </div>
+            `;
+
+            area.appendChild(card);
+        }
+
+        // Remover equipamento
+        function removeEquipment(equipId) {
+            if (confirm('Deseja remover este equipamento/circuito?')) {
+                document.getElementById(equipId).remove();
+            }
+        }
+
+        // Adicionar foto ao equipamento
+        function addEquipmentImage(equipId) {
+            const area = document.getElementById(equipId + '_images');
+            const imageId = equipId + '_img_' + Date.now();
+
+            const container = document.createElement('div');
+            container.className = 'image-container';
+            container.id = imageId;
+
+            container.innerHTML = `
+                <button class="image-remove" onclick="removeImage('${imageId}')">&times;</button>
+                <div class="image-upload-area" onclick="document.getElementById('${imageId}_input').click()"
+                     ondrop="handleDrop(event, '${imageId}')"
+                     ondragover="handleDragOver(event)"
+                     ondragleave="handleDragLeave(event)">
+                    <p>📷 Clique ou arraste imagem</p>
+                    <p style="font-size: 9pt; color: #666; margin-top: 5px;">Evidência fotográfica</p>
+                </div>
+                <input type="file" id="${imageId}_input" accept="image/*" style="display: none;" onchange="loadImage(event, '${imageId}')">
+                <input type="text" class="image-caption" placeholder="Figura X - Descrição da evidência">
+            `;
+
+            area.appendChild(container);
+        }
+
+        // Remover imagem
+        function removeImage(imageId) {
+            document.getElementById(imageId).remove();
+            renumberAllFigures();
+        }
+
+        // Carregar múltiplas imagens
+        function loadMultipleImages(event, equipId) {
+            const files = event.target.files;
+            if (files.length > 0) {
+                Array.from(files).forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const area = document.getElementById(equipId + '_images');
+                        const imageId = equipId + '_img_' + Date.now() + '_' + index;
+
+                        const container = document.createElement('div');
+                        container.className = 'image-container';
+                        container.id = imageId;
+
+                        container.innerHTML = `
+                            <button class="image-remove" onclick="removeImage('${imageId}')">&times;</button>
+                            <div class="image-upload-area has-image">
+                                <img src="${e.target.result}" class="image-preview">
+                            </div>
+                            <input type="text" class="image-caption" placeholder="Figura">
+                        `;
+
+                        area.appendChild(container);
+
+                        // Renumerar todas as figuras após adicionar
+                        if (index === files.length - 1) {
+                            renumberAllFigures();
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+            // Limpar o input para permitir adicionar as mesmas imagens novamente se necessário
+            event.target.value = '';
+        }
+
+        // Renumerar todas as figuras automaticamente
+        function renumberAllFigures() {
+            let figureNumber = 1;
+
+            // Renumerar desenhos de referência
+            const refCaptions = document.querySelectorAll('#referenceImagesArea .image-caption');
+            refCaptions.forEach(caption => {
+                const currentText = caption.value || '';
+
+                // Se está vazio ou só tem placeholder, usar apenas "Figura N"
+                if (!currentText || currentText.match(/^(Figura\s+(\d+|X)\s*[-–]?\s*)?Descrição/i)) {
+                    caption.value = `Figura ${figureNumber}`;
+                } else {
+                    // Se tem conteúdo personalizado, extrair descrição e renumerar
+                    const descMatch = currentText.match(/[-–]\s*(.+)/);
+                    const description = descMatch ? descMatch[1].trim() : currentText.replace(/^Figura\s+\d+\s*[-–]?\s*/i, '').trim();
+                    if (description) {
+                        caption.value = `Figura ${figureNumber} - ${description}`;
+                    } else {
+                        caption.value = `Figura ${figureNumber}`;
+                    }
+                }
+                figureNumber++;
+            });
+
+            // Renumerar evidências fotográficas de cada equipamento
+            const equipments = document.querySelectorAll('.equipment-card');
+            equipments.forEach(equip => {
+                const imgArea = equip.querySelector('[id$="_images"]');
+                if (imgArea) {
+                    const captions = imgArea.querySelectorAll('.image-caption');
+                    captions.forEach(caption => {
+                        const currentText = caption.value || '';
+
+                        // Se está vazio ou só tem placeholder, usar apenas "Figura N"
+                        if (!currentText || currentText.match(/^(Figura\s+(\d+|X)\s*[-–]?\s*)?Descrição/i)) {
+                            caption.value = `Figura ${figureNumber}`;
+                        } else {
+                            // Se tem conteúdo personalizado, extrair descrição e renumerar
+                            const descMatch = currentText.match(/[-–]\s*(.+)/);
+                            const description = descMatch ? descMatch[1].trim() : currentText.replace(/^Figura\s+\d+\s*[-–]?\s*/i, '').trim();
+                            if (description) {
+                                caption.value = `Figura ${figureNumber} - ${description}`;
+                            } else {
+                                caption.value = `Figura ${figureNumber}`;
+                            }
+                        }
+                        figureNumber++;
+                    });
+                }
+            });
+        }
+
+        // Carregar imagem
+        function loadImage(event, imageId) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const container = document.getElementById(imageId);
+                    const uploadArea = container.querySelector('.image-upload-area');
+                    uploadArea.innerHTML = `<img src="${e.target.result}" class="image-preview">`;
+                    uploadArea.classList.add('has-image');
+                    uploadArea.onclick = null;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Carregar imagem e renumerar
+        function loadImageAndRenumber(event, imageId) {
+            loadImage(event, imageId);
+            setTimeout(() => renumberAllFigures(), 100);
+        }
+
+        // Drag and drop handlers
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.currentTarget.classList.remove('dragover');
+        }
+
+        function handleDrop(event, imageId) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('dragover');
+
+            const file = event.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const container = document.getElementById(imageId);
+                    const uploadArea = container.querySelector('.image-upload-area');
+                    uploadArea.innerHTML = `<img src="${e.target.result}" class="image-preview">`;
+                    uploadArea.classList.add('has-image');
+                    uploadArea.onclick = null;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Salvar relatório
+        function salvarRelatorio() {
+            document.getElementById('saveModal').style.display = 'block';
+        }
+
+        function closeSaveModal() {
+            document.getElementById('saveModal').style.display = 'none';
+        }
+
+        function confirmSave() {
+            const name = document.getElementById('reportName').value.trim();
+            if (!name) {
+                alert('Por favor, digite um nome para o relatório.');
+                return;
+            }
+
+            const data = collectReportData();
+            const dataString = JSON.stringify(data);
+            const sizeInMB = new Blob([dataString]).size / (1024 * 1024);
+
+            // Verificar limite de 5MB
+            if (sizeInMB > 5) {
+                alert(`❌ Erro: O relatório tem ${sizeInMB.toFixed(1)}MB e excede o limite de 5MB para salvar.\n\nSugestões:\n1) Use "Exportar JSON" para arquivos grandes\n2) Reduza o número de fotos\n3) Reduza a resolução das imagens\n4) Divida em relatórios menores`);
+                return;
+            }
+
+            const saved = JSON.parse(localStorage.getItem('valeReports') || '[]');
+
+            saved.push({
+                name: name,
+                date: new Date().toISOString(),
+                data: data
+            });
+
+            localStorage.setItem('valeReports', JSON.stringify(saved));
+            alert('Relatório salvo com sucesso!');
+            closeSaveModal();
+            document.getElementById('reportName').value = '';
+        }
+
+        // Coletar dados do relatório
+        function collectReportData() {
+            return {
+                logo: document.getElementById('logoImage').src,
+                numVale: document.getElementById('numVale').value,
+                pagina: document.getElementById('pagina').value,
+                numero: document.getElementById('numero').value,
+                revisao: document.getElementById('revisao').value,
+                projeto: document.getElementById('projeto').value,
+                circuito: document.getElementById('circuito').value,
+                tipoDoc: document.getElementById('tipoDoc').value,
+                revisions: collectRevisions(),
+                indice: document.getElementById('indexContent').innerHTML,
+                objetivo: document.getElementById('objetivoContent').innerHTML,
+                referencias: document.getElementById('referenciasContent').innerHTML,
+                metodologia: document.getElementById('metodologiaContent').innerHTML,
+                planos: document.getElementById('planosContent').innerHTML,
+                conclusao: document.getElementById('conclusaoContent').innerHTML,
+                recomendacoes: document.getElementById('recomendacoesContent').innerHTML,
+                referenceImages: collectImages('referenceImagesArea'),
+                equipments: collectEquipments()
+            };
+        }
+
+        function collectRevisions() {
+            const rows = document.querySelectorAll('#revisionTableBody tr');
+            return Array.from(rows).map(row => {
+                const inputs = row.querySelectorAll('input');
+                return Array.from(inputs).map(input => input.value);
+            });
+        }
+
+        function collectImages(areaId) {
+            const area = document.getElementById(areaId);
+            const containers = area.querySelectorAll('.image-container');
+            return Array.from(containers).map(container => {
+                const img = container.querySelector('.image-preview');
+                const caption = container.querySelector('.image-caption');
+                return {
+                    src: img ? img.src : null,
+                    caption: caption ? caption.value : ''
+                };
+            });
+        }
+
+        function collectEquipments() {
+            const equipments = document.querySelectorAll('.equipment-card');
+            return Array.from(equipments).map(equip => {
+                return {
+                    title: equip.querySelector('.equipment-title').value,
+                    tag: equip.querySelector('.equip-tag').value,
+                    location: equip.querySelector('.equip-location').value,
+                    date: equip.querySelector('.equip-date').value,
+                    observations: equip.querySelector('.equip-obs').value,
+                    images: collectEquipmentImages(equip)
+                };
+            });
+        }
+
+        function collectEquipmentImages(equipCard) {
+            const containers = equipCard.querySelectorAll('.image-container');
+            return Array.from(containers).map(container => {
+                const img = container.querySelector('.image-preview');
+                const caption = container.querySelector('.image-caption');
+                return {
+                    src: img ? img.src : null,
+                    caption: caption ? caption.value : ''
+                };
+            });
+        }
+
+        // Carregar relatório
+        function carregarRelatorio() {
+            const saved = JSON.parse(localStorage.getItem('valeReports') || '[]');
+            const list = document.getElementById('savedReportsList');
+            list.innerHTML = '';
+
+            if (saved.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #666;">Nenhum relatório salvo.</p>';
+            } else {
+                saved.forEach((report, index) => {
+                    const date = new Date(report.date);
+                    const item = document.createElement('li');
+                    item.className = 'report-item';
+                    item.innerHTML = `
+                        <div class="report-name">${report.name}</div>
+                        <div class="report-date">📅 ${date.toLocaleDateString('pt-BR')}</div>
+                        <div class="report-actions">
+                            <button class="report-btn btn-primary" onclick="loadReport(${index})">📂 Carregar</button>
+                            <button class="report-btn btn-danger" onclick="deleteReport(${index})">🗑️ Excluir</button>
+                        </div>
+                    `;
+                    list.appendChild(item);
+                });
+            }
+
+            document.getElementById('loadModal').style.display = 'block';
+        }
+
+        function closeLoadModal() {
+            document.getElementById('loadModal').style.display = 'none';
+        }
+
+        function loadReport(index) {
+            const saved = JSON.parse(localStorage.getItem('valeReports') || '[]');
+            const report = saved[index];
+
+            if (report) {
+                applyReportData(report.data);
+                closeLoadModal();
+                alert('Relatório carregado com sucesso!');
+            }
+        }
+
+        function deleteReport(index) {
+            if (confirm('Deseja realmente excluir este relatório?')) {
+                const saved = JSON.parse(localStorage.getItem('valeReports') || '[]');
+                saved.splice(index, 1);
+                localStorage.setItem('valeReports', JSON.stringify(saved));
+                carregarRelatorio();
+            }
+        }
+
+        function applyReportData(data) {
+            // Aplicar dados do cabeçalho
+            document.getElementById('logoImage').src = data.logo;
+            document.getElementById('numVale').value = data.numVale || '';
+            document.getElementById('pagina').value = data.pagina || '';
+            document.getElementById('numero').value = data.numero || '';
+            document.getElementById('revisao').value = data.revisao || '';
+            document.getElementById('projeto').value = data.projeto || '';
+            document.getElementById('circuito').value = data.circuito || '';
+            document.getElementById('tipoDoc').value = data.tipoDoc || '';
+
+            // Aplicar revisões
+            const tbody = document.getElementById('revisionTableBody');
+            tbody.innerHTML = '';
+            data.revisions.forEach(rev => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = rev.map(val => `<td><input type="text" class="revision-input" value="${val}"></td>`).join('');
+                tbody.appendChild(tr);
+            });
+
+            // Aplicar conteúdos
+            document.getElementById('indexContent').innerHTML = data.indice || '';
+            document.getElementById('objetivoContent').innerHTML = data.objetivo || '';
+            document.getElementById('referenciasContent').innerHTML = data.referencias || '';
+            document.getElementById('metodologiaContent').innerHTML = data.metodologia || '';
+            document.getElementById('planosContent').innerHTML = data.planos || '';
+            document.getElementById('conclusaoContent').innerHTML = data.conclusao || '';
+            document.getElementById('recomendacoesContent').innerHTML = data.recomendacoes || '';
+
+            // Aplicar desenhos de referência
+            document.getElementById('referenceImagesArea').innerHTML = '';
+            if (data.referenceImages) {
+                data.referenceImages.forEach(img => {
+                    if (img.src) {
+                        addReferenceImage();
+                        const containers = document.querySelectorAll('#referenceImagesArea .image-container');
+                        const lastContainer = containers[containers.length - 1];
+                        const uploadArea = lastContainer.querySelector('.image-upload-area');
+                        uploadArea.innerHTML = `<img src="${img.src}" class="image-preview">`;
+                        uploadArea.classList.add('has-image');
+                        uploadArea.onclick = null;
+                        lastContainer.querySelector('.image-caption').value = img.caption || '';
+                    }
+                });
+            }
+
+            // Aplicar equipamentos
+            document.getElementById('equipmentsArea').innerHTML = '';
+            if (data.equipments) {
+                data.equipments.forEach(equip => {
+                    addEquipment();
+                    const cards = document.querySelectorAll('.equipment-card');
+                    const lastCard = cards[cards.length - 1];
+                    lastCard.querySelector('.equipment-title').value = equip.title || 'CIRCUITO MCR / EQUIPAMENTO';
+                    lastCard.querySelector('.equip-tag').value = equip.tag || '';
+                    lastCard.querySelector('.equip-location').value = equip.location || '';
+                    lastCard.querySelector('.equip-date').value = equip.date || '';
+                    lastCard.querySelector('.equip-obs').value = equip.observations || '';
+
+                    // Aplicar imagens do equipamento
+                    if (equip.images) {
+                        const equipId = lastCard.id;
+                        equip.images.forEach(img => {
+                            if (img.src) {
+                                addEquipmentImage(equipId);
+                                const imgArea = document.getElementById(equipId + '_images');
+                                const containers = imgArea.querySelectorAll('.image-container');
+                                const lastImgContainer = containers[containers.length - 1];
+                                const uploadArea = lastImgContainer.querySelector('.image-upload-area');
+                                uploadArea.innerHTML = `<img src="${img.src}" class="image-preview">`;
+                                uploadArea.classList.add('has-image');
+                                uploadArea.onclick = null;
+                                lastImgContainer.querySelector('.image-caption').value = img.caption || '';
+                            }
+                        });
+                    }
+                });
+            }
+        }
+
+        // Exportar JSON
+        function exportarJSON() {
+            try {
+                const data = collectReportData();
+
+                // Avisar usuário se for muito grande
+                const jsonString = JSON.stringify(data, null, 2);
+                const sizeInMB = new Blob([jsonString]).size / (1024 * 1024);
+
+                if (sizeInMB > 100) {
+                    if (!confirm(`O arquivo JSON tem ${sizeInMB.toFixed(1)}MB.\n\nArquivos grandes podem demorar para processar.\n\nDICA: Para relatórios com muitas fotos, recomendamos salvar em partes menores ou usar a função "Salvar Relatório" (LocalStorage).\n\nContinuar mesmo assim?`)) {
+                        return;
+                    }
+                }
+
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'relatorio_vale_' + new Date().getTime() + '.json';
+                a.click();
+
+                // Limpar URL após pequeno delay
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+                if (sizeInMB > 50) {
+                    alert('✅ Exportação iniciada! Aguarde o download completar.\n\nArquivos grandes podem demorar alguns segundos.');
+                }
+            } catch (error) {
+                alert('❌ Erro ao exportar JSON.\n\nO relatório pode estar muito grande.\n\nTente:\n1) Salvar em partes menores\n2) Usar "Salvar Relatório" (LocalStorage)\n3) Reduzir o tamanho das imagens antes de adicionar');
+                console.error('Erro na exportação:', error);
+            }
+        }
+
+        // Importar JSON
+        function importarJSON() {
+            document.getElementById('jsonImportInput').click();
+        }
+
+        function handleJSONImport(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        applyReportData(data);
+                        alert('Relatório importado com sucesso!');
+                    } catch (error) {
+                        alert('Erro ao importar arquivo JSON.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        // Gerar PDF
+        function gerarPDF() {
+            // Mostrar instruções para remover cabeçalho e rodapé
+            const instrucoes =
+                'IMPORTANTE - Para remover a URL e data/hora do PDF:\n\n' +
+                '📌 Google Chrome/Edge:\n' +
+                '   Na janela de impressão, desmarque "Cabeçalhos e rodapés"\n\n' +
+                '📌 Firefox:\n' +
+                '   Na janela de impressão, em "Mais configurações", desmarque "Imprimir cabeçalhos e rodapés"\n\n' +
+                'Clique OK para abrir a janela de impressão.';
+
+            if (confirm(instrucoes)) {
+                window.print();
+            }
+        }
+    </script>
+</body>
+</html>

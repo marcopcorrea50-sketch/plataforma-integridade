@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lista de Material — Editor | Vale S11D IE</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg0:#07080d;--bg1:#0d0f17;--bg2:#151824;--bg3:#1d2133;--bg4:#252a3e;
+  --brd:#2a2f48;--brd2:#383f5e;
+  --tx1:#e6e8f0;--tx2:#8890b0;--tx3:#5a6080;
+  --acc:#00d4aa;--accD:rgba(0,212,170,.1);
+  --ac2:#6c8cff;--ac2D:rgba(108,140,255,.1);
+  --red:#ff4d6a;--yel:#f0c040;--grn:#00d4aa;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg0);color:var(--tx1);min-height:100vh}
+
+.hdr{background:var(--bg1);border-bottom:1px solid var(--brd);padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.hdr-l{display:flex;align-items:center;gap:12px}
+.logo{width:38px;height:38px;background:linear-gradient(135deg,var(--acc),var(--ac2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;box-shadow:0 3px 16px var(--accD);letter-spacing:-1px}
+.hdr h1{font-size:15px;font-weight:700;letter-spacing:-.03em}.hdr h1 b{color:var(--acc)}
+.hdr-sub{font-size:10px;color:var(--tx3);margin-top:1px;font-weight:500}
+.hdr-r{display:flex;gap:6px;flex-wrap:wrap}
+
+.b{font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:600;padding:7px 13px;border:1px solid var(--brd);border-radius:7px;cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:5px;background:var(--bg3);color:var(--tx1);white-space:nowrap}
+.b:hover{border-color:var(--acc);background:var(--accD)}
+.ba{background:var(--acc);color:#070a0e;border-color:var(--acc);font-weight:700}.ba:hover{background:#00eabb;box-shadow:0 3px 14px var(--accD)}
+.bd{border-color:var(--red);color:var(--red)}.bd:hover{background:rgba(255,77,106,.06)}
+.bs{padding:4px 9px;font-size:10.5px}
+
+.info{background:var(--bg1);border-bottom:1px solid var(--brd);padding:8px 22px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.if{display:flex;align-items:center;gap:5px}
+.if label{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;font-weight:700}
+.if input{font-family:'JetBrains Mono',monospace;font-size:11.5px;background:var(--bg0);border:1px solid var(--brd);border-radius:5px;padding:4px 7px;color:var(--tx1);outline:none;transition:border .2s}
+.if input:focus{border-color:var(--acc)}
+.w1{width:95px}.w2{width:155px}.w3{width:185px}
+
+.tip{margin:16px 22px 0;background:linear-gradient(135deg,var(--accD),var(--ac2D));border:1px solid rgba(0,212,170,.15);border-radius:10px;padding:14px 18px;font-size:12px;line-height:1.7}
+.tip b{color:var(--acc)}.tip em{color:var(--ac2);font-style:normal;font-weight:600}
+
+.main{padding:16px 22px 28px}
+
+.tw{background:var(--bg1);border:1px solid var(--brd);border-radius:10px;overflow:hidden}
+.tbar{padding:8px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--brd);flex-wrap:wrap;gap:6px}
+.tbar-l{display:flex;align-items:center;gap:8px}
+.ic{font-size:10.5px;color:var(--tx2);font-family:'JetBrains Mono',monospace}
+.sr{font-family:'DM Sans',sans-serif;font-size:11.5px;background:var(--bg0);border:1px solid var(--brd);border-radius:5px;padding:4px 9px;color:var(--tx1);outline:none;width:160px}
+.sr:focus{border-color:var(--acc)}
+
+.tscr{max-height:55vh;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:11.5px}
+thead th{background:var(--bg3);padding:7px 7px;text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--tx2);font-weight:700;border-bottom:2px solid var(--brd);position:sticky;top:0;z-index:2}
+.ca{width:50px;text-align:center}.ci{width:48px}.cq{width:55px}.cd{min-width:240px}.co{width:85px}.cm{width:85px}.cp{width:70px}.cg{width:110px}
+
+tbody tr{border-bottom:1px solid rgba(42,47,72,.35);transition:background .1s}
+tbody tr:hover{background:rgba(0,212,170,.02)}
+tbody tr.gr{background:rgba(240,192,64,.04);border-bottom:1px solid rgba(240,192,64,.1)}
+tbody td{padding:2px 3px;vertical-align:middle}
+tbody td input{font-family:'JetBrains Mono',monospace;font-size:11.5px;width:100%;background:transparent;border:1px solid transparent;border-radius:3px;padding:4px 5px;color:var(--tx1);outline:none;transition:all .12s}
+tbody td input:hover{border-color:var(--brd)}
+tbody td input:focus{border-color:var(--acc);background:var(--bg0)}
+.ig{color:var(--yel)!important;font-weight:600!important;font-family:'DM Sans',sans-serif!important;font-size:11.5px!important}
+.ii{text-align:center}.iq{text-align:center}.ip{text-align:right}
+
+.ra{display:flex;justify-content:center;gap:2px}
+.rb{width:20px;height:20px;border:none;border-radius:3px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;background:transparent;color:var(--tx3);transition:all .1s}
+.rb:hover{color:var(--tx1);background:var(--bg3)}.rb.dl:hover{color:var(--red);background:rgba(255,77,106,.06)}
+
+.tfot{padding:8px 10px;border-top:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.sts{display:flex;gap:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px}
+.sl{color:var(--tx3);margin-right:4px}.sv{color:var(--acc);font-weight:600}
+
+.ps{margin-top:14px;background:var(--bg1);border:1px solid var(--brd);border-radius:10px;overflow:hidden}
+.psh{padding:8px 10px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between}
+.psh h3{font-size:11.5px;font-weight:600;color:var(--tx2)}
+.psa{font-family:'JetBrains Mono',monospace;font-size:10.5px;width:100%;min-height:80px;background:var(--bg0);border:none;padding:10px;color:var(--tx1);resize:vertical;outline:none}
+.psa::placeholder{color:var(--tx3)}
+
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:100;align-items:center;justify-content:center}
+.mo.on{display:flex}
+.md{background:var(--bg2);border:1px solid var(--brd);border-radius:12px;width:92%;max-width:640px;max-height:78vh;overflow:hidden;display:flex;flex-direction:column}
+.mhd{padding:12px 16px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between}
+.mhd h2{font-size:13px;font-weight:700}
+.mbd{padding:12px 16px;overflow-y:auto;flex:1}
+.mbd pre{font-family:'JetBrains Mono',monospace;font-size:10.5px;line-height:1.6;color:var(--tx1);white-space:pre-wrap;word-break:break-all}
+.mft{padding:9px 16px;border-top:1px solid var(--brd);display:flex;justify-content:flex-end;gap:6px}
+.ft{display:flex;gap:3px;margin-bottom:8px}
+.ftb{font-family:'DM Sans',sans-serif;font-size:10.5px;font-weight:600;padding:4px 10px;border:1px solid var(--brd);border-radius:4px;background:transparent;color:var(--tx2);cursor:pointer;transition:all .15s}
+.ftb.on{background:var(--acc);color:#070a0e;border-color:var(--acc)}
+
+.tst{position:fixed;bottom:16px;right:16px;background:var(--bg3);border:1px solid var(--acc);border-radius:7px;padding:8px 15px;font-size:11.5px;font-weight:600;color:var(--acc);box-shadow:0 5px 20px rgba(0,0,0,.4);transform:translateY(55px);opacity:0;transition:all .22s;z-index:999}
+.tst.show{transform:translateY(0);opacity:1}
+
+.peso-total{background:var(--bg2);border:1px solid var(--brd);border-radius:8px;padding:10px 16px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.peso-total .label{font-size:12px;color:var(--tx2);font-weight:600}
+.peso-total .value{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--acc)}
+
+@media(max-width:768px){.hdr,.info,.main,.tip{padding-left:12px;padding-right:12px}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-l">
+    <div class="logo">LM</div>
+    <div><h1>Lista de <b>Material</b> — Editor</h1><div class="hdr-sub">GER Integridade Estrutural · Serra Sul S11D</div></div>
+  </div>
+  <div class="hdr-r">
+    <button class="b" onclick="addGroup()">＋ Grupo</button>
+    <button class="b" onclick="addItem()">＋ Item</button>
+    <button class="b ba" onclick="openModal()">📋 Copiar Lista</button>
+    <button class="b" onclick="exportCSV()">⬇ CSV</button>
+    <button class="b" onclick="saveJSON()">💾 Salvar</button>
+    <button class="b" onclick="loadJSON()">📂 Abrir</button>
+  </div>
+</div>
+
+<div class="info">
+  <div class="if"><label>Desenho</label><input class="w2" id="iDes" placeholder="VAL-S11D-ME-DES-0001"></div>
+  <div class="if"><label>Rev.</label><input class="w1" id="iRev" placeholder="0A"></div>
+  <div class="if"><label>Nota SAP</label><input class="w1" id="iNota" placeholder="10XXXXXXXX"></div>
+  <div class="if"><label>Cor</label><input class="w3" id="iCor" value="AZUL VALE - 10 B 4/10"></div>
+</div>
+
+<div class="tip">
+  <b>Fluxo de trabalho:</b> Tire o print da lista de material no DWG/PDF → <em>cole a imagem no chat do Claude</em> → o Claude lê e gera este arquivo HTML já preenchido → você edita, copia e cadastra no SAP.<br>
+  Também pode usar a área <b>"Colar Texto"</b> abaixo para dados copiados de PDF/Excel, ou adicionar itens manualmente.
+</div>
+
+<div class="main">
+  <div class="tw">
+    <div class="tbar">
+      <div class="tbar-l">
+        <span class="ic" id="icnt">0 itens</span>
+        <input class="sr" placeholder="Buscar..." oninput="filter(this.value)">
+      </div>
+      <div style="display:flex;gap:5px">
+        <button class="b bs" onclick="reindex()">🔢 Renumerar</button>
+        <button class="b bs bd" onclick="clearAll()">🗑 Limpar</button>
+      </div>
+    </div>
+    <div class="tscr">
+      <table><thead><tr>
+        <th class="ca"></th><th class="ci">Item</th><th class="cq">Qtd</th>
+        <th class="cd">Descrição</th><th class="co">OBS.</th>
+        <th class="cm">Material</th><th class="cp">Peso (kg)</th><th class="cg">Grupo</th>
+      </tr></thead><tbody id="tb"></tbody></table>
+    </div>
+    <div class="tfot">
+      <div class="sts">
+        <div><span class="sl">ITENS:</span><span class="sv" id="sI">0</span></div>
+        <div><span class="sl">PEÇAS:</span><span class="sv" id="sP">0</span></div>
+        <div><span class="sl">PESO:</span><span class="sv" id="sW">0 kg</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="peso-total">
+    <div class="label">PESO UNITÁRIO (UNIT WEIGHT)</div>
+    <div class="value" id="pesoUnit">0 kg</div>
+  </div>
+
+  <div class="ps">
+    <div class="psh">
+      <h3>📋 Colar dados (Tab, ; ou | separados)</h3>
+      <button class="b bs ba" onclick="parsePaste()">Processar</button>
+    </div>
+    <textarea class="psa" id="pArea" placeholder="Cole dados do Excel, PDF ou texto aqui.&#10;&#10;Formatos aceitos:&#10;  Tab separado: 1	2	HW100 x 100 x 16.9	Q235B	36&#10;  Ponto-e-vírgula: 1;2;HW100 x 100 x 16.9;Q235B;36&#10;  Pipe: 1 | 2 | HW100 x 100 x 16.9 | Q235B | 36&#10;&#10;Linhas com GRUPO, PEÇAS INDIVIDUAIS ou PARAFUSOS são detectadas como cabeçalhos."></textarea>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="mo" id="modal">
+  <div class="md">
+    <div class="mhd"><h2>Copiar Lista de Material</h2><button class="b bs" onclick="closeModal()">✕</button></div>
+    <div class="mbd">
+      <div class="ft">
+        <button class="ftb on" onclick="setFmt('tab',this)">Tab (SAP)</button>
+        <button class="ftb" onclick="setFmt('csv',this)">CSV</button>
+        <button class="ftb" onclick="setFmt('txt',this)">Texto</button>
+        <button class="ftb" onclick="setFmt('sap',this)">Nota SAP</button>
+      </div>
+      <pre id="cprev"></pre>
+    </div>
+    <div class="mft"><button class="b ba" onclick="copyClip()">📋 Copiar para Área de Transferência</button></div>
+  </div>
+</div>
+
+<div class="tst" id="tst"></div>
+<input type="file" id="fLoad" accept=".json" style="display:none" onchange="doLoad(event)">
+
+<script>
+let R=[],rid=0,cFmt='tab';
+function gid(){return ++rid}
+function toast(m){const t=document.getElementById('tst');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
+function $(id){return document.getElementById(id)}
+
+// ═══ TABLE ═══
+function stats(){
+  const it=R.filter(r=>!r.g);
+  const pc=it.reduce((s,r)=>s+(parseInt(r.q)||0),0);
+  const pw=it.reduce((s,r)=>s+(parseFloat(r.w)||0),0);
+  $('sI').textContent=it.length;
+  $('sP').textContent=pc;
+  $('sW').textContent=pw.toFixed(1)+' kg';
+  $('icnt').textContent=it.length+' itens';
+  $('pesoUnit').textContent=pw.toFixed(1)+' kg';
+}
+
+function render(f=''){
+  const tb=$('tb'),lf=f.toLowerCase();
+  tb.innerHTML=R.map((r,i)=>{
+    if(lf&&!r.g&&!`${r.n} ${r.q} ${r.d} ${r.o} ${r.m} ${r.w} ${r.gr}`.toLowerCase().includes(lf))return'';
+    if(r.g)return`<tr class="gr"><td><div class="ra"><button class="rb dl" onclick="del(${i})">✕</button></div></td><td colspan="7"><input class="ig" value="${e(r.d)}" onchange="u(${i},'d',this.value)"></td></tr>`;
+    return`<tr><td><div class="ra"><button class="rb" onclick="mv(${i},-1)">↑</button><button class="rb" onclick="mv(${i},1)">↓</button><button class="rb dl" onclick="del(${i})">✕</button></div></td>
+    <td><input class="ii" value="${e(r.n)}" onchange="u(${i},'n',this.value)"></td>
+    <td><input class="iq" value="${e(r.q)}" onchange="u(${i},'q',this.value)"></td>
+    <td><input value="${e(r.d)}" onchange="u(${i},'d',this.value)"></td>
+    <td><input value="${e(r.o)}" onchange="u(${i},'o',this.value)"></td>
+    <td><input value="${e(r.m)}" onchange="u(${i},'m',this.value)"></td>
+    <td><input class="ip" value="${e(r.w)}" onchange="u(${i},'w',this.value)"></td>
+    <td><input value="${e(r.gr)}" onchange="u(${i},'gr',this.value)" style="font-size:10px;color:var(--tx2)"></td></tr>`;
+  }).join('');
+  stats();
+}
+
+function e(v){return(v||'').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+function u(i,f,v){R[i][f]=v;stats()}
+function del(i){R.splice(i,1);render()}
+function mv(i,d){const n=i+d;if(n<0||n>=R.length)return;[R[i],R[n]]=[R[n],R[i]];render()}
+function addItem(){const x=R.filter(r=>!r.g).length+1;R.push({id:gid(),g:false,n:String(x),q:'1',d:'',o:'',m:'',w:'',gr:''});render();toast('Item adicionado')}
+function addGroup(){R.push({id:gid(),g:true,d:''});render();toast('Grupo adicionado')}
+function clearAll(){if(confirm('Limpar toda a lista?')){R=[];render();toast('Lista limpa')}}
+function filter(v){render(v)}
+function reindex(){let c=1;R.forEach(r=>{if(!r.g){r.n=String(c);c++}});render();toast('Renumerado')}
+
+// ═══ PASTE ═══
+function parsePaste(){
+  const raw=$('pArea').value.trim();
+  if(!raw){toast('Vazio');return}
+  const lines=raw.split('\n').map(l=>l.trim()).filter(l=>l);
+  let cg='',cnt=0;
+  lines.forEach(l=>{
+    if(/^\(?\s*(GRUPO\s+[A-Z])/i.test(l)||/PE[ÇC]AS\s+IND/i.test(l)||/PARAFUSOS?\s*(DE)?\s*CAMPO/i.test(l)){
+      cg=l;R.push({id:gid(),g:true,d:l});cnt++;return;
+    }
+    if(/^(PESO|FABRICAR|LISTA\s+DE|COR\s*\/|COLOR|AZUL|CODE|ITEM\s|QUANT|DESCRI)/i.test(l))return;
+    
+    let p=l.split('\t');
+    if(p.length<3)p=l.split(';').map(s=>s.trim());
+    if(p.length<3)p=l.split('|').map(s=>s.trim());
+    if(p.length<3)p=l.split(/\s{2,}/).map(s=>s.trim());
+    
+    if(p.length>=3&&/^\d{1,3}$/.test(p[0].trim())){
+      R.push({id:gid(),g:false,n:p[0].trim(),q:(p[1]||'1').trim(),d:(p[2]||'').trim(),o:(p[3]||'').trim(),m:(p[4]||'').trim(),w:(p[5]||'').trim(),gr:cg});
+      cnt++;
+    }
+  });
+  render();$('pArea').value='';toast(`${cnt} linhas processadas`);
+}
+
+// ═══ COPY FORMATS ═══
+function getFmt(){
+  const it=R.filter(r=>!r.g),ds=$('iDes').value,rv=$('iRev').value,nt=$('iNota').value,cr=$('iCor').value;
+  const tw=it.reduce((s,r)=>s+(parseFloat(r.w)||0),0);
+  
+  if(cFmt==='tab'){
+    let o='ITEM\tQTD\tDESCRIÇÃO\tOBS\tMATERIAL\tPESO (kg)\n';
+    R.forEach(r=>{if(r.g)o+=`\t\t--- ${r.d} ---\t\t\t\n`;else o+=`${r.n}\t${r.q}\t${r.d}\t${r.o}\t${r.m}\t${r.w}\n`});
+    o+=`\t\t\t\tPESO TOTAL:\t${tw.toFixed(1)}\n`;
+    return o;
+  }
+  if(cFmt==='csv'){
+    let o='ITEM;QTD;DESCRIÇÃO;OBS;MATERIAL;PESO\n';
+    it.forEach(r=>o+=`${r.n};${r.q};${r.d};${r.o};${r.m};${r.w}\n`);
+    return o;
+  }
+  if(cFmt==='txt'){
+    let o='LISTA DE MATERIAL (BILL OF MATERIAL)\n';
+    if(ds)o+=`Desenho: ${ds} | Rev: ${rv}\n`;
+    if(nt)o+=`Nota SAP: ${nt}\n`;
+    o+=`Cor/Acabamento: ${cr}\n${'═'.repeat(60)}\n\n`;
+    R.forEach(r=>{
+      if(r.g)o+=`\n▸ ${r.d}\n`;
+      else{
+        o+=`  ${r.n.padStart(2)}  │  ${r.q.padStart(2)}x  │  ${r.d}`;
+        if(r.m)o+=`  │  ${r.m}`;
+        if(r.w)o+=`  │  ${r.w} kg`;
+        o+='\n';
+      }
+    });
+    o+=`\n${'═'.repeat(60)}\nPESO UNITÁRIO (UNIT WEIGHT) = ${tw.toFixed(1)} Kg\n`;
+    return o;
+  }
+  if(cFmt==='sap'){
+    let o=`LISTA DE MATERIAL PARA NOTA DE EXECUÇÃO\n`;
+    o+=`${'─'.repeat(55)}\n`;
+    if(nt)o+=`NOTA SAP: ${nt}\n`;
+    if(ds)o+=`DESENHO: ${ds}  REV: ${rv}\n`;
+    o+=`COR: ${cr}\n`;
+    o+=`${'─'.repeat(55)}\n\n`;
+    let lastGr='';
+    R.forEach(r=>{
+      if(r.g){o+=`\n[${r.d}]\n`;lastGr=r.d}
+      else{
+        o+=`  ${r.q}x  ${r.d}`;
+        if(r.m)o+=`  [${r.m}]`;
+        if(r.o)o+=`  ${r.o}`;
+        if(r.w)o+=`  ${r.w}kg`;
+        o+='\n';
+      }
+    });
+    o+=`\n${'─'.repeat(55)}\nPESO TOTAL: ${tw.toFixed(1)} kg\nFABRICAR 1 VEZ A LISTA\n`;
+    return o;
+  }
+  return'';
+}
+
+function openModal(){$('modal').classList.add('on');$('cprev').textContent=getFmt()}
+function closeModal(){$('modal').classList.remove('on')}
+function setFmt(f,btn){cFmt=f;document.querySelectorAll('.ftb').forEach(t=>t.classList.remove('on'));btn.classList.add('on');$('cprev').textContent=getFmt()}
+function copyClip(){navigator.clipboard.writeText(getFmt()).then(()=>{toast('Copiado para a área de transferência!');closeModal()}).catch(()=>{const a=document.createElement('textarea');a.value=getFmt();document.body.appendChild(a);a.select();document.execCommand('copy');document.body.removeChild(a);toast('Copiado!');closeModal()})}
+
+function exportCSV(){
+  const it=R.filter(r=>!r.g);
+  let csv='\uFEFFITEM;QTD;DESCRIÇÃO;OBS;MATERIAL;PESO (kg);GRUPO\n';
+  it.forEach(r=>csv+=`${r.n};${r.q};"${r.d}";${r.o};${r.m};${r.w};"${r.gr}"\n`);
+  const b=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download=`Lista_Material_${$('iDes').value||'export'}.csv`;a.click();toast('CSV exportado');
+}
+
+function saveJSON(){
+  const d={info:{des:$('iDes').value,rev:$('iRev').value,nota:$('iNota').value,cor:$('iCor').value},rows:R};
+  const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download=`LM_${$('iDes').value||'backup'}.json`;a.click();toast('Salvo');
+}
+function loadJSON(){$('fLoad').click()}
+function doLoad(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=e=>{try{const d=JSON.parse(e.target.result);if(d.info){$('iDes').value=d.info.des||'';$('iRev').value=d.info.rev||'';$('iNota').value=d.info.nota||'';$('iCor').value=d.info.cor||''}if(d.rows){R=d.rows;rid=Math.max(...R.map(r=>r.id||0),0);render();toast(`${R.length} registros carregados`)}}catch(err){toast('Erro ao ler arquivo')}};
+  rd.readAsText(f);
+}
+
+// ═══════════════════════════════════════════════
+// PRE-LOADED DATA — Extraído do desenho DWG
+// Dados lidos manualmente por Claude a partir do print
+// ═══════════════════════════════════════════════
+R=[
+  // GRUPO A — COLUNA / COLUMN
+  {id:gid(),g:true,d:'(GRUPO A) COLUNA / COLUMN'},
+  {id:gid(),g:false,n:'1',q:'2',d:'HW100 x 100 x 16.9 Kg/m x 1050',o:'',m:'Q235B',w:'36',gr:'GRUPO A'},
+  {id:gid(),g:false,n:'2',q:'2',d:'CH. 12,0 x 130 x 220',o:'',m:'Q235B',w:'5',gr:'GRUPO A'},
+
+  // GRUPO B — COLUNA (C/MOSTRA) / COLUMN (AS SHOW)
+  {id:gid(),g:true,d:'(GRUPO B) COLUNA (C/MOSTRA) / COLUMN (AS SHOW)'},
+  {id:gid(),g:false,n:'6',q:'1',d:'HW100 x 100 x 16.9 Kg/m x 1050',o:'',m:'Q235B',w:'17',gr:'GRUPO B'},
+  {id:gid(),g:false,n:'7',q:'1',d:'L 75 x 6 x 140',o:'',m:'Q235B',w:'1',gr:'GRUPO B'},
+  {id:gid(),g:false,n:'2',q:'1',d:'CH. 12,0 x 130 x 220',o:'',m:'Q235B',w:'3',gr:'GRUPO B'},
+
+  // GRUPO C — COLUNA (OPOSTO) / COLUMN (OPPOSITE)
+  {id:gid(),g:true,d:'(GRUPO C) COLUNA (OPOSTO) / COLUMN (OPPOSITE)'},
+
+  // GRUPO D — ESPAÇADOR / SPACER
+  {id:gid(),g:true,d:'(GRUPO D) ESPAÇADOR / SPACER'},
+  {id:gid(),g:false,n:'16',q:'1',d:'L 75 x 6 x 2242',o:'',m:'Q235B',w:'15',gr:'GRUPO D'},
+  {id:gid(),g:false,n:'17',q:'2',d:'CH. 8,0 x 75 x 180',o:'',m:'Q235B',w:'2',gr:'GRUPO D'},
+
+  // PEÇAS INDIVIDUAIS / INDIVIDUAL PARTS
+  {id:gid(),g:true,d:'PEÇAS INDIVIDUAIS / INDIVIDUAL PARTS'},
+  {id:gid(),g:false,n:'26',q:'1',d:'U200 x 75 x 15.6 Kg/m x 5700 (C/ MOSTRA) (AS SHOW)',o:'',m:'Q235B',w:'89',gr:'PEÇAS INDIVIDUAIS'},
+  {id:gid(),g:false,n:'27',q:'1',d:'U200 x 75 x 15.6 Kg/m x 5700 (OPOSTO) (OPPOSITE)',o:'',m:'Q235B',w:'89',gr:'PEÇAS INDIVIDUAIS'},
+  {id:gid(),g:false,n:'28',q:'1',d:'U160 x 100 x 13.5 Kg/m x 5630',o:'',m:'Q235B',w:'76',gr:'PEÇAS INDIVIDUAIS'},
+
+  // PARAFUSOS DE CAMPO / (FIELD BOLT)
+  {id:gid(),g:true,d:'PARAFUSOS DE CAMPO / (FIELD BOLT)'},
+  {id:gid(),g:false,n:'34',q:'28',d:'P.C.S Ø 5/8" x 1.3/4" + P + AL',o:'NOTA-5',m:'A-325',w:'',gr:'PARAFUSOS'},
+  {id:gid(),g:false,n:'35',q:'16',d:'P.C.S Ø 5/8" x 1.3/4" + P + AL',o:'NOTA-5',m:'A-325',w:'',gr:'PARAFUSOS'},
+  {id:gid(),g:false,n:'36',q:'16',d:'P.C.S Ø 3/4" x 2" + P + AL',o:'NOTA-5',m:'A-307',w:'',gr:'PARAFUSOS'},
+];
+
+render();
+</script>
+</body>
+</html>

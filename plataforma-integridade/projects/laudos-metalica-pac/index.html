@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Laudos de Condição Estrutural · PRO-024969</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:      #f0f4f9;
+      --white:   #ffffff;
+      --navy:    #0b1e3d;
+      --navy-2:  #112850;
+      --border:  #dde4ef;
+      --text:    #111827;
+      --text-2:  #4b5563;
+      --text-3:  #9ca3af;
+      --plan:    #0891b2;
+      --do:      #059669;
+      --danger:  #dc2626;
+      --warn:    #d97706;
+      --primary: #1554a3;
+      --primary-2:#1b6dd4;
+      --shadow:  0 4px 20px rgba(0,0,0,0.09);
+      --shadow-lg:0 12px 40px rgba(0,0,0,0.14);
+      --r: 18px;
+      --r-sm: 10px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+
+    /* ─── Topbar ─── */
+    .topbar {
+      background: var(--navy);
+      padding: 0 28px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .tb-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tb-icon {
+      font-size: 1.15rem;
+    }
+
+    .tb-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.07em;
+    }
+
+    .tb-sep { color: rgba(255,255,255,0.2); margin: 0 4px; }
+
+    .tb-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .tb-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #93c5fd;
+      background: rgba(59,130,246,0.18);
+      border: 1px solid rgba(59,130,246,0.3);
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.55);
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .back-btn:hover { color: #fff; background: rgba(255,255,255,0.13); }
+
+    /* ─── Content ─── */
+    .page { max-width: 960px; margin: 0 auto; padding: 32px 24px 60px; }
+
+    /* ─── Hero ─── */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #0d2d5e 60%, #0e3870 100%);
+      border-radius: var(--r);
+      padding: 28px 32px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.06);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 140px; height: 140px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.04);
+      pointer-events: none;
+    }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #60a5fa;
+      background: rgba(59,130,246,0.15);
+      border: 1px solid rgba(59,130,246,0.25);
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+
+    .hero-pill-dot { width: 5px; height: 5px; border-radius: 50%; background: #60a5fa; }
+
+    .hero h1 {
+      font-size: clamp(1.3rem, 2.5vw, 1.85rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+
+    .hero-sub {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.85rem;
+      line-height: 1.6;
+      max-width: 540px;
+      margin-bottom: 22px;
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .hero-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.45);
+      font-weight: 500;
+    }
+
+    .hero-meta-item span { color: rgba(255,255,255,0.75); font-weight: 600; }
+
+    /* ─── Risk table ─── */
+    .risk-section {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 22px 26px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .section-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      flex-shrink: 0;
+    }
+
+    .icon-risk  { background: rgba(220,38,38,0.1); }
+    .icon-info  { background: rgba(8,145,178,0.1); }
+    .icon-pac   { background: rgba(5,150,105,0.1); }
+
+    .section-title { font-size: 0.95rem; font-weight: 800; letter-spacing: -0.02em; }
+    .section-sub   { font-size: 0.75rem; color: var(--text-3); margin-top: 1px; }
+
+    .risk-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .risk-card {
+      border-radius: 10px;
+      padding: 10px 12px;
+      text-align: center;
+      border: 1px solid transparent;
+    }
+
+    .risk-card.r0  { background: rgba(107,114,128,0.08); border-color: rgba(107,114,128,0.2); }
+    .risk-card.r1  { background: rgba(5,150,105,0.1);   border-color: rgba(5,150,105,0.25); }
+    .risk-card.r2  { background: rgba(59,130,246,0.1);  border-color: rgba(59,130,246,0.25); }
+    .risk-card.r3  { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3); }
+    .risk-card.r4  { background: rgba(249,115,22,0.12); border-color: rgba(249,115,22,0.3); }
+    .risk-card.r5  { background: rgba(220,38,38,0.12);  border-color: rgba(220,38,38,0.3); }
+
+    .risk-code { font-size: 1rem; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 3px; }
+    .risk-card.r0 .risk-code  { color: #6b7280; }
+    .risk-card.r1 .risk-code  { color: var(--do); }
+    .risk-card.r2 .risk-code  { color: var(--primary-2); }
+    .risk-card.r3 .risk-code  { color: var(--warn); }
+    .risk-card.r4 .risk-code  { color: #ea580c; }
+    .risk-card.r5 .risk-code  { color: var(--danger); }
+
+    .risk-area  { font-size: 0.67rem; color: var(--text-3); margin-bottom: 2px; }
+    .risk-label { font-size: 0.65rem; font-weight: 600; color: var(--text-2); }
+
+    /* ─── Cards de laudo ─── */
+    .laudos-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .laudo-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: transform 0.22s, box-shadow 0.22s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .laudo-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .laudo-accent {
+      height: 5px;
+    }
+
+    .acc-metalica { background: linear-gradient(90deg, #1554a3, #1b6dd4); }
+    .acc-pac      { background: linear-gradient(90deg, #059669, #34d399); }
+
+    .laudo-body { padding: 20px 22px; flex: 1; display: flex; flex-direction: column; gap: 0; }
+
+    .laudo-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .laudo-icon {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .laudo-icon-metalica { background: rgba(21,84,163,0.1); }
+    .laudo-icon-pac      { background: rgba(5,150,105,0.1); }
+
+    .laudo-header {}
+
+    .laudo-type {
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .type-metalica { color: var(--primary-2); }
+    .type-pac      { color: var(--do); }
+
+    .laudo-title {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      line-height: 1.25;
+    }
+
+    .laudo-desc {
+      font-size: 0.82rem;
+      color: var(--text-2);
+      line-height: 1.65;
+      margin-bottom: 16px;
+    }
+
+    /* Campos do laudo */
+    .laudo-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .field-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+
+    .field-lbl { font-size: 0.62rem; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
+    .field-val { font-size: 0.78rem; font-weight: 600; color: var(--text); }
+
+    /* Seções internas do laudo */
+    .laudo-sections {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .laudo-section-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      background: var(--bg);
+      border-radius: 8px;
+      font-size: 0.78rem;
+      color: var(--text-2);
+    }
+
+    .laudo-section-item span { font-size: 0.9rem; }
+
+    /* Botão */
+    .laudo-footer {
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .laudo-ref {
+      font-size: 0.68rem;
+      color: var(--text-3);
+      line-height: 1.4;
+    }
+
+    .btn-open {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: all 0.18s;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+
+    .btn-metalica {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+    }
+
+    .btn-metalica:hover {
+      background: linear-gradient(135deg, var(--primary-2), #2d80e8);
+      box-shadow: 0 4px 16px rgba(21,84,163,0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-pac {
+      background: linear-gradient(135deg, #047857, var(--do));
+      color: #fff;
+    }
+
+    .btn-pac:hover {
+      background: linear-gradient(135deg, var(--do), #34d399);
+      box-shadow: 0 4px 16px rgba(5,150,105,0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-arrow { transition: transform 0.18s; }
+    .btn-open:hover .btn-arrow { transform: translateX(2px); }
+
+    /* ─── Info box ─── */
+    .info-box {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--plan);
+      border-radius: var(--r);
+      padding: 18px 22px;
+      display: flex;
+      gap: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .info-icon { font-size: 1.4rem; flex-shrink: 0; }
+
+    .info-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+    .info-text  { font-size: 0.8rem; color: var(--text-2); line-height: 1.65; }
+
+    /* ─── Responsivo ─── */
+    @media (max-width: 700px) {
+      .laudos-grid { grid-template-columns: 1fr; }
+      .risk-grid   { grid-template-columns: repeat(3, 1fr); }
+      .laudo-fields { grid-template-columns: 1fr; }
+      .page { padding: 20px 16px 48px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Topbar -->
+<header class="topbar">
+  <div class="tb-left">
+    <span class="tb-icon">🔩</span>
+    <span class="tb-label">Prática 5</span>
+    <span class="tb-sep">›</span>
+    <span class="tb-title">Laudos Metálica e PAC</span>
+    <span class="tb-badge">PRO-024969 · Rev. 05</span>
+  </div>
+  <button class="back-btn" onclick="history.back()">← Voltar ao Portal</button>
+</header>
+
+<div class="page">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-pill"><span class="hero-pill-dot"></span>Riscos e Segurança · Prática 5</div>
+    <h1>Laudos de Condição Estrutural<br/>Metálica & PAC</h1>
+    <p class="hero-sub">
+      Ferramentas oficiais de laudo técnico para inspeção de integridade estrutural e avaliação de
+      proteção anticorrosiva, baseadas na norma PRO-024969, Rev. 05 — Serra Sul S11D.
+    </p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">📄 Norma <span>PRO-024969, Rev. 05</span></div>
+      <div class="hero-meta-item">📍 Local <span>Serra Sul S11D</span></div>
+      <div class="hero-meta-item">🔒 Prática VPS <span>5 – Riscos e Segurança</span></div>
+      <div class="hero-meta-item">📊 Ferramentas <span>2 laudos disponíveis</span></div>
+    </div>
+  </section>
+
+  <!-- Tabela de Risco Ri (PAC) -->
+  <section class="risk-section">
+    <div class="section-header">
+      <div class="section-icon icon-pac">🎨</div>
+      <div>
+        <div class="section-title">Tabela 22 — Níveis de Degradação PAC (Ri)</div>
+        <div class="section-sub">Classificação utilizada no Laudo PAC · PRO-024969</div>
+      </div>
+    </div>
+    <div class="risk-grid">
+      <div class="risk-card r0">
+        <div class="risk-code">Ri 0</div>
+        <div class="risk-area">0%</div>
+        <div class="risk-label">Sem degradação</div>
+      </div>
+      <div class="risk-card r1">
+        <div class="risk-code">Ri 1</div>
+        <div class="risk-area">0,05%</div>
+        <div class="risk-label">Mínima</div>
+      </div>
+      <div class="risk-card r2">
+        <div class="risk-code">Ri 2</div>
+        <div class="risk-area">0,5%</div>
+        <div class="risk-label">Baixa</div>
+      </div>
+      <div class="risk-card r3">
+        <div class="risk-code">Ri 3</div>
+        <div class="risk-area">1%</div>
+        <div class="risk-label">Moderada · Pintar</div>
+      </div>
+      <div class="risk-card r4">
+        <div class="risk-code">Ri 4</div>
+        <div class="risk-area">8%</div>
+        <div class="risk-label">Alta · Recuperar</div>
+      </div>
+      <div class="risk-card r5">
+        <div class="risk-code">Ri 5</div>
+        <div class="risk-area">&gt;40%</div>
+        <div class="risk-label">Crítica · Substituir</div>
+      </div>
+    </div>
+    <p style="margin-top:10px;font-size:0.72rem;color:var(--text-3);">* Laudos PAC emitidos apenas para Ri 3, Ri 4 e Ri 5.</p>
+  </section>
+
+  <!-- Cards de Laudo -->
+  <div class="laudos-grid">
+
+    <!-- Laudo Metálica -->
+    <div class="laudo-card">
+      <div class="laudo-accent acc-metalica"></div>
+      <div class="laudo-body">
+        <div class="laudo-top">
+          <div class="laudo-icon laudo-icon-metalica">🔩</div>
+          <div class="laudo-header">
+            <div class="laudo-type type-metalica">Laudo · Estrutura Metálica</div>
+            <div class="laudo-title">Laudo de Condição Estrutural</div>
+          </div>
+        </div>
+
+        <p class="laudo-desc">
+          Avaliação técnica da condição de elementos metálicos — calcula automaticamente
+          a pontuação de risco pela fórmula <strong>CD × AF × FE × SC</strong> conforme PRO-024969.
+          Inclui lista de material (BOM) e registro fotográfico.
+        </p>
+
+        <div class="laudo-fields">
+          <div class="field-item">
+            <div class="field-lbl">Fórmula de Risco</div>
+            <div class="field-val">CD × AF × FE × SC</div>
+          </div>
+          <div class="field-item">
+            <div class="field-lbl">Registro fotográfico</div>
+            <div class="field-val">4 fotos por laudo</div>
+          </div>
+          <div class="field-item">
+            <div class="field-lbl">BOM integrada</div>
+            <div class="field-val">Sim · 10 itens</div>
+          </div>
+          <div class="field-item">
+            <div class="field-lbl">Revisão</div>
+            <div class="field-val">PRO-024969 Rev. 05</div>
+          </div>
+        </div>
+
+        <div class="laudo-sections">
+          <div class="laudo-section-item"><span>📋</span> Identificação do ativo e inspetor</div>
+          <div class="laudo-section-item"><span>📊</span> Quantitativos: REC metálico, trincas, soldas, fixações, concreto, área PAC</div>
+          <div class="laudo-section-item"><span>⚠️</span> Classificação de risco automática (CD, AF, FE, SC)</div>
+          <div class="laudo-section-item"><span>🔍</span> Diagnóstico e recomendações (2 campos)</div>
+          <div class="laudo-section-item"><span>🧾</span> Lista de material (BOM) com peso total</div>
+          <div class="laudo-section-item"><span>📷</span> Evidências fotográficas (4 fotos + legendas)</div>
+        </div>
+
+        <div class="laudo-footer">
+          <div class="laudo-ref">
+            Laudo Metálica<br/>
+            PRO-024969, Rev. 05 · S11D
+          </div>
+          <a class="btn-open btn-metalica" href="Laudo_Condicao_Estrutural.xlsx" download>
+            📥 Abrir Laudo <span class="btn-arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Laudo PAC -->
+    <div class="laudo-card">
+      <div class="laudo-accent acc-pac"></div>
+      <div class="laudo-body">
+        <div class="laudo-top">
+          <div class="laudo-icon laudo-icon-pac">🎨</div>
+          <div class="laudo-header">
+            <div class="laudo-type type-pac">Laudo · Proteção Anticorrosiva</div>
+            <div class="laudo-title">Laudo de Avaliação PAC</div>
+          </div>
+        </div>
+
+        <p class="laudo-desc">
+          Avaliação da condição do sistema de pintura e proteção anticorrosiva.
+          Classifica o nível de degradação (<strong>Ri 0 a Ri 5</strong>) e define
+          a recomendação de ação: monitorar, pintar, recuperar ou substituir.
+        </p>
+
+        <div class="laudo-fields">
+          <div class="field-item">
+            <div class="field-lbl">Escala de degradação</div>
+            <div class="field-val">Ri 0 a Ri 5</div>
+          </div>
+          <div class="field-item">
+            <div class="field-lbl">Registro fotográfico</div>
+            <div class="field-val">4 fotos por laudo</div>
+          </div>
+          <div class="field-item">
+            <div class="field-lbl">BOM integrada</div>
+            <div class="field-val">Sim · 10 itens</div>
+          </div>
+          <div class="field-item">
+            <div class="field-lbl">Revisão</div>
+            <div class="field-val">PRO-024969 Rev. 05</div>
+          </div>
+        </div>
+
+        <div class="laudo-sections">
+          <div class="laudo-section-item"><span>📋</span> Identificação do ativo, inspetor e ordem de manutenção</div>
+          <div class="laudo-section-item"><span>📊</span> Quantitativos: área pintura, estrutura, concreto, soldagem, corrosividade</div>
+          <div class="laudo-section-item"><span>🎨</span> Classificação Ri automática com tabela de degradação</div>
+          <div class="laudo-section-item"><span>🔍</span> Diagnóstico com modelo padrão e recomendações (2 campos)</div>
+          <div class="laudo-section-item"><span>🧾</span> Lista de material (BOM) com peso total</div>
+          <div class="laudo-section-item"><span>📷</span> Evidências fotográficas (4 fotos + legendas)</div>
+        </div>
+
+        <div class="laudo-footer">
+          <div class="laudo-ref">
+            Laudo PAC<br/>
+            PRO-024969, Rev. 05 · S11D
+          </div>
+          <a class="btn-open btn-pac" href="Laudo_PAC.xlsx" download>
+            📥 Abrir Laudo <span class="btn-arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /laudos-grid -->
+
+  <!-- Info box -->
+  <div class="info-box">
+    <div class="info-icon">💡</div>
+    <div>
+      <div class="info-title">Como usar os laudos</div>
+      <div class="info-text">
+        Os arquivos <strong>.xlsx</strong> devem ser abertos no <strong>Microsoft Excel</strong> com macros habilitadas para
+        usar a funcionalidade de inserção automática de fotos (duplo clique nas áreas cinzas).
+        Os campos de texto, quantitativos e classificações funcionam normalmente sem macros.
+        Após preenchimento, salve o arquivo e gere o PDF diretamente pelo Excel (<em>Arquivo → Exportar</em>).
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+</body>
+</html>

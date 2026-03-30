@@ -1,0 +1,2622 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Inspeção - BFD Silo 2 Bruto - TLO S11D</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-deep: #000000;
+            --bg-primary: #060608;
+            --bg-card: #0C0C10;
+            --bg-elevated: #121218;
+            --bg-input: #0A0A0E;
+            --border-subtle: #1A1A24;
+            --border-active: #2563EB;
+            --text-primary: #E8E8EC;
+            --text-secondary: #8888A0;
+            --text-muted: #555568;
+            --accent-blue: #2563EB;
+            --accent-blue-glow: rgba(37, 99, 235, 0.25);
+            --accent-cyan: #06B6D4;
+            --accent-green: #10B981;
+            --accent-yellow: #F59E0B;
+            --accent-orange: #F97316;
+            --accent-red: #EF4444;
+            --accent-purple: #8B5CF6;
+            --severity-ok: #10B981;
+            --severity-low: #F59E0B;
+            --severity-med: #F97316;
+            --severity-high: #EF4444;
+            --severity-critical: #DC2626;
+        }
+
+        body {
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            font-family: 'IBM Plex Sans', sans-serif;
+            line-height: 1.65;
+            padding: 16px;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* HEADER */
+        .report-header {
+            background: linear-gradient(135deg, var(--bg-card) 0%, #0E0E18 100%);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 32px 40px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        .report-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan), var(--accent-purple));
+        }
+        .header-grid {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 24px;
+            align-items: start;
+        }
+        .header-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+        .header-subtitle {
+            color: var(--accent-cyan);
+            font-size: 1.05em;
+            margin-top: 6px;
+            font-weight: 500;
+            outline: none;
+            border-radius: 4px;
+            padding: 2px 4px;
+            transition: background 0.2s;
+        }
+        .header-subtitle:hover { background: rgba(255,255,255,0.05); }
+        .header-subtitle:focus { background: rgba(37,99,235,0.1); }
+        .header-meta {
+            color: var(--text-muted);
+            font-size: 0.88em;
+            margin-top: 12px;
+            outline: none;
+            border-radius: 4px;
+            padding: 2px 4px;
+            transition: background 0.2s;
+        }
+        .header-meta:hover { background: rgba(255,255,255,0.05); }
+        .header-meta:focus { background: rgba(37,99,235,0.1); }
+        .header-badge {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 16px 24px;
+            text-align: center;
+        }
+        .header-badge .rev { color: var(--accent-blue); font-size: 0.78em; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+        .header-badge .num { font-size: 2em; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); }
+
+        /* TABS */
+        .tab-nav {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 5px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+        .tab-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 16px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 0.88em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            white-space: nowrap;
+        }
+        .tab-btn:hover { color: var(--text-secondary); background: var(--bg-elevated); }
+        .tab-btn.active {
+            background: var(--accent-blue);
+            color: #fff;
+            box-shadow: 0 2px 12px var(--accent-blue-glow);
+        }
+        .tab-content { display: none; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* CARDS */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 28px;
+            margin-bottom: 20px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 1.15em;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .card-title .icon { margin-right: 8px; }
+
+        /* SECTION HEADERS */
+        .section-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-subtle);
+        }
+
+        /* FORM FIELDS */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .form-field label {
+            display: block;
+            font-size: 0.78em;
+            font-weight: 600;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 6px;
+        }
+        .form-field input, .form-field select, .form-field textarea {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.92em;
+            transition: border-color 0.2s;
+        }
+        .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px var(--accent-blue-glow);
+        }
+        .form-field textarea { min-height: 100px; resize: vertical; }
+
+        /* TABLES */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.88em;
+        }
+        .data-table thead th {
+            background: var(--bg-elevated);
+            color: var(--accent-blue);
+            font-weight: 600;
+            font-size: 0.82em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 2px solid var(--border-subtle);
+            position: sticky;
+            top: 0;
+        }
+        .data-table tbody td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            vertical-align: middle;
+        }
+        .data-table tbody tr:hover td { background: rgba(37, 99, 235, 0.04); }
+
+        /* SEVERITY BADGES */
+        .severity-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.82em;
+            font-weight: 600;
+        }
+        .severity-ok { background: rgba(16,185,129,0.12); color: var(--severity-ok); }
+        .severity-low { background: rgba(245,158,11,0.12); color: var(--severity-low); }
+        .severity-med { background: rgba(249,115,22,0.12); color: var(--severity-med); }
+        .severity-high { background: rgba(239,68,68,0.12); color: var(--severity-high); }
+        .severity-critical { background: rgba(220,38,38,0.15); color: var(--severity-critical); }
+
+        /* KPI ROW */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 3px;
+        }
+        .kpi-card.blue::after { background: var(--accent-blue); }
+        .kpi-card.green::after { background: var(--accent-green); }
+        .kpi-card.yellow::after { background: var(--accent-yellow); }
+        .kpi-card.red::after { background: var(--accent-red); }
+        .kpi-card.orange::after { background: var(--accent-orange); }
+        .kpi-card.purple::after { background: var(--accent-purple); }
+        .kpi-label { font-size: 0.75em; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+        .kpi-value { font-size: 2.2em; font-weight: 700; font-family: 'JetBrains Mono', monospace; margin: 6px 0; }
+        .kpi-sub { font-size: 0.78em; color: var(--text-secondary); }
+
+        /* DIAGRAM AREA */
+        .diagram-wrapper {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 20px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        .diagram-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .diagram-controls .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.82em;
+            color: var(--text-secondary);
+        }
+        .legend-dot {
+            width: 14px; height: 14px;
+            border-radius: 3px;
+        }
+
+        /* SVG DIAGRAM */
+        .rail-diagram svg { width: 100%; min-width: 1100px; }
+        .rail-support {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .rail-support:hover {
+            filter: brightness(1.3);
+            transform: scale(1.05);
+            transform-origin: center;
+        }
+        .rail-support.selected {
+            stroke: #fff;
+            stroke-width: 2;
+        }
+
+        /* ANOMALY PANEL */
+        .anomaly-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 16px;
+        }
+        .anomaly-form-row {
+            display: grid;
+            grid-template-columns: 100px 100px 1fr 140px 120px auto;
+            gap: 10px;
+            align-items: end;
+            margin-bottom: 12px;
+        }
+        .anomaly-form-row label {
+            font-size: 0.72em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+            display: block;
+        }
+        .anomaly-form-row input, .anomaly-form-row select {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 8px 10px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.88em;
+        }
+        .btn-add {
+            background: var(--accent-blue);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.88em;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-add:hover { background: #1d4ed8; transform: translateY(-1px); }
+        .btn-remove {
+            background: rgba(239,68,68,0.15);
+            color: var(--accent-red);
+            border: 1px solid rgba(239,68,68,0.25);
+            border-radius: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 0.82em;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .btn-remove:hover { background: rgba(239,68,68,0.25); }
+
+        /* HEATMAP */
+        .heatmap-container {
+            display: grid;
+            grid-template-columns: 50px 1fr;
+            gap: 4px;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .heatmap-row-label {
+            font-size: 0.78em;
+            font-weight: 600;
+            color: var(--accent-blue);
+            text-align: right;
+            padding-right: 8px;
+        }
+        .heatmap-cells {
+            display: grid;
+            gap: 3px;
+        }
+        .heatmap-cell {
+            height: 36px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            color: rgba(255,255,255,0.8);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .heatmap-cell:hover { transform: scale(1.08); z-index: 2; box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+
+        /* CHART CONTAINERS */
+        .chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .chart-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 24px;
+        }
+        .chart-box canvas { max-height: 320px; }
+
+        /* IMAGE UPLOAD */
+        .evidence-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .evidence-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .evidence-upload {
+            width: 100%;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed var(--border-subtle);
+            border-radius: 8px;
+            margin: 12px;
+            width: calc(100% - 24px);
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+        .evidence-upload:hover { border-color: var(--accent-blue); }
+        .evidence-upload.has-image { border-style: solid; border-color: var(--accent-green); min-height: 0; }
+        .evidence-upload img { display: none; width: 100%; max-height: 300px; object-fit: contain; }
+        .evidence-upload.has-image img { display: block; }
+        .evidence-upload.has-image .upload-ph { display: none; }
+        .upload-ph { text-align: center; color: var(--text-muted); font-size: 0.88em; }
+        .upload-ph .ico { font-size: 2.5em; margin-bottom: 8px; }
+        .evidence-meta { padding: 12px; }
+        .evidence-meta input, .evidence-meta select {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.85em;
+            margin-bottom: 8px;
+        }
+
+        /* SIGNATURES */
+        .signatures-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+            padding-top: 24px;
+            border-top: 2px solid var(--border-subtle);
+        }
+        .sig-block { text-align: center; }
+        .sig-block label { display: block; color: var(--accent-blue); font-size: 0.78em; font-weight: 600; text-transform: uppercase; margin-bottom: 6px; }
+        .sig-block input {
+            width: 100%; text-align: center; background: var(--bg-input); border: 1px solid var(--border-subtle);
+            border-radius: 6px; padding: 10px; color: var(--text-primary); font-family: inherit;
+        }
+        .sig-line { border-top: 2px solid var(--text-muted); margin: 30px 20px 8px; }
+
+        /* FLOATING ACTIONS */
+        .floating-actions {
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 8px;
+            z-index: 1000;
+            max-width: 95vw;
+        }
+        .fab {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .fab:hover { transform: translateY(-2px); }
+        .fab-primary {
+            background: linear-gradient(135deg, #2563EB, #1d4ed8);
+            color: #fff;
+            box-shadow: 0 4px 20px var(--accent-blue-glow);
+        }
+        .fab-secondary {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border-subtle);
+        }
+        .fab-export {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(16,185,129,0.25);
+        }
+
+        /* DRAWING GALLERY */
+        .norma-row {
+            display: flex;
+            align-items: center;
+        }
+        .norma-input {
+            flex: 1;
+            background: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 0.92em;
+            transition: border-color 0.2s;
+        }
+        .norma-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px var(--accent-blue-glow);
+            color: var(--text-primary);
+        }
+
+        /* ZONE SELECTOR CARDS */
+        .zone-select-card {
+            background: var(--bg-elevated);
+            border: 2px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 18px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .zone-select-card:hover {
+            border-color: var(--accent-blue);
+            background: rgba(37, 99, 235, 0.06);
+            transform: translateY(-2px);
+        }
+        .zone-select-card.active {
+            border-color: var(--accent-cyan);
+            background: rgba(6, 182, 212, 0.08);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.12);
+        }
+        .zone-select-card .zone-icon {
+            font-size: 1.6em;
+            margin-bottom: 8px;
+        }
+        .zone-select-card .zone-name {
+            font-size: 0.92em;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .zone-select-card .zone-range {
+            font-size: 0.78em;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .zone-select-card.active .zone-name { color: var(--accent-cyan); }
+        .zone-select-card.active .zone-range { color: var(--text-secondary); }
+
+        .drawing-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .drawing-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .drawing-card-header input {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--accent-cyan);
+            font-family: inherit;
+            font-size: 0.95em;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 6px;
+            flex: 1;
+            margin-right: 12px;
+        }
+        .drawing-card-header input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            background: var(--bg-input);
+        }
+        .drawing-upload-area {
+            width: 100%;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 3px dashed var(--border-subtle);
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 49px,
+                rgba(37, 99, 235, 0.03) 49px,
+                rgba(37, 99, 235, 0.03) 50px
+            ),
+            repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 49px,
+                rgba(37, 99, 235, 0.03) 49px,
+                rgba(37, 99, 235, 0.03) 50px
+            );
+        }
+        .drawing-upload-area:hover {
+            border-color: var(--accent-blue);
+            background-color: rgba(37, 99, 235, 0.02);
+        }
+        .drawing-upload-area.has-image {
+            border-style: solid;
+            border-color: var(--accent-green);
+            border-width: 2px;
+            background: var(--bg-deep);
+        }
+        .drawing-upload-area img {
+            display: none;
+            width: 100%;
+            height: auto;
+            max-height: 700px;
+            object-fit: contain;
+            padding: 10px;
+        }
+        .drawing-upload-area.has-image img { display: block; }
+        .drawing-upload-area.has-image .drawing-ph { display: none; }
+        .drawing-ph {
+            text-align: center;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+        .drawing-ph .ph-icon {
+            font-size: 4em;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        .drawing-ph .ph-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .drawing-ph .ph-sub {
+            font-size: 0.88em;
+            opacity: 0.6;
+        }
+        .drawing-card-footer {
+            padding: 12px 20px;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-subtle);
+        }
+        .drawing-card-footer textarea {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 10px;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 0.88em;
+            font-style: italic;
+            min-height: 48px;
+            resize: vertical;
+        }
+        .drawing-card-footer textarea:focus { outline: none; border-color: var(--accent-blue); }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--accent-green);
+            border-radius: 10px;
+            padding: 14px 22px;
+            font-size: 0.92em;
+            z-index: 10000;
+            animation: slideIn 0.3s;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        @media (max-width: 900px) {
+            .chart-row { grid-template-columns: 1fr; }
+            .anomaly-form-row { grid-template-columns: 1fr 1fr; }
+            .kpi-row { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .kpi-row { grid-template-columns: 1fr 1fr; }
+            .tab-btn { font-size: 0.78em; padding: 10px 12px; }
+        }
+
+        @media print {
+            /* Reset to light background for printing */
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+            body { background: #fff !important; color: #111 !important; padding: 0 !important; font-size: 11px !important; }
+            .app-container { max-width: 100% !important; }
+
+            /* Hide interactive elements */
+            .floating-actions, .tab-nav, .btn-add, .btn-remove, .btn-small,
+            .anomaly-form-row, .add-evidence-btn, .anomaly-panel,
+            .zone-select-card, .fab, .toast,
+            .upload-ph, .drawing-ph,
+            input[type="file"] { display: none !important; }
+
+            /* SHOW ALL TABS for print */
+            .tab-content { display: block !important; margin-bottom: 20px !important; }
+
+            /* ALL backgrounds white */
+            .card, .chart-box, .kpi-card, .report-header,
+            .drawing-card, .drawing-card-header, .drawing-card-footer,
+            .drawing-upload-area,
+            .evidence-card, .evidence-upload, .evidence-meta,
+            .diagram-wrapper, .chart-row > div,
+            .anomaly-panel, .header-badge,
+            .bg-elevated, .bg-card, .bg-input {
+                background: #fff !important;
+                border-color: #ccc !important;
+                box-shadow: none !important;
+            }
+            .report-header { background: #fff !important; }
+            .report-header::before { background: #2563EB !important; }
+
+            /* Text colors for print */
+            .header-title, .card-title, .section-title, .kpi-value { color: #111 !important; }
+            .header-subtitle { color: #2563EB !important; }
+            .header-meta, .kpi-label, .kpi-sub { color: #555 !important; }
+            .form-field label, .norma-row label { color: #2563EB !important; }
+            td, th, p, span, div, li { color: #222 !important; }
+            .data-table thead th { background: #f0f0f0 !important; color: #2563EB !important; }
+            .data-table tbody td { border-color: #ddd !important; }
+
+            /* Form inputs */
+            .form-field input, .form-field select, .form-field textarea,
+            .norma-input, .evidence-meta input, .evidence-meta select,
+            .sig-block input, .drawing-card-header input, .drawing-card-footer textarea,
+            textarea {
+                background: transparent !important;
+                border: 1px solid #ccc !important;
+                color: #111 !important;
+                box-shadow: none !important;
+            }
+
+            /* KPIs */
+            .kpi-row { grid-template-columns: repeat(6, 1fr) !important; gap: 8px !important; }
+            .kpi-card { padding: 12px !important; }
+            .kpi-card::after { display: block !important; }
+
+            /* Diagram */
+            .diagram-wrapper { overflow: visible !important; }
+            .rail-diagram svg { min-width: auto !important; width: 100% !important; }
+
+            /* Heatmap */
+            .heatmap-container { overflow: visible !important; }
+            .heatmap-cell { border: 1px solid rgba(0,0,0,0.1) !important; }
+
+            /* Charts — 1 per row to avoid page cuts */
+            .chart-row {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                gap: 16px !important;
+                margin-bottom: 16px !important;
+            }
+            .chart-box {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                page-break-before: auto !important;
+                max-height: 320px !important;
+                overflow: hidden !important;
+            }
+            .chart-box canvas { max-height: 260px !important; }
+            .card:has(canvas) {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+
+            /* DRAWING CARDS — hide empty ones entirely */
+            .drawing-card { break-inside: avoid; page-break-inside: avoid; }
+            .drawing-upload-area { min-height: auto !important; border: 1px solid #ccc !important; }
+            .drawing-upload-area img { max-height: 500px !important; padding: 0 !important; display: block !important; }
+            .drawing-upload-area:not(.has-image) img { display: none !important; }
+            .drawing-card-header button { display: none !important; }
+            .drawing-card:has(.drawing-upload-area:not(.has-image)) { display: none !important; }
+
+            /* EVIDENCE — hide empty cards entirely */
+            /* EVIDENCE — hide empty cards, show images */
+            .evidence-grid { grid-template-columns: repeat(3, 1fr) !important; }
+            .evidence-upload { min-height: auto !important; border: 1px solid #ccc !important; }
+            .evidence-upload.has-image img { display: block !important; width: 100% !important; max-height: 250px !important; object-fit: contain !important; }
+            .evidence-card:not(:has(.has-image)) { display: none !important; }
+
+            /* Signatures */
+            .signatures-grid { border-top-color: #ccc !important; }
+            .sig-line { border-top-color: #666 !important; }
+
+            /* Severity badges keep colors */
+            .severity-badge { border: 1px solid currentColor !important; }
+
+            /* Page breaks */
+            .section-title, h2, h3 { page-break-after: avoid !important; }
+            .report-header { page-break-after: avoid !important; }
+            #zoneTable { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- HEADER -->
+    <div class="report-header">
+        <div class="header-grid">
+            <div>
+                <div class="header-title">RELATÓRIO DE INSPEÇÃO ESTRUTURAL</div>
+                <div class="header-subtitle" contenteditable="true">BFD Silo 2 — Balança Ferroviária Dinâmica Bruto — TLO S11D</div>
+                <div class="header-meta" contenteditable="true">Estrutura Civil dos Suportes de Trilhos · CADASTRAL SILO 2 — BFD BRUTO — TLO S11D<br>GER Integridade Estrutural · Vale S.A. · Canaã dos Carajás – PA</div>
+            </div>
+            <div class="header-badge">
+                <div class="rev">Revisão</div>
+                <div class="num" contenteditable="true">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tab-nav" id="tabNav">
+        <button class="tab-btn active" data-tab="resumo">Resumo Executivo</button>
+        <button class="tab-btn" data-tab="diagrama">Desenho de Arranjo</button>
+        <button class="tab-btn" data-tab="heatmap">Mapa de Calor</button>
+        <button class="tab-btn" data-tab="registro">Registro de Anomalias</button>
+        <button class="tab-btn" data-tab="graficos">Gráficos Analíticos</button>
+        <button class="tab-btn" data-tab="evidencias">Evidências Fotográficas</button>
+        <button class="tab-btn" data-tab="conclusao">Conclusão</button>
+    </div>
+
+    <!-- TAB 1: RESUMO -->
+    <div class="tab-content active" id="tab-resumo">
+        <!-- REVISÕES -->
+        <div class="card">
+            <div class="card-title"><span class="icon">📋</span> Revisões</div>
+            <div style="font-size:0.82em;color:var(--text-muted);margin:8px 0 12px;">
+                <strong style="color:var(--accent-blue)">TE:</strong> A-Preliminar | B-Para Aprovação | C-Para Conhecimento | D-Para Cotação | E-Para Construção | F-Conforme Comprado | G-Conforme Construído | H-Cancelado
+            </div>
+            <table class="data-table" id="revisionTable">
+                <thead><tr><th>Rev.</th><th>TE</th><th>Descrição</th><th>Por</th><th>Ver.</th><th>Apr.</th><th>Data</th><th style="width:40px;"></th></tr></thead>
+                <tbody id="revisionTableBody">
+                    <tr>
+                        <td contenteditable="true">0</td>
+                        <td contenteditable="true">C</td>
+                        <td contenteditable="true">PARA CONHECIMENTO</td>
+                        <td contenteditable="true">MA</td>
+                        <td contenteditable="true">—</td>
+                        <td contenteditable="true">—</td>
+                        <td contenteditable="true">14/03/2026</td>
+                        <td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="btn-add" style="margin-top:10px;" onclick="addRevisionRow()">+ Inserir Revisão</button>
+        </div>
+
+        <!-- KPIs -->
+        <div class="kpi-row" id="kpiRow">
+            <div class="kpi-card blue">
+                <div class="kpi-label">Total Bases</div>
+                <div class="kpi-value" id="kpi-total" style="color:var(--accent-blue)">0</div>
+                <div class="kpi-sub">90 posições × 2 lados</div>
+            </div>
+            <div class="kpi-card green">
+                <div class="kpi-label">Conformes</div>
+                <div class="kpi-value" id="kpi-ok" style="color:var(--accent-green)">0</div>
+                <div class="kpi-sub">Bases sem anomalia</div>
+            </div>
+            <div class="kpi-card yellow">
+                <div class="kpi-label">Anomalias LD</div>
+                <div class="kpi-value" id="kpi-ld" style="color:var(--accent-yellow)">0</div>
+                <div class="kpi-sub">Lado Direito</div>
+            </div>
+            <div class="kpi-card orange">
+                <div class="kpi-label">Anomalias LE</div>
+                <div class="kpi-value" id="kpi-le" style="color:var(--accent-orange)">0</div>
+                <div class="kpi-sub">Lado Esquerdo</div>
+            </div>
+            <div class="kpi-card red">
+                <div class="kpi-label">Ambos Lados</div>
+                <div class="kpi-value" id="kpi-both" style="color:var(--accent-red)">0</div>
+                <div class="kpi-sub">LD + LE</div>
+            </div>
+            <div class="kpi-card purple">
+                <div class="kpi-label">% Deformação</div>
+                <div class="kpi-value" id="kpi-pct" style="color:var(--accent-purple)">0%</div>
+                <div class="kpi-sub">Taxa de anomalia</div>
+            </div>
+            <div class="kpi-card blue">
+                <div class="kpi-label">Chumbadores p/ Troca</div>
+                <div class="kpi-value" id="kpi-chumb" style="color:var(--accent-cyan)">0</div>
+                <div class="kpi-sub">4 por base com anomalia</div>
+            </div>
+        </div>
+
+        <!-- INFO TÉCNICA -->
+        <div class="card">
+            <div class="section-title">1.0 INFORMAÇÕES GERAIS</div>
+            <div class="form-grid">
+                <div class="form-field"><label>Equipamento</label><input type="text" value="BFD Silo 2 — Balança Bruto"></div>
+                <div class="form-field"><label>Localização</label><input type="text" value="TLO S11D — Canaã dos Carajás/PA"></div>
+                <div class="form-field"><label>Data da Inspeção</label><input type="date" value="2026-03-14"></div>
+                <div class="form-field"><label>Inspetor Responsável</label><input type="text" value=""></div>
+                <div class="form-field"><label>Nº Nota SAP</label><input type="text" value=""></div>
+                <div class="form-field"><label>Ordem de Inspeção</label><input type="text" value=""></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">2.0 OBJETIVO</div>
+            <div class="form-field">
+                <textarea style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;color:var(--text-primary);font-family:inherit;min-height:80px;">Realizar inspeção visual e dimensional da estrutura civil (bases de concreto) dos suportes dos trilhos da Balança Ferroviária Dinâmica (BFD) do Silo 2 — Bruto, identificando deformações, trincas, desagregação e anomalias nos suportes dos trilhos em ambos os lados (LD — Lado Direito e LE — Lado Esquerdo), conforme cadastral SILO 2 — BFD BRUTO — TLO S11D.</textarea>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">3.0 NORMAS E REFERÊNCIAS</div>
+            <div id="normasContainer" style="display:flex;flex-direction:column;gap:8px;">
+                <div class="norma-row"><input type="text" class="norma-input" value="PRO-024969 — Inspeção Integridade Estrutural"><button class="btn-remove" onclick="this.parentElement.remove()" style="margin-left:8px;">✕</button></div>
+                <div class="norma-row"><input type="text" class="norma-input" value="PNR-000047 — Integridade Estrutural Geral"><button class="btn-remove" onclick="this.parentElement.remove()" style="margin-left:8px;">✕</button></div>
+                <div class="norma-row"><input type="text" class="norma-input" value="PNR-000084 — Integridade Estrutural — Estruturas de Concreto"><button class="btn-remove" onclick="this.parentElement.remove()" style="margin-left:8px;">✕</button></div>
+                <div class="norma-row"><input type="text" class="norma-input" value="Vale S11D — BFD Classe 0,2 sobre Concreto (Tara) Rev 1 — Prancha 02/03"><button class="btn-remove" onclick="this.parentElement.remove()" style="margin-left:8px;">✕</button></div>
+                <div class="norma-row"><input type="text" class="norma-input" value="CADASTRAL SILO 2 — BFD BRUTO — TLO S11D — Layout 1"><button class="btn-remove" onclick="this.parentElement.remove()" style="margin-left:8px;">✕</button></div>
+            </div>
+            <button class="btn-add" style="margin-top:12px;" onclick="addNorma()">+ Adicionar Referência</button>
+        </div>
+
+        <div class="card">
+            <div class="section-title">4.0 LISTA DE MATERIAIS (Referência Cadastral)</div>
+            <table class="data-table">
+                <thead><tr><th>Item</th><th>Descrição</th><th>Qtd.</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td>Chumbadores</td><td>420 un</td></tr>
+                    <tr><td>2</td><td>Arruelas</td><td>420 un</td></tr>
+                    <tr><td>3</td><td>Forcas Pandrol</td><td>420 un</td></tr>
+                    <tr><td>4</td><td>Almofada de Neoprene Fretado (14mm)</td><td>36 un</td></tr>
+                    <tr><td>5</td><td>Placas de Apoio</td><td>108 un</td></tr>
+                    <tr><td>6</td><td>Grampos Pandrol</td><td>162 un</td></tr>
+                    <tr><td>7</td><td>Grampos Pandrol para Região de Tala</td><td>48 un</td></tr>
+                    <tr><td>8</td><td>Talas de Junção</td><td>24 un</td></tr>
+                    <tr><td>9</td><td>Parafusos de Tala de Junção</td><td>72 un</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 2: DIAGRAMA -->
+    <div class="tab-content" id="tab-diagrama">
+        <div class="card">
+            <div class="section-title">5.0 DESENHO DE ARRANJO — MAPEAMENTO DE ANOMALIAS</div>
+            <p style="color:var(--text-secondary);font-size:0.9em;margin-bottom:16px;">
+                Clique nos suportes para registrar anomalias. Os pontos são coloridos conforme a severidade. O arranjo segue o cadastral com 3 bases de concreto: Área de Influência Anterior, BFD e Área de Influência Posterior.
+            </p>
+
+            <div class="diagram-controls">
+                <div class="legend-item"><div class="legend-dot" style="background:var(--severity-ok)"></div> Conforme</div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--severity-low)"></div> Baixo</div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--severity-med)"></div> Médio</div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--severity-high)"></div> Alto</div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--severity-critical)"></div> Muito Alto</div>
+                <span style="margin-left:auto;font-size:0.82em;color:var(--text-muted);">Sentido de Carregamento →</span>
+            </div>
+
+            <div class="diagram-wrapper">
+                <div class="rail-diagram" id="railDiagram"></div>
+            </div>
+
+            <!-- DRAWINGS GALLERY -->
+            <div style="margin-top:28px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <div style="color:var(--accent-cyan);font-weight:700;font-size:1.05em;">Desenhos de Projeto / Cadastrais de Referência</div>
+                    <button class="btn-add" onclick="addDrawingSlot()">+ Adicionar Desenho</button>
+                </div>
+                <div id="drawingsGallery"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: HEATMAP -->
+    <div class="tab-content" id="tab-heatmap">
+        <div class="card">
+            <div class="section-title">6.0 MAPA DE CALOR — SEVERIDADE POR POSIÇÃO</div>
+            <p style="color:var(--text-secondary);font-size:0.9em;margin-bottom:20px;">
+                Visualização da severidade das anomalias por posição e lado (LD/LE). Cores representam a severidade máxima registrada no suporte.
+            </p>
+            <div id="heatmapContainer"></div>
+
+            <div style="display:flex;gap:16px;justify-content:center;margin-top:16px;flex-wrap:wrap;">
+                <div class="legend-item"><div class="legend-dot" style="background:#1a3a1a"></div> Conforme (0)</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#4d6b1a"></div> Baixo (1)</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#8b6914"></div> Médio (2)</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#b84c1a"></div> Alto (3)</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#c41e1e"></div> Muito Alto (4)</div>
+            </div>
+        </div>
+
+        <!-- QUANTITATIVE SUMMARY TABLE LD vs LE -->
+        <div class="card">
+            <div class="card-title"><span class="icon">📊</span> Quantitativo por Zona e Lado</div>
+            <table class="data-table" id="zoneTable">
+                <thead>
+                    <tr>
+                        <th>Zona</th>
+                        <th>Suportes LD</th>
+                        <th>Anomalias LD</th>
+                        <th>Suportes LE</th>
+                        <th>Anomalias LE</th>
+                        <th>% LD</th>
+                        <th>% LE</th>
+                        <th>Chumb. p/ Troca</th>
+                    </tr>
+                </thead>
+                <tbody id="zoneTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 4: REGISTRO -->
+    <div class="tab-content" id="tab-registro">
+        <div class="card">
+            <div class="section-title">7.0 REGISTRO DE ANOMALIAS</div>
+
+            <!-- ZONE SELECTOR CARDS -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+                <div class="zone-select-card" id="zone-card-anterior" onclick="selectZone('anterior')">
+                    <div class="zone-icon">◀</div>
+                    <div class="zone-name">Área Influência Anterior</div>
+                    <div class="zone-range">Posições 1 – 30</div>
+                </div>
+                <div class="zone-select-card" id="zone-card-bfd" onclick="selectZone('bfd')">
+                    <div class="zone-icon">⚖</div>
+                    <div class="zone-name">Base BFD</div>
+                    <div class="zone-range">Posições 31 – 60</div>
+                </div>
+                <div class="zone-select-card" id="zone-card-posterior" onclick="selectZone('posterior')">
+                    <div class="zone-icon">▶</div>
+                    <div class="zone-name">Área Influência Posterior</div>
+                    <div class="zone-range">Posições 61 – 90</div>
+                </div>
+            </div>
+
+            <div class="anomaly-panel">
+                <div style="font-weight:600;color:var(--accent-cyan);margin-bottom:14px;">Adicionar Anomalia</div>
+                <div class="anomaly-form-row" style="grid-template-columns: 140px 70px 90px 1fr 120px 100px 90px auto;">
+                    <div><label>Zona</label>
+                        <select id="inp-zona" onchange="onZoneSelectChange()">
+                            <option value="anterior">Infl. Anterior</option>
+                            <option value="bfd">Base BFD</option>
+                            <option value="posterior">Infl. Posterior</option>
+                        </select>
+                    </div>
+                    <div><label>Posição</label><input type="number" id="inp-pos" min="1" max="90" placeholder="1-90"></div>
+                    <div><label>Lado</label><select id="inp-lado"><option value="LD">LD</option><option value="LE">LE</option><option value="LD+LE">LD+LE</option></select></div>
+                    <div><label>Descrição da Anomalia</label><input type="text" id="inp-desc" placeholder="Ex: Trinca no suporte, desagregação do concreto..."></div>
+                    <div><label>Severidade</label>
+                        <select id="inp-sev">
+                            <option value="1">Baixo</option>
+                            <option value="2">Médio</option>
+                            <option value="3" selected>Alto</option>
+                            <option value="4">Muito Alto</option>
+                        </select>
+                    </div>
+                    <div><label>Tipo</label>
+                        <select id="inp-tipo">
+                            <option value="Trinca">Trinca</option>
+                            <option value="Deformação">Deformação</option>
+                            <option value="Desagregação">Desagregação</option>
+                            <option value="Corrosão">Corrosão</option>
+                            <option value="Recalque">Recalque</option>
+                            <option value="Fissura">Fissura</option>
+                            <option value="Outro">Outro</option>
+                        </select>
+                    </div>
+                    <div><label>Chumb. Ruins</label>
+                        <select id="inp-chumb">
+                            <option value="1">1 de 4</option>
+                            <option value="2">2 de 4</option>
+                            <option value="3">3 de 4</option>
+                            <option value="4" selected>4 de 4</option>
+                        </select>
+                    </div>
+                    <div><button class="btn-add" onclick="addAnomaly()">+ Adicionar</button></div>
+                </div>
+            </div>
+
+            <table class="data-table" style="margin-top:20px;">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Posição</th>
+                        <th>Zona</th>
+                        <th>Lado</th>
+                        <th>Tipo</th>
+                        <th>Descrição</th>
+                        <th>Severidade</th>
+                        <th>Chumb.</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody id="anomalyTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 5: GRÁFICOS -->
+    <div class="tab-content" id="tab-graficos">
+        <div class="section-title" style="margin-bottom:20px;">8.0 ANÁLISE GRÁFICA</div>
+        <div class="chart-row">
+            <div class="chart-box">
+                <div class="card-title" style="margin-bottom:14px;">Anomalias por Lado (LD vs LE)</div>
+                <canvas id="chartLdLe"></canvas>
+            </div>
+            <div class="chart-box">
+                <div class="card-title" style="margin-bottom:14px;">Distribuição por Severidade</div>
+                <canvas id="chartSeverity"></canvas>
+            </div>
+        </div>
+        <div class="chart-row">
+            <div class="chart-box">
+                <div class="card-title" style="margin-bottom:14px;">Distribuição por Zona</div>
+                <canvas id="chartZone"></canvas>
+            </div>
+            <div class="chart-box">
+                <div class="card-title" style="margin-bottom:14px;">Chumbadores p/ Troca por Zona</div>
+                <canvas id="chartChumb"></canvas>
+            </div>
+        </div>
+        <div class="chart-row">
+            <div class="chart-box">
+                <div class="card-title" style="margin-bottom:14px;">Anomalias por Tipo</div>
+                <canvas id="chartType"></canvas>
+            </div>
+            <div class="chart-box">
+                <div class="card-title" style="margin-bottom:14px;">Chumbadores — Conformes vs Troca</div>
+                <canvas id="chartChumbTotal"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title" style="margin-bottom:14px;">Perfil de Anomalias ao Longo dos Suportes (Posição 1–90)</div>
+            <canvas id="chartProfile" style="max-height:280px;"></canvas>
+        </div>
+    </div>
+
+    <!-- TAB 6: EVIDÊNCIAS -->
+    <div class="tab-content" id="tab-evidencias">
+        <div class="card">
+            <div class="section-title">9.0 EVIDÊNCIAS FOTOGRÁFICAS</div>
+            <p style="color:var(--text-secondary);font-size:0.9em;margin-bottom:16px;">Registre as evidências fotográficas por zona. Selecione a zona e as fotos serão organizadas automaticamente.</p>
+
+            <!-- ZONA ANTERIOR -->
+            <div style="margin-bottom:28px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:10px 16px;background:rgba(59,130,246,0.08);border-left:4px solid #3B82F6;border-radius:0 8px 8px 0;">
+                    <div style="font-weight:700;color:#3B82F6;font-size:1.02em;">9.1 Área de Influência Anterior — Posições 1 a 30</div>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn-add" style="padding:6px 14px;font-size:0.82em;" onclick="document.getElementById('multiAnterior').click()">📷 Fotos</button>
+                        <input type="file" id="multiAnterior" accept="image/*" multiple style="display:none;" onchange="handleZoneUpload(this,'anterior')">
+                        <button class="btn-add" style="padding:6px 14px;font-size:0.82em;background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border-subtle);" onclick="addEvidenceSlot('anterior')">+ Individual</button>
+                    </div>
+                </div>
+                <div class="evidence-grid" id="evidenceGrid-anterior"></div>
+            </div>
+
+            <!-- ZONA BFD -->
+            <div style="margin-bottom:28px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:10px 16px;background:rgba(168,85,247,0.08);border-left:4px solid #A855F7;border-radius:0 8px 8px 0;">
+                    <div style="font-weight:700;color:#A855F7;font-size:1.02em;">9.2 Base BFD — Posições 31 a 60</div>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn-add" style="padding:6px 14px;font-size:0.82em;" onclick="document.getElementById('multiBfd').click()">📷 Fotos</button>
+                        <input type="file" id="multiBfd" accept="image/*" multiple style="display:none;" onchange="handleZoneUpload(this,'bfd')">
+                        <button class="btn-add" style="padding:6px 14px;font-size:0.82em;background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border-subtle);" onclick="addEvidenceSlot('bfd')">+ Individual</button>
+                    </div>
+                </div>
+                <div class="evidence-grid" id="evidenceGrid-bfd"></div>
+            </div>
+
+            <!-- ZONA POSTERIOR -->
+            <div style="margin-bottom:12px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:10px 16px;background:rgba(16,185,129,0.08);border-left:4px solid #10B981;border-radius:0 8px 8px 0;">
+                    <div style="font-weight:700;color:#10B981;font-size:1.02em;">9.3 Área de Influência Posterior — Posições 61 a 90</div>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn-add" style="padding:6px 14px;font-size:0.82em;" onclick="document.getElementById('multiPosterior').click()">📷 Fotos</button>
+                        <input type="file" id="multiPosterior" accept="image/*" multiple style="display:none;" onchange="handleZoneUpload(this,'posterior')">
+                        <button class="btn-add" style="padding:6px 14px;font-size:0.82em;background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border-subtle);" onclick="addEvidenceSlot('posterior')">+ Individual</button>
+                    </div>
+                </div>
+                <div class="evidence-grid" id="evidenceGrid-posterior"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 7: CONCLUSÃO -->
+    <div class="tab-content" id="tab-conclusao">
+        <div class="card" style="border-left:4px solid var(--accent-orange);">
+            <div class="section-title">10.0 CONCLUSÃO</div>
+            <div class="form-field">
+                <textarea id="txt-conclusao" style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;color:var(--text-primary);font-family:inherit;min-height:120px;">Foram inspecionadas 36 posições de suportes de trilhos (posições 1 a 20 e 31 a 48), totalizando 64 bases avaliadas (LD + LE). Todas as bases apresentaram não conformidades classificadas em Alto (30) ou Muito Alto (34).
+
+Na Área de Influência Anterior (pos. 1–20): chumbadores frouxos e recalque nas chapas metálicas dos grampos Pandrol em ambos os lados.
+
+Na Base BFD (pos. 31–48): condição mais degradada, com ausência de chumbadores em 10 bases (destaque pos. 41 LD — ausência de 3 unidades), chumbadores com diâmetro fora da especificação de projeto em 9 bases, e chumbadores frouxos generalizados. As substituições com diâmetro incompatível indicam intervenções anteriores sem controle de qualidade.
+
+A fixação trilho-suporte está comprometida na totalidade das posições inspecionadas. A Área de Influência Posterior (pos. 61–90) não foi inspecionada nesta campanha.</textarea>
+            </div>
+        </div>
+
+        <div class="card" style="border-left:4px solid var(--accent-green);">
+            <div class="section-title">11.0 RECOMENDAÇÕES</div>
+            <div style="display:grid;gap:16px;">
+                <div>
+                    <div style="color:var(--accent-green);font-weight:600;margin-bottom:8px;">11.1 Engenharia</div>
+                    <textarea id="txt-eng" style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;color:var(--text-primary);font-family:inherit;min-height:70px;">1. Abrir nota YE para avaliar impacto estrutural dos chumbadores com diâmetro divergente do projeto (pos. 33, 34, 35, 40, 41, 45, 47, 48).
+2. Avaliar necessidade de recuperação das bases com recalque nas chapas metálicas (28 bases).
+3. Solicitar verificação metrológica da BFD após conclusão das correções.</textarea>
+                </div>
+                <div>
+                    <div style="color:var(--accent-green);font-weight:600;margin-bottom:8px;">11.2 Inspeção</div>
+                    <textarea id="txt-insp" style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;color:var(--text-primary);font-family:inherit;min-height:70px;">1. Completar inspeção da Área de Influência Posterior (pos. 61–90, LD e LE).
+2. Realizar levantamento dimensional de nivelamento e alinhamento dos trilhos nas zonas com recalque.
+3. Programar reinspecção em 90 dias após correções.</textarea>
+                </div>
+                <div>
+                    <div style="color:var(--accent-green);font-weight:600;margin-bottom:8px;">11.3 Manutenção</div>
+                    <textarea id="txt-manut" style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;color:var(--text-primary);font-family:inherit;min-height:70px;">1. Substituir chumbadores ausentes e frouxos nas 64 bases — utilizar especificação conforme projeto.
+2. Substituir chumbadores com diâmetro fora de projeto (9 bases na zona BFD).
+3. Corrigir recalque das chapas metálicas e verificar torque de aperto dos grampos Pandrol.
+4. Abrir OM corretiva com prioridade alta — 100% das anomalias são Alto/Muito Alto.
+5. Restringir uso da BFD para pesagem até conclusão das intervenções na zona instrumentada (pos. 31–48).</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ASSINATURAS -->
+        <div class="signatures-grid">
+            <div class="sig-block">
+                <label>Elaborado por</label>
+                <input type="text" value="">
+                <div class="sig-line"></div>
+            </div>
+            <div class="sig-block">
+                <label>Verificado por</label>
+                <input type="text" value="">
+                <div class="sig-line"></div>
+            </div>
+            <div class="sig-block">
+                <label>Aprovado por</label>
+                <input type="text" value="">
+                <div class="sig-line"></div>
+            </div>
+            <div class="sig-block">
+                <label>Data</label>
+                <input type="date" value="2026-03-14">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FLOATING ACTIONS -->
+<div class="floating-actions">
+    <button class="fab fab-secondary" onclick="salvarDados()" title="Salvar no navegador">💾</button>
+    <button class="fab fab-export" onclick="exportarJSON()" title="Exportar JSON">📤 JSON</button>
+    <button class="fab fab-secondary" onclick="document.getElementById('jsonImportInput').click()" title="Importar JSON">📥 Importar</button>
+    <input type="file" id="jsonImportInput" accept=".json" style="display:none;" onchange="importarJSON(this)">
+    <button class="fab fab-export" style="background:linear-gradient(135deg,#EA580C,#C2410C);box-shadow:0 4px 20px rgba(234,88,12,0.25);" onclick="exportarPPTX()" title="Exportar PowerPoint">📊 PPTX</button>
+    <button class="fab fab-primary" onclick="gerarPDF()" title="Gerar PDF">📄 PDF</button>
+</div>
+
+<script>
+// ============================
+// DATA MANAGEMENT
+// ============================
+const ZONES = [
+    { id: 'anterior', name: 'Área Influência Anterior', start: 1, end: 30, color: '#1E3A5F' },
+    { id: 'bfd', name: 'Base BFD', start: 31, end: 60, color: '#3A1E5F' },
+    { id: 'posterior', name: 'Área Influência Posterior', start: 61, end: 90, color: '#1E5F3A' },
+];
+
+let anomalies = [];
+let evidenceCounter = 0;
+let chartInstances = {};
+
+// ============================
+// TABS
+// ============================
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        if (btn.dataset.tab === 'graficos') updateCharts();
+        if (btn.dataset.tab === 'heatmap') renderHeatmap();
+    });
+});
+
+// ============================
+// RAIL DIAGRAM (SVG)
+// ============================
+function renderDiagram() {
+    const totalSupports = 90;
+    const supportsPerZone = 30;
+    const svgW = 1300, svgH = 260;
+    const railY = 80;
+    const supportW = 11, supportH = 50, gap = 2.5;
+    const startX = 40;
+    const totalW = totalSupports * (supportW + gap);
+
+    let svg = `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="font-family:'IBM Plex Sans',sans-serif;">`;
+
+    // Background zones
+    ZONES.forEach((z, zi) => {
+        const x = startX + zi * supportsPerZone * (supportW + gap) - 4;
+        const w = supportsPerZone * (supportW + gap) + 2;
+        svg += `<rect x="${x}" y="20" width="${w}" height="220" rx="6" fill="${z.color}" opacity="0.15"/>`;
+        svg += `<text x="${x + w/2}" y="16" fill="${z.color}" font-size="9" font-weight="600" text-anchor="middle" opacity="0.8">${z.name.toUpperCase()}</text>`;
+    });
+
+    // Rails (2 lines for LD and LE)
+    svg += `<line x1="${startX-10}" y1="${railY}" x2="${startX + totalW + 5}" y2="${railY}" stroke="#4a4a5a" stroke-width="4" stroke-linecap="round"/>`;
+    svg += `<line x1="${startX-10}" y1="${railY + supportH + 10}" x2="${startX + totalW + 5}" y2="${railY + supportH + 10}" stroke="#4a4a5a" stroke-width="4" stroke-linecap="round"/>`;
+
+    // Labels
+    svg += `<text x="${startX-18}" y="${railY - 8}" fill="var(--accent-cyan)" font-size="8" font-weight="600" text-anchor="end">LD</text>`;
+    svg += `<text x="${startX-18}" y="${railY + supportH + 22}" fill="var(--accent-orange)" font-size="8" font-weight="600" text-anchor="end">LE</text>`;
+
+    // Arrow
+    svg += `<text x="${startX + totalW + 15}" y="${railY + supportH/2 + 10}" fill="var(--text-muted)" font-size="10">→</text>`;
+    svg += `<text x="${startX + totalW + 28}" y="${railY + supportH/2 + 10}" fill="var(--text-muted)" font-size="7">SILO 2</text>`;
+
+    // Junta de Dilatação marks
+    [30, 60].forEach(pos => {
+        const x = startX + pos * (supportW + gap) - gap/2;
+        svg += `<line x1="${x}" y1="25" x2="${x}" y2="${svgH - 15}" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>`;
+        svg += `<text x="${x}" y="${svgH - 4}" fill="#F59E0B" font-size="7" text-anchor="middle" opacity="0.7">J.D.</text>`;
+    });
+
+    // Supports (LD top, LE bottom)
+    for (let i = 0; i < totalSupports; i++) {
+        const pos = i + 1;
+        const x = startX + i * (supportW + gap);
+
+        // LD support
+        const ldSev = getMaxSeverity(pos, 'LD');
+        const ldColor = getSeverityColor(ldSev);
+        svg += `<rect class="rail-support" data-pos="${pos}" data-side="LD" x="${x}" y="${railY - supportH/2 - 2}" width="${supportW}" height="${supportH/2}" rx="2" fill="${ldColor}" onclick="onSupportClick(${pos},'LD')"/>`;
+
+        // LE support
+        const leSev = getMaxSeverity(pos, 'LE');
+        const leColor = getSeverityColor(leSev);
+        svg += `<rect class="rail-support" data-pos="${pos}" data-side="LE" x="${x}" y="${railY + 12}" width="${supportW}" height="${supportH/2}" rx="2" fill="${leColor}" onclick="onSupportClick(${pos},'LE')"/>`;
+
+        // Position number (every 5th)
+        if (pos % 5 === 0 || pos === 1) {
+            svg += `<text x="${x + supportW/2}" y="${svgH - 18}" fill="var(--text-muted)" font-size="7" text-anchor="middle" font-family="JetBrains Mono,monospace">${pos}</text>`;
+        }
+
+        // Anomaly markers
+        if (ldSev > 0) {
+            svg += `<circle cx="${x + supportW/2}" cy="${railY - supportH/2 - 8}" r="3.5" fill="${ldColor}" opacity="0.9"/>`;
+            svg += `<text x="${x + supportW/2}" y="${railY - supportH/2 - 5.5}" fill="#fff" font-size="5" text-anchor="middle" font-weight="700">${ldSev}</text>`;
+        }
+        if (leSev > 0) {
+            svg += `<circle cx="${x + supportW/2}" cy="${railY + supportH/2 + 18}" r="3.5" fill="${leColor}" opacity="0.9"/>`;
+            svg += `<text x="${x + supportW/2}" y="${railY + supportH/2 + 20.5}" fill="#fff" font-size="5" text-anchor="middle" font-weight="700">${leSev}</text>`;
+        }
+    }
+
+    svg += `</svg>`;
+    document.getElementById('railDiagram').innerHTML = svg;
+}
+
+function getMaxSeverity(pos, side) {
+    const relevant = anomalies.filter(a => a.pos === pos && (a.lado === side || a.lado === 'LD+LE'));
+    if (relevant.length === 0) return 0;
+    return Math.max(...relevant.map(a => a.sev));
+}
+
+function getSeverityColor(sev) {
+    const colors = ['#1a3a1a', '#6b8e23', '#d4960a', '#d4550a', '#c41e1e'];
+    return colors[Math.min(sev, 4)];
+}
+
+function getSeverityLabel(sev) {
+    return ['Conforme', 'Baixo', 'Médio', 'Alto', 'Muito Alto'][sev] || 'Conforme';
+}
+
+function getSeverityClass(sev) {
+    return ['severity-ok', 'severity-low', 'severity-med', 'severity-high', 'severity-critical'][sev] || 'severity-ok';
+}
+
+function getZone(pos) {
+    for (const z of ZONES) { if (pos >= z.start && pos <= z.end) return z; }
+    return ZONES[0];
+}
+
+function onSupportClick(pos, side) {
+    document.querySelector('.tab-btn[data-tab="registro"]').click();
+    document.getElementById('inp-pos').value = pos;
+    document.getElementById('inp-lado').value = side;
+    // Auto-set zone based on position
+    const zone = pos <= 30 ? 'anterior' : pos <= 60 ? 'bfd' : 'posterior';
+    document.getElementById('inp-zona').value = zone;
+    selectZone(zone);
+    document.getElementById('inp-desc').focus();
+    showToast(`Suporte ${pos} (${side}) selecionado`);
+}
+
+// ============================
+// ZONE SELECTOR
+// ============================
+let selectedZone = null;
+
+function selectZone(zoneId) {
+    selectedZone = zoneId;
+    document.querySelectorAll('.zone-select-card').forEach(c => c.classList.remove('active'));
+    document.getElementById('zone-card-' + zoneId).classList.add('active');
+    document.getElementById('inp-zona').value = zoneId;
+
+    // Update position min/max hint
+    const posInput = document.getElementById('inp-pos');
+    const zone = ZONES.find(z => z.id === zoneId);
+    if (zone) {
+        posInput.min = zone.start;
+        posInput.max = zone.end;
+        posInput.placeholder = zone.start + '–' + zone.end;
+        // If current value is outside range, reset
+        const cur = parseInt(posInput.value);
+        if (cur && (cur < zone.start || cur > zone.end)) {
+            posInput.value = zone.start;
+        }
+    }
+}
+
+function onZoneSelectChange() {
+    const zoneId = document.getElementById('inp-zona').value;
+    selectZone(zoneId);
+}
+
+// ============================
+// NORMAS EDITÁVEIS
+// ============================
+function addRevisionRow() {
+    const tbody = document.getElementById('revisionTableBody');
+    const rowCount = tbody.querySelectorAll('tr').length;
+    const tr = document.createElement('tr');
+    const today = new Date().toLocaleDateString('pt-BR');
+    tr.innerHTML = `
+        <td contenteditable="true">${rowCount}</td>
+        <td contenteditable="true">C</td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true">—</td>
+        <td contenteditable="true">—</td>
+        <td contenteditable="true">${today}</td>
+        <td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+    tr.querySelector('td:nth-child(3)').focus();
+    showToast('Nova revisão adicionada');
+}
+
+function addNorma() {
+    const container = document.getElementById('normasContainer');
+    const row = document.createElement('div');
+    row.className = 'norma-row';
+    row.innerHTML = `<input type="text" class="norma-input" value="" placeholder="Digite a referência normativa..."><button class="btn-remove" onclick="this.parentElement.remove()" style="margin-left:8px;">✕</button>`;
+    container.appendChild(row);
+    row.querySelector('input').focus();
+}
+
+// ============================
+// ANOMALY MANAGEMENT
+// ============================
+function addAnomaly() {
+    const pos = parseInt(document.getElementById('inp-pos').value);
+    const lado = document.getElementById('inp-lado').value;
+    const desc = document.getElementById('inp-desc').value.trim();
+    const sev = parseInt(document.getElementById('inp-sev').value);
+    const tipo = document.getElementById('inp-tipo').value;
+    const zonaId = document.getElementById('inp-zona').value;
+    const chumb = parseInt(document.getElementById('inp-chumb').value) || 4;
+
+    if (!pos || pos < 1 || pos > 90) return showToast('Posição deve ser entre 1 e 90');
+    if (!desc) return showToast('Descrição é obrigatória');
+
+    // Validate position is within selected zone
+    const zona = ZONES.find(z => z.id === zonaId);
+    if (zona && (pos < zona.start || pos > zona.end)) {
+        return showToast(`⚠ Posição ${pos} fora da zona selecionada (${zona.start}–${zona.end})`);
+    }
+
+    anomalies.push({ id: Date.now(), pos, lado, desc, sev, tipo, zona: zonaId, chumb });
+    document.getElementById('inp-desc').value = '';
+    renderAnomalyTable();
+    updateKPIs();
+    renderDiagram();
+    showToast(`Anomalia registrada: Posição ${pos} (${lado}) — ${chumb} chumbador(es)`);
+}
+
+function removeAnomaly(id) {
+    anomalies = anomalies.filter(a => a.id !== id);
+    renderAnomalyTable();
+    updateKPIs();
+    renderDiagram();
+}
+
+function renderAnomalyTable() {
+    const tbody = document.getElementById('anomalyTableBody');
+    if (anomalies.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:30px;">Nenhuma anomalia registrada. Use o formulário acima ou clique no diagrama.</td></tr>';
+        return;
+    }
+    tbody.innerHTML = anomalies.map((a, i) => `
+        <tr>
+            <td style="font-family:JetBrains Mono,monospace;font-weight:600;">${i+1}</td>
+            <td style="font-family:JetBrains Mono,monospace;font-weight:700;color:var(--accent-cyan);">${a.pos}</td>
+            <td>${getZone(a.pos).name}</td>
+            <td><span style="font-weight:600;color:${a.lado.includes('LD')?'var(--accent-yellow)':'var(--accent-orange)'}">${a.lado}</span></td>
+            <td>${a.tipo}</td>
+            <td style="max-width:280px;">${a.desc}</td>
+            <td><span class="severity-badge ${getSeverityClass(a.sev)}">${getSeverityLabel(a.sev)}</span></td>
+            <td style="font-family:JetBrains Mono,monospace;font-weight:700;color:var(--accent-red);">${a.chumb || 4}/4</td>
+            <td><button class="btn-remove" onclick="removeAnomaly(${a.id})">✕</button></td>
+        </tr>
+    `).join('');
+}
+
+// ============================
+// KPIs
+// ============================
+function updateKPIs() {
+    const totalBases = 180; // 90 posições × 2 lados (LD + LE)
+    const ldAnomalies = anomalies.filter(a => a.lado === 'LD' || a.lado === 'LD+LE');
+    const leAnomalies = anomalies.filter(a => a.lado === 'LE' || a.lado === 'LD+LE');
+    const ldPositions = new Set(ldAnomalies.map(a => a.pos));
+    const lePositions = new Set(leAnomalies.map(a => a.pos));
+    const bothPositions = new Set([...ldPositions].filter(p => lePositions.has(p)));
+    const basesComAnomalia = ldPositions.size + lePositions.size; // bases individuais (LD + LE separadas)
+    const basesConformes = totalBases - basesComAnomalia;
+    const chumbTroca = anomalies.reduce((sum, a) => sum + (a.chumb || 4), 0);
+
+    document.getElementById('kpi-total').textContent = totalBases;
+    document.getElementById('kpi-ok').textContent = basesConformes;
+    document.getElementById('kpi-ld').textContent = ldPositions.size;
+    document.getElementById('kpi-le').textContent = lePositions.size;
+    document.getElementById('kpi-both').textContent = bothPositions.size;
+    document.getElementById('kpi-pct').textContent = Math.round(basesComAnomalia / totalBases * 100) + '%';
+    document.getElementById('kpi-chumb').textContent = chumbTroca;
+
+    // Zone table
+    renderZoneTable();
+}
+
+function renderZoneTable() {
+    const tbody = document.getElementById('zoneTableBody');
+    let totalChumb = 0;
+    const rows = ZONES.map(z => {
+        const count = z.end - z.start + 1;
+        const ldA = new Set(anomalies.filter(a => a.pos >= z.start && a.pos <= z.end && (a.lado === 'LD' || a.lado === 'LD+LE')).map(a => a.pos)).size;
+        const leA = new Set(anomalies.filter(a => a.pos >= z.start && a.pos <= z.end && (a.lado === 'LE' || a.lado === 'LD+LE')).map(a => a.pos)).size;
+        const chumb = anomalies.filter(a => a.pos >= z.start && a.pos <= z.end).reduce((sum, a) => sum + (a.chumb || 4), 0);
+        totalChumb += chumb;
+        return `<tr>
+            <td style="font-weight:600;color:var(--text-primary);">${z.name}</td>
+            <td>${count}</td>
+            <td style="font-weight:600;color:var(--accent-yellow);">${ldA}</td>
+            <td>${count}</td>
+            <td style="font-weight:600;color:var(--accent-orange);">${leA}</td>
+            <td>${Math.round(ldA/count*100)}%</td>
+            <td>${Math.round(leA/count*100)}%</td>
+            <td style="font-weight:700;color:var(--accent-cyan);">${chumb}</td>
+        </tr>`;
+    });
+    rows.push(`<tr style="border-top:2px solid var(--border-subtle);">
+        <td style="font-weight:700;color:var(--accent-blue);">TOTAL</td>
+        <td>90</td><td></td><td>90</td><td></td><td></td><td></td>
+        <td style="font-weight:700;color:var(--accent-cyan);font-size:1.05em;">${totalChumb}</td>
+    </tr>`);
+    tbody.innerHTML = rows.join('');
+}
+
+// ============================
+// HEATMAP
+// ============================
+function renderHeatmap() {
+    const container = document.getElementById('heatmapContainer');
+    const cols = 90;
+
+    let html = '<div class="heatmap-container">';
+    
+    ['LD', 'LE'].forEach(side => {
+        html += `<div class="heatmap-row-label">${side}</div>`;
+        html += `<div class="heatmap-cells" style="grid-template-columns:repeat(${cols},1fr);">`;
+        for (let i = 1; i <= cols; i++) {
+            const sev = getMaxSeverity(i, side);
+            const color = getSeverityColor(sev);
+            html += `<div class="heatmap-cell" style="background:${color};" title="Pos ${i} ${side}: ${getSeverityLabel(sev)}" onclick="onSupportClick(${i},'${side}')">${i%5===0?i:''}</div>`;
+        }
+        html += '</div>';
+    });
+
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+// ============================
+// CHARTS
+// ============================
+function updateCharts() {
+    const chartDefaults = {
+        color: '#8888A0',
+        borderColor: '#1A1A24',
+    };
+    Chart.defaults.color = '#8888A0';
+
+    // Chart 1: LD vs LE per zone
+    destroyChart('chartLdLe');
+    const ldLeData = ZONES.map(z => ({
+        zone: z.name.replace('Área ','').replace('Influência ',''),
+        ld: new Set(anomalies.filter(a => a.pos >= z.start && a.pos <= z.end && (a.lado === 'LD' || a.lado === 'LD+LE')).map(a => a.pos)).size,
+        le: new Set(anomalies.filter(a => a.pos >= z.start && a.pos <= z.end && (a.lado === 'LE' || a.lado === 'LD+LE')).map(a => a.pos)).size,
+    }));
+    chartInstances['chartLdLe'] = new Chart(document.getElementById('chartLdLe'), {
+        type: 'bar',
+        data: {
+            labels: ldLeData.map(d => d.zone),
+            datasets: [
+                { label: 'LD', data: ldLeData.map(d => d.ld), backgroundColor: 'rgba(245,158,11,0.7)', borderRadius: 4 },
+                { label: 'LE', data: ldLeData.map(d => d.le), backgroundColor: 'rgba(249,115,22,0.7)', borderRadius: 4 },
+            ]
+        },
+        options: { responsive: true, plugins: { legend: { labels: { color: '#8888A0' } }, datalabels: { color: '#fff', font: { weight: 'bold', size: 11 }, display: ctx => ctx.dataset.data[ctx.dataIndex] > 0 } }, scales: { x: { grid: { color: '#1A1A24' } }, y: { grid: { color: '#1A1A24' }, beginAtZero: true } } },
+        plugins: [ChartDataLabels]
+    });
+
+    // Chart 2: Severity distribution
+    destroyChart('chartSeverity');
+    const sevCounts = [0,0,0,0,0];
+    anomalies.forEach(a => sevCounts[a.sev]++);
+    chartInstances['chartSeverity'] = new Chart(document.getElementById('chartSeverity'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Baixo', 'Médio', 'Alto', 'Muito Alto'],
+            datasets: [{
+                data: sevCounts.slice(1),
+                backgroundColor: ['rgba(245,158,11,0.8)', 'rgba(249,115,22,0.8)', 'rgba(239,68,68,0.8)', 'rgba(220,38,38,0.9)'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '55%',
+            plugins: {
+                legend: { position: 'bottom', labels: { color: '#8888A0', padding: 16 } },
+                datalabels: { color: '#fff', font: { weight: 'bold', size: 13 }, display: ctx => ctx.dataset.data[ctx.dataIndex] > 0 }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+
+    // Chart 3: By type
+    destroyChart('chartType');
+    const types = {};
+    anomalies.forEach(a => { types[a.tipo] = (types[a.tipo] || 0) + 1; });
+    const typeLabels = Object.keys(types);
+    const typeColors = ['#2563EB', '#06B6D4', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#F97316'];
+    chartInstances['chartType'] = new Chart(document.getElementById('chartType'), {
+        type: 'polarArea',
+        data: {
+            labels: typeLabels,
+            datasets: [{ data: typeLabels.map(t => types[t]), backgroundColor: typeLabels.map((_, i) => typeColors[i % typeColors.length] + 'cc'), borderWidth: 0 }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom', labels: { color: '#8888A0', padding: 12 } },
+                datalabels: { color: '#fff', font: { weight: 'bold' }, display: ctx => ctx.dataset.data[ctx.dataIndex] > 0 }
+            },
+            scales: { r: { grid: { color: '#1A1A24' }, ticks: { display: false } } }
+        },
+        plugins: [ChartDataLabels]
+    });
+
+    // Chart 4: By zone
+    destroyChart('chartZone');
+    const zoneCounts = ZONES.map(z => anomalies.filter(a => a.pos >= z.start && a.pos <= z.end).length);
+    chartInstances['chartZone'] = new Chart(document.getElementById('chartZone'), {
+        type: 'bar',
+        data: {
+            labels: ZONES.map(z => z.name.replace('Área ','').replace('Influência ','')),
+            datasets: [{ label: 'Anomalias', data: zoneCounts, backgroundColor: ZONES.map(z => z.color + 'cc'), borderRadius: 6 }]
+        },
+        options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false }, datalabels: { color: '#fff', font: { weight: 'bold', size: 12 }, anchor: 'end', align: 'start', display: ctx => ctx.dataset.data[ctx.dataIndex] > 0 } }, scales: { x: { grid: { color: '#1A1A24' }, beginAtZero: true }, y: { grid: { display: false } } } },
+        plugins: [ChartDataLabels]
+    });
+
+    // Chart 5: Chumbadores por zona
+    destroyChart('chartChumb');
+    const chumbZone = ZONES.map(z => {
+        return anomalies.filter(a => a.pos >= z.start && a.pos <= z.end).reduce((sum, a) => sum + (a.chumb || 4), 0);
+    });
+
+
+
+
+
+    const chumbOkZone = ZONES.map((z, i) => ((z.end - z.start + 1) * 2 * 4) - chumbZone[i]);
+    chartInstances['chartChumb'] = new Chart(document.getElementById('chartChumb'), {
+        type: 'bar',
+        data: {
+            labels: ZONES.map(z => z.name.replace('Área ','').replace('Influência ','')),
+            datasets: [
+                { label: 'P/ Troca', data: chumbZone, backgroundColor: 'rgba(239,68,68,0.8)', borderRadius: 4 },
+                { label: 'Conformes', data: chumbOkZone, backgroundColor: 'rgba(16,185,129,0.5)', borderRadius: 4 },
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { labels: { color: '#8888A0' } },
+                datalabels: { color: '#fff', font: { weight: 'bold', size: 11 }, display: ctx => ctx.dataset.data[ctx.dataIndex] > 0 }
+            },
+            scales: {
+                x: { stacked: true, grid: { color: '#1A1A24' } },
+                y: { stacked: true, grid: { color: '#1A1A24' }, beginAtZero: true, title: { display: true, text: 'Chumbadores', color: '#8888A0' } }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+
+    // Chart 6: Chumbadores total (doughnut)
+    destroyChart('chartChumbTotal');
+    
+    const chumbTrocaTotal = anomalies.reduce((sum, a) => sum + (a.chumb || 4), 0);
+    const chumbOkTotal = 720 - chumbTrocaTotal;
+    
+    
+    chartInstances['chartChumbTotal'] = new Chart(document.getElementById('chartChumbTotal'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Conformes', 'P/ Troca'],
+            datasets: [{
+                data: [chumbOkTotal, chumbTrocaTotal],
+                backgroundColor: ['rgba(16,185,129,0.7)', 'rgba(239,68,68,0.8)'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '55%',
+            plugins: {
+                legend: { position: 'bottom', labels: { color: '#8888A0', padding: 16 } },
+                datalabels: { color: '#fff', font: { weight: 'bold', size: 14 }, display: ctx => ctx.dataset.data[ctx.dataIndex] > 0 }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+
+    // Chart 5: Profile along rail
+    destroyChart('chartProfile');
+    const ldProfile = [], leProfile = [], labels = [];
+    for (let i = 1; i <= 90; i++) {
+        labels.push(i);
+        ldProfile.push(getMaxSeverity(i, 'LD'));
+        leProfile.push(-getMaxSeverity(i, 'LE')); // negative for mirrored view
+    }
+    chartInstances['chartProfile'] = new Chart(document.getElementById('chartProfile'), {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                { label: 'LD', data: ldProfile, backgroundColor: 'rgba(245,158,11,0.6)', borderRadius: 2 },
+                { label: 'LE', data: leProfile, backgroundColor: 'rgba(249,115,22,0.6)', borderRadius: 2 },
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: '#8888A0' } }, datalabels: { display: false } },
+            scales: {
+                x: { grid: { color: '#1A1A24' }, ticks: { callback: v => (v+1) % 5 === 0 ? v+1 : '', color: '#555568', font: { size: 9 } } },
+                y: { grid: { color: '#1A1A24' }, ticks: { callback: v => Math.abs(v), color: '#8888A0' }, title: { display: true, text: 'Severidade', color: '#8888A0' } }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+}
+
+function destroyChart(id) {
+    if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+}
+
+// ============================
+// EVIDENCE
+// ============================
+function getZoneRange(zoneId) {
+    const ranges = { anterior: {start:1,end:30}, bfd: {start:31,end:60}, posterior: {start:61,end:90} };
+    return ranges[zoneId] || ranges.anterior;
+}
+
+function buildPositionSelect(zoneId) {
+    const r = getZoneRange(zoneId);
+    let html = '<option value="">Vincular à posição...</option>';
+    for (let i = r.start; i <= r.end; i++) {
+        const anoms = anomalies.filter(a => a.pos === i);
+        const suffix = anoms.length > 0 ? ' ★' : '';
+        html += `<option value="${i}">Pos ${i}${suffix}</option>`;
+    }
+    return html;
+}
+
+function getAnomalyDescForPos(pos) {
+    const anoms = anomalies.filter(a => a.pos === parseInt(pos));
+    if (anoms.length === 0) return '';
+    return anoms.map(a => `${a.lado}: ${a.desc}`).join(' | ');
+}
+
+function addEvidenceSlot(zoneId, imgDataUrl) {
+    evidenceCounter++;
+    const grid = document.getElementById('evidenceGrid-' + zoneId);
+    if (!grid) return;
+    const id = 'ev-' + evidenceCounter;
+    const div = document.createElement('div');
+    div.className = 'evidence-card';
+    div.setAttribute('data-zone', zoneId);
+    div.innerHTML = `
+        <div class="evidence-upload" onclick="document.getElementById('${id}-file').click()">
+            <input type="file" id="${id}-file" accept="image/*" style="display:none;" onchange="handleEvUpload(this,'${id}-img')">
+            <img id="${id}-img" alt="">
+            <div class="upload-ph"><div class="ico">📷</div><div>Clique para adicionar foto</div></div>
+        </div>
+        <div class="evidence-meta">
+            <select onchange="onEvPosChange(this)">${buildPositionSelect(zoneId)}</select>
+            <div class="ev-desc-label" style="font-size:0.78em;color:var(--text-muted);font-style:italic;min-height:18px;margin-top:2px;"></div>
+            <div style="display:flex;gap:6px;margin-top:4px;">
+                <button class="btn-remove" style="flex:1;" onclick="this.closest('.evidence-card').remove()">✕ Remover</button>
+            </div>
+        </div>
+    `;
+    grid.appendChild(div);
+    if (imgDataUrl) {
+        const img = document.getElementById(id + '-img');
+        img.src = imgDataUrl;
+        div.querySelector('.evidence-upload').classList.add('has-image');
+    }
+    return id;
+}
+
+function onEvPosChange(select) {
+    const descLabel = select.closest('.evidence-meta').querySelector('.ev-desc-label');
+    if (select.value) {
+        const desc = getAnomalyDescForPos(select.value);
+        descLabel.textContent = desc || 'Sem anomalia registrada nesta posição';
+        descLabel.style.color = desc ? 'var(--accent-cyan)' : 'var(--text-muted)';
+    } else {
+        descLabel.textContent = '';
+    }
+}
+
+function handleEvUpload(input, previewId) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const img = document.getElementById(previewId);
+            img.src = e.target.result;
+            input.closest('.evidence-upload').classList.add('has-image');
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function handleZoneUpload(input, zoneId) {
+    if (!input.files || input.files.length === 0) return;
+    const count = input.files.length;
+    Array.from(input.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            addEvidenceSlot(zoneId, e.target.result);
+        };
+        reader.readAsDataURL(file);
+    });
+    input.value = '';
+    showToast(`📷 ${count} foto(s) adicionada(s) na zona!`);
+}
+
+function handleRefUpload(input) {
+    // legacy — kept for compat
+}
+
+// ============================
+// DRAWING GALLERY
+// ============================
+let drawingCounter = 0;
+
+function addDrawingSlot(title, description) {
+    drawingCounter++;
+    const id = 'dwg-' + drawingCounter;
+    const gallery = document.getElementById('drawingsGallery');
+    const div = document.createElement('div');
+    div.className = 'drawing-card';
+    div.id = id + '-card';
+    div.innerHTML = `
+        <div class="drawing-card-header">
+            <input type="text" value="${title || 'Figura ' + drawingCounter + ': Desenho de Referência'}" placeholder="Título do desenho...">
+            <div style="display:flex;gap:8px;">
+                <button class="btn-add" style="padding:8px 14px;font-size:0.82em;" onclick="document.getElementById('${id}-file').click()">📎 Trocar Imagem</button>
+                <button class="btn-remove" onclick="removeDrawing('${id}-card')">✕ Remover</button>
+            </div>
+        </div>
+        <div class="drawing-upload-area" onclick="document.getElementById('${id}-file').click()">
+            <input type="file" id="${id}-file" accept="image/*,.pdf" style="display:none;" onchange="handleDrawingUpload(this, '${id}-img')">
+            <img id="${id}-img" alt="">
+            <div class="drawing-ph">
+                <div class="ph-icon">📐</div>
+                <div class="ph-title">Clique para inserir desenho de projeto</div>
+                <div class="ph-sub">Suporta imagens (JPG, PNG) — Tamanho recomendado: alta resolução</div>
+                <div class="ph-sub" style="margin-top:8px;">Arraste e solte o arquivo aqui</div>
+            </div>
+        </div>
+        <div class="drawing-card-footer">
+            <textarea placeholder="Descrição / Observações do desenho...">${description || ''}</textarea>
+        </div>
+    `;
+    gallery.appendChild(div);
+
+    // Drag and drop
+    const uploadArea = div.querySelector('.drawing-upload-area');
+    uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.style.borderColor = 'var(--accent-blue)'; });
+    uploadArea.addEventListener('dragleave', e => { e.preventDefault(); uploadArea.style.borderColor = ''; });
+    uploadArea.addEventListener('drop', e => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '';
+        const fileInput = div.querySelector('input[type="file"]');
+        if (e.dataTransfer.files.length > 0) {
+            fileInput.files = e.dataTransfer.files;
+            handleDrawingUpload(fileInput, id + '-img');
+        }
+    });
+
+    showToast('Área de desenho adicionada');
+    return id;
+}
+
+function handleDrawingUpload(input, previewId) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const img = document.getElementById(previewId);
+            img.src = e.target.result;
+            input.closest('.drawing-upload-area').classList.add('has-image');
+            showToast('✅ Desenho inserido com sucesso!');
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function removeDrawing(cardId) {
+    if (confirm('Remover este desenho?')) {
+        document.getElementById(cardId).remove();
+        showToast('Desenho removido');
+    }
+}
+
+// ============================
+// SAVE / EXPORT
+// ============================
+// ============================
+// PDF GENERATION
+// ============================
+function gerarPDF() {
+    showToast('📄 Preparando PDF — renderizando todas as seções...');
+
+    // 1. Show all tabs
+    document.querySelectorAll('.tab-content').forEach(t => {
+        t.style.display = 'block';
+    });
+
+    // 2. Hide empty drawing cards (no image uploaded)
+    document.querySelectorAll('.drawing-card').forEach(card => {
+        const area = card.querySelector('.drawing-upload-area');
+        if (area && !area.classList.contains('has-image')) {
+            card.setAttribute('data-print-hidden', 'true');
+            card.style.display = 'none';
+        }
+    });
+
+    // 3. Hide empty evidence cards (no image uploaded)
+    document.querySelectorAll('.evidence-card').forEach(card => {
+        const area = card.querySelector('.evidence-upload');
+        if (area && !area.classList.contains('has-image')) {
+            card.setAttribute('data-print-hidden', 'true');
+            card.style.display = 'none';
+        }
+    });
+
+    // 4. Re-render diagram & heatmap & charts
+    renderDiagram();
+    renderHeatmap();
+    updateCharts();
+
+    // 5. Print after render
+    setTimeout(() => {
+        window.print();
+
+        // 6. Restore state
+        setTimeout(() => {
+            document.querySelectorAll('.tab-content').forEach(t => {
+                t.style.display = '';
+            });
+            document.querySelectorAll('[data-print-hidden]').forEach(el => {
+                el.style.display = '';
+                el.removeAttribute('data-print-hidden');
+            });
+            const activeBtn = document.querySelector('.tab-btn.active');
+            if (activeBtn) {
+                const tabId = activeBtn.dataset.tab;
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.getElementById('tab-' + tabId).classList.add('active');
+            }
+        }, 500);
+    }, 800);
+}
+
+// ============================
+// PPTX EXPORT
+// ============================
+async function exportarPPTX() {
+    // Check if library loaded
+    if (typeof PptxGenJS === 'undefined') {
+        showToast('⚠ Biblioteca PPTX não carregou. Verifique conexão com internet.');
+        return;
+    }
+
+    showToast('📊 Gerando apresentação PowerPoint...');
+
+    try {
+
+    // Ensure charts are rendered
+    document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'block');
+    updateCharts();
+
+    await new Promise(r => setTimeout(r, 600));
+
+    const pres = new PptxGenJS();
+    pres.layout = 'LAYOUT_16x9';
+    pres.author = 'GER Integridade Estrutural';
+    pres.title = 'Inspeção BFD Silo 2 — TLO S11D';
+
+    const C = { navy: '0F172A', blue: '2563EB', cyan: '0891B2', white: 'FFFFFF', light: 'F1F5F9', gray: '64748B', dark: '1E293B', green: '059669', yellow: 'D97706', orange: 'EA580C', red: 'DC2626', purple: '7C3AED' };
+    const mkShadow = () => ({ type: 'outer', blur: 4, offset: 2, angle: 135, color: '000000', opacity: 0.1 });
+
+    // ── SLIDE 1: CAPA ──
+    let s1 = pres.addSlide();
+    s1.background = { color: C.navy };
+    s1.addShape(pres.shapes.RECTANGLE, { x: 0, y: 0, w: 10, h: 0.06, fill: { color: C.blue } });
+    s1.addText('RELATÓRIO DE INSPEÇÃO ESTRUTURAL', { x: 0.8, y: 1.2, w: 8.4, h: 0.8, fontSize: 28, fontFace: 'Arial Black', color: C.white, bold: true });
+    s1.addText('BFD Silo 2 — Balança Ferroviária Dinâmica Bruto — TLO S11D', { x: 0.8, y: 2.1, w: 8.4, h: 0.5, fontSize: 16, fontFace: 'Arial', color: C.blue });
+    s1.addText('Estrutura Civil dos Suportes de Trilhos', { x: 0.8, y: 2.7, w: 8.4, h: 0.4, fontSize: 13, fontFace: 'Arial', color: C.gray });
+    s1.addShape(pres.shapes.RECTANGLE, { x: 0.8, y: 3.4, w: 3, h: 0.03, fill: { color: C.blue } });
+    s1.addText('GER Integridade Estrutural · Vale S.A.\nCanaã dos Carajás — PA', { x: 0.8, y: 3.7, w: 5, h: 0.7, fontSize: 11, fontFace: 'Arial', color: C.gray });
+    const dataStr = new Date().toLocaleDateString('pt-BR');
+    s1.addText(dataStr, { x: 7, y: 4.5, w: 2.5, h: 0.4, fontSize: 12, fontFace: 'Arial', color: C.gray, align: 'right' });
+
+    // ── SLIDE 2: KPIs ──
+    const total = 90;
+    const posSet = new Set(anomalies.map(a => a.pos));
+    const ldSet = new Set(anomalies.filter(a => a.lado === 'LD' || a.lado === 'LD+LE').map(a => a.pos));
+    const leSet = new Set(anomalies.filter(a => a.lado === 'LE' || a.lado === 'LD+LE').map(a => a.pos));
+    const bothSet = new Set([...ldSet].filter(p => leSet.has(p)));
+    const pctDef = Math.round(posSet.size / total * 100);
+
+    let s2 = pres.addSlide();
+    s2.background = { color: C.white };
+    s2.addText('RESUMO EXECUTIVO', { x: 0.5, y: 0.3, w: 9, h: 0.6, fontSize: 22, fontFace: 'Arial Black', color: C.dark, bold: true, margin: 0 });
+    s2.addShape(pres.shapes.RECTANGLE, { x: 0.5, y: 0.85, w: 1.5, h: 0.04, fill: { color: C.blue } });
+
+    const kpis = [
+        { label: 'Total Suportes', value: String(total), color: C.blue },
+        { label: 'Conformes', value: String(total - posSet.size), color: C.green },
+        { label: 'Anomalias LD', value: String(ldSet.size), color: C.yellow },
+        { label: 'Anomalias LE', value: String(leSet.size), color: C.orange },
+        { label: 'Ambos Lados', value: String(bothSet.size), color: C.red },
+        { label: '% Deformação', value: pctDef + '%', color: C.purple },
+    ];
+    kpis.forEach((k, i) => {
+        const col = i % 3;
+        const row = Math.floor(i / 3);
+        const x = 0.5 + col * 3.1;
+        const y = 1.4 + row * 1.6;
+        s2.addShape(pres.shapes.RECTANGLE, { x, y, w: 2.8, h: 1.3, fill: { color: C.light }, shadow: mkShadow() });
+        s2.addShape(pres.shapes.RECTANGLE, { x, y: y + 1.22, w: 2.8, h: 0.08, fill: { color: k.color } });
+        s2.addText(k.value, { x, y: y + 0.1, w: 2.8, h: 0.7, fontSize: 32, fontFace: 'Arial Black', color: k.color, align: 'center', bold: true });
+        s2.addText(k.label, { x, y: y + 0.8, w: 2.8, h: 0.35, fontSize: 10, fontFace: 'Arial', color: C.gray, align: 'center' });
+    });
+
+    // ── SLIDE 3: DIAGRAMA SVG ──
+    let s3 = pres.addSlide();
+    s3.background = { color: C.white };
+    s3.addText('DESENHO DE ARRANJO — MAPEAMENTO DE ANOMALIAS', { x: 0.5, y: 0.3, w: 9, h: 0.6, fontSize: 18, fontFace: 'Arial Black', color: C.dark, bold: true, margin: 0 });
+
+    // Capture SVG diagram as image
+    try {
+        const svgEl = document.querySelector('#railDiagram svg');
+        if (svgEl) {
+            const svgData = new XMLSerializer().serializeToString(svgEl);
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+            const canvas = document.createElement('canvas');
+            canvas.width = 2600; canvas.height = 520;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            const img = new Image();
+            await new Promise((res, rej) => {
+                img.onload = res;
+                img.onerror = rej;
+                img.src = url;
+            });
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const pngData = canvas.toDataURL('image/png');
+            s3.addImage({ data: pngData, x: 0.3, y: 1.1, w: 9.4, h: 1.88 });
+            URL.revokeObjectURL(url);
+        }
+    } catch(e) {
+        s3.addText('Diagrama não disponível — visualize no HTML', { x: 1, y: 2, w: 8, h: 1, fontSize: 14, color: C.gray, align: 'center' });
+    }
+
+    // Legend
+    const legendItems = [
+        { label: 'Conforme', color: '1a3a1a' }, { label: 'Baixo', color: '6b8e23' },
+        { label: 'Médio', color: 'd4960a' }, { label: 'Alto', color: 'd4550a' }, { label: 'Muito Alto', color: 'c41e1e' }
+    ];
+    legendItems.forEach((l, i) => {
+        s3.addShape(pres.shapes.RECTANGLE, { x: 1.5 + i * 1.6, y: 3.2, w: 0.25, h: 0.25, fill: { color: l.color } });
+        s3.addText(l.label, { x: 1.8 + i * 1.6, y: 3.2, w: 1.2, h: 0.25, fontSize: 9, color: C.gray, margin: 0 });
+    });
+
+    // Zone info
+    s3.addText('Área Infl. Anterior (1-30)  |  Base BFD (31-60)  |  Área Infl. Posterior (61-90)', { x: 0.5, y: 3.7, w: 9, h: 0.35, fontSize: 10, color: C.gray, align: 'center' });
+
+    // ── SLIDE 4: CHARTS ──
+    // Capture chart canvases
+    let s4 = pres.addSlide();
+    s4.background = { color: C.white };
+    s4.addText('ANÁLISE GRÁFICA', { x: 0.5, y: 0.3, w: 9, h: 0.5, fontSize: 18, fontFace: 'Arial Black', color: C.dark, bold: true, margin: 0 });
+
+    const chartIds = ['chartLdLe', 'chartSeverity', 'chartType', 'chartZone'];
+    const chartPositions = [
+        { x: 0.3, y: 0.9, w: 4.6, h: 2.2 },
+        { x: 5.1, y: 0.9, w: 4.6, h: 2.2 },
+        { x: 0.3, y: 3.2, w: 4.6, h: 2.2 },
+        { x: 5.1, y: 3.2, w: 4.6, h: 2.2 },
+    ];
+    chartIds.forEach((id, i) => {
+        try {
+            const cvs = document.getElementById(id);
+            if (cvs) {
+                const imgData = cvs.toDataURL('image/png');
+                const p = chartPositions[i];
+                s4.addImage({ data: imgData, x: p.x, y: p.y, w: p.w, h: p.h });
+            }
+        } catch(e) { console.warn('PPTX image error:', e); }
+    });
+
+    // ── SLIDE 5: PROFILE CHART ──
+    let s5 = pres.addSlide();
+    s5.background = { color: C.white };
+    s5.addText('PERFIL DE ANOMALIAS — POSIÇÃO 1 a 90', { x: 0.5, y: 0.3, w: 9, h: 0.5, fontSize: 18, fontFace: 'Arial Black', color: C.dark, bold: true, margin: 0 });
+    try {
+        const profileCvs = document.getElementById('chartProfile');
+        if (profileCvs) {
+            s5.addImage({ data: profileCvs.toDataURL('image/png'), x: 0.3, y: 1.0, w: 9.4, h: 3.8 });
+        }
+    } catch(e) { console.warn('PPTX image error:', e); }
+
+    // ── SLIDE 6: QUANTITATIVO POR ZONA ──
+    let s6 = pres.addSlide();
+    s6.background = { color: C.white };
+    s6.addText('QUANTITATIVO POR ZONA E LADO', { x: 0.5, y: 0.3, w: 9, h: 0.5, fontSize: 18, fontFace: 'Arial Black', color: C.dark, bold: true, margin: 0 });
+
+    const tblHeader = [
+        { text: 'Zona', options: { fill: { color: C.blue }, color: C.white, bold: true, fontSize: 11 } },
+        { text: 'Sup. LD', options: { fill: { color: C.blue }, color: C.white, bold: true, fontSize: 11 } },
+        { text: 'Anom. LD', options: { fill: { color: C.blue }, color: C.white, bold: true, fontSize: 11 } },
+        { text: 'Sup. LE', options: { fill: { color: C.blue }, color: C.white, bold: true, fontSize: 11 } },
+        { text: 'Anom. LE', options: { fill: { color: C.blue }, color: C.white, bold: true, fontSize: 11 } },
+        { text: '% LD', options: { fill: { color: C.blue }, color: C.white, bold: true, fontSize: 11 } },
+        { text: '% LE', options: { fill: { color: C.blue }, color: C.white, bold: true, fontSize: 11 } },
+    ];
+    const tblRows = ZONES.map(z => {
+        const count = z.end - z.start + 1;
+        const ldA = new Set(anomalies.filter(a => a.pos >= z.start && a.pos <= z.end && (a.lado === 'LD' || a.lado === 'LD+LE')).map(a => a.pos)).size;
+        const leA = new Set(anomalies.filter(a => a.pos >= z.start && a.pos <= z.end && (a.lado === 'LE' || a.lado === 'LD+LE')).map(a => a.pos)).size;
+        return [
+            { text: z.name, options: { fontSize: 10 } },
+            { text: String(count), options: { fontSize: 10, align: 'center' } },
+            { text: String(ldA), options: { fontSize: 10, align: 'center', bold: true, color: C.yellow } },
+            { text: String(count), options: { fontSize: 10, align: 'center' } },
+            { text: String(leA), options: { fontSize: 10, align: 'center', bold: true, color: C.orange } },
+            { text: Math.round(ldA/count*100) + '%', options: { fontSize: 10, align: 'center' } },
+            { text: Math.round(leA/count*100) + '%', options: { fontSize: 10, align: 'center' } },
+        ];
+    });
+    s6.addTable([tblHeader, ...tblRows], { x: 0.5, y: 1.1, w: 9, colW: [2.4, 0.9, 0.9, 0.9, 0.9, 0.8, 0.8], border: { pt: 0.5, color: 'D0D0D0' }, rowH: [0.4, 0.4, 0.4, 0.4] });
+
+    // ── SLIDE 7: TOP ANOMALIES ──
+    if (anomalies.length > 0) {
+        let s7 = pres.addSlide();
+        s7.background = { color: C.white };
+        s7.addText('REGISTRO DE ANOMALIAS (Resumo)', { x: 0.5, y: 0.3, w: 9, h: 0.5, fontSize: 18, fontFace: 'Arial Black', color: C.dark, bold: true, margin: 0 });
+
+        const topAnomalies = anomalies.slice(0, 18);
+        const aHeader = [
+            { text: '#', options: { fill: { color: C.blue }, color: C.white, bold: true, fontSize: 9 } },
+            { text: 'Pos', options: { fill: { color: C.blue }, color: C.white, bold: true, fontSize: 9 } },
+            { text: 'Zona', options: { fill: { color: C.blue }, color: C.white, bold: true, fontSize: 9 } },
+            { text: 'Lado', options: { fill: { color: C.blue }, color: C.white, bold: true, fontSize: 9 } },
+            { text: 'Tipo', options: { fill: { color: C.blue }, color: C.white, bold: true, fontSize: 9 } },
+            { text: 'Descrição', options: { fill: { color: C.blue }, color: C.white, bold: true, fontSize: 9 } },
+            { text: 'Sev.', options: { fill: { color: C.blue }, color: C.white, bold: true, fontSize: 9 } },
+        ];
+        const aRows = topAnomalies.map((a, i) => [
+            { text: String(i + 1), options: { fontSize: 8 } },
+            { text: String(a.pos), options: { fontSize: 8, bold: true } },
+            { text: getZone(a.pos).name.replace('Área ','').replace('Influência ',''), options: { fontSize: 8 } },
+            { text: a.lado, options: { fontSize: 8, bold: true } },
+            { text: a.tipo, options: { fontSize: 8 } },
+            { text: a.desc, options: { fontSize: 8 } },
+            { text: getSeverityLabel(a.sev), options: { fontSize: 8, bold: true, color: ['059669','D97706','EA580C','DC2626','B91C1C'][a.sev] || C.gray } },
+        ]);
+        s7.addTable([aHeader, ...aRows], { x: 0.3, y: 0.9, w: 9.4, colW: [0.4, 0.5, 1.5, 0.6, 0.9, 3.8, 0.8], border: { pt: 0.5, color: 'D0D0D0' }, rowH: 0.25 });
+
+        if (anomalies.length > 18) {
+            s7.addText(`+ ${anomalies.length - 18} anomalias adicionais — veja relatório completo`, { x: 0.5, y: 5.0, w: 9, h: 0.3, fontSize: 9, color: C.gray, italic: true, align: 'center' });
+        }
+    }
+
+    // ── SLIDES DE EVIDÊNCIAS FOTOGRÁFICAS ──
+    const zoneLabels = { anterior: 'Área Influência Anterior (1–30)', bfd: 'Base BFD (31–60)', posterior: 'Área Influência Posterior (61–90)' };
+    const zoneColors = { anterior: '3B82F6', bfd: 'A855F7', posterior: '10B981' };
+
+    ['anterior', 'bfd', 'posterior'].forEach(zoneId => {
+        const grid = document.getElementById('evidenceGrid-' + zoneId);
+        if (!grid) return;
+        const cards = grid.querySelectorAll('.evidence-card');
+        const photos = [];
+        cards.forEach(card => {
+            const img = card.querySelector('img');
+            const posSelect = card.querySelector('.evidence-meta select');
+            if (img && img.src && img.src.startsWith('data:')) {
+                const pos = posSelect ? posSelect.value : '';
+                const desc = pos ? getAnomalyDescForPos(pos) : '';
+                photos.push({ src: img.src, pos, desc });
+            }
+        });
+        if (photos.length === 0) return;
+
+        // Create slides with up to 4 photos per slide
+        for (let i = 0; i < photos.length; i += 4) {
+            const batch = photos.slice(i, i + 4);
+            const sEv = pres.addSlide();
+            sEv.background = { color: C.white };
+            sEv.addShape(pres.shapes.RECTANGLE, { x: 0, y: 0, w: 10, h: 0.6, fill: { color: zoneColors[zoneId] } });
+            sEv.addText(`EVIDÊNCIAS — ${zoneLabels[zoneId]}`, { x: 0.5, y: 0.08, w: 9, h: 0.45, fontSize: 14, fontFace: 'Arial Black', color: 'FFFFFF', bold: true, margin: 0 });
+
+            batch.forEach((photo, j) => {
+                const col = j % 2;
+                const row = Math.floor(j / 2);
+                const x = 0.3 + col * 4.9;
+                const y = 0.8 + row * 2.5;
+                try {
+                    sEv.addImage({ data: photo.src.replace(/^data:/, ''), x: x, y: y, w: 4.5, h: 2.0 });
+                } catch(e) { console.warn('PPTX image error:', e); }
+                const label = photo.pos ? `Pos ${photo.pos}` : '';
+                if (label) {
+                    sEv.addText(label, { x: x, y: y + 2.0, w: 4.5, h: 0.3, fontSize: 8, color: C.gray, align: 'center', italic: true });
+                }
+            });
+
+            if (i === 0) {
+                sEv.addText(`${photos.length} foto(s)`, { x: 7, y: 5.2, w: 2.5, h: 0.3, fontSize: 8, color: C.gray, align: 'right' });
+            }
+        }
+    });
+
+    // ── SLIDES DE DESENHOS DE REFERÊNCIA ──
+    const drawingCards = document.querySelectorAll('.drawing-card');
+    const drawingPhotos = [];
+    drawingCards.forEach(card => {
+        const img = card.querySelector('.drawing-upload-area img');
+        const titleInput = card.querySelector('.drawing-card-header input');
+        if (img && img.src && img.src.startsWith('data:')) {
+            drawingPhotos.push({ src: img.src, title: titleInput ? titleInput.value : '' });
+        }
+    });
+    if (drawingPhotos.length > 0) {
+        drawingPhotos.forEach(dw => {
+            const sDw = pres.addSlide();
+            sDw.background = { color: C.white };
+            sDw.addText(dw.title || 'Desenho de Referência', { x: 0.5, y: 0.2, w: 9, h: 0.5, fontSize: 14, fontFace: 'Arial Black', color: C.dark, bold: true, margin: 0 });
+            try {
+                sDw.addImage({ data: dw.src.replace(/^data:/, ''), x: 0.3, y: 0.8, w: 9.4, h: 4.5 });
+            } catch(e) { console.warn('PPTX image error:', e); }
+        });
+    }
+
+    // ── SLIDE FINAL: CONCLUSÃO ──
+    let sF = pres.addSlide();
+    sF.background = { color: C.navy };
+    sF.addShape(pres.shapes.RECTANGLE, { x: 0, y: 5.565, w: 10, h: 0.06, fill: { color: C.blue } });
+    sF.addText('CONCLUSÃO E RECOMENDAÇÕES', { x: 0.8, y: 0.5, w: 8.4, h: 0.6, fontSize: 22, fontFace: 'Arial Black', color: C.white, bold: true });
+    sF.addShape(pres.shapes.RECTANGLE, { x: 0.8, y: 1.05, w: 2, h: 0.04, fill: { color: C.blue } });
+    sF.addText(`Inspeção realizada em ${dataStr}\n${anomalies.length} anomalias registradas em ${posSet.size} de ${total} suportes (${pctDef}%)\n\nConsulte o relatório HTML completo para evidências fotográficas,\ndesenhos de referência e detalhamento completo.`, { x: 0.8, y: 1.5, w: 8.4, h: 2.5, fontSize: 14, fontFace: 'Arial', color: C.gray, lineSpacingMultiple: 1.4 });
+    sF.addText('GER Integridade Estrutural · Vale S.A.', { x: 0.8, y: 4.8, w: 5, h: 0.4, fontSize: 11, color: C.gray });
+
+    // Restore tabs
+    document.querySelectorAll('.tab-content').forEach(t => t.style.display = '');
+    const activeBtn = document.querySelector('.tab-btn.active');
+    if (activeBtn) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById('tab-' + activeBtn.dataset.tab).classList.add('active');
+    }
+
+    // Save
+    await pres.writeFile({ fileName: `BFD_Silo2_Inspecao_${new Date().toISOString().slice(0,10)}.pptx` });
+    showToast('📊 PowerPoint gerado com sucesso!');
+
+    } catch(err) {
+        console.error('PPTX Error:', err);
+        showToast('⚠ Erro ao gerar PPTX: ' + err.message);
+    }
+}
+
+// ============================
+// COLLECT ALL STATE (anomalies + photos + texts)
+// ============================
+function collectFullState() {
+    // Collect evidence photos per zone
+    const evidencias = [];
+    ['anterior', 'bfd', 'posterior'].forEach(zoneId => {
+        const grid = document.getElementById('evidenceGrid-' + zoneId);
+        if (!grid) return;
+        grid.querySelectorAll('.evidence-card').forEach(card => {
+            const img = card.querySelector('img');
+            const posSelect = card.querySelector('.evidence-meta select');
+            if (img && img.src && img.src.startsWith('data:')) {
+                evidencias.push({
+                    src: img.src,
+                    pos: posSelect ? posSelect.value : '',
+                    zona: zoneId,
+                });
+            }
+        });
+    });
+
+    // Collect drawing photos
+    const desenhos = [];
+    document.querySelectorAll('.drawing-card').forEach(card => {
+        const img = card.querySelector('img');
+        const titleInput = card.querySelector('.drawing-card-header input');
+        const descTA = card.querySelector('.drawing-card-footer textarea');
+        if (img && img.src && img.src.startsWith('data:')) {
+            desenhos.push({
+                src: img.src,
+                title: titleInput ? titleInput.value : '',
+                desc: descTA ? descTA.value : '',
+            });
+        }
+    });
+
+    // Collect text fields
+    const textos = {
+        conclusao: document.getElementById('txt-conclusao') ? document.getElementById('txt-conclusao').value : '',
+        engenharia: document.getElementById('txt-eng') ? document.getElementById('txt-eng').value : '',
+        inspecao: document.getElementById('txt-insp') ? document.getElementById('txt-insp').value : '',
+        manutencao: document.getElementById('txt-manut') ? document.getElementById('txt-manut').value : '',
+    };
+
+    return { anomalies, evidencias, desenhos, textos };
+}
+
+function restoreFullState(data) {
+    // Restore anomalies
+    if (data.anomalias && Array.isArray(data.anomalias)) {
+        anomalies = data.anomalias;
+    } else if (data.anomalies && Array.isArray(data.anomalies)) {
+        anomalies = data.anomalies;
+    }
+
+    // Restore evidence photos per zone
+    if (data.evidencias && Array.isArray(data.evidencias)) {
+        ['anterior', 'bfd', 'posterior'].forEach(z => {
+            const grid = document.getElementById('evidenceGrid-' + z);
+            if (grid) grid.innerHTML = '';
+        });
+        evidenceCounter = 0;
+        data.evidencias.forEach(ev => {
+            const zoneId = ev.zona || 'anterior';
+            const id = addEvidenceSlot(zoneId, ev.src);
+            const card = document.getElementById(id + '-img').closest('.evidence-card');
+            if (card) {
+                const posSelect = card.querySelector('.evidence-meta select');
+                if (posSelect && ev.pos) {
+                    posSelect.value = ev.pos;
+                    onEvPosChange(posSelect);
+                }
+            }
+        });
+    }
+
+    // Restore drawing photos
+    if (data.desenhos && Array.isArray(data.desenhos)) {
+        document.getElementById('drawingsGallery').innerHTML = '';
+        drawingCounter = 0;
+        data.desenhos.forEach(dw => {
+            addDrawingSlot(dw.title, dw.desc);
+            // Set image
+            const imgId = 'dwg-' + drawingCounter + '-img';
+            const img = document.getElementById(imgId);
+            if (img && dw.src) {
+                img.src = dw.src;
+                img.closest('.drawing-upload-area').classList.add('has-image');
+            }
+        });
+    }
+
+    // Restore text fields
+    if (data.textos) {
+        if (data.textos.conclusao && document.getElementById('txt-conclusao')) document.getElementById('txt-conclusao').value = data.textos.conclusao;
+        if (data.textos.engenharia && document.getElementById('txt-eng')) document.getElementById('txt-eng').value = data.textos.engenharia;
+        if (data.textos.inspecao && document.getElementById('txt-insp')) document.getElementById('txt-insp').value = data.textos.inspecao;
+        if (data.textos.manutencao && document.getElementById('txt-manut')) document.getElementById('txt-manut').value = data.textos.manutencao;
+    }
+
+    renderAnomalyTable();
+    updateKPIs();
+    renderDiagram();
+    renderHeatmap();
+}
+
+// ============================
+// SAVE / EXPORT / IMPORT
+// ============================
+function salvarDados() {
+    showToast('💾 Salvando dados e fotos...');
+    const state = collectFullState();
+    const data = {
+        timestamp: new Date().toISOString(),
+        ...state,
+    };
+    try {
+        localStorage.setItem('bfd_silo2_inspecao', JSON.stringify(data));
+        showToast('💾 Salvo com sucesso (dados + fotos)!');
+    } catch(e) {
+        if (e.name === 'QuotaExceededError') {
+            showToast('⚠ Memória cheia — muitas fotos. Use Exportar JSON para salvar em arquivo.');
+        } else {
+            showToast('⚠ Erro ao salvar: ' + e.message);
+        }
+    }
+}
+
+function exportarJSON() {
+    showToast('📤 Exportando dados completos...');
+    const state = collectFullState();
+    const data = {
+        relatorio: 'BFD Silo 2 — Inspeção Estrutural',
+        data_export: new Date().toISOString(),
+        total_suportes: 90,
+        anomalias: state.anomalies,
+        evidencias: state.evidencias,
+        desenhos: state.desenhos,
+        textos: state.textos,
+        resumo: {
+            total_anomalias: anomalies.length,
+            posicoes_afetadas: new Set(anomalies.map(a => a.pos)).size,
+            anomalias_ld: anomalies.filter(a => a.lado === 'LD' || a.lado === 'LD+LE').length,
+            anomalias_le: anomalies.filter(a => a.lado === 'LE' || a.lado === 'LD+LE').length,
+        }
+    };
+    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `BFD_Silo2_Inspecao_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    showToast('📤 JSON exportado (dados + fotos + textos)!');
+}
+
+function importarJSON(input) {
+    if (!input.files || !input.files[0]) return;
+    showToast('📥 Carregando arquivo...');
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            restoreFullState(data);
+            const nFotos = (data.evidencias ? data.evidencias.length : 0) + (data.desenhos ? data.desenhos.length : 0);
+            showToast(`📥 Importado: ${anomalies.length} anomalias + ${nFotos} fotos carregadas!`);
+        } catch(err) {
+            showToast('⚠ Erro ao ler JSON: ' + err.message);
+        }
+        input.value = '';
+    };
+    reader.readAsText(input.files[0]);
+}
+
+function showToast(msg) {
+    const old = document.querySelector('.toast');
+    if (old) old.remove();
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.transition = 'opacity 0.3s'; t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 2500);
+}
+
+// ============================
+// INIT
+// ============================
+function init() {
+    // Try to load saved data
+    const saved = localStorage.getItem('bfd_silo2_inspecao');
+    let loadedFromStorage = false;
+    if (saved) {
+        try {
+            const data = JSON.parse(saved);
+            const hasData = (data.anomalies && data.anomalies.length > 0) || (data.anomalias && data.anomalias.length > 0) || (data.evidencias && data.evidencias.length > 0);
+            if (hasData) {
+                if (confirm('📋 Dados salvos encontrados!\n\nDeseja carregar os dados da última sessão (anomalias + fotos)?')) {
+                    restoreFullState(data);
+                    loadedFromStorage = true;
+                }
+            }
+        } catch(e) { console.warn('PPTX image error:', e); }
+    }
+
+    if (!loadedFromStorage) {
+        renderDiagram();
+        renderAnomalyTable();
+        updateKPIs();
+        renderHeatmap();
+
+        // Default drawing slots
+        addDrawingSlot('Figura 1: Cadastral SILO 2 — BFD BRUTO — TLO S11D — Layout 1', 'Desenho cadastral de referência com layout geral da BFD e áreas de influência.');
+        addDrawingSlot('Figura 2: BFD Classe 0,2 sobre Concreto — Espaçamento Placas de Apoio — Prancha 02/03', 'Detalhes de espaçamento entre placas de apoio, trilhos instrumentados e juntas de dilatação.');
+        addDrawingSlot('Figura 3: Vista Panorâmica / Foto de Campo', '');
+    }
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal de Integridade Estrutural · VPS Executive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Design tokens ─────────────────────────────────── */
+    :root {
+      --bg:           #edf1f7;
+      --bg-2:         #e4eaf2;
+      --white:        #ffffff;
+      --sidebar:      #0b1730;
+      --sidebar-2:    #0f2040;
+      --border:       #dde3ed;
+      --border-2:     #c8d2e0;
+      --text:         #111827;
+      --text-2:       #4b5563;
+      --text-3:       #9ca3af;
+      --primary:      #1554a3;
+      --primary-2:    #1b6dd4;
+      --primary-pale: #e8f0fc;
+      --plan:         #0891b2;
+      --plan-pale:    #e0f7fa;
+      --do:           #059669;
+      --do-pale:      #d1fae5;
+      --check:        #d97706;
+      --check-pale:   #fef3c7;
+      --act:          #7c3aed;
+      --act-pale:     #ede9fe;
+      --danger:       #dc2626;
+      --danger-pale:  #fee2e2;
+      --sidebar-w:    272px;
+      --r-xl:         22px;
+      --r-lg:         16px;
+      --r-md:         12px;
+      --r-sm:         8px;
+      --shadow-sm:    0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.06);
+      --shadow-md:    0 4px 16px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06);
+      --shadow-lg:    0 12px 40px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.06);
+      --shadow-xl:    0 24px 64px rgba(0,0,0,0.16);
+    }
+
+    /* ─── Reset ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; height: 100%; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+    button { border: none; background: none; cursor: pointer; font: inherit; color: inherit; }
+    img { display: block; max-width: 100%; }
+    input, select { font: inherit; }
+
+    /* ─── Layout ─────────────────────────────────────────── */
+    .layout {
+      display: grid;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      min-height: 100vh;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       SIDEBAR
+    ════════════════════════════════════════════════════════ */
+    .sidebar {
+      background: var(--sidebar);
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.18);
+      z-index: 10;
+    }
+
+    /* brand */
+    .sb-brand {
+      padding: 22px 20px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      flex-shrink: 0;
+    }
+
+    .sb-logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .sb-logo-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #1b6dd4, #0891b2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 14px rgba(27,109,212,0.45);
+      flex-shrink: 0;
+    }
+
+    .sb-logo-text { flex: 1; }
+
+    .sb-sup {
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 2px;
+    }
+
+    .sb-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .sb-search {
+      position: relative;
+    }
+
+    .sb-search input {
+      width: 100%;
+      padding: 9px 12px 9px 34px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--r-md);
+      color: #fff;
+      font-size: 0.8rem;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .sb-search input:focus {
+      border-color: rgba(27,109,212,0.7);
+      background: rgba(27,109,212,0.12);
+    }
+
+    .sb-search input::placeholder { color: rgba(255,255,255,0.3); }
+
+    .sb-search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.3);
+      pointer-events: none;
+    }
+
+    /* nav */
+    .sb-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 10px;
+    }
+
+    .sb-nav::-webkit-scrollbar { width: 3px; }
+    .sb-nav::-webkit-scrollbar-track { background: transparent; }
+    .sb-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+    .sb-phase {
+      margin-top: 6px;
+      margin-bottom: 2px;
+    }
+
+    .sb-phase-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px 5px;
+    }
+
+    .sb-phase-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .sb-phase-label {
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .sb-phase-line {
+      flex: 1;
+      height: 1px;
+      opacity: 0.15;
+      background: currentColor;
+    }
+
+    .sb-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: var(--r-md);
+      color: rgba(255,255,255,0.55);
+      font-size: 0.78rem;
+      font-weight: 500;
+      text-align: left;
+      transition: all 0.18s;
+      line-height: 1.35;
+      position: relative;
+    }
+
+    .sb-item:hover {
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.9);
+    }
+
+    .sb-item.active {
+      background: rgba(27,109,212,0.22);
+      color: #93c5fd;
+      font-weight: 600;
+    }
+
+    .sb-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 20%;
+      height: 60%;
+      width: 3px;
+      background: #3b82f6;
+      border-radius: 0 3px 3px 0;
+    }
+
+    .sb-item-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+
+    .sb-item.active .sb-item-dot { opacity: 1; }
+
+    .sb-item-cnt {
+      margin-left: auto;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.07);
+      padding: 1px 6px;
+      border-radius: 999px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .sb-item.active .sb-item-cnt {
+      color: #93c5fd;
+      background: rgba(59,130,246,0.18);
+    }
+
+    /* footer */
+    .sb-footer {
+      padding: 14px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      flex-shrink: 0;
+    }
+
+    .sb-footer-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: var(--r-lg);
+      padding: 13px 15px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .sb-fc-group {}
+    .sb-fc-lbl { font-size: 0.68rem; color: rgba(255,255,255,0.4); margin-bottom: 2px; }
+    .sb-fc-val { font-size: 1.45rem; font-weight: 900; color: #fff; letter-spacing: -0.04em; }
+
+    /* ════════════════════════════════════════════════════════
+       MAIN
+    ════════════════════════════════════════════════════════ */
+    .main {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* topbar */
+    .topbar {
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      height: 54px;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+    }
+
+    .tb-crumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--text-2);
+    }
+
+    .tb-sep { color: var(--text-3); font-size: 0.65rem; }
+    .tb-current { color: var(--text); font-weight: 600; }
+
+    .tb-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tb-chip {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.73rem;
+      font-weight: 600;
+      color: var(--text-2);
+      padding: 5px 11px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .online-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--do);
+      box-shadow: 0 0 0 2px rgba(5,150,105,0.25);
+      animation: glow 2.2s ease-in-out infinite;
+    }
+
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 0 2px rgba(5,150,105,0.25); }
+      50%       { box-shadow: 0 0 0 5px rgba(5,150,105,0.0); }
+    }
+
+    /* ─── Content ─────────────────────────────────────────── */
+    .content { padding: 26px 28px 48px; flex: 1; }
+
+    /* ════════════════════════════════════════════════════════
+       HERO BANNER
+    ════════════════════════════════════════════════════════ */
+    .hero {
+      background: linear-gradient(120deg, #0b1730 0%, #0f2848 55%, #0e3060 100%);
+      border-radius: var(--r-xl);
+      padding: 32px 36px;
+      margin-bottom: 22px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-xl);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 200px;
+    }
+
+    /* decorative rings */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -120px; right: 260px;
+      width: 380px; height: 380px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.06);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -80px; right: 220px;
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.04);
+      pointer-events: none;
+    }
+
+    .hero-left { flex: 1; min-width: 0; z-index: 1; }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #60a5fa;
+      background: rgba(59,130,246,0.15);
+      border: 1px solid rgba(59,130,246,0.25);
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+
+    .hero-eyebrow-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #60a5fa;
+    }
+
+    .hero h1 {
+      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+      font-size: clamp(1.55rem, 2.6vw, 2.2rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(90deg, #60a5fa, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-desc {
+      color: rgba(255,255,255,0.55);
+      font-size: 0.875rem;
+      line-height: 1.7;
+      max-width: 480px;
+      margin-bottom: 22px;
+    }
+
+    /* KPI strip */
+    .hero-kpis {
+      display: flex;
+      gap: 0;
+    }
+
+    .hero-kpi {
+      padding-right: 24px;
+      margin-right: 24px;
+      border-right: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .hero-kpi:last-child { border-right: none; padding-right: 0; margin-right: 0; }
+
+    .hero-kpi-val {
+      font-size: 1.9rem;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      color: #fff;
+      line-height: 1;
+      margin-bottom: 3px;
+    }
+
+    .hero-kpi-lbl {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.45);
+      font-weight: 500;
+    }
+
+    /* VPS logo right */
+    .hero-right {
+      flex-shrink: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .vps-logo-wrap {
+      position: relative;
+      width: clamp(160px, 18vw, 240px);
+    }
+
+    .vps-logo-ring {
+      position: absolute;
+      inset: -16px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.06);
+      pointer-events: none;
+    }
+
+    .vps-logo-ring-2 {
+      position: absolute;
+      inset: -30px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.03);
+      pointer-events: none;
+    }
+
+    .vps-logo-img {
+      width: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 32px rgba(8,145,178,0.4)) drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+      animation: floatLogo 5s ease-in-out infinite;
+    }
+
+    @keyframes floatLogo {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-7px); }
+    }
+
+    /* ════════════════════════════════════════════════════════
+       KPI ROW
+    ════════════════════════════════════════════════════════ */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .kpi-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+
+    .kpi-plan::before  { background: var(--plan); }
+    .kpi-do::before    { background: var(--do); }
+    .kpi-check::before { background: var(--check); }
+    .kpi-act::before   { background: var(--act); }
+
+    .kpi-label {
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .kpi-plan .kpi-label  { color: var(--plan); }
+    .kpi-do .kpi-label    { color: var(--do); }
+    .kpi-check .kpi-label { color: var(--check); }
+    .kpi-act .kpi-label   { color: var(--act); }
+
+    .kpi-main {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .kpi-sub {
+      font-size: 0.72rem;
+      color: var(--text-3);
+      line-height: 1.4;
+    }
+
+    .kpi-icon {
+      position: absolute;
+      right: 14px;
+      top: 14px;
+      font-size: 1.4rem;
+      opacity: 0.12;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       CONTROLS
+    ════════════════════════════════════════════════════════ */
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .ctrl-search {
+      flex: 1;
+      min-width: 220px;
+      position: relative;
+    }
+
+    .ctrl-search input {
+      width: 100%;
+      padding: 11px 16px 11px 40px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      color: var(--text);
+      font-size: 0.86rem;
+      outline: none;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .ctrl-search input:focus {
+      border-color: var(--primary-2);
+      box-shadow: 0 0 0 3px rgba(27,109,212,0.12), var(--shadow-sm);
+    }
+
+    .ctrl-search input::placeholder { color: var(--text-3); }
+
+    .ctrl-search-icon {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.88rem;
+      color: var(--text-3);
+      pointer-events: none;
+    }
+
+    .ctrl-select-wrap {
+      position: relative;
+      min-width: 220px;
+    }
+
+    .ctrl-select-wrap select {
+      width: 100%;
+      padding: 11px 36px 11px 14px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      color: var(--text);
+      font-size: 0.84rem;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.2s;
+    }
+
+    .ctrl-select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-3);
+      font-size: 0.75rem;
+      pointer-events: none;
+    }
+
+    .ctrl-select-wrap select:focus { border-color: var(--primary-2); }
+
+    /* ════════════════════════════════════════════════════════
+       SECTION HEADER
+    ════════════════════════════════════════════════════════ */
+    .sec-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .sec-title {
+      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .sec-count {
+      font-size: 0.8rem;
+      color: var(--text-3);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       CARDS GRID
+    ════════════════════════════════════════════════════════ */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       MODULE CARD
+    ════════════════════════════════════════════════════════ */
+    .mod-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+      overflow: hidden;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .mod-card:nth-child(1)  { animation-delay: 0.04s; }
+    .mod-card:nth-child(2)  { animation-delay: 0.08s; }
+    .mod-card:nth-child(3)  { animation-delay: 0.12s; }
+    .mod-card:nth-child(4)  { animation-delay: 0.16s; }
+    .mod-card:nth-child(5)  { animation-delay: 0.20s; }
+    .mod-card:nth-child(6)  { animation-delay: 0.24s; }
+    .mod-card:nth-child(7)  { animation-delay: 0.28s; }
+    .mod-card:nth-child(8)  { animation-delay: 0.32s; }
+    .mod-card:nth-child(9)  { animation-delay: 0.36s; }
+
+    .mod-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* colored top accent */
+    .mod-accent {
+      height: 5px;
+      width: 100%;
+    }
+
+    .acc-plan  { background: linear-gradient(90deg, var(--plan), #38bdf8); }
+    .acc-do    { background: linear-gradient(90deg, var(--do), #34d399); }
+    .acc-check { background: linear-gradient(90deg, var(--check), #fbbf24); }
+    .acc-act   { background: linear-gradient(90deg, var(--act), #a78bfa); }
+    .acc-ref   { background: linear-gradient(90deg, var(--text-3), #9ca3af); }
+
+    .mod-body { padding: 18px 20px 16px; flex: 1; display: flex; flex-direction: column; }
+
+    .mod-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .mod-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      flex-shrink: 0;
+    }
+
+    .icon-plan  { background: var(--plan-pale);  }
+    .icon-do    { background: var(--do-pale);    }
+    .icon-check { background: var(--check-pale); }
+    .icon-act   { background: var(--act-pale);   }
+    .icon-ref   { background: var(--bg-2); }
+
+    .mod-badges {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.67rem;
+      font-weight: 700;
+    }
+
+    .badge-alta   { background: var(--danger-pale); color: var(--danger); }
+    .badge-media  { background: var(--check-pale);  color: var(--check);  }
+    .badge-baixa  { background: var(--do-pale);     color: var(--do);     }
+
+    .badge-id {
+      font-size: 0.65rem;
+      color: var(--text-3);
+      font-weight: 600;
+    }
+
+    .mod-title {
+      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+      font-size: 0.975rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 7px;
+      line-height: 1.35;
+    }
+
+    .mod-desc {
+      font-size: 0.82rem;
+      color: var(--text-2);
+      line-height: 1.65;
+      flex: 1;
+      margin-bottom: 14px;
+    }
+
+    .mod-tags {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .mod-tag {
+      padding: 3px 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.67rem;
+      color: var(--text-2);
+      font-weight: 500;
+    }
+
+    /* footer */
+    .mod-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .mod-practice-lbl {
+      font-size: 0.67rem;
+      color: var(--text-3);
+      line-height: 1.35;
+      max-width: 130px;
+    }
+
+    .mod-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      font-size: 0.77rem;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+      box-shadow: 0 3px 12px rgba(21,84,163,0.3);
+      transition: all 0.18s;
+    }
+
+    .mod-btn:hover {
+      background: linear-gradient(135deg, var(--primary-2), #2d80e8);
+      box-shadow: 0 4px 16px rgba(21,84,163,0.45);
+      transform: translateY(-1px);
+    }
+
+    .mod-btn-arrow {
+      font-size: 0.72rem;
+      transition: transform 0.18s;
+    }
+
+    .mod-btn:hover .mod-btn-arrow { transform: translateX(3px); }
+
+    /* ─── Empty ──────────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      background: var(--white);
+      border: 1px dashed var(--border-2);
+      border-radius: var(--r-xl);
+    }
+
+    .empty-ic   { font-size: 3rem; margin-bottom: 14px; opacity: 0.35; }
+    .empty-ttl  { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .empty-sub  { font-size: 0.84rem; color: var(--text-3); }
+
+    .hidden { display: none !important; }
+
+    /* ─── Responsive ─────────────────────────────────────── */
+    @media (max-width: 1380px) {
+      .cards-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; }
+      .sb-nav { max-height: 300px; }
+      .kpi-row { grid-template-columns: repeat(2, 1fr); }
+      .hero { flex-direction: column; text-align: center; }
+      .hero-desc { max-width: 100%; }
+      .hero-kpis { justify-content: center; }
+    }
+
+    @media (max-width: 720px) {
+      .content { padding: 16px; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .controls-row { flex-direction: column; }
+      .ctrl-select-wrap, .ctrl-search { width: 100%; min-width: unset; }
+      .kpi-row { grid-template-columns: 1fr; }
+      .hero { padding: 22px 18px; }
+      .vps-logo-wrap { width: 140px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ══════════════════════════════════════════════
+       SIDEBAR
+  ══════════════════════════════════════════════ -->
+  <aside class="sidebar">
+
+    <div class="sb-brand">
+      <div class="sb-logo-wrap">
+        <div class="sb-logo-icon">🏗</div>
+        <div class="sb-logo-text">
+          <div class="sb-sup">Modelo VPS</div>
+          <div class="sb-title">Integridade Estrutural</div>
+        </div>
+      </div>
+      <div class="sb-search">
+        <span class="sb-search-icon">🔍</span>
+        <input type="text" id="sidebarSearch" placeholder="Buscar módulo…" />
+      </div>
+    </div>
+
+    <nav class="sb-nav" id="sidebarNav">
+
+      <!-- Dashboard -->
+      <div class="sb-phase">
+        <button class="sb-item active" data-category="Todos">
+          <span class="sb-item-dot" style="background:#3b82f6"></span>
+          Dashboard VPS
+          <span class="sb-item-cnt" id="cnt-todos">0</span>
+        </button>
+      </div>
+
+      <!-- PLANEJAR -->
+      <div class="sb-phase">
+        <div class="sb-phase-header" style="color:var(--plan)">
+          <span class="sb-phase-dot" style="background:var(--plan)"></span>
+          <span class="sb-phase-label">Planejar</span>
+          <span class="sb-phase-line"></span>
+        </div>
+        <button class="sb-item" data-category="Prática 1 – Propósito e Diretrizes">
+          <span class="sb-item-dot" style="background:var(--plan)"></span>
+          1. Propósito e Diretrizes
+          <span class="sb-item-cnt" id="cnt-1">0</span>
+        </button>
+        <button class="sb-item" data-category="Prática 2 – Estratégia para Criar Valor">
+          <span class="sb-item-dot" style="background:var(--plan)"></span>
+          2. Estratégia para Criar Valor
+          <span class="sb-item-cnt" id="cnt-2">0</span>
+        </button>
+        <button class="sb-item" data-category="Prática 3 – Liderança e Engajamento">
+          <span class="sb-item-dot" style="background:var(--plan)"></span>
+          3. Liderança e Engajamento
+          <span class="sb-item-cnt" id="cnt-3">0</span>
+        </button>
+      </div>
+
+      <!-- EXECUTAR -->
+      <div class="sb-phase">
+        <div class="sb-phase-header" style="color:var(--do)">
+          <span class="sb-phase-dot" style="background:var(--do)"></span>
+          <span class="sb-phase-label">Executar</span>
+          <span class="sb-phase-line"></span>
+        </div>
+        <button class="sb-item" data-category="Prática 4 – Pessoas">
+          <span class="sb-item-dot" style="background:var(--do)"></span>
+          4. Pessoas
+          <span class="sb-item-cnt" id="cnt-4">0</span>
+        </button>
+        <button class="sb-item" data-category="Prática 5 – Riscos e Segurança">
+          <span class="sb-item-dot" style="background:var(--do)"></span>
+          5. Riscos e Segurança
+          <span class="sb-item-cnt" id="cnt-5">0</span>
+        </button>
+        <button class="sb-item" data-category="Prática 6 – Execução com Excelência e Foco no Cliente">
+          <span class="sb-item-dot" style="background:var(--do)"></span>
+          6. Execução com Excelência
+          <span class="sb-item-cnt" id="cnt-6">0</span>
+        </button>
+      </div>
+
+      <!-- CHECAR -->
+      <div class="sb-phase">
+        <div class="sb-phase-header" style="color:var(--check)">
+          <span class="sb-phase-dot" style="background:var(--check)"></span>
+          <span class="sb-phase-label">Checar</span>
+          <span class="sb-phase-line"></span>
+        </div>
+        <button class="sb-item" data-category="Prática 7 – Rotina e Performance">
+          <span class="sb-item-dot" style="background:var(--check)"></span>
+          7. Rotina e Performance
+          <span class="sb-item-cnt" id="cnt-7">0</span>
+        </button>
+        <button class="sb-item" data-category="Prática 8 – Avaliações e Auditorias">
+          <span class="sb-item-dot" style="background:var(--check)"></span>
+          8. Avaliações e Auditorias
+          <span class="sb-item-cnt" id="cnt-8">0</span>
+        </button>
+      </div>
+
+      <!-- AGIR -->
+      <div class="sb-phase">
+        <div class="sb-phase-header" style="color:var(--act)">
+          <span class="sb-phase-dot" style="background:var(--act)"></span>
+          <span class="sb-phase-label">Agir</span>
+          <span class="sb-phase-line"></span>
+        </div>
+        <button class="sb-item" data-category="Prática 9 – Melhoria Contínua e Inovação">
+          <span class="sb-item-dot" style="background:var(--act)"></span>
+          9. Melhoria Contínua
+          <span class="sb-item-cnt" id="cnt-9">0</span>
+        </button>
+        <button class="sb-item" data-category="Prática 10 – Mudança e Evolução do Sistema de Gestão">
+          <span class="sb-item-dot" style="background:var(--act)"></span>
+          10. Mudança e Evolução
+          <span class="sb-item-cnt" id="cnt-10">0</span>
+        </button>
+      </div>
+
+      <!-- BASE -->
+      <div class="sb-phase">
+        <div class="sb-phase-header" style="color:rgba(255,255,255,0.3)">
+          <span class="sb-phase-dot" style="background:rgba(255,255,255,0.25)"></span>
+          <span class="sb-phase-label">Base</span>
+          <span class="sb-phase-line"></span>
+        </div>
+        <button class="sb-item" data-category="Documentos de Referência">
+          <span class="sb-item-dot" style="background:rgba(255,255,255,0.25)"></span>
+          Documentos de Referência
+          <span class="sb-item-cnt" id="cnt-ref">0</span>
+        </button>
+      </div>
+
+    </nav>
+
+    <div class="sb-footer">
+      <div class="sb-footer-card">
+        <div class="sb-fc-group">
+          <div class="sb-fc-lbl">Módulos ativos</div>
+          <div class="sb-fc-val" id="totalModules">0</div>
+        </div>
+        <div class="sb-fc-group" style="text-align:right">
+          <div class="sb-fc-lbl">Práticas VPS</div>
+          <div class="sb-fc-val">10</div>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ══════════════════════════════════════════════
+       MAIN
+  ══════════════════════════════════════════════ -->
+  <main class="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="tb-crumb">
+        <span>Portal</span>
+        <span class="tb-sep">›</span>
+        <span class="tb-current" id="breadcrumb">Dashboard VPS</span>
+      </div>
+      <div class="tb-right">
+        <div class="tb-chip"><span class="online-dot"></span> Sistema ativo</div>
+        <div class="tb-chip">🏭 Integridade Estrutural</div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- ── HERO ─────────────────────────────────── -->
+      <section class="hero">
+
+        <div class="hero-left">
+          <div class="hero-eyebrow">
+            <span class="hero-eyebrow-dot"></span>
+            Portal Executivo · Modelo VPS
+          </div>
+          <h1>Portal de <span>Integridade</span><br/>Estrutural</h1>
+          <p class="hero-desc">
+            Central operacional estruturada pelas 10 práticas do Modelo VPS —
+            reunindo inspeções, riscos, execução, auditorias, melhoria contínua
+            e evolução do sistema em um único ambiente de gestão.
+          </p>
+          <div class="hero-kpis">
+            <div class="hero-kpi">
+              <div class="hero-kpi-val" id="heroTotal">0</div>
+              <div class="hero-kpi-lbl">Módulos ativos</div>
+            </div>
+            <div class="hero-kpi">
+              <div class="hero-kpi-val">10</div>
+              <div class="hero-kpi-lbl">Práticas VPS</div>
+            </div>
+            <div class="hero-kpi">
+              <div class="hero-kpi-val">PDCA</div>
+              <div class="hero-kpi-lbl">Lógica do sistema</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-right">
+          <div class="vps-logo-wrap">
+            <div class="vps-logo-ring"></div>
+            <div class="vps-logo-ring-2"></div>
+            <img
+              class="vps-logo-img"
+              src="assets/vps-bg.png"
+              alt="Modelo VPS – 10 Práticas PDCA"
+            />
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ── KPI ROW ───────────────────────────────── -->
+      <div class="kpi-row">
+        <div class="kpi-card kpi-plan">
+          <div class="kpi-icon">🧭</div>
+          <div class="kpi-label">Planejar</div>
+          <div class="kpi-main">Práticas 1, 2 e 3</div>
+          <div class="kpi-sub">Propósito · Estratégia · Liderança</div>
+        </div>
+        <div class="kpi-card kpi-do">
+          <div class="kpi-icon">⚙️</div>
+          <div class="kpi-label">Executar</div>
+          <div class="kpi-main">Práticas 4, 5 e 6</div>
+          <div class="kpi-sub">Pessoas · Riscos · Excelência</div>
+        </div>
+        <div class="kpi-card kpi-check">
+          <div class="kpi-icon">📊</div>
+          <div class="kpi-label">Checar</div>
+          <div class="kpi-main">Práticas 7 e 8</div>
+          <div class="kpi-sub">Rotina · Auditorias</div>
+        </div>
+        <div class="kpi-card kpi-act">
+          <div class="kpi-icon">🔄</div>
+          <div class="kpi-label">Agir</div>
+          <div class="kpi-main">Práticas 9 e 10</div>
+          <div class="kpi-sub">Melhoria · Evolução</div>
+        </div>
+      </div>
+
+      <!-- ── CONTROLS ──────────────────────────────── -->
+      <div class="controls-row">
+        <div class="ctrl-search">
+          <span class="ctrl-search-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Buscar módulo por nome, descrição ou prática…" />
+        </div>
+        <div class="ctrl-select-wrap">
+          <select id="categoryFilter">
+            <option value="Todos">Todas as práticas</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ── SECTION HEAD ──────────────────────────── -->
+      <div class="sec-head">
+        <div>
+          <div class="sec-title" id="sectionTitle">Dashboard VPS</div>
+          <div class="sec-count" id="resultsText">Carregando…</div>
+        </div>
+      </div>
+
+      <!-- ── GRID ─────────────────────────────────── -->
+      <div class="cards-grid" id="projectsGrid"></div>
+
+      <!-- ── EMPTY ─────────────────────────────────── -->
+      <div class="empty-state hidden" id="emptyState">
+        <div class="empty-ic">🗂</div>
+        <div class="empty-ttl">Nenhum módulo encontrado</div>
+        <div class="empty-sub">Ajuste os filtros ou o termo de busca.</div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+
+</div><!-- /layout -->
+
+<!-- ══════════════════════════════════════════════════════
+     SCRIPT
+══════════════════════════════════════════════════════ -->
+<script>
+/* ─── Data ──────────────────────────────────────────── */
+const projects = [
+  { id:"IE-001", title:"Propósito e Diretrizes da Área",
+    description:"Módulo para propósito, diretrizes, requisitos normativos e base institucional da Integridade Estrutural.",
+    category:"Prática 1 – Propósito e Diretrizes", icon:"🎯", priority:"Alta", audience:"Todos",
+    link:"projects/pratica-1-proposito-diretrizes/index.html" },
+  { id:"IE-002", title:"Estratégia para Criar Valor",
+    description:"Módulo para metas, objetivos, prioridades e planejamento estratégico da área.",
+    category:"Prática 2 – Estratégia para Criar Valor", icon:"🧭", priority:"Alta", audience:"Gestão",
+    link:"projects/pratica-2-estrategia-valor/index.html" },
+  { id:"IE-003", title:"Liderança e Engajamento",
+    description:"Módulo para ritos de liderança, alinhamento, comunicação e engajamento da equipe.",
+    category:"Prática 3 – Liderança e Engajamento", icon:"🧑‍💼", priority:"Alta", audience:"Gestão",
+    link:"projects/pratica-3-lideranca-engajamento/index.html" },
+  { id:"IE-004", title:"FMDS de Pessoas",
+    description:"Módulo de acompanhamento e organização de pessoas vinculado à gestão da área.",
+    category:"Prática 4 – Pessoas", icon:"👥", priority:"Média", audience:"Gestão",
+    link:"projects/fmds-pessoas/index.html" },
+  { id:"IE-005", title:"Relatório de Inspeção BFD Silo 2",
+    description:"Relatório técnico voltado ao acompanhamento de inspeção estrutural do BFD Silo 2.",
+    category:"Prática 5 – Riscos e Segurança", icon:"🧱", priority:"Alta", audience:"Operacional",
+    link:"projects/relatorio-bfd-silo2/index.html" },
+  { id:"IE-006", title:"InspectPro S11D (Light)",
+    description:"Sistema operacional voltado ao processo de inspeção estrutural — versão modo light.",
+    category:"Prática 5 – Riscos e Segurança", icon:"🏗️", priority:"Alta", audience:"Campo",
+    link:"projects/Inspectpro-modo-light/index.html" },
+  { id:"IE-007", title:"InspectPro S11D",
+    description:"Sistema operacional voltado ao processo de inspeção estrutural com navegação dedicada.",
+    category:"Prática 5 – Riscos e Segurança", icon:"🏗️", priority:"Alta", audience:"Campo",
+    link:"projects/inspectpro-s11d/index.html" },
+  { id:"IE-008", title:"FMDS Gestão de Riscos",
+    description:"Ferramenta executiva para consolidação e acompanhamento de riscos da integridade estrutural.",
+    category:"Prática 5 – Riscos e Segurança", icon:"⚠️", priority:"Alta", audience:"Gestão",
+    link:"projects/fmds-riscos/index.html" },
+  { id:"IE-009", title:"Instrução de Tarefas Industrial",
+    description:"VALE IT Pro v3.1 — plataforma completa com 4 variantes (Verde e Vermelho × Padrão e Labels). Editor, preview, exportação PDF e navegação mobile.",
+    category:"Prática 6 – Execução com Excelência e Foco no Cliente", icon:"📘", priority:"Média", audience:"Operacional",
+    link:"projects/instrucao-tarefas-industrial/index.html" },
+  { id:"IE-011", title:"Lista de Material Editor",
+    description:"Ferramenta para consulta e edição de lista de materiais aplicada ao contexto da integridade.",
+    category:"Prática 6 – Execução com Excelência e Foco no Cliente", icon:"🧰", priority:"Média", audience:"Apoio",
+    link:"projects/lista-material-editor/index.html" },
+  { id:"IE-012", title:"Painel de Rotina e Performance",
+    description:"Área para acompanhamento de indicadores, ritos de rotina, desvios e performance operacional.",
+    category:"Prática 7 – Rotina e Performance", icon:"📊", priority:"Alta", audience:"Gestão",
+    link:"projects/painel-rotina-performance/index.html" },
+  { id:"IE-013", title:"Auditorias e Conformidade",
+    description:"Módulo para controle de auditorias internas, evidências, não conformidades e eficácia das ações.",
+    category:"Prática 8 – Avaliações e Auditorias", icon:"🔎", priority:"Alta", audience:"Gestão",
+    link:"projects/auditorias-conformidade/index.html" },
+  { id:"IE-014", title:"Central Kaizen",
+    description:"Central executiva para iniciativas de melhoria contínua da área de integridade estrutural.",
+    category:"Prática 9 – Melhoria Contínua e Inovação", icon:"📈", priority:"Média", audience:"Gestão",
+    link:"projects/central-kaizen/index.html" },
+  { id:"IE-015", title:"Gestão da Mudança e Evolução do Sistema",
+    description:"Módulo para registro, acompanhamento e sustentação de mudanças técnicas e organizacionais.",
+    category:"Prática 10 – Mudança e Evolução do Sistema de Gestão", icon:"🔄", priority:"Alta", audience:"Gestão",
+    link:"projects/gestao-mudanca-sistema/index.html" },
+  { id:"IE-016", title:"Documentos de Referência",
+    description:"Normas e procedimentos oficiais da Integridade Estrutural com visualizador de PDF integrado: PRO-024969 (Inspeção Estrutural · Rev. 05 · S11D) e PGS-003241 Anexo III (Tabelas de Classe de Degradação · CD, AF, FE, SC).",
+    category:"Documentos de Referência", icon:"📚", priority:"Alta", audience:"Todos",
+    link:"projects/documentos-referencia/index.html" },
+  { id:"IE-017", title:"FMDS Pessoas Moderno",
+    description:"Versão modernizada do módulo de acompanhamento e organização de pessoas da área.",
+    category:"Prática 4 – Pessoas", icon:"👥", priority:"Média", audience:"Gestão",
+    link:"projects/fmds-pessoas-moderno/index.html" },
+  { id:"IE-018", title:"Relatório Executivo de Inspeção",
+    description:"Plataforma com 3 variantes visuais (Padrão, Dark AMOLED e Verde & Azul). Edição inline, registro fotográfico, tabela de revisões, exportação JSON e geração de PDF.",
+    category:"Prática 5 – Riscos e Segurança", icon:"📋", priority:"Alta", audience:"Operacional",
+    link:"projects/relatorio-executivo/index.html" },
+  { id:"IE-021", title:"Laudos Metálica & PAC",
+    description:"Laudos técnicos oficiais de inspeção estrutural conforme PRO-024969, Rev. 05 — Serra Sul S11D. Inclui Laudo de Condição Estrutural (metálica) com fórmula CD × AF × FE × SC, e Laudo PAC com classificação Ri 0–5 para proteção anticorrosiva. BOM integrado e registro fotográfico.",
+    category:"Prática 5 – Riscos e Segurança", icon:"🔩", priority:"Alta", audience:"Operacional",
+    link:"projects/laudos-metalica-pac/index.html" }
+];
+
+/* ─── Helpers ────────────────────────────────────────── */
+function pdcaPhase(cat) {
+  if (/Prática [123]/.test(cat)) return "plan";
+  if (/Prática [456]/.test(cat)) return "do";
+  if (/Prática [78]/.test(cat))  return "check";
+  if (/Prática (9|10)/.test(cat)) return "act";
+  return "ref";
+}
+
+function priorityBadge(p) {
+  return `<span class="badge badge-${p.toLowerCase()}">${p}</span>`;
+}
+
+function shortPractice(cat) {
+  const m = cat.match(/^(Prática \d+)/);
+  return m ? m[1] : cat;
+}
+
+/* ─── Counters ───────────────────────────────────────── */
+const countMap = {
+  "Todos":"cnt-todos",
+  "Prática 1 – Propósito e Diretrizes":"cnt-1",
+  "Prática 2 – Estratégia para Criar Valor":"cnt-2",
+  "Prática 3 – Liderança e Engajamento":"cnt-3",
+  "Prática 4 – Pessoas":"cnt-4",
+  "Prática 5 – Riscos e Segurança":"cnt-5",
+  "Prática 6 – Execução com Excelência e Foco no Cliente":"cnt-6",
+  "Prática 7 – Rotina e Performance":"cnt-7",
+  "Prática 8 – Avaliações e Auditorias":"cnt-8",
+  "Prática 9 – Melhoria Contínua e Inovação":"cnt-9",
+  "Prática 10 – Mudança e Evolução do Sistema de Gestão":"cnt-10",
+  "Documentos de Referência":"cnt-ref"
+};
+
+function updateCounters() {
+  const el = id => document.getElementById(id);
+  el("cnt-todos").textContent = projects.length;
+  el("totalModules").textContent = projects.length;
+  el("heroTotal").textContent = projects.length;
+  Object.entries(countMap).forEach(([cat, id]) => {
+    if (cat === "Todos") return;
+    const e = el(id);
+    if (e) e.textContent = projects.filter(p => p.category === cat).length;
+  });
+}
+
+/* ─── Populate select ────────────────────────────────── */
+function populateSelect() {
+  const sel = document.getElementById("categoryFilter");
+  [...new Set(projects.map(p => p.category))].forEach(cat => {
+    const o = document.createElement("option");
+    o.value = cat; o.textContent = cat;
+    sel.appendChild(o);
+  });
+}
+
+/* ─── Create card ────────────────────────────────────── */
+function createCard(p) {
+  const phase = pdcaPhase(p.category);
+  const art = document.createElement("article");
+  art.className = "mod-card";
+  art.innerHTML = `
+    <div class="mod-accent acc-${phase}"></div>
+    <div class="mod-body">
+      <div class="mod-top">
+        <div class="mod-icon icon-${phase}">${p.icon || "📁"}</div>
+        <div class="mod-badges">
+          ${priorityBadge(p.priority)}
+          <span class="badge-id">${p.id}</span>
+        </div>
+      </div>
+      <div class="mod-title">${p.title}</div>
+      <div class="mod-desc">${p.description}</div>
+      <div class="mod-tags">
+        <span class="mod-tag">Público: ${p.audience}</span>
+        <span class="mod-tag">${shortPractice(p.category)}</span>
+      </div>
+      <div class="mod-foot">
+        <div class="mod-practice-lbl">${p.category}</div>
+        <a class="mod-btn" href="${p.link}" target="_blank" rel="noopener noreferrer">
+          Abrir <span class="mod-btn-arrow">→</span>
+        </a>
+      </div>
+    </div>
+  `;
+  return art;
+}
+
+/* ─── Render ─────────────────────────────────────────── */
+let activeCategory = "Todos";
+
+function render(list) {
+  const grid  = document.getElementById("projectsGrid");
+  const empty = document.getElementById("emptyState");
+  const title = document.getElementById("sectionTitle");
+  const sub   = document.getElementById("resultsText");
+  const bc    = document.getElementById("breadcrumb");
+
+  grid.innerHTML = "";
+
+  if (!list.length) {
+    empty.classList.remove("hidden");
+    sub.textContent = "Nenhum módulo corresponde ao filtro.";
+    return;
+  }
+
+  empty.classList.add("hidden");
+  const label = activeCategory === "Todos" ? "Dashboard VPS" : activeCategory;
+  title.textContent = label;
+  bc.textContent    = label;
+  sub.textContent   = `${list.length} módulo${list.length !== 1 ? "s" : ""} ${activeCategory === "Todos" ? "disponíveis no portal" : "nesta prática"}.`;
+  list.forEach(p => grid.appendChild(createCard(p)));
+}
+
+/* ─── Filter ─────────────────────────────────────────── */
+function applyFilters() {
+  const q = document.getElementById("searchInput").value.trim().toLowerCase();
+  const filtered = projects.filter(p => {
+    const matchQ = !q
+      || p.title.toLowerCase().includes(q)
+      || p.description.toLowerCase().includes(q)
+      || p.category.toLowerCase().includes(q)
+      || p.id.toLowerCase().includes(q);
+    return matchQ && (activeCategory === "Todos" || p.category === activeCategory);
+  });
+  render(filtered);
+}
+
+/* ─── Events ─────────────────────────────────────────── */
+document.getElementById("searchInput").addEventListener("input", applyFilters);
+
+document.getElementById("sidebarSearch").addEventListener("input", function() {
+  document.getElementById("searchInput").value = this.value;
+  applyFilters();
+});
+
+document.getElementById("categoryFilter").addEventListener("change", function() {
+  activeCategory = this.value;
+  syncNav();
+  applyFilters();
+});
+
+document.getElementById("sidebarNav").addEventListener("click", function(e) {
+  const btn = e.target.closest(".sb-item");
+  if (!btn) return;
+  activeCategory = btn.dataset.category;
+  document.getElementById("categoryFilter").value = activeCategory;
+  syncNav();
+  applyFilters();
+});
+
+function syncNav() {
+  document.querySelectorAll(".sb-item").forEach(b => {
+    b.classList.toggle("active", b.dataset.category === activeCategory);
+  });
+}
+
+/* ─── Init ───────────────────────────────────────────── */
+function init() {
+  populateSelect();
+  updateCounters();
+  applyFilters();
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Relatório de Inspeção BFD Silo 2 — VALE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2236;
+    --border: rgba(255,255,255,0.07);
+    --text: #e8edf5;
+    --muted: #7a8ba0;
+    --accent: #2563eb;
+    --accent-glow: rgba(37,99,235,0.18);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HERO ────────────────────────────────────────────────── */
+  .hero {
+    background: linear-gradient(135deg, #080e20 0%, #05101e 60%, #050c18 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 52px 40px 44px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% -10%, rgba(37,99,235,0.13) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(37,99,235,0.12);
+    border: 1px solid rgba(37,99,235,0.3);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #60a5fa;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(24px, 4vw, 36px);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 14px;
+  }
+  .hero h1 span { color: #60a5fa; }
+  .hero p {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 580px;
+    line-height: 1.7;
+    margin-bottom: 30px;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-size: 12px;
+    color: #5a7fa0;
+    font-weight: 500;
+  }
+  .hero-meta span::before { content: '· '; }
+
+  /* ── FEATURES ────────────────────────────────────────────── */
+  .features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+  .feat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    color: #c8d6e8;
+  }
+
+  /* ── CONTENT ─────────────────────────────────────────────── */
+  .content {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 48px 24px 64px;
+  }
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #60a5fa;
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 28px;
+  }
+
+  /* ── CARDS ───────────────────────────────────────────────── */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 22px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform .2s, box-shadow .2s, border-color .2s;
+    text-decoration: none;
+    color: inherit;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 42px rgba(0,0,0,0.5);
+    border-color: rgba(37,99,235,0.4);
+  }
+
+  /* thumbs */
+  .card-thumb {
+    width: 100%;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 52px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .thumb-dark  { background: linear-gradient(135deg, #060608 0%, #0c0e18 50%, #080d1a 100%); }
+  .thumb-light { background: linear-gradient(135deg, #1a3a6e 0%, #0e2a52 60%, #091e3a 100%); }
+
+  .card-thumb::after {
+    content: '';
+    position: absolute;
+    bottom: 16px; left: 18px; right: 18px;
+    height: 3px;
+    border-radius: 4px;
+    opacity: .5;
+  }
+  .thumb-dark::after  { background: linear-gradient(90deg, #2563eb, #06b6d4); }
+  .thumb-light::after { background: linear-gradient(90deg, #3b82f6, #93c5fd); }
+
+  /* mini accent dot grid overlay */
+  .thumb-dark::before, .thumb-light::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: .07;
+    background-image: radial-gradient(circle, #fff 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+
+  .card-body { padding: 22px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+  .card-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    width: fit-content;
+  }
+  .badge-dark  { background: rgba(37,99,235,0.15);  color: #93c5fd; border: 1px solid rgba(37,99,235,0.3); }
+  .badge-light { background: rgba(147,197,253,0.12); color: #bfdbfe; border: 1px solid rgba(147,197,253,0.25); }
+
+  .card-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
+  }
+  .card-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.65;
+    flex: 1;
+  }
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .tag {
+    font-size: 11px;
+    color: #c8d6e8;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 8px;
+  }
+
+  .card-footer {
+    padding: 14px 22px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+  }
+  .btn-open {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 22px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity .15s, transform .15s;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-open:hover { opacity: .85; transform: scale(.98); }
+  .btn-dark  { background: linear-gradient(135deg, #1d4ed8, #1e40af); color: #fff; }
+  .btn-light { background: linear-gradient(135deg, #2563eb, #3b82f6); color: #fff; }
+
+  /* ── INFO NOTE ───────────────────────────────────────────── */
+  .info-note {
+    margin-top: 36px;
+    background: rgba(37,99,235,0.06);
+    border: 1px solid rgba(37,99,235,0.18);
+    border-radius: 12px;
+    padding: 18px 22px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .info-note .note-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .info-note p { font-size: 13px; color: #7a9cc0; line-height: 1.65; }
+  .info-note strong { color: #a8c8e8; }
+
+  @media (max-width: 600px) {
+    .hero { padding: 36px 20px 32px; }
+    .content { padding: 32px 16px 48px; }
+    .cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════ HERO ════════════════════════ -->
+<header class="hero">
+  <div class="hero-badge">⚖️ Relatório de Inspeção · BFD Silo 2</div>
+  <h1>Inspeção Estrutural<br /><span>BFD Silo 2 Bruto · TLO S11D</span></h1>
+  <p>Relatório técnico de inspeção de integridade estrutural da balança de fluxo de duto.<br />
+  Escolha a variante visual que melhor se adapta ao seu ambiente de trabalho.</p>
+  <div class="features">
+    <div class="feat">📊 Gráficos interativos</div>
+    <div class="feat">📋 Tabela de anomalias</div>
+    <div class="feat">📸 Registro fotográfico</div>
+    <div class="feat">📤 Exportação PowerPoint</div>
+    <div class="feat">📱 Mobile First</div>
+  </div>
+  <div class="hero-meta">
+    <span>TLO S11D</span>
+    <span>Manutenção Corretiva</span>
+    <span>Integridade Estrutural</span>
+  </div>
+</header>
+
+<!-- ════════════════════════ CONTENT ═════════════════════ -->
+<main class="content">
+  <div class="section-label">Variantes disponíveis</div>
+  <div class="section-title">Selecione o tema do relatório</div>
+
+  <div class="cards">
+
+    <!-- DARK -->
+    <a class="card" href="RELATORIO_INSPECAO_BFD_SILO2.html" target="_blank">
+      <div class="card-thumb thumb-dark">🌑</div>
+      <div class="card-body">
+        <span class="card-badge badge-dark">🌙 Dark AMOLED</span>
+        <div class="card-title">BFD Silo 2 — Tema Escuro</div>
+        <p class="card-desc">Versão dark com fundo AMOLED preto e acentos em azul. Alto contraste, ideal para uso em campo e dispositivos de tela escura.</p>
+        <div class="card-tags">
+          <span class="tag">AMOLED</span>
+          <span class="tag">Uso em campo</span>
+          <span class="tag">Alto contraste</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a class="btn-open btn-dark" href="RELATORIO_INSPECAO_BFD_SILO2.html" target="_blank">Abrir ↗</a>
+      </div>
+    </a>
+
+    <!-- LIGHT -->
+    <a class="card" href="RELATORIO_INSPECAO_BFD_SILO2_LIGHT.html" target="_blank">
+      <div class="card-thumb thumb-light">☀️</div>
+      <div class="card-body">
+        <span class="card-badge badge-light">☀️ Tema Claro</span>
+        <div class="card-title">BFD Silo 2 — Tema Claro</div>
+        <p class="card-desc">Versão clara com fundo branco e azul corporativo. Ideal para apresentações, impressão e ambientes bem iluminados.</p>
+        <div class="card-tags">
+          <span class="tag">Tema Claro</span>
+          <span class="tag">Impressão</span>
+          <span class="tag">Apresentação</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a class="btn-open btn-light" href="RELATORIO_INSPECAO_BFD_SILO2_LIGHT.html" target="_blank">Abrir ↗</a>
+      </div>
+    </a>
+
+  </div><!-- /cards -->
+
+  <div class="info-note">
+    <span class="note-icon">ℹ️</span>
+    <p>
+      Ambas as variantes contêm os mesmos dados de inspeção, gráficos e registros técnicos.
+      <strong>A escolha do tema não afeta o conteúdo do relatório.</strong>
+      Relatório de Inspeção Estrutural — <strong>BFD Silo 2 Bruto · TLO S11D · Vale S.A.</strong>
+    </p>
+  </div>
+</main>
+
+</body>
+</html>

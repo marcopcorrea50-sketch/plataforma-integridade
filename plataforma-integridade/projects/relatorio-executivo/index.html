@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Relatório Executivo de Inspeção — VALE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2236;
+    --border: rgba(255,255,255,0.07);
+    --text: #e8edf5;
+    --muted: #7a8ba0;
+    --accent: #06b6d4;
+    --accent2: #3b82f6;
+    --green: #22c55e;
+    --amber: #f59e0b;
+    --violet: #8b5cf6;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HERO ────────────────────────────────────────────────── */
+  .hero {
+    background: linear-gradient(135deg, #0b1730 0%, #071020 60%, #0a1525 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 52px 40px 44px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% -10%, rgba(6,182,212,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(6,182,212,0.12);
+    border: 1px solid rgba(6,182,212,0.3);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(26px, 4vw, 38px);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 14px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 600px;
+    line-height: 1.7;
+    margin-bottom: 30px;
+  }
+
+  /* ── FEATURE TILES ───────────────────────────────────────── */
+  .features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+  .feat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    color: #c8d6e8;
+  }
+  .feat-icon { font-size: 15px; }
+
+  /* ── MAIN CONTENT ────────────────────────────────────────── */
+  .content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 24px 64px;
+  }
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 28px;
+  }
+
+  /* ── CARDS GRID ──────────────────────────────────────────── */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform .2s, box-shadow .2s, border-color .2s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.45);
+    border-color: rgba(6,182,212,0.35);
+  }
+
+  /* mockup thumbnail */
+  .card-thumb {
+    width: 100%;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  /* per-variant thumb colours */
+  .thumb-light   { background: linear-gradient(135deg, #1e3a5f 0%, #0f2240 100%); }
+  .thumb-dark    { background: linear-gradient(135deg, #050810 0%, #0a0d18 100%); }
+  .thumb-verde   { background: linear-gradient(135deg, #052010 0%, #071a2a 100%); }
+
+  /* mini mockup lines */
+  .card-thumb::after {
+    content: '';
+    position: absolute;
+    bottom: 14px; left: 16px; right: 16px;
+    height: 4px;
+    border-radius: 4px;
+    opacity: .4;
+  }
+  .thumb-light::after  { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
+  .thumb-dark::after   { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+  .thumb-verde::after  { background: linear-gradient(90deg, #22c55e, #06b6d4); }
+
+  .card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+  .card-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    width: fit-content;
+  }
+  .badge-light  { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
+  .badge-dark   { background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.25); }
+  .badge-verde  { background: rgba(34,197,94,0.15);  color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
+
+  .card-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
+  }
+  .card-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    flex: 1;
+  }
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .tag {
+    font-size: 11px;
+    color: #c8d6e8;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 8px;
+  }
+  .card-footer {
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+  }
+  .btn-open {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity .15s, transform .15s;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-open:hover { opacity: .85; transform: scale(.98); }
+  .btn-light { background: linear-gradient(135deg, #1d4ed8, #0ea5e9); color: #fff; }
+  .btn-dark  { background: linear-gradient(135deg, #5b21b6, #7c3aed); color: #fff; }
+  .btn-verde { background: linear-gradient(135deg, #15803d, #0891b2); color: #fff; }
+
+  /* ── INFO NOTE ───────────────────────────────────────────── */
+  .info-note {
+    margin-top: 36px;
+    background: rgba(6,182,212,0.06);
+    border: 1px solid rgba(6,182,212,0.18);
+    border-radius: 12px;
+    padding: 18px 22px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .info-note .note-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .info-note p { font-size: 13px; color: #9bbbd4; line-height: 1.65; }
+  .info-note strong { color: #b8ddf0; }
+
+  @media (max-width: 600px) {
+    .hero { padding: 36px 20px 32px; }
+    .content { padding: 32px 16px 48px; }
+    .cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════ HERO ════════════════════════════════ -->
+<header class="hero">
+  <div class="hero-badge">📋 Prática 5 · Riscos e Segurança</div>
+  <h1>Relatório Executivo<br /><span>de Inspeção</span></h1>
+  <p>Ferramenta interativa para elaboração de relatórios técnicos de inspeção estrutural.<br />
+  Escolha a variante visual que melhor se adapta ao seu ambiente de trabalho.</p>
+  <div class="features">
+    <div class="feat"><span class="feat-icon">✏️</span> Edição inline</div>
+    <div class="feat"><span class="feat-icon">📸</span> Registro fotográfico</div>
+    <div class="feat"><span class="feat-icon">🔄</span> Tabela de revisões</div>
+    <div class="feat"><span class="feat-icon">📤</span> Exportação JSON</div>
+    <div class="feat"><span class="feat-icon">🖨️</span> Geração de PDF</div>
+    <div class="feat"><span class="feat-icon">📱</span> Mobile First</div>
+  </div>
+</header>
+
+<!-- ════════════════════════════════ CONTENT ═══════════════════════════════ -->
+<main class="content">
+  <div class="section-label">Variantes disponíveis</div>
+  <div class="section-title">Selecione o tema do relatório</div>
+
+  <div class="cards">
+
+    <!-- CARD 1 — Light / Padrão -->
+    <a class="card" href="light.html" target="_blank">
+      <div class="card-thumb thumb-light">📋</div>
+      <div class="card-body">
+        <span class="card-badge badge-light">☀️ Tema Claro</span>
+        <div class="card-title">Relatório Executivo<br />· Padrão</div>
+        <p class="card-desc">Versão padrão com tema claro e azul corporativo. Ideal para apresentações e impressão em papel.</p>
+        <div class="card-tags">
+          <span class="tag">Tema Claro</span>
+          <span class="tag">Impressão</span>
+          <span class="tag">Corporativo</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a class="btn-open btn-light" href="light.html" target="_blank">Abrir ↗</a>
+      </div>
+    </a>
+
+    <!-- CARD 2 — Dark AMOLED -->
+    <a class="card" href="amoled-escuro.html" target="_blank">
+      <div class="card-thumb thumb-dark">🌑</div>
+      <div class="card-body">
+        <span class="card-badge badge-dark">🌙 Dark AMOLED</span>
+        <div class="card-title">Relatório de Inspeção<br />· Dark AMOLED</div>
+        <p class="card-desc">Versão escura AMOLED, fundo quase preto com acentos em violeta. Ideal para uso em campo com dispositivos de tela escura.</p>
+        <div class="card-tags">
+          <span class="tag">AMOLED</span>
+          <span class="tag">Uso em campo</span>
+          <span class="tag">Bateria</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a class="btn-open btn-dark" href="amoled-escuro.html" target="_blank">Abrir ↗</a>
+      </div>
+    </a>
+
+    <!-- CARD 3 — Verde & Azul -->
+    <a class="card" href="verde-azul.html" target="_blank">
+      <div class="card-thumb thumb-verde">🟢</div>
+      <div class="card-body">
+        <span class="card-badge badge-verde">🌿 Verde & Azul</span>
+        <div class="card-title">Relatório de Inspeção<br />· Verde &amp; Azul</div>
+        <p class="card-desc">Versão AMOLED com acento verde e azul. Visual diferenciado e alto contraste para trabalho em campo.</p>
+        <div class="card-tags">
+          <span class="tag">AMOLED</span>
+          <span class="tag">Alto contraste</span>
+          <span class="tag">Campo</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a class="btn-open btn-verde" href="verde-azul.html" target="_blank">Abrir ↗</a>
+      </div>
+    </a>
+
+  </div><!-- /cards -->
+
+  <div class="info-note">
+    <span class="note-icon">ℹ️</span>
+    <p>
+      Todas as variantes compartilham os mesmos recursos: edição inline, registro fotográfico por equipamento,
+      tabela de revisões, exportação JSON e geração de PDF. <strong>A escolha do tema não afeta os dados salvos.</strong>
+      Conforme <strong>PRO-024969</strong> — Integridade e Inspeção Estrutural · Vale S.A.
+    </p>
+  </div>
+</main>
+
+</body>
+</html>

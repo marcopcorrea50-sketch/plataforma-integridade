@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Central de Kaizen — GER Integridade Estrutural | Vale S.A.</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#000;--sf:#060606;--cd:#0c0c0c;--cd2:#111;
+--bd:#1a1a1a;--bd2:#222;--bh:#333;
+--tx:#eaeaea;--td:#999;--tm:#555;
+--ac:#00e676;--ac2:#00c853;--ag:rgba(0,230,118,.12);
+--yl:#ffd600;--yg:rgba(255,214,0,.1);
+--cy:#00e5ff;--cg:rgba(0,229,255,.1);
+--rd:#ff1744;--rg:rgba(255,23,68,.08);
+--or:#ff9100;--pu:#d500f9;--bl:#2979ff;
+--r:12px;--rs:8px;
+}
+html{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);scroll-behavior:smooth}
+body{min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:3px}
+
+.hdr{position:sticky;top:0;z-index:100;background:rgba(0,0,0,.96);border-bottom:1px solid var(--bd);backdrop-filter:blur(20px);padding:0 28px}
+.hdr-in{max-width:1640px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px;gap:12px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-m{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--ac),#00b0ff);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;color:#000;box-shadow:0 0 18px var(--ag);flex-shrink:0}
+.logo-t{font-weight:700;font-size:16px;letter-spacing:-.3px;white-space:nowrap}.logo-t b{color:var(--ac)}
+.hdr-r{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--td);flex-wrap:wrap}
+.hdr-b{padding:4px 11px;border-radius:20px;font-weight:600;font-size:11px;white-space:nowrap}
+.hdr-b.g{background:var(--ag);border:1px solid rgba(0,230,118,.18);color:var(--ac)}
+.hdr-b.y{background:var(--yg);border:1px solid rgba(255,214,0,.15);color:var(--yl)}
+.hdr-b.c{background:var(--cg);border:1px solid rgba(0,229,255,.15);color:var(--cy)}
+
+.tabs{background:var(--sf);border-bottom:1px solid var(--bd);padding:0 28px;display:flex;gap:0;overflow-x:auto}
+.tabs::-webkit-scrollbar{height:0}
+.tab{cursor:pointer;padding:0 20px;height:46px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--td);white-space:nowrap;transition:all .2s;border-bottom:2px solid transparent;user-select:none}
+.tab:hover{color:var(--tx);background:rgba(255,255,255,.02)}
+.tab.on{color:var(--tx);border-bottom-color:var(--ac);font-weight:600}
+
+.ct{max-width:1640px;margin:0 auto;padding:24px 28px 50px}
+.pnl{display:none;animation:fu .35s ease}.pnl.on{display:block}
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.flt{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px;padding:14px 16px;background:var(--cd);border:1px solid var(--bd);border-radius:var(--r)}
+.flt-g{flex:1;min-width:160px}
+.flt-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--tm);margin-bottom:5px}
+.flt-s{width:100%;background:var(--sf);border:1px solid var(--bd);color:var(--tx);padding:8px 10px;border-radius:var(--rs);font-family:'Outfit';font-size:12px;cursor:pointer;transition:border-color .2s}
+.flt-s:hover,.flt-s:focus{border-color:var(--ac);outline:none}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:22px}
+.sc{background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);padding:18px 20px;position:relative;overflow:hidden;transition:all .25s}
+.sc:hover{border-color:var(--bh);transform:translateY(-1px)}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:.7}
+.sc.g::before{background:linear-gradient(90deg,var(--ac),var(--cy))}
+.sc.y::before{background:linear-gradient(90deg,var(--yl),var(--or))}
+.sc.c::before{background:linear-gradient(90deg,var(--cy),var(--bl))}
+.sc.p::before{background:linear-gradient(90deg,var(--pu),var(--bl))}
+.sc.r::before{background:linear-gradient(90deg,var(--rd),var(--or))}
+.sv{font-size:34px;font-weight:800;letter-spacing:-1px;line-height:1}
+.sl{font-size:11px;color:var(--td);margin-top:5px;font-weight:500}
+.stag{position:absolute;top:14px;right:14px;font-size:10px;font-weight:600;padding:2px 7px;border-radius:12px;background:var(--ag);color:var(--ac)}
+
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}
+.cgrid.t3{grid-template-columns:1fr 1fr 1fr}
+.cc{background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);padding:18px;transition:border-color .25s}
+.cc:hover{border-color:var(--bh)}
+.cc.full{grid-column:1/-1}
+.ct-t{font-size:13px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.dot{width:7px;height:7px;border-radius:50%}
+.dot.g{background:var(--ac)}.dot.y{background:var(--yl)}.dot.c{background:var(--cy)}.dot.r{background:var(--rd)}.dot.p{background:var(--pu)}
+canvas{max-height:340px}
+
+.tw{background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
+.th{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--bd);flex-wrap:wrap;gap:10px}
+.tt{font-size:13px;font-weight:600}
+.tsrch{background:var(--sf);border:1px solid var(--bd);color:var(--tx);padding:7px 12px;border-radius:var(--rs);font-family:'Outfit';font-size:12px;width:260px;transition:border-color .2s}
+.tsrch:focus{border-color:var(--ac);outline:none}
+.tscrl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead{background:var(--sf)}
+th{padding:10px 12px;text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--td);border-bottom:1px solid var(--bd);white-space:nowrap;cursor:pointer;user-select:none;transition:color .2s}
+th:hover{color:var(--ac)}
+td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.03);white-space:nowrap;font-size:12px;max-width:220px;overflow:hidden;text-overflow:ellipsis}
+tr:hover td{background:rgba(255,255,255,.015)}
+.bdg{display:inline-block;padding:2px 9px;border-radius:14px;font-size:10px;font-weight:600}
+.bdg-n{background:var(--ag);color:var(--ac)}
+.bdg-p{background:var(--yg);color:var(--yl)}
+.bdg-r{background:var(--cg);color:var(--cy)}
+.bdg-d{display:inline-block;padding:1px 6px;border-radius:3px;font-size:10px;background:rgba(255,255,255,.04);color:var(--td);margin:1px}
+.pg{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid var(--bd);font-size:12px;color:var(--td)}
+.pg button{background:var(--sf);border:1px solid var(--bd);color:var(--tx);padding:5px 12px;border-radius:var(--rs);font-family:'Outfit';font-size:11px;cursor:pointer;transition:all .2s}
+.pg button:hover:not(:disabled){border-color:var(--ac);color:var(--ac)}
+.pg button:disabled{opacity:.3;cursor:default}
+
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--rs);font-family:'Outfit';font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;border:none}
+.btn-a{background:var(--ac);color:#000;box-shadow:0 0 16px var(--ag)}
+.btn-a:hover{background:var(--ac2);transform:translateY(-1px)}
+.btn-y{background:var(--yl);color:#000;box-shadow:0 0 16px var(--yg)}
+.btn-y:hover{filter:brightness(.9);transform:translateY(-1px)}
+.btn-o{background:transparent;color:var(--tx);border:1px solid var(--bd)}
+.btn-o:hover{border-color:var(--ac);color:var(--ac)}
+.btn-s{padding:6px 12px;font-size:11px}
+
+.iog{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ioc{background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);padding:24px;text-align:center;transition:all .25s}
+.ioc:hover{border-color:var(--bh)}
+.ioi{font-size:40px;margin-bottom:10px;opacity:.75}
+.iot{font-size:15px;font-weight:700;margin-bottom:5px}
+.iod{font-size:12px;color:var(--td);margin-bottom:16px;line-height:1.5}
+.bg{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.dz{border:2px dashed var(--bd);border-radius:var(--r);padding:32px;text-align:center;transition:all .3s;cursor:pointer;margin-top:12px}
+.dz:hover,.dz.dov{border-color:var(--ac);background:var(--ag)}
+.dz p{color:var(--td);font-size:12px;margin-top:6px}
+#fI{display:none}
+
+.mov{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+.mov.on{display:flex}
+.mod{background:var(--cd2);border:1px solid var(--bd2);border-radius:16px;width:95%;max-width:820px;padding:28px;animation:mi .3s cubic-bezier(.4,0,.2,1)}
+@keyframes mi{from{opacity:0;transform:scale(.97) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.mx{float:right;background:none;border:none;color:var(--td);font-size:20px;cursor:pointer;padding:4px}.mx:hover{color:var(--tx)}
+.mod h2{font-size:18px;font-weight:700;margin-bottom:18px}
+.mf{margin-bottom:14px}
+.mf label{display:block;font-size:10px;font-weight:700;color:var(--tm);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.mf input,.mf select,.mf textarea{width:100%;background:var(--sf);border:1px solid var(--bd);color:var(--tx);padding:9px 12px;border-radius:var(--rs);font-family:'Outfit';font-size:12px}
+.mf textarea{min-height:70px;resize:vertical}
+.mf input:focus,.mf select:focus,.mf textarea:focus{border-color:var(--ac);outline:none}
+.mval{padding:7px 0;color:var(--tx);font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.mval-mono{font-family:'JetBrains Mono';font-size:11px}
+.msect{margin-top:20px;padding-top:16px;border-top:1px solid var(--bd)}
+.msect h3{font-size:13px;font-weight:700;margin-bottom:12px;color:var(--ac)}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fgrid .full{grid-column:1/-1}
+
+.tst{position:fixed;bottom:20px;right:20px;z-index:300;background:var(--cd2);border:1px solid var(--bd);border-left:3px solid var(--ac);padding:12px 18px;border-radius:var(--rs);font-size:12px;display:none;animation:sir .3s ease;box-shadow:0 6px 24px rgba(0,0,0,.5)}
+.tst.on{display:block}
+@keyframes sir{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.gln{width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--ac),transparent);opacity:.12;margin:22px 0}
+
+@media(max-width:1000px){.cgrid,.cgrid.t3,.iog{grid-template-columns:1fr}.fgrid{grid-template-columns:1fr}}
+@media(max-width:600px){.stats{grid-template-columns:1fr 1fr}.th{flex-direction:column}.tsrch{width:100%}.ct{padding:16px 12px 40px}.hdr{padding:0 12px}.tabs{padding:0 12px}}
+
+/* ===== COVER PAGE ===== */
+.cover{
+  position:fixed;inset:0;z-index:9999;background:#000;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;transition:opacity .8s cubic-bezier(.4,0,.2,1),transform .8s cubic-bezier(.4,0,.2,1);
+}
+.cover.hide{opacity:0;pointer-events:none;transform:scale(1.05)}
+.cover-bg{position:absolute;inset:0;overflow:hidden}
+.cover-bg::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 900px 600px at 20% 50%, rgba(0,230,118,.07) 0%, transparent 70%),
+    radial-gradient(ellipse 700px 500px at 80% 30%, rgba(0,229,255,.06) 0%, transparent 70%),
+    radial-gradient(ellipse 500px 400px at 50% 80%, rgba(255,214,0,.04) 0%, transparent 70%);
+}
+
+/* Animated grid */
+.cover-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(0,230,118,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,230,118,.04) 1px, transparent 1px);
+  background-size:60px 60px;
+  animation:gridMove 20s linear infinite;
+}
+@keyframes gridMove{from{transform:translate(0,0)}to{transform:translate(60px,60px)}}
+
+/* Floating particles */
+.cover-particles{position:absolute;inset:0}
+.particle{
+  position:absolute;border-radius:50%;
+  animation:float linear infinite;
+  opacity:0;
+}
+@keyframes float{
+  0%{transform:translateY(100vh) scale(0);opacity:0}
+  10%{opacity:1}
+  90%{opacity:1}
+  100%{transform:translateY(-20vh) scale(1);opacity:0}
+}
+
+/* Orbiting rings */
+.cover-rings{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+.ring{
+  position:absolute;border-radius:50%;
+  border:1px solid rgba(0,230,118,.08);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  animation:ringPulse 4s ease-in-out infinite;
+}
+.ring:nth-child(1){width:300px;height:300px;animation-delay:0s}
+.ring:nth-child(2){width:450px;height:450px;animation-delay:.5s;border-color:rgba(0,229,255,.06)}
+.ring:nth-child(3){width:600px;height:600px;animation-delay:1s;border-color:rgba(255,214,0,.04)}
+.ring:nth-child(4){width:750px;height:750px;animation-delay:1.5s;border-color:rgba(0,230,118,.03)}
+@keyframes ringPulse{0%,100%{opacity:.3;transform:translate(-50%,-50%) scale(1)}50%{opacity:.7;transform:translate(-50%,-50%) scale(1.03)}}
+
+/* Hex pattern */
+.hex-pattern{
+  position:absolute;inset:0;opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%2300e676' stroke-width='1'/%3E%3Cpath d='M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34' fill='none' stroke='%2300e5ff' stroke-width='1'/%3E%3C/svg%3E");
+  background-size:56px 100px;
+}
+
+/* Content */
+.cover-content{position:relative;z-index:2;text-align:center;max-width:700px;padding:40px}
+
+.cover-logo{
+  width:100px;height:100px;border-radius:24px;margin:0 auto 32px;
+  background:linear-gradient(135deg,#00e676 0%,#00b0ff 50%,#00e5ff 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:48px;color:#000;
+  box-shadow:0 0 60px rgba(0,230,118,.25),0 0 120px rgba(0,230,118,.1);
+  animation:logoPulse 3s ease-in-out infinite;
+  position:relative;
+}
+.cover-logo::after{
+  content:'';position:absolute;inset:-3px;border-radius:26px;
+  background:linear-gradient(135deg,#00e676,#00b0ff,#00e5ff,#00e676);
+  background-size:300% 300%;
+  animation:borderGlow 4s ease infinite;
+  z-index:-1;opacity:.5;filter:blur(2px);
+}
+@keyframes logoPulse{0%,100%{box-shadow:0 0 60px rgba(0,230,118,.25),0 0 120px rgba(0,230,118,.1)}50%{box-shadow:0 0 80px rgba(0,230,118,.35),0 0 160px rgba(0,230,118,.15)}}
+@keyframes borderGlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+.cover-pre{
+  font-size:12px;font-weight:700;letter-spacing:4px;text-transform:uppercase;
+  color:var(--ac);margin-bottom:16px;
+  animation:fadeInUp .8s ease .2s both;
+}
+.cover-title{
+  font-size:52px;font-weight:900;letter-spacing:-2px;line-height:1.05;
+  margin-bottom:8px;
+  background:linear-gradient(135deg,#fff 0%,#ccc 40%,#00e676 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:fadeInUp .8s ease .4s both;
+}
+.cover-sub{
+  font-size:20px;font-weight:300;color:var(--td);letter-spacing:.5px;
+  margin-bottom:32px;
+  animation:fadeInUp .8s ease .6s both;
+}
+.cover-divider{
+  width:80px;height:2px;margin:0 auto 28px;
+  background:linear-gradient(90deg,var(--ac),var(--cy));
+  border-radius:2px;
+  animation:fadeInUp .8s ease .7s both;
+}
+.cover-info{
+  display:flex;justify-content:center;gap:28px;margin-bottom:40px;flex-wrap:wrap;
+  animation:fadeInUp .8s ease .8s both;
+}
+.cover-info-item{text-align:center}
+.cover-info-value{font-size:28px;font-weight:800;color:#fff;letter-spacing:-1px}
+.cover-info-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--tm);margin-top:2px}
+.cover-info-value.green{color:var(--ac)}
+.cover-info-value.yellow{color:var(--yl)}
+.cover-info-value.cyan{color:var(--cy)}
+
+.cover-tags{
+  display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:40px;
+  animation:fadeInUp .8s ease .9s both;
+}
+.cover-tag{
+  padding:6px 16px;border-radius:20px;font-size:11px;font-weight:600;
+  border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);
+  color:var(--td);backdrop-filter:blur(4px);
+}
+.cover-tag.g{border-color:rgba(0,230,118,.2);color:var(--ac);background:rgba(0,230,118,.05)}
+.cover-tag.y{border-color:rgba(255,214,0,.2);color:var(--yl);background:rgba(255,214,0,.05)}
+
+.cover-btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:16px 44px;border-radius:16px;
+  background:linear-gradient(135deg,var(--ac),#00b0ff);
+  color:#000;font-family:'Outfit';font-size:15px;font-weight:700;
+  border:none;cursor:pointer;letter-spacing:.3px;
+  box-shadow:0 0 40px rgba(0,230,118,.2),0 8px 32px rgba(0,0,0,.4);
+  transition:all .3s cubic-bezier(.4,0,.2,1);
+  animation:fadeInUp .8s ease 1s both;
+  position:relative;overflow:hidden;
+}
+.cover-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,.2) 50%,transparent 60%);
+  transform:translateX(-100%);
+  animation:btnShine 3s ease infinite 2s;
+}
+@keyframes btnShine{0%{transform:translateX(-100%)}30%{transform:translateX(100%)}100%{transform:translateX(100%)}}
+.cover-btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 0 60px rgba(0,230,118,.3),0 12px 40px rgba(0,0,0,.5)}
+.cover-btn:active{transform:translateY(0) scale(.98)}
+.cover-btn svg{width:18px;height:18px}
+
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.cover-footer{
+  position:absolute;bottom:24px;left:0;right:0;text-align:center;z-index:2;
+  animation:fadeInUp .8s ease 1.2s both;
+}
+.cover-footer span{font-size:11px;color:var(--tm);letter-spacing:1px;font-weight:500}
+.cover-footer .vale-mark{
+  display:inline-flex;align-items:center;gap:6px;margin-left:8px;
+  font-weight:700;color:var(--td);
+}
+.cover-footer .vale-v{
+  display:inline-block;width:18px;height:18px;
+  background:linear-gradient(135deg,var(--ac),var(--cy));
+  -webkit-mask:url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 4l10 16L22 4h-4l-6 10L6 4z'/%3E%3C/svg%3E") no-repeat center/contain;
+  mask:url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 4l10 16L22 4h-4l-6 10L6 4z'/%3E%3C/svg%3E") no-repeat center/contain;
+}
+
+@media(max-width:600px){
+  .cover-title{font-size:32px;letter-spacing:-1px}
+  .cover-sub{font-size:16px}
+  .cover-logo{width:72px;height:72px;font-size:34px;border-radius:18px}
+  .cover-info{gap:16px}
+  .cover-info-value{font-size:22px}
+  .cover-btn{padding:14px 32px;font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== COVER PAGE ===== -->
+<div class="cover" id="cover">
+  <div class="cover-bg">
+    <div class="cover-grid"></div>
+    <div class="hex-pattern"></div>
+    <div class="cover-rings">
+      <div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="ring"></div>
+    </div>
+    <div class="cover-particles" id="particles"></div>
+  </div>
+
+  <div class="cover-content">
+    <div class="cover-logo">K</div>
+    <div class="cover-pre">Sistema de Melhoria Contínua</div>
+    <div class="cover-title">Central de Kaizen</div>
+    <div class="cover-sub">GER Integridade Estrutural — Serra Sul S11D</div>
+    <div class="cover-divider"></div>
+    <div class="cover-info">
+      <div class="cover-info-item"><div class="cover-info-value green" id="cvTotal">73</div><div class="cover-info-label">Kaizens</div></div>
+      <div class="cover-info-item"><div class="cover-info-value yellow" id="cvPessoas">88</div><div class="cover-info-label">Engajados</div></div>
+      <div class="cover-info-item"><div class="cover-info-value cyan" id="cvCoords">4</div><div class="cover-info-label">Coordenações</div></div>
+    </div>
+    <div class="cover-tags">
+      <span class="cover-tag g">COORD Julia Silva</span>
+      <span class="cover-tag">COORD Mayrton Pereira</span>
+      <span class="cover-tag">COORD Fredeson Feitoza</span>
+      <span class="cover-tag">COORD Nathalia Nobrega</span>
+    </div>
+    <button class="cover-btn" onclick="enterApp()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Acessar Dashboard
+    </button>
+  </div>
+
+  <div class="cover-footer">
+    <span>Demais Diretorias — Dados atualizados em 22/02/2026</span>
+    <span class="vale-mark"><span class="vale-v"></span> VALE</span>
+  </div>
+</div>
+
+<script>
+// Generate floating particles
+(function(){
+  const container = document.getElementById('particles');
+  const colors = ['#00e676','#00e5ff','#ffd600','#d500f9','#2979ff'];
+  for(let i=0;i<30;i++){
+    const p = document.createElement('div');
+    p.className='particle';
+    const size = Math.random()*4+2;
+    const color = colors[Math.floor(Math.random()*colors.length)];
+    p.style.cssText=`
+      width:${size}px;height:${size}px;
+      background:${color};
+      left:${Math.random()*100}%;
+      animation-duration:${Math.random()*12+8}s;
+      animation-delay:${Math.random()*8}s;
+      box-shadow:0 0 ${size*3}px ${color};
+    `;
+    container.appendChild(p);
+  }
+})();
+
+function enterApp(){
+  document.getElementById('cover').classList.add('hide');
+  setTimeout(()=>{document.getElementById('cover').style.display='none'},800);
+}
+</script>
+
+<header class="hdr">
+<div class="hdr-in">
+<div class="logo"><div class="logo-m">K</div><div class="logo-t"><b>Kaizen</b> Central</div></div>
+<div class="hdr-r">
+<span class="hdr-b g">GER Integridade Estrutural</span>
+<span class="hdr-b y">COORD Julia Silva</span>
+<span class="hdr-b c">Serra Sul</span>
+<span style="font-family:'JetBrains Mono';font-size:11px;opacity:.5" id="hDate"></span>
+</div>
+</div>
+</header>
+
+<nav class="tabs">
+<div class="tab on" data-t="visao" onclick="sw('visao')">📊 Visão Geral</div>
+<div class="tab" data-t="dash" onclick="sw('dash')">📈 Dashboard</div>
+<div class="tab" data-t="rel" onclick="sw('rel')">📋 Relatório</div>
+<div class="tab" data-t="cad" onclick="sw('cad')">➕ Cadastrar</div>
+<div class="tab" data-t="io" onclick="sw('io')">💾 Importar / Exportar</div>
+<div class="tab" data-t="aval" onclick="sw('aval')">🏆 Critérios de Avaliação</div>
+</nav>
+
+<main class="ct">
+
+<!-- VISÃO GERAL -->
+<section class="pnl on" id="p-visao">
+<div class="stats" id="vS"></div>
+<div class="cgrid">
+<div class="cc"><div class="ct-t"><span class="dot g"></span> Kaizens por Tipo</div><canvas id="cTipo"></canvas></div>
+<div class="cc"><div class="ct-t"><span class="dot y"></span> Evolução Mensal (Acumulado + Mensal)</div><canvas id="cAcum"></canvas></div>
+</div>
+<div class="cgrid">
+<div class="cc"><div class="ct-t"><span class="dot c"></span> Por Dimensão</div><canvas id="cDim"></canvas></div>
+<div class="cc"><div class="ct-t"><span class="dot r"></span> Por Tipo de Problema</div><canvas id="cProb"></canvas></div>
+</div>
+<div class="cgrid">
+<div class="cc"><div class="ct-t"><span class="dot p"></span> Por Supervisão / Coordenação</div><canvas id="cSup"></canvas></div>
+<div class="cc"><div class="ct-t"><span class="dot g"></span> Top Elaboradores</div><canvas id="cElab"></canvas></div>
+</div>
+<div class="cgrid">
+<div class="cc"><div class="ct-t"><span class="dot y"></span> Por Ativo / Processo</div><canvas id="cAtivo"></canvas></div>
+<div class="cc"><div class="ct-t"><span class="dot c"></span> Pessoas Engajadas por Mês</div><canvas id="cEng"></canvas></div>
+</div>
+</section>
+
+<!-- DASHBOARD -->
+<section class="pnl" id="p-dash">
+<div class="flt">
+<div class="flt-g"><div class="flt-l">Supervisão</div><select class="flt-s" id="fSup" onchange="af()"><option>Todos</option></select></div>
+<div class="flt-g"><div class="flt-l">Tipo de Kaizen</div><select class="flt-s" id="fTipo" onchange="af()"><option>Todos</option><option>Novo Kaizen</option><option>Padronização de Kaizen</option><option>Replicação de Kaizen</option></select></div>
+<div class="flt-g"><div class="flt-l">Dimensão</div><select class="flt-s" id="fDim" onchange="af()"><option>Todos</option></select></div>
+<div class="flt-g"><div class="flt-l">Mês</div><select class="flt-s" id="fMes" onchange="af()"><option>Todos</option><option value="01">Janeiro</option><option value="02">Fevereiro</option><option value="03">Março</option><option value="04">Abril</option><option value="05">Maio</option><option value="06">Junho</option><option value="07">Julho</option><option value="08">Agosto</option><option value="09">Setembro</option><option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option></select></div>
+<div class="flt-g"><div class="flt-l">Elaborador</div><select class="flt-s" id="fElab" onchange="af()"><option>Todos</option></select></div>
+</div>
+<div class="stats" id="dS"></div>
+<div class="cgrid">
+<div class="cc"><div class="ct-t"><span class="dot c"></span> Dimensão (Filtrado)</div><canvas id="dDim"></canvas></div>
+<div class="cc"><div class="ct-t"><span class="dot y"></span> Engajados por Mês</div><canvas id="dEng"></canvas></div>
+</div>
+<div class="cgrid">
+<div class="cc"><div class="ct-t"><span class="dot r"></span> Tipo de Problema (Filtrado)</div><canvas id="dProb"></canvas></div>
+<div class="cc"><div class="ct-t"><span class="dot p"></span> Elaboradores (Filtrado)</div><canvas id="dElab"></canvas></div>
+</div>
+</section>
+
+<!-- RELATÓRIO -->
+<section class="pnl" id="p-rel">
+<div class="tw">
+<div class="th">
+<div class="tt">📋 Relatório — GER Integridade Estrutural (Todas Coordenações)</div>
+<div style="display:flex;gap:8px;align-items:center">
+<input class="tsrch" id="tSrch" placeholder="Pesquisar..." oninput="rt()">
+<button class="btn btn-s btn-o" onclick="expTCSV()">⬇ CSV</button>
+</div>
+</div>
+<div class="tscrl"><table><thead><tr>
+<th onclick="srt('data')">Data ▼</th>
+<th onclick="srt('tipo')">Tipo ▼</th>
+<th onclick="srt('dimensao')">Dimensão ▼</th>
+<th onclick="srt('titulo')">Título ▼</th>
+<th onclick="srt('elaborador')">Elaborador ▼</th>
+<th onclick="srt('supervisao')">Supervisão ▼</th>
+<th onclick="srt('ativo')">Ativo ▼</th>
+<th onclick="srt('problema')">Problema ▼</th>
+<th>Ações</th>
+</tr></thead><tbody id="tBd"></tbody></table></div>
+<div class="pg"><span id="pInf"></span><div style="display:flex;gap:5px"><button onclick="cpg(-1)" id="pP" disabled>← Ant</button><button onclick="cpg(1)" id="pN">Próx →</button></div></div>
+</div>
+</section>
+
+<!-- CADASTRO -->
+<section class="pnl" id="p-cad">
+<div class="cc" style="max-width:820px;margin:0 auto">
+<div class="ct-t"><span class="dot g"></span> Cadastrar Novo Kaizen</div>
+<div class="fgrid" style="margin-top:10px">
+<div class="mf"><label>Data</label><input type="date" id="cD"></div>
+<div class="mf"><label>Tipo de Kaizen</label><select id="cT"><option>Novo Kaizen</option><option>Padronização de Kaizen</option><option>Replicação de Kaizen</option></select></div>
+<div class="mf"><label>Dimensão (Ctrl+Click múltiplas)</label><select id="cDi" multiple style="height:80px"><option>Segurança</option><option>Segurança e Riscos</option><option>Qualidade</option><option>Produtividade</option><option>Pessoas</option><option>Custos</option><option>Meio Ambiente</option><option>Saúde</option></select></div>
+<div class="mf"><label>Elaborador (email)</label><input id="cE" placeholder="email@vale.com"></div>
+<div class="mf"><label>Supervisão</label><select id="cS"><option>COORD IMPLANT SERRA SUL - JULIA SILVA</option><option>COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA</option><option>COORD INSPEÇÃO OBRAS INTEGRIDAD - FREDESON FEITOZA</option><option>COORD PLAN MANUT GESTAO ATIVOS - NATHALIA NOBREGA</option></select></div>
+<div class="mf"><label>Ativo / Processo</label><input id="cA" placeholder="Ex: TODA AREA"></div>
+<div class="mf full"><label>Título da Melhoria</label><input id="cTi" placeholder="Título descritivo"></div>
+<div class="mf full"><label>Objetivo</label><textarea id="cOb" placeholder="Objetivo da melhoria..."></textarea></div>
+<div class="mf"><label>Tipo de Problema (Ctrl+Click)</label><select id="cPr" multiple style="height:80px"><option>Processamento Excessivo</option><option>Movimento</option><option>Espera</option><option>Transporte</option><option>Superprodução</option><option>Defeitos / Retrabalho</option><option>Mura / Flutuação</option><option>Muri / Sobrecarga</option><option>Estoque / Inventário</option></select></div>
+<div class="mf"><label>Origem do Problema</label><select id="cOr"><option>Rotina</option><option>FMDS</option><option>Gemba</option><option>Outros</option></select></div>
+<div class="mf full"><label>Situação ANTES</label><textarea id="cAn" placeholder="Descreva..."></textarea></div>
+<div class="mf full"><label>Ações Realizadas</label><textarea id="cAc" placeholder="Ações..."></textarea></div>
+<div class="mf full"><label>Situação DEPOIS</label><textarea id="cDp" placeholder="Descreva..."></textarea></div>
+<div class="mf full"><label>Resultados Alcançados</label><textarea id="cRs" placeholder="Resultados..."></textarea></div>
+</div>
+<div style="text-align:right;margin-top:14px"><button class="btn btn-a" onclick="cadK()">✓ Cadastrar Kaizen</button></div>
+</div>
+</section>
+
+<!-- IMPORTAR/EXPORTAR -->
+<section class="pnl" id="p-io">
+<div class="iog">
+<div class="ioc">
+<div class="ioi">📤</div><div class="iot">Exportar Base</div>
+<div class="iod">Exporte todos os kaizens da GER Integridade Estrutural em JSON ou CSV.</div>
+<div class="bg"><button class="btn btn-a" onclick="expJSON()">⬇ JSON</button><button class="btn btn-y" onclick="expCSV()">⬇ CSV</button></div>
+</div>
+<div class="ioc">
+<div class="ioi">📥</div><div class="iot">Importar Base</div>
+<div class="iod">Importe kaizens a partir de arquivo JSON. Dados mesclados com base existente.</div>
+<div class="dz" id="dz" onclick="document.getElementById('fI').click()"><div style="font-size:28px;opacity:.4">📁</div><p>Arraste JSON aqui ou clique</p></div>
+<input type="file" id="fI" accept=".json" onchange="impJSON(event)">
+</div>
+</div>
+<div class="gln"></div>
+<div class="cc">
+<div class="ct-t"><span class="dot r"></span> Gerenciar Base</div>
+<div style="display:flex;gap:10px;align-items:center;margin-top:6px;flex-wrap:wrap">
+<button class="btn btn-o" onclick="rstD()">🔄 Restaurar Dados Originais</button>
+<button class="btn btn-o" style="border-color:var(--rd);color:var(--rd)" onclick="clrA()">🗑 Limpar Base</button>
+<span style="font-size:12px;color:var(--td);margin-left:auto" id="dbC"></span>
+</div>
+</div>
+</section>
+
+<!-- CRITÉRIOS DE AVALIAÇÃO -->
+<section class="pnl" id="p-aval">
+
+<!-- Header info -->
+<div class="cc" style="margin-bottom:22px;border-left:3px solid var(--yl)">
+<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+<div>
+<div class="ct-t" style="margin-bottom:4px"><span class="dot y"></span> Programa de Reconhecimento Kaizen — Corredor Norte</div>
+<div style="font-size:12px;color:var(--td)">Checklist de avaliação baseado nos critérios oficiais do programa. Pontuação máxima: 100 pontos (escala 0-3 por subcritério).</div>
+</div>
+<button class="btn btn-a" onclick="addAvalKaizen()">➕ Nova Avaliação</button>
+</div>
+</div>
+
+<!-- Critérios Reference -->
+<div class="cc" style="margin-bottom:22px">
+<div class="ct-t"><span class="dot c"></span> Critérios e Pesos</div>
+<div style="overflow-x:auto">
+<table style="width:100%;font-size:12px" id="criteriosRef">
+<thead><tr>
+<th style="cursor:default;min-width:180px">Critério</th>
+<th style="cursor:default;width:60px;text-align:center">Peso</th>
+<th style="cursor:default">Características Avaliadas</th>
+<th style="cursor:default;min-width:320px">Escala de Pontuação (0–3)</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="white-space:normal;font-weight:600;color:var(--ac)">1. Origem</td>
+<td style="text-align:center"><span style="background:var(--ag);color:var(--ac);padding:3px 10px;border-radius:10px;font-weight:700">20</span></td>
+<td style="white-space:normal;font-size:11px;line-height:1.5;color:var(--td)">A oportunidade selecionada é relevante para o resultado da área (oriunda de FMDS, reunião de performance, objetivos estratégicos, oportunidades de rotina que impactam indicadores).</td>
+<td style="white-space:normal;font-size:10px;line-height:1.6;color:var(--tm)">
+<b style="color:var(--rd)">0</b> — Não referenciou origem do problema<br>
+<b style="color:var(--or)">1</b> — Referenciou a origem (FMDS, inspeção, etc.)<br>
+<b style="color:var(--yl)">2</b> — Origem + correlação com indicadores IC/IV<br>
+<b style="color:var(--ac)">3</b> — Origem + indicadores IC/IV + iniciativas estratégicas
+</td>
+</tr>
+<tr>
+<td style="white-space:normal;font-weight:600;color:var(--yl)" rowspan="3">2. Impactos no Processo (Resultado)</td>
+<td style="text-align:center" rowspan="3"><span style="background:var(--yg);color:var(--yl);padding:3px 10px;border-radius:10px;font-weight:700">30</span></td>
+<td style="white-space:normal;font-size:11px;line-height:1.5;color:var(--td)"><b>2a.</b> Descrição cenários antes/depois e eliminação/redução de desperdícios (transporte, movimentação, inventário, espera, defeito, superprodução, processamento excessivo).</td>
+<td style="white-space:normal;font-size:10px;line-height:1.6;color:var(--tm)">
+<b style="color:var(--rd)">0</b> — Não mencionou ganhos e desperdícios<br>
+<b style="color:var(--or)">1</b> — Resultados baseados em sentimento (não quantificados)<br>
+<b style="color:var(--yl)">2</b> — Resultados descritos e quantificados<br>
+<b style="color:var(--ac)">3</b> — Quantificados + performance do indicador
+</td>
+</tr>
+<tr>
+<td style="white-space:normal;font-size:11px;line-height:1.5;color:var(--td)"><b>2b.</b> A melhoria apresentou ganhos em SSMAC + riscos.</td>
+<td style="white-space:normal;font-size:10px;line-height:1.6;color:var(--tm)">
+<b style="color:var(--rd)">0</b> — Não apresentou ganhos em SSMAC<br>
+<b style="color:var(--or)">1</b> — MoC aberto ou resultados SS baseados em sentimento<br>
+<b style="color:var(--yl)">2</b> — Ganhos SS + matriz de riscos validada<br>
+<b style="color:var(--ac)">3</b> — Matriz SS validada + link com FMDS de SS
+</td>
+</tr>
+<tr>
+<td style="white-space:normal;font-size:11px;line-height:1.5;color:var(--td)"><b>2c.</b> Houve redução de custo e/ou aumento de receita?</td>
+<td style="white-space:normal;font-size:10px;line-height:1.6;color:var(--tm)">
+<b style="color:var(--rd)">0</b> — Não mencionou ganhos/redução de custos<br>
+<b style="color:var(--or)">1</b> — Sentimento/percepção sem validação técnica<br>
+<b style="color:var(--yl)">2</b> — Quantificados e validados pelo responsável de custos<br>
+<b style="color:var(--ac)">3</b> — Validados pela gestão econômica matricial
+</td>
+</tr>
+<tr>
+<td style="white-space:normal;font-weight:600;color:var(--cy)">3. Análise de Abrangência</td>
+<td style="text-align:center"><span style="background:var(--cg);color:var(--cy);padding:3px 10px;border-radius:10px;font-weight:700">15</span></td>
+<td style="white-space:normal;font-size:11px;line-height:1.5;color:var(--td)">Análises de abrangência são realizadas e, caso aplicáveis, são implantadas.</td>
+<td style="white-space:normal;font-size:10px;line-height:1.6;color:var(--tm)">
+<b style="color:var(--rd)">0</b> — Análise de abrangência não realizada<br>
+<b style="color:var(--or)">1</b> — Realizada (locais citados) + compartilhamento por fórum/e-mail<br>
+<b style="color:var(--yl)">2</b> — Iniciado padronização (replicação Sup./GA) com plano de ação<br>
+<b style="color:var(--ac)">3</b> — Replicação externa iniciada (outras GA, GE e DI)
+</td>
+</tr>
+<tr>
+<td style="white-space:normal;font-weight:600;color:var(--pu)">4. Análise de Eficácia</td>
+<td style="text-align:center"><span style="background:rgba(213,0,249,.1);color:var(--pu);padding:3px 10px;border-radius:10px;font-weight:700">15</span></td>
+<td style="white-space:normal;font-size:11px;line-height:1.5;color:var(--td)">Análises de eficácia são feitas para as melhorias implantadas e incorporadas na rotina.</td>
+<td style="white-space:normal;font-size:10px;line-height:1.6;color:var(--tm)">
+<b style="color:var(--rd)">0</b> — Não realizada<br>
+<b style="color:var(--or)">1</b> — Mencionada na descrição do depois<br>
+<b style="color:var(--yl)">2</b> — MoC "em análise de eficácia" ou evidência via indicador<br>
+<b style="color:var(--ac)">3</b> — Concluída no sistema + performance 3 meses
+</td>
+</tr>
+<tr>
+<td style="white-space:normal;font-weight:600;color:var(--or)">5. Padronização</td>
+<td style="text-align:center"><span style="background:rgba(255,145,0,.1);color:var(--or);padding:3px 10px;border-radius:10px;font-weight:700">20</span></td>
+<td style="white-space:normal;font-size:11px;line-height:1.5;color:var(--td)">Houve padronização/revisão da atividade, garantindo sustentabilidade do resultado, e treinamento dos empregados?</td>
+<td style="white-space:normal;font-size:10px;line-height:1.6;color:var(--tm)">
+<b style="color:var(--rd)">0</b> — Não comentou formas de padronização<br>
+<b style="color:var(--or)">1</b> — Melhoria divulgada, revisão de padrão não iniciada<br>
+<b style="color:var(--yl)">2</b> — Divulgada + padrões/docs técnicos em revisão<br>
+<b style="color:var(--ac)">3</b> — Padrões revisados + equipe treinada (VES) + replicação interna
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- Avaliações cadastradas -->
+<div class="stats" id="avalStats"></div>
+
+<div class="cgrid">
+<div class="cc"><div class="ct-t"><span class="dot g"></span> Nota Final por Kaizen Avaliado</div><canvas id="aNotas"></canvas></div>
+<div class="cc"><div class="ct-t"><span class="dot y"></span> Média por Critério</div><canvas id="aRadar"></canvas></div>
+</div>
+<div class="cgrid">
+<div class="cc"><div class="ct-t"><span class="dot c"></span> Distribuição de Notas por Critério</div><canvas id="aStack"></canvas></div>
+<div class="cc"><div class="ct-t"><span class="dot p"></span> Ranking de Kaizens</div><canvas id="aRank"></canvas></div>
+</div>
+
+<!-- Tabela de avaliações -->
+<div class="tw" style="margin-top:14px">
+<div class="th">
+<div class="tt">🏆 Avaliações Cadastradas</div>
+<div style="display:flex;gap:8px">
+<button class="btn btn-s btn-o" onclick="expAvalCSV()">⬇ CSV</button>
+</div>
+</div>
+<div class="tscrl">
+<table><thead><tr>
+<th style="cursor:default">Kaizen</th>
+<th style="cursor:default;text-align:center">Origem<br><span style="font-size:9px;opacity:.5">/20</span></th>
+<th style="cursor:default;text-align:center">Impacto A<br><span style="font-size:9px;opacity:.5">/10</span></th>
+<th style="cursor:default;text-align:center">Impacto B<br><span style="font-size:9px;opacity:.5">/10</span></th>
+<th style="cursor:default;text-align:center">Impacto C<br><span style="font-size:9px;opacity:.5">/10</span></th>
+<th style="cursor:default;text-align:center">Abrangência<br><span style="font-size:9px;opacity:.5">/15</span></th>
+<th style="cursor:default;text-align:center">Eficácia<br><span style="font-size:9px;opacity:.5">/15</span></th>
+<th style="cursor:default;text-align:center">Padronização<br><span style="font-size:9px;opacity:.5">/20</span></th>
+<th style="cursor:default;text-align:center;font-weight:700;color:var(--ac)">TOTAL<br><span style="font-size:9px;opacity:.5">/100</span></th>
+<th style="cursor:default">Feedback</th>
+<th style="cursor:default">Ações</th>
+</tr></thead>
+<tbody id="avalBody"></tbody>
+</table>
+</div>
+</div>
+
+</section>
+
+<!-- MODAL AVALIAÇÃO -->
+<div class="mov" id="avalMod">
+<div class="mod" style="max-width:750px">
+<button class="mx" onclick="document.getElementById('avalMod').classList.remove('on')">✕</button>
+<h2>🏆 Nova Avaliação de Kaizen</h2>
+<div class="fgrid">
+<div class="mf full"><label>Título / Identificação do Kaizen</label><input id="avNome" placeholder="Nome ou título do Kaizen avaliado"></div>
+<div class="mf"><label>Avaliador</label><input id="avAvaliador" placeholder="Nome do avaliador"></div>
+<div class="mf"><label>Data da Avaliação</label><input type="date" id="avData"></div>
+</div>
+<div class="gln"></div>
+<p style="font-size:11px;color:var(--td);margin-bottom:14px">Pontue cada critério na escala <b style="color:var(--rd)">0</b> a <b style="color:var(--ac)">3</b> conforme a tabela de referência:</p>
+<div class="fgrid">
+<div class="mf"><label>1. Origem (peso 20)</label>
+<select id="avOrigem" class="flt-s"><option value="0">0 — Não referenciou origem</option><option value="1">1 — Referenciou origem</option><option value="2">2 — Origem + indicadores IC/IV</option><option value="3">3 — Origem + IC/IV + estratégicas</option></select></div>
+<div class="mf"><label>2a. Impacto — Antes/Depois (peso 10)</label>
+<select id="avImpA" class="flt-s"><option value="0">0 — Não mencionou</option><option value="1">1 — Sentimento</option><option value="2">2 — Quantificados</option><option value="3">3 — Quantificados + indicador</option></select></div>
+<div class="mf"><label>2b. Impacto — SSMAC (peso 10)</label>
+<select id="avImpB" class="flt-s"><option value="0">0 — Não apresentou</option><option value="1">1 — MoC ou sentimento</option><option value="2">2 — Matriz riscos validada</option><option value="3">3 — Matriz + FMDS SS</option></select></div>
+<div class="mf"><label>2c. Impacto — Custos (peso 10)</label>
+<select id="avImpC" class="flt-s"><option value="0">0 — Não mencionou</option><option value="1">1 — Sentimento s/ validação</option><option value="2">2 — Validado resp. custos</option><option value="3">3 — Gestão econômica matricial</option></select></div>
+<div class="mf"><label>3. Abrangência (peso 15)</label>
+<select id="avAbrang" class="flt-s"><option value="0">0 — Não realizada</option><option value="1">1 — Realizada + compartilhamento</option><option value="2">2 — Padronização iniciada c/ plano</option><option value="3">3 — Replicação externa iniciada</option></select></div>
+<div class="mf"><label>4. Eficácia (peso 15)</label>
+<select id="avEfic" class="flt-s"><option value="0">0 — Não realizada</option><option value="1">1 — Mencionada no depois</option><option value="2">2 — MoC em análise ou indicador</option><option value="3">3 — Concluída sistema + 3 meses</option></select></div>
+<div class="mf full"><label>5. Padronização (peso 20)</label>
+<select id="avPadro" class="flt-s"><option value="0">0 — Não comentou</option><option value="1">1 — Divulgada, revisão não iniciada</option><option value="2">2 — Docs em revisão</option><option value="3">3 — Padrões revisados + VES + replicação</option></select></div>
+<div class="mf full"><label>Feedback / Comentários</label><textarea id="avFeedback" placeholder="Comentários gerais da avaliação..."></textarea></div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px">
+<div style="font-size:13px;color:var(--td)">Nota prévia: <b style="font-size:20px;color:var(--ac)" id="avPreview">0</b> / 100</div>
+<button class="btn btn-a" onclick="saveAval()">✓ Salvar Avaliação</button>
+</div>
+</div>
+</div>
+
+</main>
+
+<div class="mov" id="dMod"><div class="mod">
+<button class="mx" onclick="clM()">✕</button>
+<h2>📄 Ficha do Kaizen</h2>
+<div id="mCt"></div>
+</div></div>
+<div class="tst" id="tst"></div>
+
+<script>
+// Register datalabels plugin globally
+Chart.register(ChartDataLabels);
+
+const DEF=[{"id": "02f50f60-062a-4430-8c08-8a17fce41e25", "data": "2026-01-28", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; ARIVELTON ENOQUE SILVA ROCHA; EUDES DE OLIVEIRA; RAFAEL DA CONCEICAO DIAS; JOELMA FERNANDA DOS SANTOS COSTA; LUIELLY COSTA SOUSA; CASSIA FERREIRA RIOS", "todosNomes": ["SAULO PEREIRA", "ARIVELTON ENOQUE SILVA ROCHA", "EUDES DE OLIVEIRA", "RAFAEL DA CONCEICAO DIAS", "JOELMA FERNANDA DOS SANTOS COSTA", "LUIELLY COSTA SOUSA", "CASSIA FERREIRA RIOS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "REC - CHECK LIST - ASSISTENTE DE TRANSPORTE", "objetivo": "Organização e Controle", "dataImplantacao": "2026-01-26", "problema": "Processamento Excessivo", "situacaoAntes": "NÃO EXISTIA", "acoesRealizadas": "Conferência de documentação", "situacaoDepois": "Controle e Registro", "resultados": "N/A; SEM CUSTO"}, {"id": "06035e95-de2b-49df-a097-19cc0fd218c5", "data": "2026-01-26", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "michelle.silva@vale.com", "elaboradoresRaw": "81016371 / MICHELLE SILVA / michelle.silva@vale.com; 01535349 / RODRIGO LEITE / rodrigo.leite@vale.com; C0641186 / PATRICIA PAIVA_CONTR / c0641186@vale.com; C0656973 / MATHEUS RODRIGUES_CONTR / c0656973@vale.com; ", "todosNomes": ["MICHELLE SILVA", "RODRIGO LEITE", "PATRICIA PAIVA_CONTR", "MATHEUS RODRIGUES_CONTR"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD PLAN MANUT GESTAO ATIVOS - NATHALIA NOBREGA", "ativo": "ROTINA DE PROGRAMAÇÃO", "titulo": "Padronização do lançamento da programação de ordens via Cockpit", "objetivo": "Padronização do lançamento da programação de ordens via Cockpit de OM", "dataImplantacao": "2026-01-05", "problema": "Espera,Muri / Sobrecarga,Mura / Flutuação,Processamento Excessivo", "situacaoAntes": "O lançamento da programação de ordens no sistema Cockpit não possuía um passo a passo documentado.\n\t•\tA atividade dependia exclusivamente do conhecimento individual, dificultando a execução por pessoas que não dominavam a ferramenta.\n\t•\tEm períodos de férias ou ausência, havia risco de:\n\t•\tAtrasos na programação\n\t•\tErros de lançamento\n\t•\tDependência excessiva de uma única pessoa\n\t•\tCurva de aprendizado elevada para novos colaboradores ou substitutos.", "acoesRealizadas": "Foi elaborado um passo a passo detalhado para o lançamento da programação de ordens via sistema Cockpit.\n\t•\tO material contempla:\n\t•\tAcesso ao sistema\n\t•\tNavegação correta pelas telas\n\t•\tSequência lógica de lançamento das ordens\n\t•\tPontos de atenção e boas práticas\n\t•\tA documentação foi criada com foco em:\n\t•\tFacilidade de entendimento\n\t•\tPadronização do processo\n\t•\tAutonomia de qualquer colaborador, mesmo sem experiência prévia na ferramenta\n\t•\tO conteúdo foi disponibilizado como material de apoio operacional, garantindo continuidade do processo.", "situacaoDepois": "Padronização do processo de lançamento da programação de ordens.\n\t•\tRedução da dependência de uma única pessoa para execução da atividade.\n\t•\tContinuidade operacional garantida durante férias, afastamentos ou trocas de função.\n\t•\tRedução de erros no lançamento das ordens.\n\t•\tGanho de tempo na execução da tarefa.\n\t•\tFacilidade no treinamento de novos colaboradores.\n\t•\tMelhoria na confiabilidade da programação de manutenção.", "resultados": "; •\tMenor necessidade de correções e retrabalho (menos horas improdutivas).\n\t•\tRedução de custos indiretos com:\n\t•\tHoras extras geradas por reprogramações emergenciais\n\t•\tChamados corretivos por falhas de programação\n\t•\tTreinamento mais rápido e menos oneroso para novos colaboradores.\n\nGanho-chave:\n➡️ Redução de custos operacionais e indiretos.; •\tRedução do tempo gasto para lançar a programação no sistema Cockpit.\n\t•\tEliminação de retrabalho causado por erros de lançamento.\n\t•\tPessoas sem domínio prévio da ferramenta conseguem executar a tarefa com autonomia.\n\t•\tContinuidade do processo sem gargalos durante férias ou ausências.\n\nGanho-chave:\n➡️ Mais ordens programadas corretamente em menos tempo.; •\tPadronização garante lançamentos consistentes e confiáveis.\n\t•\tDiminuição de variação na forma como a programação é feita.\n\t•\tMelhor qualidade das informações inseridas nas ordens.\n\t•\tAumento da confiabilidade do planejamento de manutenção.\n\nGanho-chave:\n➡️ Programação mais precisa, confiável e padronizada.; A programação correta das ordens evita intervenções de última hora, que normalmente geram: \t•\tPressa \t•\tExecuções fora do horário ideal \t•\tMaior exposição a riscos \t•\tCom o passo a passo padronizado: \t•\tReduz-se a chance de ordens lançadas incorretamente, que poderiam resultar em: \t•\tExecução sem planejamento adequado \t•\tFalta de informações críticas de segurança \t•\tMenor estresse operacional em períodos de ausência ou férias, contribuindo para um ambiente de trabalho mais seguro. Ganho-chave: ➡️ Redução de riscos operacionais associados a falhas de programação."}, {"id": "0b2b9d68-0384-475b-932e-b3d0ccaadbad", "data": "2026-02-01", "tipo": "Novo Kaizen", "dimensao": "Qualidade", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "jonas.caje@vale.com", "elaboradoresRaw": "01535821 / JONAS SILVA / jonas.caje@vale.com; ; 04960425300 / TYAGO CABRAL SILVA / PLANGECON SERVICOS INDUSTRIAIS LTDA; 86893130287 / RAIMUNDO JOACY VELOSO DA SILVA / PLANGECON SERVICOS INDUSTRIAIS LTDA; 00937807290 / EMANOEL VINICIUS PEREIRA DIAS / PLANGECON SERVICOS INDUSTRIAIS LTDA; 02320805346 / JOAO MIGUEL TRINDADE SILVA / PLANGECON SERVICOS INDUSTRIAIS LTDA; 70610437259 / JOSE ROBERTO DA SILVA ALVES / PLANGECON SERVICOS INDUSTRIAIS LTDA; 03610023279 / HERICK JUNIOR SOUSA DOS SANTOS / PLANGECON SERVICOS INDUSTRIAIS LTDA", "todosNomes": ["JONAS SILVA", "TYAGO CABRAL SILVA", "RAIMUNDO JOACY VELOSO DA SILVA", "EMANOEL VINICIUS PEREIRA DIAS", "JOAO MIGUEL TRINDADE SILVA", "JOSE ROBERTO DA SILVA ALVES", "HERICK JUNIOR SOUSA DOS SANTOS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "OBRAS DE DESMOB PLANGECON", "titulo": "SEPARAÇÃO DE CORES NO CONJ. OXICORTE", "objetivo": "Facilitar a identificação e onde armazenar o cilindro de gás ao término de uso.", "dataImplantacao": "2026-01-27", "problema": "Transporte", "situacaoAntes": "Equipamento sobressalente, mal usado.", "acoesRealizadas": "Os conjuntos foram removidos e descartados, após isso, iniciou-se processo de fabricação e padronização dos conjuntos de oxicorte.", "situacaoDepois": "Feito a padronização dos conjuntos.", "resultados": "xx; Redução da geração de resíduos sólidos.; Evoluções na matriz de habilidades da equipe;; Redução de x% de DMT (Distância Média de Transporte;; Aumento da satisfação do cliente;; Redução de esforços repetitivos;; Eliminação do Esforço Físico Intenso durante a atividade de transporte de caixas com peso aproximado de 20 kg."}, {"id": "0b712401-1913-4e7e-a662-7d147e3cb56d", "data": "2026-02-13", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; JOELMA FERNANDA DOS SANTOS COSTA; STEFANNY DA SILVA SILVA; CASSIA FERREIRA RIOS; CARDIELLE MONTEIRO LIMA; LAURA KELLY SANTOS CORREA CONCEICAO; SIDNEY JUNIOR GUEDES", "todosNomes": ["SAULO PEREIRA", "JOELMA FERNANDA DOS SANTOS COSTA", "STEFANNY DA SILVA SILVA", "CASSIA FERREIRA RIOS", "CARDIELLE MONTEIRO LIMA", "LAURA KELLY SANTOS CORREA CONCEICAO", "SIDNEY JUNIOR GUEDES"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "REC- QRD DE INSPEÇÃO VEICULAR", "objetivo": "O objetivo da melhoria no QRD (QR Code) de inspeção veicular é tornar o processo mais seguro, rápido, confiável e transparente.", "dataImplantacao": "2026-02-13", "problema": "Transporte", "situacaoAntes": "NÃO EXISTIA", "acoesRealizadas": "A implementação do QR Code permite a verificação eletrônica e imediata das informações do veículo.", "situacaoDepois": "Maior transparência, permitindo que qualquer parte interessada confirme a autenticidade das informações.", "resultados": "N/A; SEM CUSTO"}, {"id": "0d2b16de-c12e-48a5-85bd-bf368dde8370", "data": "2026-01-22", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 88499987249 / JOELMA FERNANDA DOS SANTOS COSTA / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["SAULO PEREIRA", "JOELMA FERNANDA DOS SANTOS COSTA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "TODA AREA", "titulo": "PAC-PLANILHA REUNIÃO PÓS- PARADA", "objetivo": "", "dataImplantacao": "2026-01-15", "problema": "Movimento", "situacaoAntes": "", "acoesRealizadas": "", "situacaoDepois": "", "resultados": "; N/A"}, {"id": "0ebb54b0-55bb-4a51-b286-c3b3857d78cc", "data": "2026-02-12", "tipo": "Novo Kaizen", "dimensao": "Qualidade", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Outros", "origemOutros": "Drenagem Interna do túnel TN_1130KN_10", "grupoCCQ": "", "elaborador": "rademora.moraes@vale.com", "elaboradoresRaw": "81014238 / RADEMORA MORAES / rademora.moraes@vale.com; ; Cláudio Marques de Almeida Prado (THEMAG ENGENHARIA E GERENCIAMENTO LTDA.); 98904973104 / HELANO DOS SANTOS SENA / THEMAG ENGENHARIA E GERENCIAMENTO LTDA.", "todosNomes": ["RADEMORA MORAES", "Cláudio Marques de Almeida Prado (THEMAG ENGENHARIA E GERENCIAMENTO LTDA.)", "HELANO DOS SANTOS SENA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD INSPEÇÃO OBRAS INTEGRIDAD - FREDESON FEITOZA", "ativo": "TN_1130KN_10", "titulo": "Conexão de inspeção", "objetivo": "A solução envolve um dispositivo que facilita a inspeção/monitoramento dos drenos horizontais profundos, permitindo verificar se estão funcionando de acordo com o previsto ou se estão colmatados, que pode indicar maiores problemas para a estrutura (túnel ou talude). Além disso, permite que as inspeções periódicas sejam feitas de maneira mais fácil e ergonômica, evitando que o profissional tenha que se abaixar e fazer essa inspeção em locais muito próximos da correia transportadora, melhorando a ergonomia e a segurança.", "dataImplantacao": "2026-02-11", "problema": "Transporte", "situacaoAntes": "Não era implantada essa solução.", "acoesRealizadas": "Não foi aberto fluxo de gerenciamento de mudança (MoC) no Orion; Não foram criados ou revisados procedimentos no SISPAV nem documentos técnicos foram revisados nos seus sistemas específicos (ex: projeto da engenharia, etc); Os integrantes da equipe não foram treinados no novo padrão e não foi evidenciado no VES; Ainda não foi realizada a comunicação da melhoria para outras áreas, processos e/ou corredores; A melhoria ainda não foi replicada por outras áreas e ainda não existe cronograma de replicação com datas previstas e realizadas.", "situacaoDepois": "Ainda não foram obtidos os resultados de indicadores de controle (IC) e/ou indicadores de verificação (IV) do processo; Os ganhos do kaizen ainda não foram validados pelas respectivas áreas reguladoras (saúde, segurança, meio ambiente, custos, confiabilidade, engenharia, COI, etc) e/ou clientes internos dos processos.", "resultados": "; Espera-se que a solução de projeto, quando implantada, evite que durante a inspeção dos DHPs a correia transportadora de minérios existente tenha que ser paralisada.; Espera-se que a solução de projeto, quando implantada, aumente os ganhos de qualidade à medida que as inspeções dos DHPs serão feitas de forma mais simples e rápida.; Espera-se que a solução de projeto, quando implantada, possibilite que as inspeções periódicas sejam feitas de maneira mais fácil e ergonômica, evitando que o profissional tenha que se abaixar e fazer esforços repetitivos. Isso irá melhorar a ergonomia e reduzir o tempo de exposição desse profissional aos ruídos da correia transportadora.; Espera-se que a solução de projeto, quando implantada, evite que o profissional que fará a inspeção tenha que se abaixar e fazer essa inspeção em locais muito próximos da correia transportadora, melhorando a segurança."}, {"id": "0f52f7a8-a719-4e29-b8c0-f65488ac0f7a", "data": "2026-02-01", "tipo": "Novo Kaizen", "dimensao": "Qualidade", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "jonas.caje@vale.com", "elaboradoresRaw": "01535821 / JONAS SILVA / jonas.caje@vale.com; ; 04960425300 / TYAGO CABRAL SILVA / PLANGECON SERVICOS INDUSTRIAIS LTDA; 00937807290 / EMANOEL VINICIUS PEREIRA DIAS / PLANGECON SERVICOS INDUSTRIAIS LTDA; 02320805346 / JOAO MIGUEL TRINDADE SILVA / PLANGECON SERVICOS INDUSTRIAIS LTDA; 70610437259 / JOSE ROBERTO DA SILVA ALVES / PLANGECON SERVICOS INDUSTRIAIS LTDA; 86893130287 / RAIMUNDO JOACY VELOSO DA SILVA / PLANGECON SERVICOS INDUSTRIAIS LTDA; 03610023279 / HERICK JUNIOR SOUSA DOS SANTOS / PLANGECON SERVICOS INDUSTRIAIS LTDA", "todosNomes": ["JONAS SILVA", "TYAGO CABRAL SILVA", "EMANOEL VINICIUS PEREIRA DIAS", "JOAO MIGUEL TRINDADE SILVA", "JOSE ROBERTO DA SILVA ALVES", "RAIMUNDO JOACY VELOSO DA SILVA", "HERICK JUNIOR SOUSA DOS SANTOS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "DESMOBILIZAÇÃO DE ATIVOS", "titulo": "Trava da roda do Conj. Oxicorte", "objetivo": "Facilitar o travamento de rodas do conjunto de oxicorte para atividades", "dataImplantacao": "2026-01-27", "problema": "Movimento", "situacaoAntes": "Não existia o travamento.", "acoesRealizadas": "Realizado a retirada dos carrinhos de oxicorte e feito a implementação de processo padronizado.", "situacaoDepois": "Disponibilizado o dispositivo de engenharia.", "resultados": "xx; Redução da geração de resíduos sólidos.; Evoluções na matriz de habilidades da equipe;; Maior aderência às configurações de qualidade esperadas.; Redução de tempo expôs um risco ergonômico;; Redução da frequência de movimentos verticais (de 10 para 4);"}, {"id": "123d460a-944c-473d-a6a1-bbf6d68f1984", "data": "2026-01-26", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "michelle.silva@vale.com", "elaboradoresRaw": "81016371 / MICHELLE SILVA / michelle.silva@vale.com; 01535349 / RODRIGO LEITE / rodrigo.leite@vale.com; C0641186 / PATRICIA PAIVA_CONTR / c0641186@vale.com; C0656973 / MATHEUS RODRIGUES_CONTR / c0656973@vale.com; ", "todosNomes": ["MICHELLE SILVA", "RODRIGO LEITE", "PATRICIA PAIVA_CONTR", "MATHEUS RODRIGUES_CONTR"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD PLAN MANUT GESTAO ATIVOS - NATHALIA NOBREGA", "ativo": "ROTINA DE PROGRAMAÇÃO", "titulo": "Padronização do lançamento da Capacidade (CR12) via Cockpit", "objetivo": "Padronização do lançamento da Capacidade (CR12) via Cockpit", "dataImplantacao": "2026-01-05", "problema": "Processamento Excessivo ,Espera,Muri / Sobrecarga,Mura / Flutuação", "situacaoAntes": "•\tO lançamento da capacidade (CR12) no sistema Cockpit não possuía um procedimento padronizado.\n\t•\tA atividade dependia do conhecimento individual de quem dominava a ferramenta.\n\t•\tEm períodos de férias, afastamentos ou trocas de função, havia risco de:\n\t•\tCapacidade lançada de forma incorreta ou incompleta\n\t•\tImpacto direto na programação das ordens\n\t•\tGargalos no planejamento de manutenção\n\t•\tDificuldade de entendimento da lógica do CR12 por novos colaboradores.\n\t•\tMaior chance de erros de dimensionamento de capacidade.", "acoesRealizadas": "•\tElaboração de um passo a passo detalhado para o lançamento da capacidade (CR12) via sistema Cockpit.\n\t•\tO procedimento contempla:\n\t•\tAcesso correto à ferramenta\n\t•\tSequência lógica para lançamento da capacidade\n\t•\tPontos de validação do CR12\n\t•\tBoas práticas para evitar inconsistências\n\t•\tO material foi desenvolvido com foco em:\n\t•\tPadronização\n\t•\tFacilidade de entendimento\n\t•\tExecução correta por qualquer colaborador\n\t•\tO passo a passo passou a ser utilizado como referência oficial do processo.", "situacaoDepois": "•\tPadronização do processo de lançamento da capacidade.\n\t•\tRedução da dependência de conhecimento individual.\n\t•\tContinuidade do planejamento mesmo durante ausências.\n\t•\tMaior confiabilidade da capacidade disponível para a programação.\n\t•\tRedução de erros no CR12.\n\t•\tFacilidade no treinamento e capacitação da equipe.", "resultados": "; \t•\tRedução de:\n\t•\tHoras extras por sobrecarga mal dimensionada\n\t•\tCustos indiretos com reprogramações emergenciais\n\t•\tMenor necessidade de apoio adicional por falhas no CR12.\n\t•\tTreinamento mais rápido e menos oneroso.\n\nGanho-chave:\n➡️ Otimização de custos operacionais e indiretos.; •\tCapacidade bem definida permite:\n\t•\tProgramação mais realista\n\t•\tMelhor aproveitamento dos recursos\n\t•\tRedução de conflitos de agenda e reprogramações.\n\t•\tMenor tempo gasto corrigindo inconsistências de CR12.\n\nGanho-chave:\n➡️ Melhor uso da capacidade disponível e aumento da eficiência do planejamento.; •\tCapacidade lançada de forma padronizada e correta.\n\t•\tAumento da confiabilidade dos dados do CR12.\n\t•\tMelhor qualidade da programação e do plano de manutenção.\n\t•\tRedução de variação entre planejadores.\n\nGanho-chave:\n➡️ Planejamento mais preciso, consistente e confiável.; •\tCapacidade corretamente lançada evita: \t•\tSobrecarga de equipes \t•\tExecução simultânea excessiva de atividades \t•\tMelhor balanceamento da carga de trabalho, reduzindo: \t•\tFadiga \t•\tPressa operacional \t•\tMenor risco de atividades fora do planejamento. Ganho-chave: ➡️ Redução de riscos associados à sobrecarga operacional."}, {"id": "14107744-4a9d-40c8-9c93-435d7c634e96", "data": "2026-02-13", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; LUIELLY COSTA SOUSA; LAURA KELLY SANTOS CORREA CONCEICAO; CARDIELLE MONTEIRO LIMA; JOELMA FERNANDA DOS SANTOS COSTA; RAFAEL DA CONCEICAO DIAS; EUDES DE OLIVEIRA", "todosNomes": ["SAULO PEREIRA", "LUIELLY COSTA SOUSA", "LAURA KELLY SANTOS CORREA CONCEICAO", "CARDIELLE MONTEIRO LIMA", "JOELMA FERNANDA DOS SANTOS COSTA", "RAFAEL DA CONCEICAO DIAS", "EUDES DE OLIVEIRA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "REC - Lacre DO KIT DE MITIGAÇÃO", "objetivo": "Garantir a integridade do kit, Aumentar a segurança operacional,  Facilitar a rastreabilidade, Padronizar processos, Atender normas ou regulamentações.", "dataImplantacao": "2026-02-13", "problema": "Processamento Excessivo", "situacaoAntes": "NÃO EXISTIA", "acoesRealizadas": "Análise do kit atual, Seleção de novo tipo de lacre, Atualização de procedimentos. Testes de integridade e Registro e monitoramento.", "situacaoDepois": "NÃO EXISTIA", "resultados": "N/A; SEM CUSTO; Verificação rápida, Redução de retrabalho, Eficiência em auditorias, Minimiza atrasos em emergências.; Garantia de integridade, Controle e rastreabilidade, Prevenção de falhas, O lacre do kit de mitigação é uma ferramenta de controle de qualidade. Ele garante que todos os itens estejam presentes e funcionando, reforçando a segurança e reduzindo o risco de falhas em emergências.; Segurança: Estado em que pessoas, sistemas ou processos estão protegidos contra danos, perdas ou eventos indesejáveis. Ex.: proteção de informações confidenciais, equipamentos ou funcionários.\n\nRisco: Probabilidade de um evento causar impacto negativo. Ex.: falhas em procedimentos de emergência ou roubo de equipamentos."}, {"id": "18cd9ef9-0a9f-4718-9354-12ea64a5b540", "data": "2026-01-28", "tipo": "Padronização de Kaizen", "dimensao": "Segurança e Riscos", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Outros", "origemOutros": "Segurança", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 04001237202 / EULALIA DE SOUSA BARROSO / TRADIMAQ S.A.; 74843087220 / ANDRE SALES DE JESUS / TRADIMAQ S.A.", "todosNomes": ["SAULO PEREIRA", "EULALIA DE SOUSA BARROSO", "ANDRE SALES DE JESUS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "V - Implantação de Placa com as *10 Regras de Ouro da Segurança* na Frente de Serviço", "objetivo": "Reforçar a cultura de segurança.\nReduzir riscos de acidentes e atos inseguros.\nGarantir que todos tenham ciência das regras básicas antes de executar qualquer atividade", "dataImplantacao": "2026-01-14", "problema": "Espera", "situacaoAntes": "Ausência de sinalização padronizada com regras de segurança visíveis na frente de serviço.\nOrientações de segurança dependiam apenas de DDS ou comunicação verbal.\nMaior risco de falhas comportamentais por esquecimento ou falta de atenção às normas.", "acoesRealizadas": "Maior conscientização dos colaboradores e terceiros.\nRedução de comportamentos inseguros.\nApoio aos DDS e treinamentos de segurança. Melhoria na organização e padronização da frente de serviço.\nContribuição para a prevenção de acidentes e incidentes", "situacaoDepois": "Confecção e instalação de uma placa fixa com as *10 Regras de Ouro da Segurança*.\nPosicionamento estratégico na frente de serviço, garantindo fácil visualização antes do início das atividades.\nComunicação visual simples, direta e padronizada", "resultados": ""}, {"id": "18cf125e-e48d-4c1b-ac9b-009329676bea", "data": "2026-01-22", "tipo": "Novo Kaizen", "dimensao": "Segurança e Riscos,Meio Ambiente", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "francisco.miguel.filho@vale.com", "elaboradoresRaw": "81013305 / FRANCISCO FILHO / francisco.miguel.filho@vale.com; ; 94993645287 / CLEANNE FARIAS DOS SANTOS / TRADIMAQ S.A.", "todosNomes": ["FRANCISCO FILHO", "CLEANNE FARIAS DOS SANTOS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "", "titulo": "Controle de Acesso às Gaiolas de Cilindros", "objetivo": "- Reduzir riscos de acidentes com cilindros\n- Garantir acesso seguro e autorizado\n- Controlar movimentação de cilindros", "dataImplantacao": "2026-01-22", "problema": "Movimento,Transporte,Processamento Excessivo", "situacaoAntes": "- Acesso descontrolado\n   - Risco de acidentes com cilindros\n   - Falta de registro de movimentação", "acoesRealizadas": "Foi elaborado um controle acesso às Gaiolas de Cilindros.", "situacaoDepois": "- Acesso controlado (registro e autorização).\n    - Redução de riscos.\n    - Movimentação rastreada.", "resultados": ""}, {"id": "1938f3c6-83e5-4b5f-9920-6e9930941799", "data": "2026-01-31", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "balbino.frazao@vale.com", "elaboradoresRaw": "01992511 / BALBINO FILHO / balbino.frazao@vale.com; 64520088 / ELLEN COSTA / ellen.costa@vale.com; 81049953 / TAMER ANDRADE / tamer.andrade@vale.com; C0713132 / ANA PAULA ALVES MARQUES / c0713132@vale.com; 81033202 / CRISTIANE SOUZA / cristiane.souza1@vale.com; 01495822 / MARCO CORREA / marco.correa@vale.com; C0681667 / LUIGGY SOUZA TAVARES_CONTR / c0681667@vale.com; ", "todosNomes": ["BALBINO FILHO", "ELLEN COSTA", "TAMER ANDRADE", "ANA PAULA ALVES MARQUES", "CRISTIANE SOUZA", "MARCO CORREA", "LUIGGY SOUZA TAVARES_CONTR"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "INSPEÇÃO ESTRUTURAL SS", "titulo": "TREINAMENTOS E ACESSOS NECESSÁRIOS PARA NOVOS EMPREGADOS", "objetivo": "O objetivo deste material é facilitar a rotina inicial dos novos integrantes da equipe, oferecendo um direcionamento claro e estruturado sobre os itens básicos necessários para o desempenho adequado de suas atividades diárias.\nAo reunir em um único documento os treinamentos obrigatórios, os acessos essenciais e suas respectivas finalidades, buscamos proporcionar uma integração mais rápida, eficiente e segura, garantindo que cada colaborador comece suas atividades com o conhecimento e os recursos mínimos necessários para atuar com qualidade e conformidade.", "dataImplantacao": "2026-01-26", "problema": "Espera,Processamento Excessivo", "situacaoAntes": "Antes da melhoria, novos empregados precisavam consultar históricos ou perguntar aos colegas para descobrir, separadamente, quais treinamentos e acessos eram necessários. Isso tornava o início das atividades lento e pouco padronizado.", "acoesRealizadas": "Foi desenvolvido um folder consolidando todos os treinamentos básicos e principais acessos necessários para a realização das atividades da equipe. Esse material reúne, de forma clara e organizada, as informações essenciais que antes estavam dispersas, permitindo que novos integrantes iniciem suas funções com mais autonomia, agilidade e segurança, reduzindo dúvidas e garantindo um processo de integração mais eficiente.", "situacaoDepois": "Com a padronização e consolidação dessas informações em um único material, proporcionamos clareza, agilidade e segurança no início da jornada do colaborador, garantindo que todos tenham acesso imediato aos requisitos essenciais para desempenhar suas atividades com eficiência.", "resultados": "; Fortalecimento da cultura de segurança e conformidade e Redução de dúvidas e demandas internas, Aumento da autonomia dos novos integrantes; Redução do tempo de integração, Aumento da autonomia dos novos integrantes; Padronização das informações, melhoria na eficiência operacional; Redução do tempo de integração, Padronização das informações, Aumento da autonomia dos novos integrantes, Melhoria na eficiência operacional, Fortalecimento da cultura de segurança e conformidade e Redução de dúvidas e demandas internas; Fortalecimento da cultura de segurança e conformidade e Redução de dúvidas e demandas internas"}, {"id": "24ceb5b8-f9b7-44e9-ae4d-6e369024169a", "data": "2026-02-10", "tipo": "Novo Kaizen", "dimensao": "Pessoas,Qualidade,Produtividade", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "cristiane.souza1@vale.com", "elaboradoresRaw": "81033202 / CRISTIANE SOUZA / cristiane.souza1@vale.com; ", "todosNomes": ["CRISTIANE SOUZA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD INSPEÇÃO OBRAS INTEGRIDAD - FREDESON FEITOZA", "ativo": "MANUTENÇÃO DOS VEÍCULOS DE INSPEÇÃO", "titulo": "Procedimento de Solicitação de Manutenção de Veículos de Frota.", "objetivo": "Agilidade nas Solicitações de Manutenção de Frota da Inspeção.", "dataImplantacao": "2026-02-02", "problema": "Processamento Excessivo ,Transporte,Espera, Defeitos / Retrabalho,Movimento", "situacaoAntes": "Identificou-se a ausência de um procedimento operacional para a solicitação de manutenção de veículos. A falta de instruções claras sobre o fluxo e os dados necessários gera dependência de consultas informais a terceiros, resultando em retrabalho e atrasos no processo.", "acoesRealizadas": "Disponibilizamos um guia passo a passo sobre o fluxo de manutenção da nossa frota. No material, você encontrará os dados obrigatórios para abertura de chamados e o link direto para o aplicativo da Central de Veículos Serra Norte. Confiram para garantir agilidade nos processos.", "situacaoDepois": "Para garantir o alinhamento da equipe, disponibilizamos uma planilha detalhada com o passo a passo dos nossos procedimentos. O objetivo é tornar o processo transparente e acessível a todos para consulta imediata.", "resultados": "; Redução de impressão de papel.; Fortalecimento da cultura de segurança e conformidade, e redução de dúvidas e demandas internas, Aumento da autonomia dos colaboradores.; Redução do tempo nas solicitações e, aumento da autonomia dos novos solicitantes de manutenção.; Padronização das informações, melhoria na eficiência operacional; Redução do tempo de solicitação, Padronização das informações, Aumento da autonomia para todos colaboradores, Melhoria na eficiência operacional, Fortalecimento da cultura de segurança e conformidade e Redução de dúvidas e demandas internas.; Fortalecimento da cultura de segurança e conformidade na redução de dúvidas do procedimento e nas demandas internas"}, {"id": "28395381-d535-4255-a76c-3c7aaf2f96df", "data": "2026-01-28", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; RAFAEL DA CONCEICAO DIAS; JOELMA FERNANDA DOS SANTOS COSTA; LAURA KELLY SANTOS CORREA CONCEICAO; CARDIELLE MONTEIRO LIMA; LUIELLY COSTA SOUSA; ARIVELTON ENOQUE SILVA ROCHA", "todosNomes": ["SAULO PEREIRA", "RAFAEL DA CONCEICAO DIAS", "JOELMA FERNANDA DOS SANTOS COSTA", "LAURA KELLY SANTOS CORREA CONCEICAO", "CARDIELLE MONTEIRO LIMA", "LUIELLY COSTA SOUSA", "ARIVELTON ENOQUE SILVA ROCHA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "REC - CHECK LIST - AJUDANTE INDUSTRIAL DE MECÂNICA", "objetivo": "Garantir que o ajudante utilize corretamente os EPIs , e que todas as etapas do check-lis  sejam concluídas.", "dataImplantacao": "2026-01-26", "problema": "Processamento Excessivo", "situacaoAntes": "NÃO EXISTIA", "acoesRealizadas": "Segurança e procedimentos", "situacaoDepois": "Procedimentos seguidos corretamente", "resultados": "N/A; SEM CUSTO"}, {"id": "2847cdbc-875a-400e-accb-54dfe60b9dd8", "data": "2026-02-13", "tipo": "Novo Kaizen", "dimensao": "Segurança e Riscos", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "rafael.pessoa@vale.com", "elaboradoresRaw": "01475311 / RAFAEL PESSOA / rafael.pessoa@vale.com; ; 01718254466 / MATHEUS MAGNO DO VALE CARVALHO / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA; 32304960278 / ANTONIO CARLOS DA CUNHA COSTA / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA; 74253956300 / ANTONIO JOSE RICARDO DA SILVA / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA; 56177976204 / EDIMILSON OLIVEIRA / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA; 89021380382 / JOSE WELLINGTON FERREIRA DA CONCEICAO / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["RAFAEL PESSOA", "MATHEUS MAGNO DO VALE CARVALHO", "ANTONIO CARLOS DA CUNHA COSTA", "ANTONIO JOSE RICARDO DA SILVA", "EDIMILSON OLIVEIRA", "JOSE WELLINGTON FERREIRA DA CONCEICAO"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "", "titulo": "SUPORTE PARA PRODUTOS DE LIMPEZA", "objetivo": "Aplicação de controle visual com identificação e pictogramas\nRedução do risco de derramamentos e contaminação\nAtendimento às boas práticas de segurança e meio ambiente\nFacilidade de acesso seguro aos produtos\nOtimização do espaço físico", "dataImplantacao": "2026-02-02", "problema": "Estoque / Inventário,Movimento", "situacaoAntes": "Sem local definido e dispersos.", "acoesRealizadas": "Implantação de armário dedicado para armazenamento de produtos de higiene e limpeza\nPadronização do acondicionamento de saneantes", "situacaoDepois": "Organização do armazenamento na frente de serviço\nEliminação de produtos expostos e armazenados de forma improvisada\nSegregação adequada de produtos químicos de uso cotidiano\nAplicação de controle visual com identificação e pictogramas", "resultados": ""}, {"id": "2a3677bd-2095-48b7-a8a3-4652c200a45c", "data": "2026-01-28", "tipo": "Padronização de Kaizen", "dimensao": "Segurança e Riscos", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Outros", "origemOutros": "Segurança", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 04001237202 / EULALIA DE SOUSA BARROSO / TRADIMAQ S.A.; 05778716176 / JAILSON LIMA DA SILVA / TRADIMAQ S.A.", "todosNomes": ["SAULO PEREIRA", "EULALIA DE SOUSA BARROSO", "JAILSON LIMA DA SILVA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "V - Placa dos RACS", "objetivo": "Orientar aos colaboradores quanto as RACs associadas as atividades nas frente de serviço.", "dataImplantacao": "2026-01-22", "problema": "Espera", "situacaoAntes": "Antes os colaboradores ficavam desorientados quanto as informações repassadas.", "acoesRealizadas": "Criado um placa visual com todas as RACS associadas as atividades de campo. A qual é selecionada na hora.", "situacaoDepois": "Colaboradores orientados e cientes das RACs associadas a cada atividade através da placa que fica na tenda.", "resultados": ""}, {"id": "2a78902f-11ba-4096-acf2-0a710bf989a2", "data": "2026-02-12", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 02450491260 / WANDERSON MARTINS DOS SANTOS / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["SAULO PEREIRA", "WANDERSON MARTINS DOS SANTOS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "TODA AREA", "titulo": "PAC-SUPORTE PARA GARRAFA DE AGUA", "objetivo": "", "dataImplantacao": "2026-02-05", "problema": "Movimento", "situacaoAntes": "", "acoesRealizadas": "", "situacaoDepois": "", "resultados": ""}, {"id": "2c5f1824-63f7-4310-b088-7de3374c270e", "data": "2026-01-20", "tipo": "Novo Kaizen", "dimensao": "Segurança e Riscos", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Outros", "origemOutros": "PROCEDIMENTO", "grupoCCQ": "", "elaborador": "rafael.pessoa@vale.com", "elaboradoresRaw": "01475311 / RAFAEL PESSOA / rafael.pessoa@vale.com; ; 94451451272 / DEMI JUNIOR SOUSA LACERDA / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["RAFAEL PESSOA", "DEMI JUNIOR SOUSA LACERDA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "GESTÃO DE PROCESSO", "titulo": "FLUXOGRAMA DE ACIONAMENTO AO CECOM", "objetivo": "Facilitar aos colaboradores o passo a passo de como prestar ajuda em caso de emergência, e não apenas aguarda uma liderança para realizar o acionamento ao CECOM. Antes o cartão constava só o numero de acionamento e na melhoria aplicada implantamos o passo a passo de como agir diante da situação.", "dataImplantacao": "2026-01-20", "problema": "Movimento", "situacaoAntes": "Antes o cartão constava só o numero de acionamento.", "acoesRealizadas": "Mais informação necessária em caso de emergência.", "situacaoDepois": "Cartão com todo o passo a passo, contato telefônico, e hospitais de atendimento.", "resultados": "; na; Evoluções na matriz de habilidades da equipe;; Redução de tempo a prestamento de socorro."}, {"id": "333734a9-7730-4142-84e5-c6247962fe67", "data": "2026-01-31", "tipo": "Novo Kaizen", "dimensao": "Segurança e Riscos,Pessoas", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "francisco.miguel.filho@vale.com", "elaboradoresRaw": "81013305 / FRANCISCO FILHO / francisco.miguel.filho@vale.com; ; 61533893330 / ANDREIA SILVA DOS SANTOS / TRADIMAQ S.A.", "todosNomes": ["FRANCISCO FILHO", "ANDREIA SILVA DOS SANTOS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "", "titulo": "Cronograma de Inspeção de Liderança", "objetivo": "- Verificar conformidade com procedimentos\n    - Identificar oportunidades de melhoria\n    - Avaliar condições de segurança\n    - Reforçar cultura de segurança e qualidade\n    - Engajar lideranças com equipes", "dataImplantacao": "2026-01-31", "problema": "Processamento Excessivo", "situacaoAntes": "Não havia cronograma de inspeção de Liderança", "acoesRealizadas": "Foi elaborado cronograma de Inspeção de liderança", "situacaoDepois": "- Maior conformidade\n- Segurança reforçada\n- Liderança mais engajada", "resultados": ""}, {"id": "3647e0e5-0e51-4220-856f-41d4c8d211eb", "data": "2026-01-23", "tipo": "Novo Kaizen", "dimensao": "Segurança e Riscos,Pessoas,Produtividade,Custos", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "francisco.miguel.filho@vale.com", "elaboradoresRaw": "81013305 / FRANCISCO FILHO / francisco.miguel.filho@vale.com; ; 61533893330 / ANDREIA SILVA DOS SANTOS / TRADIMAQ S.A.", "todosNomes": ["FRANCISCO FILHO", "ANDREIA SILVA DOS SANTOS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "", "titulo": "Matriz de Treinamento e ASO", "objetivo": "- Garantir que funcionários sejam treinados e aptos para função\n- Assegurar conformidade com normas de segurança e saúde ocupacional.\n- Reduzir riscos e melhorar desempenho.", "dataImplantacao": "2026-01-23", "problema": "Processamento Excessivo", "situacaoAntes": "- Falta de controle de treinamentos\n    - Dificuldade em comprovar capacitação\n    - Risco de não conformidade", "acoesRealizadas": "Matriz de Treinamento Elaborada\n- Treinamentos mapeados por função/cargo\n- Competências e periodicidade definidas\n- Controle de participantes e avaliações", "situacaoDepois": "- Treinamentos alinhados à função\n    - Controle de ASO atualizado\n    - Conformidade com normas", "resultados": ""}, {"id": "3d9eb80e-9e39-44d6-a08c-46bbea4b1658", "data": "2026-01-28", "tipo": "Novo Kaizen", "dimensao": "Segurança e Riscos", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Outros", "origemOutros": "Segurança", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 04001237202 / EULALIA DE SOUSA BARROSO / TRADIMAQ S.A.; 06031737302 / LUIS HENRIQUE SANTOS DE BRITO / TRADIMAQ S.A.", "todosNomes": ["SAULO PEREIRA", "EULALIA DE SOUSA BARROSO", "LUIS HENRIQUE SANTOS DE BRITO"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "V - Padronização visual para verificação do fechamento correto da porta", "objetivo": "Foi implementada uma sinalização visual simples na porta, utilizando adesivos de “positivo”  e “negativo” , com o objetivo de orientar os colaboradores sobre a condição correta e incorreta de fechamento/uso da porta, evitando falhas operacionais e machucar as mãos.", "dataImplantacao": "2026-01-22", "problema": "Espera", "situacaoAntes": "Não havia indicação visual clara sobre a condição correta da porta\nOcorria fechamento inadequado ou uso incorreto\nRiscos de Machucas as Mãos e Dedos", "acoesRealizadas": "Porta identificada visualmente com adesivos intuitivos\nFácil compreensão imediata pelos usuários\nRedução de erros de uso e necessidade de retrabalho", "situacaoDepois": "Melhoria na comunicação visual Facilidade de entendimento para todos os colaboradores\nPadronização do comportamento operacional\n Redução de falhas humanas", "resultados": ""}, {"id": "3ff7fb47-dbdf-468a-a07b-f4bc0908aaa2", "data": "2026-01-31", "tipo": "Novo Kaizen", "dimensao": "Meio Ambiente,Pessoas", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "francisco.miguel.filho@vale.com", "elaboradoresRaw": "81013305 / FRANCISCO FILHO / francisco.miguel.filho@vale.com; ; 94993645287 / CLEANNE FARIAS DOS SANTOS / TRADIMAQ S.A.", "todosNomes": ["FRANCISCO FILHO", "CLEANNE FARIAS DOS SANTOS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "Meio Ambiente", "titulo": "Inventário de Kit Mitigação", "objetivo": "Garantir disponibilidade e eficácia de kits para resposta a incidentes", "dataImplantacao": "2026-01-31", "problema": "Processamento Excessivo , Defeitos / Retrabalho", "situacaoAntes": "Não havia controle de kit mitigação.", "acoesRealizadas": "Foi elaborado Inventário de Kit Mitigação.", "situacaoDepois": "- Itens verificados e atualizados\n  - Resposta mais rápida e eficaz\n  - Maior segurança para a equipe", "resultados": ""}, {"id": "45224432-236c-419d-9882-bbbd14bc85cf", "data": "2026-01-31", "tipo": "Novo Kaizen", "dimensao": "Qualidade,Produtividade", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "FMDS", "origemOutros": "", "grupoCCQ": "", "elaborador": "francisco.miguel.filho@vale.com", "elaboradoresRaw": "81013305 / FRANCISCO FILHO / francisco.miguel.filho@vale.com; ; 06703944245 / CARLOS EDUARDO LEITE DOS SANTOS / TRADIMAQ S.A.", "todosNomes": ["FRANCISCO FILHO", "CARLOS EDUARDO LEITE DOS SANTOS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "Planejameto", "titulo": "Aderência de Carteira de Laudos e Balizadas Priorizadas", "objetivo": "- Verificar laudos pendentes\n- Priorizar balizadas conforme criticidade\n- Alocar recursos para execução", "dataImplantacao": "2026-01-31", "problema": "Processamento Excessivo ,Superprodução", "situacaoAntes": "Não havia controle.", "acoesRealizadas": "Foi elaborado uma forms Aderência de Carteira de Laudos e Balizadas Priorizadas.", "situacaoDepois": "- Executar laudos pendentes\n - Monitorar andamento\n - Ajustar conforme necessidade", "resultados": ""}, {"id": "48b5bdd6-e70a-46af-8d5e-201a7745983d", "data": "2026-01-30", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "info", "origemProblema": "Outros", "origemOutros": "Organização", "grupoCCQ": "", "elaborador": "rafael.pessoa@vale.com", "elaboradoresRaw": "01475311 / RAFAEL PESSOA / rafael.pessoa@vale.com; ; 01718254466 / MATHEUS MAGNO DO VALE CARVALHO / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA; 01300129204 / SIMEI MEDEIROS DE MOURA / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["RAFAEL PESSOA", "MATHEUS MAGNO DO VALE CARVALHO", "SIMEI MEDEIROS DE MOURA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "", "titulo": "SUPORTE PARA LUVAS", "objetivo": "Organização", "dataImplantacao": "2026-01-11", "problema": "Movimento", "situacaoAntes": "Antes quando os colaboradores estava em momento de fadiga e espera de transporte dentre outros momentos na area de vivencia as luva ficava jogada por cima de qualquer objeto.", "acoesRealizadas": "Foi realizado um suporte para manter a organização durante as pausas", "situacaoDepois": "Melhor visibilidade e organização.", "resultados": ""}, {"id": "492e599b-cb89-4e56-91d6-22ebfd3df1ba", "data": "2026-01-30", "tipo": "Novo Kaizen", "dimensao": "Pessoas,Qualidade,Produtividade", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "ellen.costa@vale.com", "elaboradoresRaw": "64520088 / ELLEN COSTA / ellen.costa@vale.com; ; 81049953 / TAMER ANDRADE / tamer.andrade@vale.com; 01992511 / BALBINO FILHO / balbino.frazao@vale.com", "todosNomes": ["ELLEN COSTA", "TAMER ANDRADE", "BALBINO FILHO"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "CONTROLE INTEGRIDADE SS", "titulo": "FACILITAR PROCESSO DE KAIZEN", "objetivo": "MELHORAR NA SEPARAÇÃO POR EMPRESA O KAIZEN CADASTRADO", "dataImplantacao": "2026-01-28", "problema": "Espera", "situacaoAntes": "NÃO HAVIA CONTROLE NO SISTEMA POR EMPRESA SIGLA PARA FACILITAR A QUANTIDADE DE CADASTRO", "acoesRealizadas": "FOI CRIADO AS SIGLAS CONFORME EMPRESA PARA MELHORIA DO PROCESSO", "situacaoDepois": "MELHORIA NA FACILIDADE DE VER OS KAIZENS POR EMPRESA", "resultados": "; MELHORIA NOS CADASTROS DE KAIZEN"}, {"id": "4e51dcfa-2f9a-4625-9999-2159ac2284d5", "data": "2026-01-28", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; CARDIELLE MONTEIRO LIMA; JOELMA FERNANDA DOS SANTOS COSTA; CASSIA FERREIRA RIOS; LAURA KELLY SANTOS CORREA CONCEICAO; LUIELLY COSTA SOUSA; RAFAEL DA CONCEICAO DIAS", "todosNomes": ["SAULO PEREIRA", "CARDIELLE MONTEIRO LIMA", "JOELMA FERNANDA DOS SANTOS COSTA", "CASSIA FERREIRA RIOS", "LAURA KELLY SANTOS CORREA CONCEICAO", "LUIELLY COSTA SOUSA", "RAFAEL DA CONCEICAO DIAS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "REC - CHECK LIST DE BLOQUEIO", "objetivo": "Agilidade na liberação segura da frente de serviço\nAumento da segurança\nPadronização do processo\nMelhor controle e rastreabilidade\nMelhoria na comunicação entre equipes\nRedução de retrabalho e paradas não planejadas\nFortalecimento da segurança", "dataImplantacao": "2026-01-27", "problema": "Processamento Excessivo", "situacaoAntes": "NÃO EXISTIA", "acoesRealizadas": "Aplicação prática do bloqueio", "situacaoDepois": "A frente de serviço só inicia após a confirmação do bloqueio completo de todos os envolvidos nas atividades.", "resultados": "N/A; SEM CUSTO; Agilidade na liberação da frente de serviços\nDiminuição de atrasos por incidentes\nMaior previsibilidade da produção\nMelhor organização das equipes\nMelhoria no fluxo de trabalho entre área\nRedução de retrabalho; Maior conformidade com normas e procedimentos\nRastreabilidade e auditoria\nDiminuição de retrabalho\nPadronização visual e documental\nMaior conformidade com normas e procedimentos; Ausência de Preenchimento \nChecklist desatualizado\nQuebra de procedimento por pressa ou produção\nComunicação ineficiente entre equipes"}, {"id": "5212ebc2-2d4c-46e9-83b7-2eb7dd57cbb1", "data": "2026-01-23", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 01642164305 / DUARTINE POLIANA PIMENTEL / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["SAULO PEREIRA", "DUARTINE POLIANA PIMENTEL"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "TODA AREA", "titulo": "PAC-INVENTÁRIO DE ART - OMEGA PAC SERRA SUL", "objetivo": "", "dataImplantacao": "2026-01-09", "problema": "Movimento", "situacaoAntes": "", "acoesRealizadas": "", "situacaoDepois": "", "resultados": "; N/A"}, {"id": "53d3f338-6a36-4cee-837b-c4cd83304900", "data": "2026-01-19", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; PAULO CONCEICAO DE SOUZA; KACIO MARTINHO MONTEIRO DOS SANTOS; GILSON CARVALHO NASCIMENTO; DANIEL PINHEIRO ALVES; JOSE MARCELO RIBEIRO DA SILVA; ALINE DA SILVA NASCIMENTO", "todosNomes": ["SAULO PEREIRA", "PAULO CONCEICAO DE SOUZA", "KACIO MARTINHO MONTEIRO DOS SANTOS", "GILSON CARVALHO NASCIMENTO", "DANIEL PINHEIRO ALVES", "JOSE MARCELO RIBEIRO DA SILVA", "ALINE DA SILVA NASCIMENTO"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "REC - Suporte de Lixeira Fixada no Malão", "objetivo": "Promover a Organização e a Limpeza.", "dataImplantacao": "2026-01-15", "problema": "Processamento Excessivo", "situacaoAntes": "NÃO EXISTIA", "acoesRealizadas": "Identificação da necessidade de um local adequado para descarte de resíduos.", "situacaoDepois": "Após a implementação do suporte de lixeira fixada no malão, o malao passou a contar com um local padronizado para descarte de resíduos.", "resultados": "N/A; REUTILIZAÇÃO DE MATERIAIS RECCLAVEIS; A implementação do suporte de lixeira fixada no malão contribui diretamente para a aplicação do programa 5S, promovendo a organização (Seiton) e a limpeza (Seiso) .; Perfuração indevida do malão\nRisco de desequilíbrio / interferência operacional\nRisco de infiltração de água"}, {"id": "597ac38a-2276-4f99-b0b6-e2301f063bf9", "data": "2026-02-16", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 01642164305 / DUARTINE POLIANA PIMENTEL / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["SAULO PEREIRA", "DUARTINE POLIANA PIMENTEL"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "TODA AREA", "titulo": "PAC-SUPORTE PARA TRANSFORMADOR", "objetivo": "", "dataImplantacao": "2026-02-16", "problema": "Movimento", "situacaoAntes": "", "acoesRealizadas": "", "situacaoDepois": "", "resultados": ""}, {"id": "5c26775d-e38b-45c1-803f-640ff12604a2", "data": "2026-02-13", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "rafael.pessoa@vale.com", "elaboradoresRaw": "01475311 / RAFAEL PESSOA / rafael.pessoa@vale.com; ; 89021380382 / JOSE WELLINGTON FERREIRA DA CONCEICAO / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA; 56177976204 / EDIMILSON OLIVEIRA / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA; 74253956300 / ANTONIO JOSE RICARDO DA SILVA / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA; 01718254466 / MATHEUS MAGNO DO VALE CARVALHO / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["RAFAEL PESSOA", "JOSE WELLINGTON FERREIRA DA CONCEICAO", "EDIMILSON OLIVEIRA", "ANTONIO JOSE RICARDO DA SILVA", "MATHEUS MAGNO DO VALE CARVALHO"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "", "titulo": "SUPORTE PARA ACESS DE LIMPEZA", "objetivo": "Implantação de suporte vertical para acessórios de limpeza", "dataImplantacao": "2026-02-03", "problema": "Estoque / Inventário", "situacaoAntes": "SEM LOCAL ADEQUADO", "acoesRealizadas": "Padronização do armazenamento de ferramentas de limpeza\nOrganização do posto de trabalho", "situacaoDepois": "Aplicação da metodologia 5S (Seiton e Seiketsu)\nEliminação de armazenamento inadequado no piso\nRedução de risco de quedas e tropeços", "resultados": ""}, {"id": "5e86a615-4722-47c4-a636-5139fbc0a62d", "data": "2026-02-12", "tipo": "Novo Kaizen", "dimensao": "Pessoas", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Outros", "origemOutros": "Qualidade", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 04001237202 / EULALIA DE SOUSA BARROSO / TRADIMAQ S.A.; 83317791349 / EDILENE PEREIRA CORREIA / TRADIMAQ S.A.", "todosNomes": ["SAULO PEREIRA", "EULALIA DE SOUSA BARROSO", "EDILENE PEREIRA CORREIA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "V - Implantação de Placa de Aniversariante do Mês", "objetivo": "Foi criada e implantada uma placa de aniversariantes do mês em local visível na unidade, com o objetivo de divulgar as datas de aniversário dos colaboradores, promovendo integração, valorização das pessoas e melhoria do clima organizacional.", "dataImplantacao": "2026-02-10", "problema": "Espera", "situacaoAntes": "Não havia divulgação das datas de aniversário dos colaboradores, o que dificultava ações de reconhecimento e integração entre as equipes.", "acoesRealizadas": "Confecção e instalação de placa física para atualização mensal dos aniversariantes, sob responsabilidade do setor administrativo/gestão.", "situacaoDepois": "Com a implantação da placa de aniversariantes do mês, as datas passaram a ser divulgadas de forma visível e organizada, possibilitando o reconhecimento dos colaboradores, maior interação entre as equipes e fortalecimento do clima organizacional.\n\nA ação promoveu engajamento, valorização das pessoas e melhoria na comunicação interna, contribuindo para um ambiente de trabalho mais humanizado e integrado.", "resultados": ""}, {"id": "63aef30d-0e07-4f9c-b2a3-f06ffa439b8f", "data": "2026-01-22", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 88499987249 / JOELMA FERNANDA DOS SANTOS COSTA / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["SAULO PEREIRA", "JOELMA FERNANDA DOS SANTOS COSTA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "TODA AREA", "titulo": "PAC-Controle de Estoque Insumos - Almoxarifado", "objetivo": "", "dataImplantacao": "2026-01-13", "problema": "Movimento", "situacaoAntes": "", "acoesRealizadas": "", "situacaoDepois": "", "resultados": "; N/A"}, {"id": "63eeb7ce-2f55-40e3-bb83-0981569a11fd", "data": "2026-02-16", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 96394803391 / KEILA RACHEL FREIRE DOS SANTOS ARAUJO / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["SAULO PEREIRA", "KEILA RACHEL FREIRE DOS SANTOS ARAUJO"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "TODA AREA", "titulo": "PAC-SUPORTE PARA MOCHILAS", "objetivo": "", "dataImplantacao": "2026-02-16", "problema": "Movimento", "situacaoAntes": "", "acoesRealizadas": "", "situacaoDepois": "", "resultados": ""}, {"id": "6781976d-ecb3-4045-8720-c4990f8d3d5a", "data": "2026-01-26", "tipo": "Padronização de Kaizen", "dimensao": "Segurança e Riscos,Qualidade,Produtividade", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "c0641186@vale.com", "elaboradoresRaw": "C0641186 / PATRICIA PAIVA_CONTR / c0641186@vale.com; C0656973 / MATHEUS RODRIGUES_CONTR / c0656973@vale.com; 01535349 / RODRIGO LEITE / rodrigo.leite@vale.com; ", "todosNomes": ["PATRICIA PAIVA_CONTR", "MATHEUS RODRIGUES_CONTR", "RODRIGO LEITE"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD PLAN MANUT GESTAO ATIVOS - NATHALIA NOBREGA", "ativo": "na", "titulo": "Definição Arquivo Padrão de Hand-over P&G", "objetivo": "garantir a continuidade das informações de planejamento das disciplinas de integridade estrutural", "dataImplantacao": "2026-01-26", "problema": "Processamento Excessivo ,Espera", "situacaoAntes": "Ausência de formato estruturado (hand-over), para passagem de necessidades, pendências e particularidades das atividades de planejamento das disciplinas de integridade estrutural, causando impactos nas etapas de  planejamento quando ocorre ausência de membros da equipe do P&G.", "acoesRealizadas": "foi criado padronização de hand-over para os membros do P&G", "situacaoDepois": "Foi elaborado arquivo estruturado, consolidando as informações necessárias para garantir a continuidade do planejamento das disciplinas de integridade estrutural na ausência de membros do P&G, a ser seguido por interinos. Este arquivo de hand-over possui:\n* atividades de rotina divididas por frequências* pontos focais das áreas da usina* link de acesso a pasta no share point", "resultados": "; na; Tal padrão garante a produtividade, continuidade das informações e eficácia das atividades rotineiras das disciplinas de IE.; Preservação do histórico e do aprendizado acumulado, centralizando documentos e dados para o colaborador interino.; Garantia das premissas de SSMAC no planejamento atividades, uma vez que existe a passagem do hand-over membros."}, {"id": "67f046c5-1bef-4038-90e9-e65d070d1613", "data": "2026-01-27", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; ENIO DE OLIVEIRA; ISAQUIEL SOUZA DE OLIVEIRA; CICERO DE SOUZA LIMA; BRENDA MENDONÇA CUTRIM; SIDNEY JUNIOR GUEDES; HADAMES SILVA BARROS", "todosNomes": ["SAULO PEREIRA", "ENIO DE OLIVEIRA", "ISAQUIEL SOUZA DE OLIVEIRA", "CICERO DE SOUZA LIMA", "BRENDA MENDONÇA CUTRIM", "SIDNEY JUNIOR GUEDES", "HADAMES SILVA BARROS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "REC - Planilha de Acompanhamento da Montagem de Reforços – BM1080KS01 a BM1080KS04", "objetivo": "Padronizar e otimizar o processo de montagem dos reforços BM1080KS01 a BM1080KS04, garantindo maior controle do avanço das atividades, redução de retrabalhos, cumprimento dos prazos estabelecidos e melhoria na qualidade final da montagem.", "dataImplantacao": "2026-01-26", "problema": "Processamento Excessivo", "situacaoAntes": "NÃO EXISTIA", "acoesRealizadas": "Padronização dos registros de status e apontamentos", "situacaoDepois": "Padronização dos critérios de registro de status e dos apontamentos das atividades, garantindo clareza, rastreabilidade e uniformidade das informações.", "resultados": "N/A; SEM CUSTO"}, {"id": "69390745-c128-4654-8263-958600a51d91", "data": "2026-01-23", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 01642164305 / DUARTINE POLIANA PIMENTEL / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["SAULO PEREIRA", "DUARTINE POLIANA PIMENTEL"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "TODA AREA", "titulo": "PAC-PLANILHA LINK FORMS VALE", "objetivo": "", "dataImplantacao": "2026-01-09", "problema": "Movimento", "situacaoAntes": "", "acoesRealizadas": "", "situacaoDepois": "", "resultados": "; N/A"}, {"id": "6ed43a7c-dc66-4b46-9de4-4e434dca3811", "data": "2026-01-31", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "gabriela.rabelo@vale.com", "elaboradoresRaw": "81026103 / GABRIELA RABELO / gabriela.rabelo@vale.com; 81006136 / FREDESON FEITOZA / fredeson.feitoza@vale.com; C0684242 / FELIPE ROSA SOBRAL / c0684242@vale.com; ", "todosNomes": ["GABRIELA RABELO", "FREDESON FEITOZA", "FELIPE ROSA SOBRAL"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD INSPEÇÃO OBRAS INTEGRIDAD - FREDESON FEITOZA", "ativo": "Gerenciamento de indicadores de gestão de ativos", "titulo": "Automatização de coleta de dados de indicadores de Gestão de Ativos", "objetivo": "Automatizar e melhorar a confiabilidade do processo de registro e coleta de informações de performance da gerência, baseado nos indicadores de gestão de ativos.", "dataImplantacao": "2026-01-31", "problema": "Processamento Excessivo , Defeitos / Retrabalho", "situacaoAntes": "Dados descentralizados e sem confiabilidade. As informações eram comumente revisadas.", "acoesRealizadas": "Criada planilha com dados centralizados.", "situacaoDepois": "Processo de compilação de informações preciso e com calculo automático.", "resultados": "; Redução de tempo total de 3h na busca de informações, preenchimento e calculo de indicadores.; Aumento de qualidade dos dados e calculos de indicadores.; Confiabilidade de dados de indicadores de risco estrutural"}, {"id": "79a8fa31-186d-4edd-99c2-7dbf79af1895", "data": "2026-01-28", "tipo": "Padronização de Kaizen", "dimensao": "Segurança e Riscos", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Outros", "origemOutros": "Segurança", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 04001237202 / EULALIA DE SOUSA BARROSO / TRADIMAQ S.A.; 04086050145 / JHENNIFER DOMINIK SOUZA BARROS / TRADIMAQ S.A.", "todosNomes": ["SAULO PEREIRA", "EULALIA DE SOUSA BARROSO", "JHENNIFER DOMINIK SOUZA BARROS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "V - Padronização visual para verificação do fechamento correto da porta", "objetivo": "Foi implementada uma sinalização visual simples na porta, utilizando adesivos de “positivo” e “negativo” , com o objetivo de orientar os\ncolaboradores sobre a condição correta e incorreta de fechamento/uso da porta, evitando falhas operacionais e machucar as m", "dataImplantacao": "2026-01-15", "problema": "Superprodução", "situacaoAntes": "Não havia indicação visual clara sobre a condição correta da porta\nOcorria fechamento inadequado ou uso incorreto\nRiscos de Machucas as Mãos e Dedos", "acoesRealizadas": "Porta identificada visualmente com adesivos intuitivos\nFácil compreensão imediata pelos usuários\nRedução de erros de uso e necessidade de retrabalho", "situacaoDepois": "Melhoria na comunicação visual Facilidade de entendimento para todos os colaboradores\nPadronização do comportamento operacional\nRedução de falhas humanas", "resultados": ""}, {"id": "7d5ce2dc-ce66-44b3-933b-b4444b383bcc", "data": "2026-01-21", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; JOELMA FERNANDA DOS SANTOS COSTA; CASSIA FERREIRA RIOS; STEFANNY DA SILVA SILVA; LAURA KELLY SANTOS CORREA CONCEICAO; PEDRO HENRIQUE DA SILVA; ISAQUIEL SOUZA DE OLIVEIRA", "todosNomes": ["SAULO PEREIRA", "JOELMA FERNANDA DOS SANTOS COSTA", "CASSIA FERREIRA RIOS", "STEFANNY DA SILVA SILVA", "LAURA KELLY SANTOS CORREA CONCEICAO", "PEDRO HENRIQUE DA SILVA", "ISAQUIEL SOUZA DE OLIVEIRA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "REC - Controle de Estoque Insumos - Almoxarifado", "objetivo": "Melhorar o controle de estoque de insumos do almoxarifado, garantindo disponibilidade dos materiais, redução de desperdícios e maior eficiência operacional", "dataImplantacao": "2026-01-14", "problema": "Processamento Excessivo", "situacaoAntes": "NÃO EXISTIA", "acoesRealizadas": "Organização e padronização do estoque de insumos no almoxarifado.", "situacaoDepois": "O almoxarifado passou a operar com controle mais eficiente , garantindo maior confiabilidade das informações de estoque.", "resultados": "N/A; SEM CUSTO; Tempo de atendimento das requisições\nProdutividade de Estoque\nConsumo médio por período; Manter apenas insumos necessários\nQualidade: rapidez na localização e menor risco de erro\nAmbiente limpo e inspecionado\nProcedimentos definidos (entrada, saída, inventário); Operacionais\nFinanceiros\nErros de inventário\nDesvios, furtos ou uso indevido de materiais"}, {"id": "7d83feb3-eaeb-42a2-abdf-c22ae4df8195", "data": "2026-02-12", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 02450491260 / WANDERSON MARTINS DOS SANTOS / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["SAULO PEREIRA", "WANDERSON MARTINS DOS SANTOS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "TODA AREA", "titulo": "PAC-SUPORTE KIT MITIGAÇÃO", "objetivo": "", "dataImplantacao": "2026-02-03", "problema": "Movimento", "situacaoAntes": "", "acoesRealizadas": "", "situacaoDepois": "", "resultados": ""}, {"id": "7f744c98-2410-4a7f-8eac-74dbc6ef021a", "data": "2026-01-30", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "rafael.pessoa@vale.com", "elaboradoresRaw": "01475311 / RAFAEL PESSOA / rafael.pessoa@vale.com; ; 01718254466 / MATHEUS MAGNO DO VALE CARVALHO / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA; 32304960278 / ANTONIO CARLOS DA CUNHA COSTA / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA; 56177976204 / EDIMILSON OLIVEIRA / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA; 89021380382 / JOSE WELLINGTON FERREIRA DA CONCEICAO / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA; 74253956300 / ANTONIO JOSE RICARDO DA SILVA / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["RAFAEL PESSOA", "MATHEUS MAGNO DO VALE CARVALHO", "ANTONIO CARLOS DA CUNHA COSTA", "EDIMILSON OLIVEIRA", "JOSE WELLINGTON FERREIRA DA CONCEICAO", "ANTONIO JOSE RICARDO DA SILVA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "", "titulo": "CASINHA PARA PRODUTOS QUIMICOS", "objetivo": "Organização de produtos em local adequado e especifico", "dataImplantacao": "2026-01-09", "problema": "Movimento", "situacaoAntes": "Antes nao havia um local especifico para organizar os produtos quimicos na frente de serviço.", "acoesRealizadas": "Medidas de controle de armazenamento", "situacaoDepois": "Melhoria de procedimetno de armazenamento.", "resultados": ""}, {"id": "80eca8b4-6dd7-4556-b795-04c556153700", "data": "2026-01-21", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; ISAQUIEL SOUZA DE OLIVEIRA; CASSIA FERREIRA RIOS; JOELMA FERNANDA DOS SANTOS COSTA; STEFANNY DA SILVA SILVA; PEDRO HENRIQUE DA SILVA; LAURA KELLY SANTOS CORREA CONCEICAO", "todosNomes": ["SAULO PEREIRA", "ISAQUIEL SOUZA DE OLIVEIRA", "CASSIA FERREIRA RIOS", "JOELMA FERNANDA DOS SANTOS COSTA", "STEFANNY DA SILVA SILVA", "PEDRO HENRIQUE DA SILVA", "LAURA KELLY SANTOS CORREA CONCEICAO"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "REC - DINÂMICA REUNIÃO PÓS PARADA", "objetivo": "Aumentar a produtividade.", "dataImplantacao": "2026-01-15", "problema": "Processamento Excessivo", "situacaoAntes": "NÃO EXISTIA", "acoesRealizadas": "Definição do objetivo da reunião: retomada pós-parada e identificação de melhorias.", "situacaoDepois": "Organização das ideias\n Plano de criação (10 min)\nPara as ideias mais votadas, define:\nQuem vai liderar ou apoiar\nPrimeiro passo concreto\nPrazo curto para teste ou implementação.", "resultados": "N/A; SEM CUSTO; Participação do time\nGeração de ideias\nPriorização e ação\nEngajamento e clima; \nA qualidade do 5S não é só estética; é eficiência operacional + segurança + disciplina, e o verdadeiro indicador é quanto ele ajuda o time a trabalhar melhor, mais rápido e sem erros.; Falta de engajamento\nCriação sem foco\nConflitos ou críticas negativas\nSobrecarga de expectativas"}, {"id": "85848855-3eda-4393-8d82-91e8fe3ca1f9", "data": "2026-02-13", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; JOELMA FERNANDA DOS SANTOS COSTA; CASSIA FERREIRA RIOS; STEFANNY DA SILVA SILVA; CARDIELLE MONTEIRO LIMA; LAURA KELLY SANTOS CORREA CONCEICAO; HADAMES SILVA BARROS", "todosNomes": ["SAULO PEREIRA", "JOELMA FERNANDA DOS SANTOS COSTA", "CASSIA FERREIRA RIOS", "STEFANNY DA SILVA SILVA", "CARDIELLE MONTEIRO LIMA", "LAURA KELLY SANTOS CORREA CONCEICAO", "HADAMES SILVA BARROS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "REC - HISTORICO DE NOTIFICAÇÕES CONTRATO ELETROMECANICA", "objetivo": "O objetivo principal é registrar e acompanhar todas as comunicações formais relacionadas ao contrato, garantindo controle, transparência e rastreabilidade.", "dataImplantacao": "2026-02-13", "problema": "Processamento Excessivo", "situacaoAntes": "NÃO EXISTIA", "acoesRealizadas": "As ações realizadas geralmente correspondem às medidas tomadas para resolver ou responder às notificações registradas.", "situacaoDepois": "A situação depois das ações realizadas em um contrato de Eletromecânica mostra o estado atual de cada ocorrência ou notificação, indicando se os problemas foram resolvidos, se ainda estão pendentes ou se precisam de acompanhamento.", "resultados": "N/A; SEM CUSTO; A produtividade se refere a quanto trabalho útil foi realizado em relação ao previsto, ou seja, eficiência operacional.; Completude, Clareza e Precisão, Atualização e Rastreabilidade , Registro de Ações e Resultados, Integração com Segurança, Riscos e Qualidade Operacional, Formalidade e Documentação.; Riscos Contratuais, Riscos Ambientais, Segurança Elétrica, Segurança Mecânica, Segurança Operacional"}, {"id": "8e29cfe5-2433-47b9-aad6-f3508b676494", "data": "2026-01-19", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; DANIEL VINICIUS FRUTUOSO ARRAIS; CARLOS HUMBERTO SILVA BARBOSA; ANTONIO DOS REIS DUTRA; GERCINO POLVOAS DA SILVA; FRANCIMAR CARLOS DA SILVA; EDSON BARBOSA", "todosNomes": ["SAULO PEREIRA", "DANIEL VINICIUS FRUTUOSO ARRAIS", "CARLOS HUMBERTO SILVA BARBOSA", "ANTONIO DOS REIS DUTRA", "GERCINO POLVOAS DA SILVA", "FRANCIMAR CARLOS DA SILVA", "EDSON BARBOSA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "REC - Dispositivo de Transporte de Chapas Manuais", "objetivo": "Reduzir  e melhorar durante o transporte manual de chapas.", "dataImplantacao": "2026-01-13", "problema": "Processamento Excessivo", "situacaoAntes": "NÃO EXISTIA", "acoesRealizadas": "Facilitar o manuseio.", "situacaoDepois": "Ficou mais fácil transportar chapas", "resultados": "N/A; REUTILIZAÇÃO DE MATERIAIS RECICLAVEIS; Redução do tempo de operação\nMenor esforço físico\nMaior eficiência operacional\nMenos acidentes; Padronização do processo\nConfiabilidade operacional\nQualidade ligada à segurança\nIndicadores de qualidade; Queda da chapa\nRiscos ergonômicos\nRiscos operacionais\nRiscos organizacionais"}, {"id": "8fc83945-ea83-4fef-b6bc-02364d822fd0", "data": "2026-02-13", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 02450491260 / WANDERSON MARTINS DOS SANTOS / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["SAULO PEREIRA", "WANDERSON MARTINS DOS SANTOS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "TODA AREA", "titulo": "PAC-GAIOLA DE ARMAZENAMENTO DE PRODUTOS QUIMICOS", "objetivo": "", "dataImplantacao": "2026-02-06", "problema": "Movimento", "situacaoAntes": "", "acoesRealizadas": "", "situacaoDepois": "", "resultados": ""}, {"id": "90cd7cfc-f39b-4351-8448-43ef0ec11193", "data": "2026-01-28", "tipo": "Padronização de Kaizen", "dimensao": "Segurança e Riscos", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Outros", "origemOutros": "Segurança", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 04001237202 / EULALIA DE SOUSA BARROSO / TRADIMAQ S.A.; 04580186273 / ERNANDES NASCIMENTO TEIXEIRA / TRADIMAQ S.A.", "todosNomes": ["SAULO PEREIRA", "EULALIA DE SOUSA BARROSO", "ERNANDES NASCIMENTO TEIXEIRA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "V - Placa dos RACS", "objetivo": "Orientar aos colaboradores quanto as RACs associadas as atividades nas frente de serviço.", "dataImplantacao": "2026-01-16", "problema": "Superprodução", "situacaoAntes": "Antes os colaboradores ficavam desorientados quanto as informações repassadas", "acoesRealizadas": "Criado um placa visual com todas as RACS associadas as atividades de campo. A qual é selecionada na hora", "situacaoDepois": "Colaboradores orientados e cientes das RACs associadas a cada atividade através da placa que fica na tenda.", "resultados": ""}, {"id": "91bd1a5c-1ca9-44e8-8d0c-5ce888b52c44", "data": "2026-01-28", "tipo": "Novo Kaizen", "dimensao": "Segurança e Riscos", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Outros", "origemOutros": "Segurança", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 04001237202 / EULALIA DE SOUSA BARROSO / TRADIMAQ S.A.; 70490719279 / RAFSON RAMOS VIDEIRA / TRADIMAQ S.A.", "todosNomes": ["SAULO PEREIRA", "EULALIA DE SOUSA BARROSO", "RAFSON RAMOS VIDEIRA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "V - Placa dos RACS", "objetivo": "Orientar aos colaboradores quanto as RACs associadas as atividades nas frente de serviço.", "dataImplantacao": "2026-01-15", "problema": "Espera", "situacaoAntes": "Antes os colaboradores ficavam desorientados quanto as informações repassadas.", "acoesRealizadas": "Criado um placa visual com todas as RACS associadas as atividades de campo. A qual é selecionada na hora.", "situacaoDepois": "Colaboradores orientados e cientes das RACs associadas a cada atividade através da placa que fica na tenda.", "resultados": ""}, {"id": "945403e0-b837-4611-b2e3-bcdeee29e987", "data": "2026-01-20", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "jonas.caje@vale.com", "elaboradoresRaw": "01535821 / JONAS SILVA / jonas.caje@vale.com; 01516879 / SARA FARIAS / sara.farias@vale.com; ", "todosNomes": ["JONAS SILVA", "SARA FARIAS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "Gestão de resíduos da integridade estrutural PA", "titulo": "Bases Geradoras para MID – Descarte de Resíduos", "objetivo": "Melhorar a Gestão de Descarte de Resíduos na Gerencia utilizando a base geradora correta.", "dataImplantacao": "2026-01-05", "problema": "Mura / Flutuação,Espera", "situacaoAntes": "Não havia base geradora específica da gerencia, com isso usávamos base de outras gerencias. Com isso não conseguíamos gerir a quantidade de Mid/resíduos descartados na GA.", "acoesRealizadas": "Foram criadas Bases Geradoras no SAP específicas para cada disciplina da Ger de Integridade Estrutural PA. Com isso agora conseguimos quantificar por base geradora a quantidade de resíduos descartados, assim como os Mids gerados na GA.", "situacaoDepois": "Foram criadas Bases Geradoras no SAP específicas para cada disciplina da Ger de Integridade Estrutural PA. Com isso agora conseguimos quantificar por base geradora a quantidade de resíduos descartados, assim como os Mids gerados na GA.", "resultados": "; Melhor gestão sobre o processo de Descarte de Resíduos na Gerência utilizando a base específica por disciplina.; Melhor gerenciamento do descarte evitando acumulo de resíduos nas praças o que gera presença de insetos e animais peçonhentos na área com risco."}, {"id": "9574af1b-e3e5-43a2-90dd-826a747183f1", "data": "2026-02-16", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; PAULO CONCEICAO DE SOUZA; ALINE DA SILVA NASCIMENTO; KACIO MARTINHO MONTEIRO DOS SANTOS; GILSON CARVALHO NASCIMENTO; DANIEL PINHEIRO ALVES", "todosNomes": ["SAULO PEREIRA", "PAULO CONCEICAO DE SOUZA", "ALINE DA SILVA NASCIMENTO", "KACIO MARTINHO MONTEIRO DOS SANTOS", "GILSON CARVALHO NASCIMENTO", "DANIEL PINHEIRO ALVES"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "REC - BAIA DE ABRAÇADEIRAS", "objetivo": "Separar o necessário do desnecessário.", "dataImplantacao": "2026-02-13", "problema": "Processamento Excessivo", "situacaoAntes": "NÃO EXISTIA", "acoesRealizadas": "Armazenado de forma segura.", "situacaoDepois": "Quando falamos da melhoria técnica com a criação de baías de abraçadeiras, estamos focando nos aspectos de melhoria continua, manejo de abraçadeiras e eficiência operacional, não apenas nos benefícios ambientais.  com criação da baías de abraçadeiras aumenta a eficiência operacional, a estabilidade, reduz manutenção e otimiza o manejo da mesma, tornando  mais seguro e controlada.", "resultados": "N/A; REUTILIZAÇÃO DE MATERIAIS RECCLAVEIS; Produtividade na montagem de andaimes com abraçadeiras \nSistemas bem planejados podem aumentar significativamente a eficiência da equipe, permitindo maior produção e menos tempo.; Ambiente de trabalho organizado, limpo e padronizado\nSeparar o necessário do desnecessário\nManter disciplina e hábitos diários; Queda de objetos\nChoque elétrico\nAbraçadeiras defeituosas"}, {"id": "96868a33-91ad-4794-a93a-de5a59c514aa", "data": "2026-01-31", "tipo": "Novo Kaizen", "dimensao": "Produtividade", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "gabrielly.miranda@vale.com", "elaboradoresRaw": "81056787 / GABRIELLY MIRANDA / gabrielly.miranda@vale.com; ", "todosNomes": ["GABRIELLY MIRANDA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD INSPEÇÃO OBRAS INTEGRIDAD - FREDESON FEITOZA", "ativo": "Inspeção Estrutural", "titulo": "Atalho para relatório de inspeção no Teamcenter", "objetivo": "Redução de tempo de conferência/revisão de relatórios", "dataImplantacao": "2026-01-29", "problema": "Processamento Excessivo", "situacaoAntes": "Não havia link de atalho direto ao Teamcenter, era necessário abrir a aplicação, digitar/colar o local de instalação, procurar o nível de taxonomia estrutural, abrir a inspeção para checar", "acoesRealizadas": "Criado atalho de acesso direto, inserindo uma coluna na planilha de acompanhamento das inspeções sistemáticas", "situacaoDepois": "Eliminadas as etapas (abrir a aplicação, digitar/colar o local de instalação, procurar o nível de taxonomia estrutural, abrir a inspeção para checar), sendo o link de acesso direto e imediato.", "resultados": "; Redução de tempo de conferência de relatórios. Considerando o acesso a 85 relatórios mensais por verificador, sendo 5 verificadores, sendo o tempo de 0,9min para abrir o relatório de forma convencional, temos a redução média de 6,38h mensais, tempo equivalente a 01 dia de trabalho (em horas uteis) de uma pessoa da equipe."}, {"id": "9b5eb1e3-8dc2-4749-885d-7abfdf0b8cbd", "data": "2026-01-21", "tipo": "Novo Kaizen", "dimensao": "Meio Ambiente", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Gemba", "origemOutros": "", "grupoCCQ": "", "elaborador": "francisco.miguel.filho@vale.com", "elaboradoresRaw": "81013305 / FRANCISCO FILHO / francisco.miguel.filho@vale.com; ; 94993645287 / CLEANNE FARIAS DOS SANTOS / TRADIMAQ S.A.", "todosNomes": ["FRANCISCO FILHO", "CLEANNE FARIAS DOS SANTOS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "", "titulo": "Suporte para Kit Mitigação", "objetivo": "Implementado kit mitigação para uso de ferramentas manuais. Reduzido risco de acidentes e melhorado organização.", "dataImplantacao": "2026-01-21", "problema": "Processamento Excessivo", "situacaoAntes": "Falta de organização e segurança no local", "acoesRealizadas": "Implementado kit mitigação para uso de ferramentas manuais. Reduzido risco de acidentes e melhorado organização.", "situacaoDepois": "Redução de acidentes, Maior eficiência e organização\n, Ambiente mais seguro.", "resultados": ""}, {"id": "a22c8c9e-d37f-4dc3-9bf3-71792e0a3b10", "data": "2026-01-22", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 01642164305 / DUARTINE POLIANA PIMENTEL / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["SAULO PEREIRA", "DUARTINE POLIANA PIMENTEL"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "TODA AREA", "titulo": "PAC-BLOCO REQUISIÇÃO DE EPI E FARDAMENTO", "objetivo": "", "dataImplantacao": "2026-01-07", "problema": "Movimento", "situacaoAntes": "", "acoesRealizadas": "", "situacaoDepois": "", "resultados": "; N/A"}, {"id": "a6155ffb-24f2-4fdc-b4d1-196b85023b58", "data": "2026-02-01", "tipo": "Novo Kaizen", "dimensao": "Pessoas,Qualidade,Produtividade", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "marco.correa@vale.com", "elaboradoresRaw": "01495822 / MARCO CORREA / marco.correa@vale.com; ", "todosNomes": ["MARCO CORREA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "- Processo de Inspeção de Integridade Estrutural – Serra Sul", "titulo": "Padronização e Agilidade na Criação de Relatórios de Inspeção com InspectPro V15.0", "objetivo": "Reduzir o tempo de elaboração dos relatórios de inspeção, aumentar a confiabilidade dos dados e garantir padronização entre inspetores.", "dataImplantacao": "2026-01-28", "problema": "Processamento Excessivo ,Superprodução,Espera", "situacaoAntes": "Os inspetores enfrentavam dificuldades para localizar ativos e preencher relatórios manualmente. O processo era demorado, sujeito a erros e com risco de perda de dados por falta de backup. Além disso, os relatórios gerados continham pouca informação detalhada, não seguiam um padrão único e variavam conforme o inspetor responsável.", "acoesRealizadas": "- Treinamento dos inspetores no uso do InspectPro V15.0\n- Padronização dos relatórios com templates específicos\n- Uso do recurso de backup automático e “Salvar Progresso”\n- Criação de checklist interno para apoio às inspeções\n- Comunicação da melhoria às demais áreas\n- Divulgação e apresentação da ferramenta aos inspetores de Serra Norte, com plano de replicação", "situacaoDepois": "Com a implantação do InspectPro V15.0, os relatórios passaram a ser padronizados, completos e confiáveis. O tempo de elaboração foi reduzido em cerca de 25%, eliminando o risco de perda de dados graças ao backup automático. Os inspetores ganharam mais autonomia e agilidade no preenchimento, e a melhoria já está sendo replicada para Serra Norte, garantindo uniformidade entre unidades.", "resultados": "na; - Não houve impacto financeiro direto; ganhos foram apenas em produtividade e qualidade.; Inspetores treinados, mais autônomos e reconhecidos pela rápida adoção da ferramenta; melhoria divulgada e em replicação para Serra Norte.; Diminuição do tempo de elaboração dos relatórios de 20 para 15 minutos (~25% de ganho).; Relatórios mais completos, padronizados e confiáveis, com redução de retrabalho.; - Saúde e Ergonomia: Redução de esforço repetitivo e menor exposição a riscos ergonômicos."}, {"id": "ae1a99c5-324c-487d-b20d-456507964836", "data": "2026-01-23", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 88499987249 / JOELMA FERNANDA DOS SANTOS COSTA / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["SAULO PEREIRA", "JOELMA FERNANDA DOS SANTOS COSTA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "TODA AREA", "titulo": "PAC-PLANILHA DE LIÇÕES APRENDIDAS NO PROCESSO", "objetivo": "", "dataImplantacao": "2026-01-15", "problema": "Movimento", "situacaoAntes": "", "acoesRealizadas": "", "situacaoDepois": "", "resultados": "; N/A"}, {"id": "aed5dddd-eec5-40c7-9e07-cb9fc35fd4de", "data": "2026-02-01", "tipo": "Novo Kaizen", "dimensao": "Pessoas", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "jonas.caje@vale.com", "elaboradoresRaw": "01535821 / JONAS SILVA / jonas.caje@vale.com; ; 04960425300 / TYAGO CABRAL SILVA / PLANGECON SERVICOS INDUSTRIAIS LTDA; 00937807290 / EMANOEL VINICIUS PEREIRA DIAS / PLANGECON SERVICOS INDUSTRIAIS LTDA; 02320805346 / JOAO MIGUEL TRINDADE SILVA / PLANGECON SERVICOS INDUSTRIAIS LTDA; 70610437259 / JOSE ROBERTO DA SILVA ALVES / PLANGECON SERVICOS INDUSTRIAIS LTDA; 86893130287 / RAIMUNDO JOACY VELOSO DA SILVA / PLANGECON SERVICOS INDUSTRIAIS LTDA; 03610023279 / HERICK JUNIOR SOUSA DOS SANTOS / PLANGECON SERVICOS INDUSTRIAIS LTDA", "todosNomes": ["JONAS SILVA", "TYAGO CABRAL SILVA", "EMANOEL VINICIUS PEREIRA DIAS", "JOAO MIGUEL TRINDADE SILVA", "JOSE ROBERTO DA SILVA ALVES", "RAIMUNDO JOACY VELOSO DA SILVA", "HERICK JUNIOR SOUSA DOS SANTOS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "EM DESMOBILIZAÇÃO DE ATIVOS", "titulo": "PUXADOR DE APOIO DIANTEIRO DO CONJ. OXICORTE", "objetivo": "GERAR APOIO NO EMPUXO DURANTE TRANSPORTE DE CILINDROS DE GÁS.", "dataImplantacao": "2026-01-27", "problema": "Transporte", "situacaoAntes": "MATERIAL SOBRASSALENTE E DESGASTADO.", "acoesRealizadas": "Padronização do conjuntos de oxicorte.", "situacaoDepois": "Realizado a fabricação de conjuntos com apoio de empuxo do carrinho.", "resultados": "xx; Redução da geração de resíduos sólidos.; Evoluções na matriz de habilidades da equipe;; Aumento da satisfação do cliente;; Redução de esforços repetitivos;; Eliminação do Esforço Físico Intenso durante a atividade de transporte de caixas com peso aproximado de 20 kg."}, {"id": "b3ef53bd-d641-474e-8191-36214f35f655", "data": "2026-02-13", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; SIDNEY JUNIOR GUEDES; STEFANNY DA SILVA SILVA; JOELMA FERNANDA DOS SANTOS COSTA; LAURA KELLY SANTOS CORREA CONCEICAO; CASSIA FERREIRA RIOS; CARDIELLE MONTEIRO LIMA", "todosNomes": ["SAULO PEREIRA", "SIDNEY JUNIOR GUEDES", "STEFANNY DA SILVA SILVA", "JOELMA FERNANDA DOS SANTOS COSTA", "LAURA KELLY SANTOS CORREA CONCEICAO", "CASSIA FERREIRA RIOS", "CARDIELLE MONTEIRO LIMA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "REC - SISTEMA DE MANUTEÇÃO E CHAMADO DE VEICULO", "objetivo": "O objetivo de melhoria de um Sistema de Manutenção e Chamado de Veículos é tornar a gestão da frota mais eficiente, econômica e organizada, reduzindo falhas e aumentando a disponibilidade dos veículos.", "dataImplantacao": "2026-02-13", "problema": "Transporte", "situacaoAntes": "NÃO EXISTIA", "acoesRealizadas": "Levantamento e Organização da Frota,Implementação do Sistema de Chamados, Maior controle da frota.", "situacaoDepois": "Monitoramento de Desempenho, Frequência de manutenção\nVeículos mais utilizados, Controle de Manutenções..", "resultados": "N/A; SEM CUSTO"}, {"id": "b4d95f1b-8263-4641-be80-ff1391983085", "data": "2026-01-31", "tipo": "Novo Kaizen", "dimensao": "Segurança e Riscos,Pessoas", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "FMDS", "origemOutros": "", "grupoCCQ": "", "elaborador": "francisco.miguel.filho@vale.com", "elaboradoresRaw": "81013305 / FRANCISCO FILHO / francisco.miguel.filho@vale.com; ; 61533893330 / ANDREIA SILVA DOS SANTOS / TRADIMAQ S.A.", "todosNomes": ["FRANCISCO FILHO", "ANDREIA SILVA DOS SANTOS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "", "titulo": "Inventário de ART Simplificada - Frente de Serviço", "objetivo": "Melhorar conhecimento da equipe sobre tarefa  e medidas de controle.", "dataImplantacao": "2026-01-31", "problema": "Processamento Excessivo", "situacaoAntes": "Não  havia conhecimento claro com equipe sobre ART simplificada e objetivo da mesma.", "acoesRealizadas": "Foi elaborado um inventario de ARTs para melhor conhecimento da equipe.", "situacaoDepois": "- Implementar uso e controle\n - Revisão periodicamente", "resultados": ""}, {"id": "be90b19b-d39d-49b7-ac4e-ce0061ad1fbd", "data": "2026-01-28", "tipo": "Padronização de Kaizen", "dimensao": "Segurança e Riscos", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Outros", "origemOutros": "Segurança", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 04001237202 / EULALIA DE SOUSA BARROSO / TRADIMAQ S.A.; 06700907357 / FRANCISCO LUAN FERREIRA DE SOUZA / TRADIMAQ S.A.", "todosNomes": ["SAULO PEREIRA", "EULALIA DE SOUSA BARROSO", "FRANCISCO LUAN FERREIRA DE SOUZA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "V - Implantação de Placa com as *10 Regras de Ouro da Segurança* na Frente de Serviço", "objetivo": "Reforçar a cultura de segurança.\nReduzir riscos de acidentes e atos inseguros.\nGarantir que todos tenham ciência das regras básicas antes de executar qualquer atividade", "dataImplantacao": "2026-01-22", "problema": "Espera", "situacaoAntes": "Ausência de sinalização padronizada com regras de segurança visíveis na frente de serviço.\nOrientações de segurança dependiam apenas de DDS ou comunicação verbal.\nMaior risco de falhas comportamentais por esquecimento ou falta de atenção às normas.", "acoesRealizadas": "Confecção e instalação de uma placa fixa com as *10 Regras de Ouro da Segurança*.\nPosicionamento estratégico na frente de serviço, garantindo fácil visualização antes do início das atividades.\nComunicação visual simples, direta e padronizada.", "situacaoDepois": "Maior conscientização dos colaboradores e terceiros.\nRedução de comportamentos inseguros.\nApoio aos DDS e treinamentos de segurança. Melhoria na organização e padronização da frente de serviço.\nContribuição para a prevenção de acidentes e incidentes.", "resultados": ""}, {"id": "c6bc0657-f1b0-4ed1-8edc-5f7bd02c91ab", "data": "2026-01-22", "tipo": "Novo Kaizen", "dimensao": "Qualidade,Produtividade", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "FMDS", "origemOutros": "", "grupoCCQ": "", "elaborador": "francisco.miguel.filho@vale.com", "elaboradoresRaw": "81013305 / FRANCISCO FILHO / francisco.miguel.filho@vale.com; ; 06703944245 / CARLOS EDUARDO LEITE DOS SANTOS / TRADIMAQ S.A.", "todosNomes": ["FRANCISCO FILHO", "CARLOS EDUARDO LEITE DOS SANTOS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "", "titulo": "Carteira de acompanhamento de laudos.", "objetivo": "- Objetivo: Gerenciar prazos e status de laudos", "dataImplantacao": "2026-01-22", "problema": "Superprodução,Processamento Excessivo", "situacaoAntes": "Não havia controle de previsto e real de consumo de material, não tinha visão do antes e controle do Forms de execução.", "acoesRealizadas": "Foi elaborado carteira de acompanhamento de laudos.", "situacaoDepois": "- Objetivo: Gerenciar prazos e status de laudos\n - Data de vencimento\n - Status (pendente, aprovado, reprovado)\n  - Responsável pelo acompanhamento\n  - Ações corretivas", "resultados": ""}, {"id": "c8e7aba2-4f78-4334-b0c2-ffb7cf1ac67e", "data": "2026-01-28", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; CARDIELLE MONTEIRO LIMA; LUIELLY COSTA SOUSA; LAURA KELLY SANTOS CORREA CONCEICAO; JOELMA FERNANDA DOS SANTOS COSTA; CASSIA FERREIRA RIOS; RAFAEL DA CONCEICAO DIAS", "todosNomes": ["SAULO PEREIRA", "CARDIELLE MONTEIRO LIMA", "LUIELLY COSTA SOUSA", "LAURA KELLY SANTOS CORREA CONCEICAO", "JOELMA FERNANDA DOS SANTOS COSTA", "CASSIA FERREIRA RIOS", "RAFAEL DA CONCEICAO DIAS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "REC - ATENÇÃO RISCO DE PRENSAMENTO DE MENBROS (PORTA)", "objetivo": "Reduzir o risco de prensamento de membros na porta, aumentando a segurança dos colaboradores por meio de sinalização adequada e conscientização sobre o perigo existente.", "dataImplantacao": "2026-01-12", "problema": "Processamento Excessivo", "situacaoAntes": "NÃO EXISTIA", "acoesRealizadas": "Instalação de sinalização de segurança alertando sobre o risco de prensamento de membros na porta.", "situacaoDepois": "Após a implementação das melhorias, o risco de prensamento de membros na porta foi reduzido. A área passou a contar com sinalização adequada, maior visibilidade do perigo e colaboradores mais conscientes quanto aos cuidados durante a utilização da porta, tornando o ambiente mais seguro.", "resultados": "N/A; SEM CUSTO"}, {"id": "c9045e18-6545-4b9b-9294-99d835bb8b33", "data": "2026-01-28", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 62161539272 / SHIRLEY CRAVO DA SILVA COSTEIRA / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["SAULO PEREIRA", "SHIRLEY CRAVO DA SILVA COSTEIRA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "TODA AREA", "titulo": "PAC-PLANILHA ACOMPANHAMENTO DE VISITAS", "objetivo": "", "dataImplantacao": "2026-01-13", "problema": "Movimento", "situacaoAntes": "", "acoesRealizadas": "", "situacaoDepois": "", "resultados": "; N/A"}, {"id": "cf133c66-f7bb-47f8-9782-528a1ab91364", "data": "2026-02-02", "tipo": "Replicação de Kaizen", "dimensao": "Segurança e Riscos,Pessoas", "idReplicado": "1938f3c6-83e5-4b5f-9920-6e9930941799", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "cristiane.souza1@vale.com", "elaboradoresRaw": "81033202 / CRISTIANE SOUZA / cristiane.souza1@vale.com; 01119529 / JOAO SOUZA / joao.souza2@vale.com; 81042539 / KATHLEEN SARAIVA / kathleen.saraiva@vale.com; 01125005 / ROGERIO LIMA / rogerio.lima@vale.com; 01541930 / GEISSON SOUZA / geisson.souza@vale.com; 81006136 / FREDESON FEITOZA / fredeson.feitoza@vale.com; ", "todosNomes": ["CRISTIANE SOUZA", "JOAO SOUZA", "KATHLEEN SARAIVA", "ROGERIO LIMA", "GEISSON SOUZA", "FREDESON FEITOZA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD INSPEÇÃO OBRAS INTEGRIDAD - FREDESON FEITOZA", "ativo": "", "titulo": "TREINAMENTOS E ACESSOS NECESSÁRIOS PARA NOVOS EMPREGADOS", "objetivo": "O objetivo deste material é facilitar a rotina inicial dos novos integrantes da equipe, oferecendo um direcionamento claro e estruturado sobre os itens básicos necessários para o desempenho adequado de suas atividades diárias.\nAo reunir em um único documento os treinamentos obrigatórios, os acessos essenciais e suas respectivas finalidades, buscamos proporcionar uma integração mais rápida, eficiente e segura, garantindo que cada colaborador comece suas atividades com o conhecimento e os recursos mínimos necessários para atuar com qualidade e conformidade.", "dataImplantacao": "2026-02-02", "problema": "Processamento Excessivo ,Espera", "situacaoAntes": "Antes da melhoria, novos empregados precisavam consultar históricos ou perguntar aos colegas para descobrir, separadamente, quais treinamentos e acessos eram necessários. Isso tornava o início das atividades lento e pouco padronizado.", "acoesRealizadas": "Foi desenvolvido um folder consolidando todos os treinamentos básicos e principais acessos necessários para a realização das atividades da equipe. Esse material reúne, de forma clara e organizada, as informações essenciais que antes estavam dispersas, permitindo que novos integrantes iniciem suas funções com mais autonomia, agilidade e segurança, reduzindo dúvidas e garantindo um processo de integração mais eficiente.", "situacaoDepois": "Com a padronização e consolidação dessas informações em um único material, proporcionamos clareza, agilidade e segurança no início da jornada do colaborador, garantindo que todos tenham acesso imediato aos requisitos essenciais para desempenhar suas atividades com eficiência.", "resultados": "; Fortalecimento da cultura de segurança e conformidade e Redução de dúvidas e demandas internas, Aumento da autonomia dos novos integrantes; Redução do tempo de integração, Aumento da autonomia dos novos integrantes; Padronização das informações, melhoria na eficiência operacional; Redução do tempo de integração, Padronização das informações, Aumento da autonomia dos novos integrantes, Melhoria na eficiência operacional, Fortalecimento da cultura de segurança e conformidade e Redução de dúvidas e demandas internas.; Fortalecimento da cultura de segurança e conformidade e Redução de dúvidas e demandas internas"}, {"id": "d37efc6e-a421-403c-9bdb-3a5d77851990", "data": "2026-01-23", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 88499987249 / JOELMA FERNANDA DOS SANTOS COSTA / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["SAULO PEREIRA", "JOELMA FERNANDA DOS SANTOS COSTA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "TODA AREA", "titulo": "PAC-PLANILHA PLANO DE AÇÃO", "objetivo": "", "dataImplantacao": "2026-01-15", "problema": "Movimento", "situacaoAntes": "", "acoesRealizadas": "", "situacaoDepois": "", "resultados": "; N/A"}, {"id": "da0314a8-fced-40ae-8e56-132bcce4a8a6", "data": "2026-01-30", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "rafael.pessoa@vale.com", "elaboradoresRaw": "01475311 / RAFAEL PESSOA / rafael.pessoa@vale.com; ; 03003405241 / LUAN VICTOR DA SILVA REGO / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA; 92669310397 / KESIA DE OLIVEIRA SILVA / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["RAFAEL PESSOA", "LUAN VICTOR DA SILVA REGO", "KESIA DE OLIVEIRA SILVA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "", "titulo": "ACOMPANHAMENTO DE PLANEJAMENTO", "objetivo": "Padronização e melhor visibilidade", "dataImplantacao": "2026-01-14", "problema": "Processamento Excessivo", "situacaoAntes": "O acompanhamento do planejamento era realizado por meio de planilhas extensas, contendo grande volume de dados apresentados de forma bruta e pouco intuitiva. A análise das informações demandava filtragens manuais frequentes para identificação de status, prioridades, ativos críticos, circuitos, riscos e necessidade de parada. Esse formato dificultava a visualização rápida do cenário geral, aumentava o tempo gasto na análise, elevava o risco de interpretação incorreta das informações e limitava a tomada de decisão ágil por parte do planejamento e das áreas envolvidas.", "acoesRealizadas": "Atualmente, o planejamento é acompanhado por meio de um painel visual limpo, intuitivo e atualizado, que permite a:\nVisualização imediata do total de laudos, peso associado, laudos SAP e ativos críticos, Identificação rápida de status (Executado, Planejado, Ag. Anexo, Ag. Visita), Análise clara por circuitos, locais de instalação, nível de risco e premissas (AMC, Backlog, LT 2026), Redução da necessidade de filtros manuais e cruzamentos de dados em planilha, Maior confiabilidade das informações e agilidade na tomada de decisão.", "situacaoDepois": "Aumento da clareza e padronização dos dados apresentados\nMelhoria na comunicação entre planejamento, execução e gestão\nApoio direto à priorização correta das atividades e gestão do backlog\nMinimização de riscos decorrentes de falhas de interpretação\nE melhoria trouxe ganhos significativos em eficiência, confiabilidade e visibilidade do planejamento, transformando dados antes dispersos e de difícil leitura em informações estratégicas, claras e acessíveis, fortalecendo o controle operacional e a tomada de decisão.", "resultados": ""}, {"id": "dd3e676d-d242-414a-b9f6-2c227616c2cf", "data": "2026-01-28", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 62161539272 / SHIRLEY CRAVO DA SILVA COSTEIRA / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["SAULO PEREIRA", "SHIRLEY CRAVO DA SILVA COSTEIRA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "TODA AREA", "titulo": "PAC-PLANILHA CONTROLE DE  SERVIÇOS PLANEJAMENTO", "objetivo": "", "dataImplantacao": "2026-01-13", "problema": "Movimento", "situacaoAntes": "", "acoesRealizadas": "", "situacaoDepois": "", "resultados": "; N/A"}, {"id": "e08fed0c-82ad-46a9-ad19-adf6702b424d", "data": "2026-01-19", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; CARLOS HUMBERTO SILVA BARBOSA; EDSON BARBOSA; ANTONIO DOS REIS DUTRA; GERCINO POLVOAS DA SILVA; FRANCIMAR CARLOS DA SILVA; DANIEL VINICIUS FRUTUOSO ARRAIS", "todosNomes": ["SAULO PEREIRA", "CARLOS HUMBERTO SILVA BARBOSA", "EDSON BARBOSA", "ANTONIO DOS REIS DUTRA", "GERCINO POLVOAS DA SILVA", "FRANCIMAR CARLOS DA SILVA", "DANIEL VINICIUS FRUTUOSO ARRAIS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "REC - Dispositivo de Transporte de Chapas Manuais", "objetivo": "O dispositivo foi criado para reduzir  e melhorar  durante o transporte manual de chapas.", "dataImplantacao": "2026-01-13", "problema": "Transporte,Processamento Excessivo", "situacaoAntes": "NÃO EXISTIA", "acoesRealizadas": "Facilitar o manuseio.", "situacaoDepois": "O trabalho ficou mais rápido ou eficiente.", "resultados": "N/A; REUTILIZAÇÃO DE MATERIAIS RECICLAVEIS; Redução do tempo de operação\nMenor esforço físico\nMaior eficiência operacional\nMenos acidentes; Padronização do processo\nConfiabilidade operacional\nQualidade ligada à segurança\nIndicadores de qualidade; Queda da chapa\nRiscos ergonômicos\nRiscos operacionais\nRiscos organizacionais"}, {"id": "e1cb45e1-4358-4d3b-8f61-c8a2c77e9031", "data": "2026-01-22", "tipo": "Novo Kaizen", "dimensao": "Segurança e Riscos,Pessoas,Qualidade", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "FMDS", "origemOutros": "", "grupoCCQ": "", "elaborador": "francisco.miguel.filho@vale.com", "elaboradoresRaw": "81013305 / FRANCISCO FILHO / francisco.miguel.filho@vale.com; ; 61533893330 / ANDREIA SILVA DOS SANTOS / TRADIMAQ S.A.", "todosNomes": ["FRANCISCO FILHO", "ANDREIA SILVA DOS SANTOS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "", "titulo": "DASHBOARD INDICADORES", "objetivo": "Acompanhar taxa de incidentes, conformidade com procedimento, eficácia de treinamentos e melhoria contínua.", "dataImplantacao": "2026-01-22", "problema": "Processamento Excessivo ,Superprodução, Defeitos / Retrabalho", "situacaoAntes": "Treinamentos não registrados\nfalta de acompanhamento de eficácia, risco de não conformidade\n* Ações N3:\n     Implementar sistema de controle definir responsáveis pelo acompanhamento, treinar equipes sobre importância do registro.", "acoesRealizadas": "Foi elaborado controle para acompanhar taxa de incidentes, conformidade com procedimento, eficácia de treinamentos e melhoria contínua.", "situacaoDepois": "Controle implementado, taxa de incidentes,  conformidade com procedimentos, eficácia de treinamentos ↑ (monitorada), melhoria contínua em andamento, resultados visíveis no dashboard.", "resultados": ""}, {"id": "e404ae6f-ccbe-4ec2-a23e-527f6b3b58b0", "data": "2026-01-27", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; CARDIELLE MONTEIRO LIMA; LAURA KELLY SANTOS CORREA CONCEICAO; RAFAEL DA CONCEICAO DIAS; EUDES DE OLIVEIRA; JOELMA FERNANDA DOS SANTOS COSTA; CASSIA FERREIRA RIOS", "todosNomes": ["SAULO PEREIRA", "CARDIELLE MONTEIRO LIMA", "LAURA KELLY SANTOS CORREA CONCEICAO", "RAFAEL DA CONCEICAO DIAS", "EUDES DE OLIVEIRA", "JOELMA FERNANDA DOS SANTOS COSTA", "CASSIA FERREIRA RIOS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "REC- Informativo correto de utilização do kit mitigação QR", "objetivo": "Promover maior segurança operacional e ambiental por meio da correta utilização do kit de mitigação, garantindo resposta rápida e eficaz a incidentes, redução de riscos à saúde das pessoas", "dataImplantacao": "2026-01-26", "problema": "Processamento Excessivo", "situacaoAntes": "", "acoesRealizadas": "Os colaboradores foram orientados quanto ao uso adequado do kit e dos EPIs necessários;", "situacaoDepois": "Monitorar periodicamente a correta utilização do kit de mitigação", "resultados": "N/A; SEM CUSTO"}, {"id": "e56bd236-9d53-4355-9dbc-c38d99e4714c", "data": "2026-01-19", "tipo": "Novo Kaizen", "dimensao": "Saúde,Segurança e Riscos,Qualidade,Produtividade,Custos", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "gabriela.rabelo@vale.com", "elaboradoresRaw": "81026103 / GABRIELA RABELO / gabriela.rabelo@vale.com; C0708030 / ÍTALO JOEL RODRIGUES NEVES / c0708030@vale.com; ", "todosNomes": ["GABRIELA RABELO", "ÍTALO JOEL RODRIGUES NEVES"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD INSPEÇÃO OBRAS INTEGRIDAD - FREDESON FEITOZA", "ativo": "Prédio da Moagem Velha", "titulo": "Scanner para mapeamento de estruturas", "objetivo": "Utilizar o scanner para realizar o mapeamento na nuvem de pontos de estruturas dos ativos eliminando a execução de trabalho em altura.", "dataImplantacao": "2025-12-03", "problema": "Processamento Excessivo ,Transporte,Movimento, Defeitos / Retrabalho,Muri / Sobrecarga", "situacaoAntes": "Para realizar uma medição de região que não há projeto detalhado e que contem uma altura não possível de alcançar, antes era necessário mão de obra para planejar, projetar e programar a montagem de andaime, onde era disponibilizado material, mão de obra, tempo para essa montagem. Após montagem era programado pessoas para acessar os andaimes para realizar essas medições, fazendo as mesmas se expor com uso de cinto para realizar trabalho em altura.", "acoesRealizadas": "Foi adquirido um equipamento \"Scanner X7\"", "situacaoDepois": "Após a aquisição, é possível realizar a leitura de toda a estrutura, com detalhamento de vigas e travessas, sem precisar de qualquer estrutura de andaime, apenas com o tablet na mão.", "resultados": "; Eliminação dos custos com material de andaime; Eliminação do custo com pessoas para projetar e executar o andaime.; Redução do tempo para montagem de andaime; Redução de tempo para realização de trabalho em altura; Redução de tempo no planejamento e programação da atividade.; Diminuição de retrabalhos; Maior precisão na leitura e medidas das estruturas.; Redução do tempo exposto a risco ergonômico; esforço repetitivos; exposto a ruídos. Eliminação de exposição em trabalho em altura; Eliminação de possibilidade de queda de ferramentas, queda de nível diferentes.; Eliminação de esforço físicos; Eliminação de movimentos contínuos."}, {"id": "e60d7b80-2fd9-458b-bb35-9dde2b266833", "data": "2026-01-28", "tipo": "Novo Kaizen", "dimensao": "Segurança e Riscos", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Outros", "origemOutros": "Segurança e Riscos", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 70228188270 / ELIEZIO DE OLIVEIRA PINTO / TRADIMAQ S.A.; 04001237202 / EULALIA DE SOUSA BARROSO / TRADIMAQ S.A.", "todosNomes": ["SAULO PEREIRA", "ELIEZIO DE OLIVEIRA PINTO", "EULALIA DE SOUSA BARROSO"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "", "titulo": "V - Implantação de Placa com as *10 Regras de Ouro da Segurança* na Frente de Serviço", "objetivo": "* Reforçar a cultura de segurança.\n* Reduzir riscos de acidentes e atos inseguros.\n* Garantir que todos tenham ciência das regras básicas antes de executar qualquer atividade.", "dataImplantacao": "2026-01-22", "problema": "Superprodução", "situacaoAntes": "Ausência de sinalização padronizada com regras de segurança visíveis na frente de serviço.\n Orientações de segurança dependiam apenas de DDS ou comunicação verbal.\n Maior risco de falhas comportamentais por esquecimento ou falta de atenção às normas.", "acoesRealizadas": "Confecção e instalação de uma placa fixa com as *10 Regras de Ouro da Segurança*.\nPosicionamento estratégico na frente de serviço, garantindo fácil visualização antes do início das atividades.\n Comunicação visual simples, direta e padronizada.", "situacaoDepois": "Maior conscientização dos colaboradores e terceiros.\nRedução de comportamentos inseguros.\nApoio aos DDS e treinamentos de segurança. Melhoria na organização e padronização da frente de serviço.\nContribuição para a prevenção de acidentes e incidentes.", "resultados": ""}, {"id": "e68fa26e-1089-44b0-8455-4c77f6a9fb89", "data": "2026-01-23", "tipo": "Novo Kaizen", "dimensao": "Segurança e Riscos", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Gemba", "origemOutros": "", "grupoCCQ": "", "elaborador": "francisco.miguel.filho@vale.com", "elaboradoresRaw": "81013305 / FRANCISCO FILHO / francisco.miguel.filho@vale.com; ; 61533893330 / ANDREIA SILVA DOS SANTOS / TRADIMAQ S.A.", "todosNomes": ["FRANCISCO FILHO", "ANDREIA SILVA DOS SANTOS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "", "titulo": "Inventário de Atualização de ART", "objetivo": "Planejar atualizações e renovações.", "dataImplantacao": "2026-01-23", "problema": "Processamento Excessivo", "situacaoAntes": "- Falta de controle centralizado\n- Possíveis não conformidades", "acoesRealizadas": "Inventário de Atualização de ART Elaborado\n- Levantamento de todas as ARTs\n- Identificação de prazos e responsáveis\n- Planejamento de atualizações", "situacaoDepois": "- Controle centralizado de ARTs\n- Prazos monitorados e atualizações em dia\n- Conformidade com normas técnicas\n- Redução de riscos legais", "resultados": ""}, {"id": "f0f966ab-b40c-4a4b-bcaf-be5917fb01c7", "data": "2026-02-12", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "saulo.pereira@vale.com", "elaboradoresRaw": "81025170 / SAULO PEREIRA / saulo.pereira@vale.com; ; 02450491260 / WANDERSON MARTINS DOS SANTOS / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["SAULO PEREIRA", "WANDERSON MARTINS DOS SANTOS"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT SERRA SUL - JULIA SILVA", "ativo": "TODA AREA", "titulo": "PAC-SUPORTE PARA COLETORES", "objetivo": "", "dataImplantacao": "2026-02-04", "problema": "Movimento", "situacaoAntes": "", "acoesRealizadas": "", "situacaoDepois": "", "resultados": ""}, {"id": "fa94b103-9b73-45db-9709-29b637dcd15e", "data": "2026-01-30", "tipo": "Novo Kaizen", "dimensao": "Segurança", "idReplicado": "", "gerenciamentoMudanca": "Não", "mocOrion": "", "origemProblema": "Rotina", "origemOutros": "", "grupoCCQ": "", "elaborador": "rafael.pessoa@vale.com", "elaboradoresRaw": "01475311 / RAFAEL PESSOA / rafael.pessoa@vale.com; ; 01718254466 / MATHEUS MAGNO DO VALE CARVALHO / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA; 94451451272 / DEMI JUNIOR SOUSA LACERDA / OMEGA SERVICOS E MONTAGENS INDUSTRILTDA", "todosNomes": ["RAFAEL PESSOA", "MATHEUS MAGNO DO VALE CARVALHO", "DEMI JUNIOR SOUSA LACERDA"], "diretoria": "DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA", "gerencia": "GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI", "supervisao": "COORD IMPLANT OBRAS INTEGRIDAD - MAYRTON PEREIRA", "ativo": "", "titulo": "SUPORTE PARA GARRAFA AMPLA", "objetivo": "Melhor organização nas garrafas disponibilizada, em alta quantidade na frente de serviço.", "dataImplantacao": "2026-01-12", "problema": "Movimento", "situacaoAntes": "Antes no local da frente de serviço devido a quantidade de funcionários sem elevado,  as mesma ficava dispensas e mau organizadas.", "acoesRealizadas": "Melhoria no processo de padronização", "situacaoDepois": "Organização e local fixo, altura adequada.", "resultados": ""}];
+let D=[],pg=0;const PS=20;let sC='data',sD=-1;
+
+function init(){const s=localStorage.getItem('kzGIE2');D=s?JSON.parse(s):[...DEF];save();popF();rAll();document.getElementById('hDate').textContent=new Date().toLocaleString('pt-BR');
+// Update cover stats
+const ppl=new Set();D.forEach(k=>(k.todosNomes||[]).forEach(n=>ppl.add(n.toUpperCase())));
+const coords=new Set(D.map(k=>k.supervisao).filter(Boolean));
+const cvT=document.getElementById('cvTotal');if(cvT)cvT.textContent=D.length;
+const cvP=document.getElementById('cvPessoas');if(cvP)cvP.textContent=ppl.size;
+const cvC=document.getElementById('cvCoords');if(cvC)cvC.textContent=coords.size;
+loadAval();renderAval();
+}
+function save(){localStorage.setItem('kzGIE2',JSON.stringify(D));const c=document.getElementById('dbC');if(c)c.textContent=D.length+' registros'}
+function sw(t){document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.pnl').forEach(x=>x.classList.remove('on'));document.querySelector('[data-t="'+t+'"]').classList.add('on');document.getElementById('p-'+t).classList.add('on');if(t==='dash')af();if(t==='rel')rt();if(t==='visao')rVis();if(t==='aval')renderAval()}
+
+function popF(){
+const sups=[...new Set(D.map(k=>k.supervisao))].filter(Boolean).sort();
+const dims=new Set();D.forEach(k=>(k.dimensao||'').split(',').forEach(d=>{d=d.trim();if(d)dims.add(d)}));
+const elabs=[...new Set(D.map(k=>k.elaborador))].filter(Boolean).sort();
+document.getElementById('fSup').innerHTML='<option>Todos</option>'+sups.map(s=>'<option>'+s+'</option>').join('');
+document.getElementById('fDim').innerHTML='<option>Todos</option>'+[...dims].sort().map(d=>'<option>'+d+'</option>').join('');
+document.getElementById('fElab').innerHTML='<option>Todos</option>'+elabs.map(e=>'<option>'+e+'</option>').join('');
+}
+
+function gF(){
+let d=[...D];
+const sup=document.getElementById('fSup')?.value;
+const t=document.getElementById('fTipo')?.value;
+const di=document.getElementById('fDim')?.value;
+const m=document.getElementById('fMes')?.value;
+const e=document.getElementById('fElab')?.value;
+if(sup&&sup!=='Todos')d=d.filter(k=>k.supervisao===sup);
+if(t&&t!=='Todos')d=d.filter(k=>k.tipo===t);
+if(di&&di!=='Todos')d=d.filter(k=>(k.dimensao||'').includes(di));
+if(m&&m!=='Todos')d=d.filter(k=>(k.data||'').split('-')[1]===m);
+if(e&&e!=='Todos')d=d.filter(k=>k.elaborador===e);
+return d;
+}
+
+function af(){
+const f=gF();const n=f.filter(k=>k.tipo==='Novo Kaizen').length;const p=f.filter(k=>k.tipo.includes('Padronização')).length;const r=f.filter(k=>k.tipo.includes('Replicação')).length;
+const ppl=new Set();f.forEach(k=>(k.todosNomes||[]).forEach(n=>ppl.add(n.toUpperCase())));
+document.getElementById('dS').innerHTML=`<div class="sc g"><div class="sv">${f.length}</div><div class="sl">Total Filtrado</div></div><div class="sc y"><div class="sv">${n}</div><div class="sl">Novos</div></div><div class="sc c"><div class="sv">${p}</div><div class="sl">Padronizações</div></div><div class="sc p"><div class="sv">${r}</div><div class="sl">Replicações</div></div><div class="sc r"><div class="sv">${ppl.size}</div><div class="sl">Engajados</div></div>`;
+rDash(f);
+}
+
+// CHARTS
+const CI={};
+const COL=['#00e676','#ffd600','#00e5ff','#ff1744','#ff9100','#d500f9','#2979ff','#76ff03','#ff6d00','#18ffff','#e040fb','#00bfa5'];
+const COLA=COL.map(c=>c+'bb');
+Chart.defaults.color='#777';Chart.defaults.borderColor='#1a1a1a';Chart.defaults.font.family='Outfit';
+
+// Default: disable datalabels globally, enable per chart
+Chart.defaults.plugins.datalabels={display:false};
+
+function mc(id,cfg){if(CI[id])CI[id].destroy();CI[id]=new Chart(document.getElementById(id),cfg)}
+function cBy(a,k){const m={};a.forEach(x=>{const v=x[k]||'N/A';m[v]=(m[v]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])}
+function cBM(a,k){const m={};a.forEach(x=>{(x[k]||'').split(',').forEach(v=>{v=v.trim();if(v)m[v]=(m[v]||0)+1})});return Object.entries(m).sort((a,b)=>b[1]-a[1])}
+
+// Datalabel configs
+const DL_BAR_END={display:true,anchor:'end',align:'end',color:'#ccc',font:{size:11,weight:600,family:'Outfit'},formatter:v=>v};
+const DL_LINE={display:true,anchor:'end',align:'top',offset:6,color:'#eee',font:{size:11,weight:700,family:'Outfit'},backgroundColor:'rgba(0,0,0,.6)',borderRadius:4,padding:{top:2,bottom:2,left:5,right:5},formatter:v=>v};
+const DL_DONUT={display:true,anchor:'end',align:'end',offset:8,color:'#ddd',font:{size:11,weight:600,family:'Outfit'},backgroundColor:'rgba(0,0,0,.65)',borderRadius:4,padding:{top:2,bottom:2,left:5,right:5},formatter:(v,ctx)=>{const lbl=ctx.chart.data.labels[ctx.dataIndex];const tot=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=Math.round(v/tot*100);return lbl+' ('+v+' - '+pct+'%)'}};
+
+function hbar(id,d,mx){
+d=d.slice(0,mx||10);
+mc(id,{type:'bar',
+data:{labels:d.map(x=>x[0].length>38?x[0].substring(0,38)+'…':x[0]),datasets:[{data:d.map(x=>x[1]),backgroundColor:COLA.slice(0,d.length),borderColor:COL.slice(0,d.length),borderWidth:1}]},
+options:{indexAxis:'y',responsive:true,layout:{padding:{right:45}},
+plugins:{legend:{display:false},datalabels:DL_BAR_END},
+scales:{x:{grid:{color:'#1a1a1a'},ticks:{stepSize:1}},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
+}
+
+function rVis(){
+const tot=D.length,n=D.filter(k=>k.tipo==='Novo Kaizen').length,p=D.filter(k=>k.tipo.includes('Padronização')).length,r=D.filter(k=>k.tipo.includes('Replicação')).length;
+const ppl=new Set();D.forEach(k=>(k.todosNomes||[]).forEach(n=>ppl.add(n.toUpperCase())));
+const julia=D.filter(k=>k.supervisao.includes('JULIA'));
+document.getElementById('vS').innerHTML=`<div class="sc g"><div class="sv">${tot}</div><div class="sl">Total de Kaizens</div><div class="stag">2026</div></div><div class="sc y"><div class="sv">${n}</div><div class="sl">Novos (${Math.round(n/tot*100)}%)</div></div><div class="sc c"><div class="sv">${p}</div><div class="sl">Padronizações (${Math.round(p/tot*100)}%)</div></div><div class="sc p"><div class="sv">${r}</div><div class="sl">Replicações (${Math.round(r/tot*100)}%)</div></div><div class="sc r"><div class="sv">${ppl.size}</div><div class="sl">Pessoas Engajadas</div></div><div class="sc g"><div class="sv">${julia.length}</div><div class="sl">Julia Silva (COORD)</div></div>`;
+
+// Tipo donut with external labels
+mc('cTipo',{type:'doughnut',
+data:{labels:['Novo Kaizen','Padronização','Replicação'],datasets:[{data:[n,p,r],backgroundColor:['#00e676','#ffd600','#00e5ff'],borderWidth:0,hoverOffset:6}]},
+options:{responsive:true,cutout:'55%',layout:{padding:30},
+plugins:{legend:{position:'bottom',labels:{padding:14,usePointStyle:true,pointStyle:'circle'}},datalabels:DL_DONUT}}});
+
+// Acumulado line with labels
+const byM={};D.forEach(k=>{const m=(k.data||'').substring(0,7);if(m)byM[m]=(byM[m]||0)+1});
+const ms=Object.keys(byM).sort();let acc=0;const accD=ms.map(m=>{acc+=byM[m];return acc});
+const mL=ms.map(m=>{const mo=parseInt(m.split('-')[1]);return['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][mo]+'/'+m.split('-')[0].slice(2)});
+mc('cAcum',{type:'line',
+data:{labels:mL,datasets:[
+{label:'Acumulado',data:accD,borderColor:'#ffd600',backgroundColor:'rgba(255,214,0,.06)',fill:true,tension:.3,pointRadius:6,pointBackgroundColor:'#ffd600',datalabels:DL_LINE},
+{label:'Mensal',data:ms.map(m=>byM[m]),borderColor:'#00e5ff',backgroundColor:'rgba(0,229,255,.06)',fill:true,tension:.3,pointRadius:5,pointBackgroundColor:'#00e5ff',datalabels:{...DL_LINE,align:'bottom',offset:8}}
+]},
+options:{responsive:true,layout:{padding:{top:25}},
+plugins:{legend:{position:'top',labels:{usePointStyle:true,pointStyle:'circle',padding:12}},datalabels:{display:true}},
+scales:{y:{beginAtZero:true,grid:{color:'#1a1a1a'}},x:{grid:{display:false}}}}});
+
+hbar('cDim',cBM(D,'dimensao'),10);
+hbar('cProb',cBM(D,'problema'),10);
+hbar('cSup',cBy(D,'supervisao'),6);
+hbar('cElab',cBy(D,'elaborador'),10);
+hbar('cAtivo',cBy(D,'ativo'),10);
+
+// Engajados por mês
+const byME={};D.forEach(k=>{const m=(k.data||'').substring(0,7);if(!byME[m])byME[m]=new Set();(k.todosNomes||[]).forEach(n=>byME[m].add(n.toUpperCase()))});
+const msE=Object.keys(byME).sort();let accE=0;const accDE=msE.map(m=>{accE+=byME[m].size;return accE});
+const mLE=msE.map(m=>{const mo=parseInt(m.split('-')[1]);return['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][mo]});
+mc('cEng',{type:'bar',
+data:{labels:mLE,datasets:[
+{label:'Novos no Mês',data:msE.map(m=>byME[m].size),backgroundColor:'rgba(0,229,255,.6)',borderColor:'#00e5ff',borderWidth:1,datalabels:{...DL_BAR_END,anchor:'end',align:'end'}},
+{label:'Acumulado',data:accDE,type:'line',borderColor:'#ffd600',backgroundColor:'rgba(255,214,0,.05)',fill:true,tension:.3,pointRadius:5,pointBackgroundColor:'#ffd600',yAxisID:'y1',datalabels:DL_LINE}
+]},
+options:{responsive:true,layout:{padding:{top:25}},
+plugins:{legend:{position:'top',labels:{usePointStyle:true,pointStyle:'circle',padding:12}},datalabels:{display:true}},
+scales:{y:{beginAtZero:true,grid:{color:'#1a1a1a'},title:{display:true,text:'Mensal',color:'#555'}},y1:{position:'right',beginAtZero:true,grid:{display:false},title:{display:true,text:'Acumulado',color:'#555'}},x:{grid:{display:false}}}}});
+}
+
+function rDash(f){
+hbar('dDim',cBM(f,'dimensao'),8);
+hbar('dProb',cBM(f,'problema'),8);
+hbar('dElab',cBy(f,'elaborador'),10);
+
+// Engajados dash
+const byM={};f.forEach(k=>{const m=(k.data||'').substring(0,7);if(!byM[m])byM[m]=new Set();(k.todosNomes||[]).forEach(n=>byM[m].add(n.toUpperCase()))});
+const ms=Object.keys(byM).sort();let acc=0;const accD=ms.map(m=>{acc+=byM[m].size;return acc});
+const mL=ms.map(m=>{const mo=parseInt(m.split('-')[1]);return['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][mo]});
+mc('dEng',{type:'line',
+data:{labels:mL,datasets:[{label:'Acumulado',data:accD,borderColor:'#00e5ff',backgroundColor:'rgba(0,229,255,.06)',fill:true,tension:.3,pointRadius:6,pointBackgroundColor:'#00e5ff',datalabels:DL_LINE}]},
+options:{responsive:true,layout:{padding:{top:25}},
+plugins:{legend:{display:false},datalabels:{display:true}},
+scales:{y:{beginAtZero:true,grid:{color:'#1a1a1a'}},x:{grid:{display:false}}}}});
+}
+
+// TABLE
+function rt(){
+const q=(document.getElementById('tSrch')?.value||'').toLowerCase();
+let d=[...D];if(q)d=d.filter(k=>Object.values(k).some(v=>String(v).toLowerCase().includes(q)));
+d.sort((a,b)=>{const va=a[sC]||'',vb=b[sC]||'';return va<vb?-sD:va>vb?sD:0});
+const tot=d.length,s=pg*PS,page=d.slice(s,s+PS);
+document.getElementById('tBd').innerHTML=page.map(k=>`<tr>
+<td>${fD(k.data)}</td>
+<td><span class="bdg ${k.tipo==='Novo Kaizen'?'bdg-n':k.tipo.includes('Padronização')?'bdg-p':'bdg-r'}">${k.tipo}</span></td>
+<td>${(k.dimensao||'').split(',').map(d=>'<span class="bdg-d">'+d.trim()+'</span>').join(' ')}</td>
+<td title="${esc(k.titulo)}">${(k.titulo||'—').substring(0,38)}${(k.titulo||'').length>38?'…':''}</td>
+<td style="font-size:11px">${k.elaborador||''}</td>
+<td style="font-size:10px">${(k.supervisao||'').substring(0,32)}</td>
+<td style="font-size:11px">${(k.ativo||'').substring(0,22)}</td>
+<td style="font-size:11px">${(k.problema||'').substring(0,25)}</td>
+<td><button class="btn btn-s btn-o" onclick="vD('${k.id}')">👁</button></td>
+</tr>`).join('');
+document.getElementById('pInf').textContent=`${tot?s+1:0}-${Math.min(s+PS,tot)} de ${tot}`;
+document.getElementById('pP').disabled=pg===0;
+document.getElementById('pN').disabled=s+PS>=tot;
+}
+function srt(c){if(sC===c)sD*=-1;else{sC=c;sD=1}pg=0;rt()}
+function cpg(d){pg+=d;rt()}
+function fD(d){if(!d)return'';const p=d.split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:d}
+function esc(s){return(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+
+function vD(id){
+const k=D.find(x=>x.id===id);if(!k)return;
+document.getElementById('mCt').innerHTML=`
+<div class="fgrid">
+<div class="mf"><label>ID</label><div class="mval mval-mono">${k.id}</div></div>
+<div class="mf"><label>Data</label><div class="mval">${fD(k.data)}</div></div>
+<div class="mf"><label>Tipo</label><div class="mval"><span class="bdg ${k.tipo==='Novo Kaizen'?'bdg-n':k.tipo.includes('Padronização')?'bdg-p':'bdg-r'}">${k.tipo}</span></div></div>
+<div class="mf"><label>Dimensão</label><div class="mval">${k.dimensao||'-'}</div></div>
+<div class="mf"><label>Elaborador Principal</label><div class="mval">${k.elaborador||'-'}</div></div>
+<div class="mf"><label>Supervisão</label><div class="mval" style="font-size:11px">${k.supervisao||'-'}</div></div>
+<div class="mf full"><label>Todos os Participantes</label><div class="mval" style="font-size:11px">${(k.todosNomes||[]).join(', ')||'-'}</div></div>
+<div class="mf full"><label>Ativo / Processo</label><div class="mval">${k.ativo||'-'}</div></div>
+<div class="mf full"><label>Título da Melhoria</label><div class="mval" style="font-weight:600;font-size:14px">${k.titulo||'-'}</div></div>
+<div class="mf full"><label>Objetivo</label><div class="mval">${k.objetivo||'-'}</div></div>
+</div>
+<div class="msect"><h3>🔍 Análise do Problema</h3>
+<div class="fgrid">
+<div class="mf"><label>Tipo de Problema</label><div class="mval">${k.problema||'-'}</div></div>
+<div class="mf"><label>Origem</label><div class="mval">${k.origemProblema||'-'}</div></div>
+</div>
+<div class="mf full"><label>Situação ANTES</label><div class="mval">${k.situacaoAntes||'-'}</div></div>
+</div>
+<div class="msect"><h3>⚡ Ações e Resultados</h3>
+<div class="mf full"><label>Ações Realizadas</label><div class="mval">${k.acoesRealizadas||'-'}</div></div>
+<div class="mf full"><label>Situação DEPOIS</label><div class="mval">${k.situacaoDepois||'-'}</div></div>
+<div class="mf full"><label>Resultados Alcançados</label><div class="mval">${k.resultados||'-'}</div></div>
+</div>`;
+document.getElementById('dMod').classList.add('on');
+}
+function clM(){document.getElementById('dMod').classList.remove('on')}
+document.getElementById('dMod').addEventListener('click',e=>{if(e.target===e.currentTarget)clM()});
+
+function cadK(){
+const dims=[...document.getElementById('cDi').selectedOptions].map(o=>o.value).join(',');
+const probs=[...document.getElementById('cPr').selectedOptions].map(o=>o.value).join(',');
+D.push({id:crypto.randomUUID(),data:document.getElementById('cD').value||new Date().toISOString().split('T')[0],tipo:document.getElementById('cT').value,dimensao:dims||'Segurança',elaborador:document.getElementById('cE').value||'N/A',elaboradoresRaw:'',todosNomes:[document.getElementById('cE').value||'N/A'],diretoria:'DIR IMPL PROJ INTEGR ESTR - MARLENE FURTADO DA COSTA',gerencia:'GER INTEGRIDADE ESTRUTURAL PA - RODRIGO COJI',supervisao:document.getElementById('cS').value,ativo:document.getElementById('cA').value||'',titulo:document.getElementById('cTi').value||'',objetivo:document.getElementById('cOb').value||'',dataImplantacao:document.getElementById('cD').value||'',problema:probs||'',origemProblema:document.getElementById('cOr').value||'',situacaoAntes:document.getElementById('cAn').value||'',acoesRealizadas:document.getElementById('cAc').value||'',situacaoDepois:document.getElementById('cDp').value||'',resultados:document.getElementById('cRs').value||'',idReplicado:'',gerenciamentoMudanca:'Não',origemOutros:''});
+save();popF();rAll();toast('✅ Kaizen cadastrado!');
+['cD','cE','cA','cTi','cOb','cAn','cAc','cDp','cRs'].forEach(x=>document.getElementById(x).value='');
+}
+
+function expJSON(){dl(new Blob([JSON.stringify(D,null,2)],{type:'application/json'}),'kaizen_GIE_'+td()+'.json');toast('📤 JSON exportado')}
+function expCSV(){const h=['id','data','tipo','dimensao','elaborador','supervisao','ativo','titulo','objetivo','problema','origemProblema','situacaoAntes','acoesRealizadas','situacaoDepois','resultados'];const csv=[h.join(';'),...D.map(k=>h.map(c=>'"'+(k[c]||'').replace(/"/g,'""').replace(/\n/g,' ')+'"').join(';'))].join('\n');dl(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}),'kaizen_GIE_'+td()+'.csv');toast('📤 CSV exportado')}
+function expTCSV(){const q=(document.getElementById('tSrch')?.value||'').toLowerCase();let d=q?D.filter(k=>Object.values(k).some(v=>String(v).toLowerCase().includes(q))):D;const h=['id','data','tipo','dimensao','elaborador','supervisao','ativo','titulo','problema','resultados'];const csv=[h.join(';'),...d.map(k=>h.map(c=>'"'+(k[c]||'').replace(/"/g,'""').replace(/\n/g,' ')+'"').join(';'))].join('\n');dl(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}),'kaizen_relatorio_'+td()+'.csv');toast('📤 CSV exportado')}
+function impJSON(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=function(ev){try{const imp=JSON.parse(ev.target.result);if(!Array.isArray(imp))throw new Error('Formato inválido');const ids=new Set(D.map(k=>k.id));let a=0;imp.forEach(k=>{if(!ids.has(k.id)){D.push(k);a++}});save();popF();rAll();toast('📥 '+a+' importados');}catch(err){toast('❌ '+err.message)}};r.readAsText(f);e.target.value='';}
+function dl(b,n){const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=n;a.click();URL.revokeObjectURL(u)}
+function td(){return new Date().toISOString().split('T')[0]}
+function rstD(){if(!confirm('Restaurar dados originais?'))return;D=[...DEF];save();popF();rAll();toast('🔄 Restaurado')}
+function clrA(){if(!confirm('LIMPAR TUDO?'))return;D=[];save();popF();rAll();toast('🗑 Base limpa')}
+
+const dz=document.getElementById('dz');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('dov')});
+dz.addEventListener('dragleave',()=>dz.classList.remove('dov'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('dov');const f=e.dataTransfer.files[0];if(f&&f.name.endsWith('.json')){const dt=new DataTransfer();dt.items.add(f);document.getElementById('fI').files=dt.files;impJSON({target:document.getElementById('fI')})}else toast('❌ Arquivo .json')});
+
+function toast(m){const t=document.getElementById('tst');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),3000)}
+function rAll(){rVis();af();rt()}
+// ===== AVALIAÇÃO SYSTEM =====
+const PESOS={origem:20,impA:10,impB:10,impC:10,abrang:15,efic:15,padro:20};
+const CRIT_LABELS=['Origem','Impacto A','Impacto B','Impacto C','Abrangência','Eficácia','Padronização'];
+const CRIT_KEYS=['origem','impA','impB','impC','abrang','efic','padro'];
+const CRIT_COLORS=['#00e676','#ffd600','#ffd600','#ffd600','#00e5ff','#d500f9','#ff9100'];
+
+let AV=[];
+function loadAval(){const s=localStorage.getItem('kzAval');AV=s?JSON.parse(s):[];saveAval_store()}
+function saveAval_store(){localStorage.setItem('kzAval',JSON.stringify(AV))}
+
+function calcTotal(a){
+  let t=0;
+  CRIT_KEYS.forEach(k=>{t+=(a[k]||0)/3*PESOS[k]});
+  return Math.round(t*10)/10;
+}
+
+function addAvalKaizen(){
+  document.getElementById('avNome').value='';
+  document.getElementById('avAvaliador').value='';
+  document.getElementById('avData').value=new Date().toISOString().split('T')[0];
+  document.getElementById('avFeedback').value='';
+  ['avOrigem','avImpA','avImpB','avImpC','avAbrang','avEfic','avPadro'].forEach(id=>document.getElementById(id).value='0');
+  document.getElementById('avPreview').textContent='0';
+  document.getElementById('avalMod').dataset.editId='';
+  document.getElementById('avalMod').classList.add('on');
+}
+
+// Live preview
+['avOrigem','avImpA','avImpB','avImpC','avAbrang','avEfic','avPadro'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('change',()=>{
+    const v={};
+    CRIT_KEYS.forEach((k,i)=>{v[k]=parseInt(document.getElementById(['avOrigem','avImpA','avImpB','avImpC','avAbrang','avEfic','avPadro'][i]).value)||0});
+    document.getElementById('avPreview').textContent=calcTotal(v);
+  });
+});
+
+function saveAval(){
+  const ids=['avOrigem','avImpA','avImpB','avImpC','avAbrang','avEfic','avPadro'];
+  const a={
+    id:document.getElementById('avalMod').dataset.editId||crypto.randomUUID().substring(0,8),
+    nome:document.getElementById('avNome').value||'Kaizen sem título',
+    avaliador:document.getElementById('avAvaliador').value||'',
+    data:document.getElementById('avData').value||new Date().toISOString().split('T')[0],
+    feedback:document.getElementById('avFeedback').value||''
+  };
+  CRIT_KEYS.forEach((k,i)=>{a[k]=parseInt(document.getElementById(ids[i]).value)||0});
+  a.total=calcTotal(a);
+
+  const editId=document.getElementById('avalMod').dataset.editId;
+  if(editId){const idx=AV.findIndex(x=>x.id===editId);if(idx>=0)AV[idx]=a;}
+  else AV.push(a);
+
+  saveAval_store();renderAval();
+  document.getElementById('avalMod').classList.remove('on');
+  toast('🏆 Avaliação salva — Nota: '+a.total+'/100');
+}
+
+function editAval(id){
+  const a=AV.find(x=>x.id===id);if(!a)return;
+  document.getElementById('avNome').value=a.nome;
+  document.getElementById('avAvaliador').value=a.avaliador||'';
+  document.getElementById('avData').value=a.data;
+  document.getElementById('avFeedback').value=a.feedback||'';
+  const ids=['avOrigem','avImpA','avImpB','avImpC','avAbrang','avEfic','avPadro'];
+  CRIT_KEYS.forEach((k,i)=>document.getElementById(ids[i]).value=a[k]||0);
+  document.getElementById('avPreview').textContent=a.total||0;
+  document.getElementById('avalMod').dataset.editId=id;
+  document.getElementById('avalMod').classList.add('on');
+}
+
+function delAval(id){
+  if(!confirm('Excluir esta avaliação?'))return;
+  AV=AV.filter(x=>x.id!==id);saveAval_store();renderAval();toast('🗑 Avaliação removida');
+}
+
+function noteColor(total){
+  if(total>=80)return'var(--ac)';if(total>=60)return'var(--yl)';if(total>=40)return'var(--or)';return'var(--rd)';
+}
+
+function renderAval(){
+  // Stats
+  const avgTotal=AV.length?Math.round(AV.reduce((s,a)=>s+a.total,0)/AV.length*10)/10:0;
+  const best=AV.length?Math.max(...AV.map(a=>a.total)):0;
+  const worst=AV.length?Math.min(...AV.map(a=>a.total)):0;
+  document.getElementById('avalStats').innerHTML=`
+    <div class="sc g"><div class="sv">${AV.length}</div><div class="sl">Avaliações</div></div>
+    <div class="sc y"><div class="sv">${avgTotal}</div><div class="sl">Média Geral /100</div></div>
+    <div class="sc c"><div class="sv">${best}</div><div class="sl">Melhor Nota</div></div>
+    <div class="sc r"><div class="sv">${worst}</div><div class="sl">Menor Nota</div></div>`;
+
+  // Table
+  const tb=document.getElementById('avalBody');
+  tb.innerHTML=AV.map(a=>{
+    const ids=['origem','impA','impB','impC','abrang','efic','padro'];
+    const maxes=[20,10,10,10,15,15,20];
+    return `<tr>
+      <td style="white-space:normal;max-width:180px;font-weight:600">${a.nome}</td>
+      ${ids.map((k,i)=>{
+        const v=a[k]||0;const pct=v/3*maxes[i];
+        return `<td style="text-align:center"><span style="color:${v>=2?'var(--ac)':v>=1?'var(--yl)':'var(--rd)'};font-weight:700">${Math.round(pct*10)/10}</span><span style="font-size:9px;color:var(--tm)"> (${v})</span></td>`;
+      }).join('')}
+      <td style="text-align:center;font-weight:800;font-size:15px;color:${noteColor(a.total)}">${a.total}</td>
+      <td style="white-space:normal;max-width:160px;font-size:11px;color:var(--td)">${(a.feedback||'—').substring(0,60)}</td>
+      <td><button class="btn btn-s btn-o" onclick="editAval('${a.id}')">✏️</button> <button class="btn btn-s btn-o" style="border-color:var(--rd);color:var(--rd)" onclick="delAval('${a.id}')">✕</button></td>
+    </tr>`;
+  }).join('');
+
+  // Charts
+  if(!AV.length){
+    ['aNotas','aRadar','aStack','aRank'].forEach(id=>{if(CI[id])CI[id].destroy()});
+    return;
+  }
+
+  // Nota final bar chart
+  mc('aNotas',{type:'bar',
+    data:{labels:AV.map(a=>a.nome.substring(0,25)),datasets:[{data:AV.map(a=>a.total),backgroundColor:AV.map(a=>a.total>=80?'#00e676bb':a.total>=60?'#ffd600bb':a.total>=40?'#ff9100bb':'#ff1744bb'),borderColor:AV.map(a=>a.total>=80?'#00e676':a.total>=60?'#ffd600':a.total>=40?'#ff9100':'#ff1744'),borderWidth:1}]},
+    options:{responsive:true,layout:{padding:{top:25}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',color:'#eee',font:{size:12,weight:700,family:'Outfit'},formatter:v=>v}},scales:{y:{beginAtZero:true,max:100,grid:{color:'#1a1a1a'}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+  // Radar
+  const avgPerCrit=CRIT_KEYS.map(k=>{const s=AV.reduce((t,a)=>t+(a[k]||0),0);return Math.round(s/AV.length*100)/100});
+  mc('aRadar',{type:'radar',
+    data:{labels:CRIT_LABELS,datasets:[{label:'Média',data:avgPerCrit,backgroundColor:'rgba(0,230,118,.12)',borderColor:'#00e676',borderWidth:2,pointBackgroundColor:'#00e676',pointRadius:5}]},
+    options:{responsive:true,plugins:{legend:{display:false},datalabels:{display:true,color:'#eee',font:{size:11,weight:600},backgroundColor:'rgba(0,0,0,.6)',borderRadius:4,padding:3,formatter:v=>v.toFixed(1)}},scales:{r:{min:0,max:3,ticks:{stepSize:1,color:'#555',backdropColor:'transparent'},grid:{color:'#222'},pointLabels:{color:'#aaa',font:{size:11}}}}}});
+
+  // Stacked bar per criterion
+  const datasets=AV.map((a,i)=>({
+    label:a.nome.substring(0,20),
+    data:CRIT_KEYS.map(k=>(a[k]||0)/3*PESOS[k]),
+    backgroundColor:COL[i%COL.length]+'88',
+    borderColor:COL[i%COL.length],borderWidth:1
+  }));
+  mc('aStack',{type:'bar',
+    data:{labels:CRIT_LABELS,datasets},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:10,font:{size:10}}},datalabels:{display:true,color:'#ddd',font:{size:10,weight:600},formatter:v=>v>0?Math.round(v*10)/10:''}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:'#1a1a1a'}}}}});
+
+  // Ranking horizontal
+  const sorted=[...AV].sort((a,b)=>b.total-a.total);
+  mc('aRank',{type:'bar',
+    data:{labels:sorted.map(a=>a.nome.substring(0,30)),datasets:[{data:sorted.map(a=>a.total),backgroundColor:sorted.map((a,i)=>i===0?'#00e676bb':i===1?'#ffd600bb':i===2?'#00e5ffbb':'rgba(255,255,255,.15)'),borderColor:sorted.map((a,i)=>i===0?'#00e676':i===1?'#ffd600':i===2?'#00e5ff':'rgba(255,255,255,.2)'),borderWidth:1}]},
+    options:{indexAxis:'y',responsive:true,layout:{padding:{right:45}},plugins:{legend:{display:false},datalabels:DL_BAR_END},scales:{x:{beginAtZero:true,max:100,grid:{color:'#1a1a1a'}},y:{grid:{display:false}}}}});
+}
+
+function expAvalCSV(){
+  if(!AV.length){toast('Nenhuma avaliação');return}
+  const h=['nome','data','avaliador','origem','impA','impB','impC','abrang','efic','padro','total','feedback'];
+  const csv=[h.join(';'),...AV.map(a=>h.map(c=>'"'+(a[c]??'')+'"').join(';'))].join('\n');
+  dl(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}),'avaliacoes_kaizen_'+td()+'.csv');
+  toast('📤 Avaliações exportadas');
+}
+
+// Close modal
+document.getElementById('avalMod')?.addEventListener('click',e=>{if(e.target===e.currentTarget)e.target.classList.remove('on')});
+
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>

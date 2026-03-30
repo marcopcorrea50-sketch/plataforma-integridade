@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Executivo de Integridade Estrutural</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand-block">
+        <div class="brand-logo-box">
+          <img src="assets/logo-vale.png" alt="Logo institucional" class="brand-logo" />
+        </div>
+
+        <div class="brand-text">
+          <span class="brand-overline">MODELO VPS</span>
+          <h1>Integridade Estrutural</h1>
+          <p>Portal moderno corporativo com foco em governança, inspeções, riscos, auditorias e evolução do sistema.</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" id="sidebarNav">
+        <button class="nav-item active" data-category="Todos">Dashboard VPS</button>
+        <button class="nav-item" data-category="Prática 1 – Propósito e Diretrizes">1. Compartilhar propósito e diretrizes</button>
+        <button class="nav-item" data-category="Prática 2 – Estratégia para Criar Valor">2. Planejar estratégia para criar valor</button>
+        <button class="nav-item" data-category="Prática 3 – Liderança e Engajamento">3. Liderar com inspiração e engajamento</button>
+        <button class="nav-item" data-category="Prática 4 – Pessoas">4. Capacitar e desenvolver pessoas</button>
+        <button class="nav-item" data-category="Prática 5 – Riscos e Segurança">5. Gerir riscos e segurança</button>
+        <button class="nav-item" data-category="Prática 6 – Execução com Excelência e Foco no Cliente">6. Executar com excelência e foco no cliente</button>
+        <button class="nav-item" data-category="Prática 7 – Rotina e Performance">7. Gerir rotina e performance</button>
+        <button class="nav-item" data-category="Prática 8 – Avaliações e Auditorias">8. Realizar avaliações e auditorias</button>
+        <button class="nav-item" data-category="Prática 9 – Melhoria Contínua e Inovação">9. Promover melhoria contínua e inovação</button>
+        <button class="nav-item" data-category="Prática 10 – Mudança e Evolução do Sistema de Gestão">10. Sustentar mudança e evoluir Sistema de Gestão</button>
+        <button class="nav-item" data-category="Documentos de Referência">Documentos de referência</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <p class="small-label">Resumo do ambiente</p>
+        <div class="status-card">
+          <strong id="totalModules">0</strong>
+          <span>Módulos cadastrados</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <span class="page-kicker">PORTAL EXECUTIVO</span>
+          <h2>Portal Executivo de Integridade Estrutural</h2>
+          <p>
+            Ambiente moderno e corporativo, estruturado pelas 10 práticas do VPS, para gestão de inspeções,
+            riscos, execução, rotina, auditorias, melhoria contínua e evolução do sistema.
+          </p>
+        </div>
+      </header>
+
+      <section class="hero-panels">
+        <article class="hero-card primary">
+          <span class="card-tag">Governança VPS</span>
+          <h3>Dashboard estratégico com foco operacional</h3>
+          <p>
+            Centralize módulos, evidências, relatórios, rotinas, auditorias e iniciativas da área
+            em um portal único com navegação por práticas do Sistema de Gestão.
+          </p>
+        </article>
+
+        <article class="hero-card">
+          <span class="card-tag">Cobertura</span>
+          <div class="mini-stats">
+            <div>
+              <strong id="statCategories">0</strong>
+              <span>Práticas</span>
+            </div>
+            <div>
+              <strong>PDCA</strong>
+              <span>Lógica do sistema</span>
+            </div>
+            <div>
+              <strong>1</strong>
+              <span>Portal único</span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="pdca-section">
+        <article class="pdca-card pdca-plan">
+          <span>PLANEJAR</span>
+          <p>Práticas 1, 2 e 3</p>
+        </article>
+        <article class="pdca-card pdca-do">
+          <span>EXECUTAR</span>
+          <p>Práticas 4, 5 e 6</p>
+        </article>
+        <article class="pdca-card pdca-check">
+          <span>CHECAR</span>
+          <p>Práticas 7 e 8</p>
+        </article>
+        <article class="pdca-card pdca-act">
+          <span>AGIR</span>
+          <p>Práticas 9 e 10</p>
+        </article>
+      </section>
+
+      <section class="toolbar">
+        <div class="search-box">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Buscar módulo por nome, descrição ou prática VPS..."
+          />
+        </div>
+
+        <div class="filter-box">
+          <select id="categoryFilter">
+            <option value="Todos">Todas as práticas</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="results-header">
+        <div>
+          <h3 id="sectionTitle">Dashboard VPS</h3>
+          <p id="resultsText">Carregando módulos...</p>
+        </div>
+      </section>
+
+      <section class="projects-grid" id="projectsGrid"></section>
+
+      <section class="empty-state hidden" id="emptyState">
+        <div class="empty-icon">📂</div>
+        <h3>Nenhum módulo localizado</h3>
+        <p>Revise a busca ou altere a prática selecionada.</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="data/projects.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
