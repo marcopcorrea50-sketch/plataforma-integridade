@@ -168,7 +168,8 @@ const projects = [
   priority: "Média",
   audience: "Gestão",
   link: "projects/fmds-pessoas-moderno/index.html"
-} { 
+}, 
+  { 
   id: "IE-018",
   title: "Relatório Inspeção Instrumentada",
   description: "Módulo para consulta e emissão do relatório de inspeção instrumentada.",
