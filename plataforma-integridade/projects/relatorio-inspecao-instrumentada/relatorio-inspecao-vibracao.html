@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório Vale - Análise de Vibração</title>
+    <style>
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; font-size: 10pt; margin: 0; }
+        
+        .container { 
+            width: 210mm; 
+            min-height: 297mm;
+            margin: 0 auto; 
+            background: white; 
+            padding: 10mm; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.1); 
+        }
+
+        /* Cabeçalho Vale */
+        .header-table { width: 100%; border-collapse: collapse; border: 2px solid #000; margin-bottom: 15px; }
+        .header-table td { border: 1px solid #000; padding: 5px; vertical-align: middle; }
+        .header-title { background: #007c41; color: white; font-weight: bold; text-align: center; font-size: 11pt; }
+        
+        input[type="text"], input[type="date"], select {
+            border: 1px solid #ddd;
+            padding: 4px;
+            font-family: Arial;
+            font-size: 9pt;
+        }
+
+        /* Seções */
+        .section { page-break-inside: avoid; margin-bottom: 15px; }
+        .section-title { 
+            background: #e8f5e9; 
+            color: #007c41; 
+            padding: 6px; 
+            font-weight: bold; 
+            border-left: 5px solid #007c41; 
+            margin: 15px 0 8px 0; 
+            font-size: 10pt;
+            display: flex;
+            align-items: center;
+        }
+
+        .editable { border: 1px dashed #ccc; padding: 10px; min-height: 40px; border-radius: 4px; line-height: 1.4; }
+        
+        /* Tabelas de Dados */
+        .data-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        .data-table th, .data-table td { border: 1px solid #000; padding: 5px; text-align: left; font-size: 9pt; }
+        .data-table th { background: #f2f2f2; }
+
+        /* Instrumentos e Evidências */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10mm; }
+        .media-card { 
+            border: 1px solid #ccc; 
+            padding: 8px; 
+            background: white; 
+            page-break-inside: avoid; /* IMPEDE CORTE NO PDF */
+            break-inside: avoid;
+            margin-bottom: 5px;
+        }
+        
+        .media-label { font-weight: bold; color: #007c41; font-size: 8pt; margin-bottom: 4px; display: block; }
+        
+        .media-container { 
+            width: 100%; 
+            height: 65mm; /* Altura fixa para manter proporção no A4 */
+            border: 1px solid #000; 
+            overflow: hidden; 
+            background: #eee; 
+        }
+        
+        .media-preview { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .caption-input { width: 100%; border: 1px solid #ccc; margin-top: 5px; padding: 5px; font-size: 9pt; }
+
+        /* Botões */
+        .btn-group { margin-bottom: 20px; display: flex; gap: 10px; }
+        .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; color: white; font-weight: bold; }
+        .btn-add { background: #007c41; }
+        .btn-print { background: #333; }
+        .remove-btn { background: #ff4d4d; color: white; border: none; padding: 2px 6px; cursor: pointer; float: right; font-size: 8pt; }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; width: 100%; padding: 0; margin: 0; }
+            .btn-group, .remove-btn, .no-print, input[type="file"] { display: none !important; }
+            .editable { border: none; padding: 0; }
+            input, select { border: none !important; background: transparent !important; appearance: none; -webkit-appearance: none; }
+            .media-card { border: 1px solid #000; }
+            @page { size: A4; margin: 15mm; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="btn-group no-print">
+        <button class="btn btn-print" onclick="window.print()">🖨️ Gerar PDF / Imprimir</button>
+        <button class="btn btn-add" onclick="addInstrument()">🔬 + Instrumento</button>
+        <button class="btn btn-add" onclick="addEvidence('photo')">📸 + Foto</button>
+        <button class="btn btn-add" onclick="addEvidence('video')" style="background:#e67e22">🎥 + Vídeo</button>
+    </div>
+
+    <table class="header-table">
+        <tr>
+            <td rowspan="2" style="width: 20%; text-align: center;">
+                <img src="https://logodownload.org/wp-content/uploads/2014/05/vale-logo-2.png" width="90">
+            </td>
+            <td class="header-title" colspan="2">INSPEÇÃO TÉCNICA: ANÁLISE DE VIBRAÇÃO</td>
+            <td style="width: 20%;"><b>Nº:</b> <input type="text" style="width:70%"></td>
+        </tr>
+        <tr>
+            <td><b>Ativo:</b> <input type="text" placeholder="TAG" style="width:80%"></td>
+            <td><b>Área:</b> <input type="text" style="width:80%"></td>
+            <td><b>Data:</b> <input type="date"></td>
+        </tr>
+    </table>
+
+    <div class="section">
+        <div class="section-title">1. NORMAS TÉCNICAS DE REFERÊNCIA</div>
+        <div class="editable" contenteditable="true">
+            • ISO 10816-3: Vibrações mecânicas em máquinas industriais.<br>
+            • ISO 20816-1: Medição e avaliação de vibração.<br>
+            • Normas internas Vale (PGS-003241).
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">2. EQUIPAMENTO DE MEDIÇÃO E REFERÊNCIAS</div>
+        <div id="instrumentArea" class="grid"></div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">3. DADOS DE VIBRAÇÃO (AMPLIFICAÇÃO / ESPECTRO)</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Ponto Medição</th>
+                    <th>Direção (H/V/A)</th>
+                    <th>Vel. Pico (mm/s)</th>
+                    <th>Vel. RMS (mm/s)</th>
+                    <th>Frequência Dominante</th>
+                </tr>
+            </thead>
+            <tbody id="dataTable">
+                <tr>
+                    <td><input type="text" style="width:100%"></td>
+                    <td><input type="text" style="width:100%"></td>
+                    <td><input type="text" style="width:100%"></td>
+                    <td><input type="text" style="width:100%"></td>
+                    <td><input type="text" style="width:100%"></td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="btn btn-add no-print" style="padding:2px 10px; font-size:8pt" onclick="addRow('dataTable')">+ Linha</button>
+    </div>
+
+    <div class="section">
+        <div class="section-title">4. EVIDÊNCIAS FOTOGRÁFICAS E VÍDEOS</div>
+        <div id="evidenceArea" class="grid"></div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">5. CONCLUSÃO E RECOMENDAÇÕES</div>
+        <div class="editable" contenteditable="true">Equipamento operando em níveis satisfatórios...</div>
+    </div>
+</div>
+
+<script>
+    function addRow(id) {
+        const table = document.getElementById(id);
+        const row = table.insertRow();
+        row.innerHTML = table.rows[0].innerHTML;
+    }
+
+    function addInstrument() {
+        const area = document.getElementById('instrumentArea');
+        const id = 'inst_' + Date.now();
+        const div = document.createElement('div');
+        div.className = 'media-card';
+        div.id = id;
+        div.innerHTML = `
+            <button class="remove-btn no-print" onclick="document.getElementById('${id}').remove()">❌</button>
+            <span class="media-label">INSTRUMENTO</span>
+            <b>Modelo:</b> <input type="text" style="width:70%"><br>
+            <b>Calibração:</b> <input type="text" style="width:65%"><br>
+            <input type="file" accept="image/*" class="no-print" onchange="previewMedia(this, '${id}')">
+            <div class="media-container" id="prev_${id}"></div>
+        `;
+        area.appendChild(div);
+    }
+
+    function addEvidence(type) {
+        const area = document.getElementById('evidenceArea');
+        const id = 'ev_' + Date.now();
+        const div = document.createElement('div');
+        div.className = 'media-card';
+        div.id = id;
+        const accept = type === 'photo' ? 'image/*' : 'video/*';
+        div.innerHTML = `
+            <button class="remove-btn no-print" onclick="document.getElementById('${id}').remove()">❌</button>
+            <span class="media-label">${type.toUpperCase()}</span>
+            <input type="file" accept="${accept}" class="no-print" onchange="previewMedia(this, '${id}', '${type}')">
+            <div class="media-container" id="prev_${id}"></div>
+            <input type="text" class="caption-input" placeholder="Descrição da evidência">
+        `;
+        area.appendChild(div);
+    }
+
+    function previewMedia(input, parentId, type) {
+        const file = input.files[0];
+        const prev = document.getElementById('prev_' + parentId);
+        if (file) {
+            const url = URL.createObjectURL(file);
+            if (type === 'video') {
+                prev.innerHTML = `<video src="${url}" class="media-preview"></video>`;
+            } else {
+                prev.innerHTML = `<img src="${url}" class="media-preview">`;
+            }
+        }
+    }
+</script>
+</body>
+</html>
