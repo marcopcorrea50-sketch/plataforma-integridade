@@ -168,6 +168,25 @@ const projects = [
   priority: "Média",
   audience: "Gestão",
   link: "projects/fmds-pessoas-moderno/index.html"
+} { 
+  id: "IE-018",
+  title: "Relatório Inspeção Instrumentada",
+  description: "Módulo para consulta e emissão do relatório de inspeção instrumentada.",
+  category: "Prática 8 – Avaliações e Auditorias",
+  icon: "📋",
+  priority: "Média",
+  audience: "Operacional",
+  link: "projects/relatorio-inspecao-instrumentada/index.html"
+},
+{ 
+  id: "IE-019",
+  title: "Relatório Inspeção Vibração",
+  description: "Módulo para consulta e emissão do relatório de inspeção de vibração.",
+  category: "Prática 8 – Avaliações e Auditorias",
+  icon: "📈",
+  priority: "Média",
+  audience: "Operacional",
+  link: "projects/relatorio-inspecao-instrumentada/relatorio-inspecao-vibracao.html"
 }
 ];
 
