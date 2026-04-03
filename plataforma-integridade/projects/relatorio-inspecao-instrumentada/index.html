@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório Vale - Medição de Dureza</title>
+    <style>
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; font-size: 10pt; margin: 0; }
+        
+        .container { 
+            width: 210mm; 
+            min-height: 297mm;
+            margin: 0 auto; 
+            background: white; 
+            padding: 10mm; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.1); 
+        }
+
+        /* Cabeçalho Vale */
+        .header-table { width: 100%; border-collapse: collapse; border: 2px solid #000; margin-bottom: 15px; }
+        .header-table td { border: 1px solid #000; padding: 5px; vertical-align: middle; }
+        .header-title { background: #004d40; color: white; font-weight: bold; text-align: center; font-size: 11pt; }
+        
+        input[type="text"], input[type="date"], input[type="number"], select {
+            border: 1px solid #ddd;
+            padding: 4px;
+            font-family: Arial;
+            font-size: 9pt;
+        }
+
+        /* Seções */
+        .section { page-break-inside: avoid; margin-bottom: 15px; }
+        .section-title { 
+            background: #e0f2f1; 
+            color: #004d40; 
+            padding: 6px; 
+            font-weight: bold; 
+            border-left: 5px solid #004d40; 
+            margin: 15px 0 8px 0; 
+            font-size: 10pt;
+        }
+
+        .editable { border: 1px dashed #ccc; padding: 10px; min-height: 60px; border-radius: 4px; line-height: 1.4; }
+        
+        /* Tabelas de Dados */
+        .data-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        .data-table th, .data-table td { border: 1px solid #000; padding: 5px; text-align: center; font-size: 9pt; }
+        .data-table th { background: #f2f2f2; }
+
+        /* Instrumentos e Evidências */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10mm; }
+        .media-card { 
+            border: 1px solid #000; 
+            padding: 8px; 
+            background: white; 
+            page-break-inside: avoid; 
+            break-inside: avoid;
+            margin-bottom: 5px;
+        }
+        
+        .media-label { font-weight: bold; color: #004d40; font-size: 8pt; margin-bottom: 4px; display: block; }
+        
+        .media-container { 
+            width: 100%; 
+            height: 65mm; 
+            border: 1px solid #000; 
+            overflow: hidden; 
+            background: #eee; 
+        }
+        
+        .media-preview { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .caption-input { width: 100%; border: 1px solid #ccc; margin-top: 5px; padding: 5px; font-size: 9pt; }
+
+        /* Botões */
+        .btn-group { margin-bottom: 20px; display: flex; gap: 10px; }
+        .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; color: white; font-weight: bold; }
+        .btn-add { background: #004d40; }
+        .btn-print { background: #333; }
+        .remove-btn { background: #ff4d4d; color: white; border: none; padding: 2px 6px; cursor: pointer; float: right; font-size: 8pt; }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; width: 100%; padding: 0; margin: 0; }
+            .btn-group, .remove-btn, .no-print, input[type="file"] { display: none !important; }
+            .editable { border: none; padding: 0; }
+            input, select { border: none !important; background: transparent !important; appearance: none; -webkit-appearance: none; }
+            @page { size: A4; margin: 15mm; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="btn-group no-print">
+        <button class="btn btn-print" onclick="window.print()">🖨️ Gerar PDF / Imprimir</button>
+        <button class="btn btn-add" onclick="addInstrument()">🔬 + Durômetro</button>
+        <button class="btn btn-add" onclick="addEvidence('photo')">📸 + Foto Ponto</button>
+        <button class="btn btn-add" onclick="addEvidence('video')" style="background:#00796b">🎥 + Vídeo Ensaio</button>
+    </div>
+
+    <!-- Cabeçalho Padrão Vale -->
+    <table class="header-table">
+        <tr>
+            <td rowspan="2" style="width: 20%; text-align: center;">
+                <img src="https://logodownload.org/wp-content/uploads/2014/05/vale-logo-2.png" width="90">
+            </td>
+            <td class="header-title" colspan="2">RELATÓRIO DE ENSAIO: MEDIÇÃO DE DUREZA</td>
+            <td style="width: 20%;"><b>Nº OS:</b> <input type="text" style="width:70%"></td>
+        </tr>
+        <tr>
+            <td><b>Componente:</b> <input type="text" style="width:75%"></td>
+            <td><b>Material:</b> <input type="text" style="width:75%"></td>
+            <td><b>Data:</b> <input type="date"></td>
+        </tr>
+    </table>
+
+    <div class="section">
+        <div class="section-title">1. NORMAS TÉCNICAS DE REFERÊNCIA</div>
+        <div class="editable" contenteditable="true">
+            • ASTM A956: Standard Test Method for Leeb Hardness Testing of Steel Products.<br>
+            • ASTM E10 / ASTM E18: Standard Test Methods for Brinell and Rockwell Hardness.<br>
+            • Procedimento Interno de Inspeção e Ensaios Não Destrutivos.
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">2. EQUIPAMENTO DE MEDIÇÃO E REFERÊNCIAS</div>
+        <div id="instrumentArea" class="grid"></div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">3. RESULTADOS DAS MEDIÇÕES (MÉDIAS)</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Ponto</th>
+                    <th>L1</th>
+                    <th>L2</th>
+                    <th>L3</th>
+                    <th>Média</th>
+                    <th>Unidade</th>
+                </tr>
+            </thead>
+            <tbody id="dataTable">
+                <tr>
+                    <td><input type="text" style="width:100%" placeholder="Ex: Face A"></td>
+                    <td><input type="number" onchange="calcMedia(this)" style="width:55px"></td>
+                    <td><input type="number" onchange="calcMedia(this)" style="width:55px"></td>
+                    <td><input type="number" onchange="calcMedia(this)" style="width:55px"></td>
+                    <td style="font-weight:bold; background:#f9f9f9;">-</td>
+                    <td><select><option>HRC</option><option>HB</option><option>HV</option></select></td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="btn btn-add no-print" style="padding:2px 10px; font-size:8pt" onclick="addRow('dataTable')">+ Adicionar Linha</button>
+    </div>
+
+    <div class="section">
+        <div class="section-title">4. EVIDÊNCIAS E REGISTROS DE ENSAIO</div>
+        <div id="evidenceArea" class="grid"></div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">5. CONCLUSÃO E RECOMENDAÇÕES</div>
+        <div class="editable" contenteditable="true">
+            Os valores de dureza obtidos estão em conformidade com a especificação técnica do material (Faixa esperada: XX - XX HRC).<br><br>
+            <b>Recomendações:</b><br>
+            • Nenhuma intervenção necessária no momento.<br>
+            • Realizar nova medição conforme plano de manutenção preventiva.
+        </div>
+    </div>
+</div>
+
+<script>
+    function addRow(id) {
+        const table = document.getElementById(id);
+        const row = table.insertRow();
+        row.innerHTML = table.rows[0].innerHTML;
+    }
+
+    function calcMedia(input) {
+        const row = input.parentNode.parentNode;
+        const v1 = parseFloat(row.cells[1].children[0].value) || 0;
+        const v2 = parseFloat(row.cells[2].children[0].value) || 0;
+        const v3 = parseFloat(row.cells[3].children[0].value) || 0;
+        if(v1 && v2 && v3) {
+            row.cells[4].innerText = ((v1 + v2 + v3) / 3).toFixed(1);
+        }
+    }
+
+    function addInstrument() {
+        const area = document.getElementById('instrumentArea');
+        const id = 'inst_' + Date.now();
+        const div = document.createElement('div');
+        div.className = 'media-card';
+        div.id = id;
+        div.innerHTML = `
+            <button class="remove-btn no-print" onclick="document.getElementById('${id}').remove()">❌</button>
+            <span class="media-label">INSTRUMENTO (DURÔMETRO)</span>
+            <b>Modelo:</b> <input type="text" style="width:70%"><br>
+            <b>Nº Série/Certificado:</b> <input type="text" style="width:60%"><br>
+            <input type="file" accept="image/*" class="no-print" onchange="previewMedia(this, '${id}')">
+            <div class="media-container" id="prev_${id}"></div>
+        `;
+        area.appendChild(div);
+    }
+
+    function addEvidence(type) {
+        const area = document.getElementById('evidenceArea');
+        const id = 'ev_' + Date.now();
+        const div = document.createElement('div');
+        div.className = 'media-card';
+        div.id = id;
+        const accept = type === 'photo' ? 'image/*' : 'video/*';
+        div.innerHTML = `
+            <button class="remove-btn no-print" onclick="document.getElementById('${id}').remove()">❌</button>
+            <span class="media-label">${type.toUpperCase()} DO ENSAIO</span>
+            <input type="file" accept="${accept}" class="no-print" onchange="previewMedia(this, '${id}', '${type}')">
+            <div class="media-container" id="prev_${id}"></div>
+            <input type="text" class="caption-input" placeholder="Descrição da evidência">
+        `;
+        area.appendChild(div);
+    }
+
+    function previewMedia(input, parentId, type) {
+        const file = input.files[0];
+        const prev = document.getElementById('prev_' + parentId);
+        if (file) {
+            const url = URL.createObjectURL(file);
+            if (type === 'video') {
+                prev.innerHTML = `<video src="${url}" class="media-preview"></video>`;
+            } else {
+                prev.innerHTML = `<img src="${url}" class="media-preview">`;
+            }
+        }
+    }
+</script>
+</body>
+</html>
