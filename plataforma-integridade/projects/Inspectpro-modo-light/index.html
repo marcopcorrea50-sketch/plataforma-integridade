@@ -917,6 +917,11 @@
                     <div class="template-title">Obras de Arte Especiais</div>
                     <div class="template-desc">Equipamentos customizados, vias de rolamento</div>
                 </div>
+                <div class="template-card" data-template="subestacao" onclick="selecionarTemplate('subestacao')">
+                    <span class="template-icon">⚡</span>
+                    <div class="template-title">Subestação</div>
+                    <div class="template-desc">Eletrocentros, edificação de subestação</div>
+                </div>
             </div>
         </div>
     </div>
@@ -1181,6 +1186,7 @@
                         <select id="tipoConclusao" style="flex:1;font-size:13px;padding:10px;cursor:pointer;">
                             <option value="">📝 Selecione o tipo de conclusão...</option>
                             <option value="automatica">✨ Conclusão Automática (Baseada nas Tarefas)</option>
+                            <option value="diagnostico_risco">🔬 Diagnóstico por Nível de Risco (Auto)</option>
                             <option value="com_anomalia">⚠️ Com Anomalia — Sem Risco à Operação</option>
                             <option value="sem_anomalia">✅ Sem Anomalia — Equipamento Conforme</option>
                         </select>
@@ -2844,6 +2850,42 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
                         ]
                     }
                 }
+            },
+            subestacao: {
+                nome: "⚡ Subestação",
+                temSubtipos: true,
+                subtipos: {
+                    'eletrocentros': {
+                        nome: "Eletrocentros",
+                        tarefas: [
+                            "INSPECIONAR FUNDAÇÕES E BASES CIVIS — Verificar trincas, fissuras, desagregação, recalque e armadura exposta.",
+                            "VERIFICAR CHUMBADORES E GROUT — Avaliar folgas, corrosão, rompimentos, solturas e falhas no grout das bases.",
+                            "INSPECIONAR A BASE METÁLICA / SKID — Verificar deformações, corrosão, desalinhamento, soldas e parafusos.",
+                            "AVALIAR PILARES, VIGAS E CONTRAVENTAMENTOS — Identificar empenos, flambagem, desalinhamento e perda de seção.",
+                            "INSPECIONAR LIGAÇÕES SOLDADAS E PARAFUSADAS — Verificar trincas, soldas deficientes, parafusos frouxos, faltantes ou corroídos.",
+                            "VERIFICAR COBERTURA E ESTRUTURA DE APOIO — Inspecionar terças, vigas de cobertura, pontos de infiltração e corrosão.",
+                            "AVALIAR FECHAMENTOS LATERAIS E ESTRUTURA SECUNDÁRIA — Verificar desprendimentos, amassamentos, corrosão e falhas de vedação.",
+                            "INSPECIONAR PISO E ACESSOS ESTRUTURAIS — Verificar piso, escadas, plataformas, guarda-corpos e corrimãos.",
+                            "VERIFICAR DRENAGEM E ENTORNO DA ESTRUTURA — Identificar acúmulo de água, erosão, umidade constante e lavagem de solo junto à base.",
+                            "REGISTRAR ANOMALIAS E CLASSIFICAR A CONDIÇÃO — Fotografar, localizar, descrever a anomalia e classificar a prioridade de intervenção."
+                        ]
+                    },
+                    'edificacao_subestacao': {
+                        nome: "Edificação Subestação",
+                        tarefas: [
+                            "INSPECIONAR FUNDAÇÕES E BASES CIVIS — Verificar trincas, fissuras, desagregação, recalque e armadura exposta.",
+                            "VERIFICAR CHUMBADORES E GROUT — Avaliar folgas, corrosão, rompimentos, solturas e falhas no grout das bases.",
+                            "INSPECIONAR A BASE METÁLICA / SKID — Verificar deformações, corrosão, desalinhamento, soldas e parafusos.",
+                            "AVALIAR PILARES, VIGAS E CONTRAVENTAMENTOS — Identificar empenos, flambagem, desalinhamento e perda de seção.",
+                            "INSPECIONAR LIGAÇÕES SOLDADAS E PARAFUSADAS — Verificar trincas, soldas deficientes, parafusos frouxos, faltantes ou corroídos.",
+                            "VERIFICAR COBERTURA E ESTRUTURA DE APOIO — Inspecionar terças, vigas de cobertura, pontos de infiltração e corrosão.",
+                            "AVALIAR FECHAMENTOS LATERAIS E ESTRUTURA SECUNDÁRIA — Verificar desprendimentos, amassamentos, corrosão e falhas de vedação.",
+                            "INSPECIONAR PISO E ACESSOS ESTRUTURAIS — Verificar piso, escadas, plataformas, guarda-corpos e corrimãos.",
+                            "VERIFICAR DRENAGEM E ENTORNO DA ESTRUTURA — Identificar acúmulo de água, erosão, umidade constante e lavagem de solo junto à base.",
+                            "REGISTRAR ANOMALIAS E CLASSIFICAR A CONDIÇÃO — Fotografar, localizar, descrever a anomalia e classificar a prioridade de intervenção."
+                        ]
+                    }
+                }
             }
         };
 
@@ -3160,6 +3202,46 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
             taskStates[op].descricao = descricao;
         }
 
+        // ═══ DIAGNÓSTICOS E RECOMENDAÇÕES POR NÍVEL DE RISCO (PRO-024969) ═══
+        const DIAGNOSTICOS_REC = {
+            'BAIXO': {
+                diagnostico: 'Não foram identificadas não conformidades estruturais relevantes no ativo inspecionado. Os elementos avaliados encontram-se em condição adequada de integridade, não apresentando indícios de degradação significativa que comprometam a segurança operacional ou a funcionalidade do sistema. A condição atual não demanda intervenção corretiva imediata.',
+                recomendacao: 'Recomenda-se manter o ativo em monitoramento por rota sistemática, conforme plano de inspeção estabelecido, assegurando o acompanhamento contínuo das condições operacionais. Não há necessidade de abertura de nota para intervenção neste momento.'
+            },
+            'MÉDIO': {
+                diagnostico: 'Foram identificadas discrepâncias pontuais nos elementos estruturais avaliados, sem comprometimento imediato da integridade do ativo. As anomalias observadas apresentam potencial de evolução ao longo do tempo, podendo impactar o desempenho estrutural caso não sejam tratadas. A condição requer acompanhamento sistemático e avaliação em inspeções subsequentes.',
+                recomendacao: 'Recomenda-se programação de intervenção corretiva, conforme criticidade da anomalia, bem como acompanhamento sistemático da condição. Sugere-se reavaliação em inspeção subsequente, visando monitorar a evolução do quadro identificado.'
+            },
+            'ALTO': {
+                diagnostico: 'Foram identificadas não conformidades relevantes nos elementos estruturais inspecionados, com impacto direto sobre a integridade do ativo. As condições observadas indicam processo de degradação em estágio avançado, podendo comprometer a segurança operacional e a continuidade do serviço. A anomalia demanda tratamento corretivo em prazo reduzido.',
+                recomendacao: 'Recomenda-se abertura de nota para execução de intervenção corretiva, visando a eliminação da anomalia identificada. Deve ser realizada avaliação técnica detalhada e definição de prazo para tratamento, considerando os riscos associados à continuidade operacional.'
+            },
+            'MUITO ALTO': {
+                diagnostico: 'Foi identificada condição crítica nos elementos estruturais avaliados, com elevado grau de comprometimento da integridade estrutural. A anomalia apresenta potencial de falha estrutural, podendo resultar em impacto severo à segurança operacional e à disponibilidade do ativo. A condição exige intervenção imediata e avaliação técnica detalhada.',
+                recomendacao: 'Recomenda-se abertura imediata de nota para intervenção corretiva em caráter prioritário. Sugere-se avaliação técnica urgente, podendo incluir restrições operacionais até a normalização das condições, bem como nova inspeção após execução das ações.'
+            }
+        };
+
+        function gerarConclusaoDiagnostico() {
+            const nivelOrdem = ['BAIXO', 'MÉDIO', 'ALTO', 'MUITO ALTO'];
+            let maiorNivel = '';
+            document.querySelectorAll('[id^="rec_risco_"]').forEach(el => {
+                const nivel = el.textContent.trim();
+                if (nivelOrdem.includes(nivel)) {
+                    if (maiorNivel === '' || nivelOrdem.indexOf(nivel) > nivelOrdem.indexOf(maiorNivel)) {
+                        maiorNivel = nivel;
+                    }
+                }
+            });
+            if (!maiorNivel) {
+                alert('⚠️ Nenhuma recomendação com nível de risco calculado encontrada.\nPreencha as Recomendações e suas classificações de risco primeiro.');
+                return '';
+            }
+            const existente = document.getElementById('conclusao').value.trim();
+            const diagnostico = DIAGNOSTICOS_REC[maiorNivel].diagnostico;
+            return existente ? existente + '\n\n' + diagnostico : diagnostico;
+        }
+
         // Função para gerar conclusão padrão baseada nas tarefas
         function gerarConclusaoSelecionada() {
             const tipo = document.getElementById('tipoConclusao').value;
@@ -3174,6 +3256,10 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
             if (tipo === 'automatica') {
                 // Gerar conclusão automática baseada nas tarefas
                 conclusao = gerarConclusaoAutomatica();
+            } else if (tipo === 'diagnostico_risco') {
+                // Diagnóstico baseado no maior nível de risco das recomendações
+                conclusao = gerarConclusaoDiagnostico();
+                if (!conclusao) return;
             } else if (tipo === 'com_anomalia') {
                 // Conclusão padrão: COM ANOMALIA - SEM RISCO
                 conclusao = `APÓS INSPEÇÃO EM CAMPO, SEGUINDO A LISTA DE TAREFAS DO RESPECTIVO PLANO SISTEMÁTICO, FORAM IDENTIFICADAS ANOMALIAS ESTRUTURAIS QUE ESTÃO REGISTRADAS E SOB GESTÃO DO PROCESSO DE INTEGRIDADE ESTRUTURAL, ENTRETANTO, TAIS CONDIÇÕES NÃO OFERECEM RISCO À SEGURANÇA DAS PESSOAS E À OPERAÇÃO DO ATIVO.
@@ -3287,19 +3373,19 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                 <button type="button" class="remove-btn" onclick="removerRecomendacao(${recomendacaoCount})">×</button>
                 
                 <div class="form-group" style="margin-bottom: 15px;">
-                    <label style="font-weight: 700; color: #00e68a;">Descrição da Recomendação</label>
-                    <textarea id="rec_descricao_${recomendacaoCount}" name="rec_descricao_${recomendacaoCount}" 
+                    <label style="font-weight: 700; color: #00694d;">Descrição da Recomendação</label>
+                    <textarea id="rec_descricao_${recomendacaoCount}" name="rec_descricao_${recomendacaoCount}"
                         placeholder="Descreva a recomendação..." rows="3"></textarea>
                 </div>
                 
-                <div style="background: #0d0d0d; padding: 15px; border-radius: 8px; border: 2px solid #1f1f1f; margin-bottom: 15px;">
-                    <h4 style="margin: 0 0 15px 0; color: #00e68a; font-size: 14px;">📊 CLASSIFICAÇÃO DE RISCO (PRO-024969)</h4>
-                    
+                <div style="background: #f0f7f4; padding: 15px; border-radius: 8px; border: 2px solid #c3ddd4; margin-bottom: 15px;">
+                    <h4 style="margin: 0 0 15px 0; color: #00694d; font-size: 14px;">📊 CLASSIFICAÇÃO DE RISCO (PRO-024969)</h4>
+
                     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px;">
                         <!-- CLASSE DE DEGRADAÇÃO -->
                         <div class="form-group" style="margin: 0;">
-                            <label style="font-size: 12px; font-weight: 700;">Classe Degradação (CD)</label>
-                            <select id="rec_cd_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount}); atualizarDescricaoCD(${recomendacaoCount})" style="font-size: 12px;">
+                            <label style="font-size: 12px; font-weight: 700; color: #374151;">Classe Degradação (CD)</label>
+                            <select id="rec_cd_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount}); atualizarDescricaoCD(${recomendacaoCount})" style="font-size: 12px; background:#ffffff; color:#111827; border:1.5px solid #d1d5db;">
                                 <option value="">Selecione...</option>
                                 <option value="1">CD 1 - Pontuação 1</option>
                                 <option value="2">CD 2 - Pontuação 2</option>
@@ -3307,61 +3393,61 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                                 <option value="4">CD 4 - Pontuação 4</option>
                                 <option value="5">CD 5 - Pontuação 5</option>
                             </select>
-                            <div id="desc_cd_${recomendacaoCount}" style="font-size: 11px; color: #a0a0a0; margin-top: 5px; font-style: italic; min-height: 32px;"></div>
+                            <div id="desc_cd_${recomendacaoCount}" style="font-size: 11px; color: #6b7280; margin-top: 5px; font-style: italic; min-height: 32px;"></div>
                         </div>
-                        
+
                         <!-- ASSOCIAÇÃO DE FATORES -->
                         <div class="form-group" style="margin: 0;">
-                            <label style="font-size: 12px; font-weight: 700;">Associação de Fatores (AF)</label>
-                            <select id="rec_af_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount}); atualizarDescricaoAF(${recomendacaoCount})" style="font-size: 12px;">
+                            <label style="font-size: 12px; font-weight: 700; color: #374151;">Associação de Fatores (AF)</label>
+                            <select id="rec_af_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount}); atualizarDescricaoAF(${recomendacaoCount})" style="font-size: 12px; background:#ffffff; color:#111827; border:1.5px solid #d1d5db;">
                                 <option value="">Selecione...</option>
                                 <option value="1.0">AF1 - Pontuação 1,0</option>
                                 <option value="1.5">AF2 - Pontuação 1,5</option>
                                 <option value="2.0">AF3 - Pontuação 2,0</option>
                             </select>
-                            <div id="desc_af_${recomendacaoCount}" style="font-size: 11px; color: #a0a0a0; margin-top: 5px; font-style: italic; min-height: 32px;"></div>
+                            <div id="desc_af_${recomendacaoCount}" style="font-size: 11px; color: #6b7280; margin-top: 5px; font-style: italic; min-height: 32px;"></div>
                         </div>
-                        
+
                         <!-- FUNÇÃO ESTRUTURAL -->
                         <div class="form-group" style="margin: 0;">
-                            <label style="font-size: 12px; font-weight: 700;">Função Estrutural (FE)</label>
-                            <select id="rec_fe_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount}); atualizarDescricaoFE(${recomendacaoCount})" style="font-size: 12px;">
+                            <label style="font-size: 12px; font-weight: 700; color: #374151;">Função Estrutural (FE)</label>
+                            <select id="rec_fe_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount}); atualizarDescricaoFE(${recomendacaoCount})" style="font-size: 12px; background:#ffffff; color:#111827; border:1.5px solid #d1d5db;">
                                 <option value="">Selecione...</option>
                                 <option value="3.0">Primário - Pontuação 3,0</option>
                                 <option value="1.0">Secundária - Pontuação 1,0</option>
                                 <option value="0.5">Não estrutural - Pontuação 0,5</option>
                             </select>
-                            <div id="desc_fe_${recomendacaoCount}" style="font-size: 11px; color: #a0a0a0; margin-top: 5px; font-style: italic; min-height: 32px;"></div>
+                            <div id="desc_fe_${recomendacaoCount}" style="font-size: 11px; color: #6b7280; margin-top: 5px; font-style: italic; min-height: 32px;"></div>
                         </div>
-                        
+
                         <!-- SEVERIDADE COLAPSO -->
                         <div class="form-group" style="margin: 0;">
-                            <label style="font-size: 12px; font-weight: 700;">Severidade do Colapso (SC)</label>
-                            <select id="rec_sc_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount}); atualizarDescricaoSC(${recomendacaoCount})" style="font-size: 12px;">
+                            <label style="font-size: 12px; font-weight: 700; color: #374151;">Severidade do Colapso (SC)</label>
+                            <select id="rec_sc_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount}); atualizarDescricaoSC(${recomendacaoCount})" style="font-size: 12px; background:#ffffff; color:#111827; border:1.5px solid #d1d5db;">
                                 <option value="">Selecione...</option>
                                 <option value="5.0">Alta - Pontuação 5,0</option>
                                 <option value="3.0">Média - Pontuação 3,0</option>
                                 <option value="1.0">Baixa - Pontuação 1,0</option>
                             </select>
-                            <div id="desc_sc_${recomendacaoCount}" style="font-size: 11px; color: #a0a0a0; margin-top: 5px; font-style: italic; min-height: 32px;"></div>
+                            <div id="desc_sc_${recomendacaoCount}" style="font-size: 11px; color: #6b7280; margin-top: 5px; font-style: italic; min-height: 32px;"></div>
                         </div>
                     </div>
-                    
+
                     <!-- RESULTADO CALCULADO -->
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-                        <div style="background: #111111; padding: 10px; border-radius: 5px; text-align: center;">
-                            <label style="font-size: 11px; color: #a0a0a0; display: block; margin-bottom: 5px;">Pontuação Geral</label>
-                            <div id="rec_pontuacao_${recomendacaoCount}" style="font-size: 20px; font-weight: 700; color: #00e68a;">-</div>
+                        <div style="background: #ffffff; border: 1.5px solid #d1d5db; padding: 10px; border-radius: 5px; text-align: center;">
+                            <label style="font-size: 11px; color: #6b7280; display: block; margin-bottom: 5px;">Pontuação Geral</label>
+                            <div id="rec_pontuacao_${recomendacaoCount}" style="font-size: 20px; font-weight: 700; color: #00694d;">-</div>
                         </div>
-                        
-                        <div style="background: #111111; padding: 10px; border-radius: 5px; text-align: center;">
-                            <label style="font-size: 11px; color: #a0a0a0; display: block; margin-bottom: 5px;">Nível de Risco</label>
-                            <div id="rec_risco_${recomendacaoCount}" style="font-size: 16px; font-weight: 700;">-</div>
+
+                        <div style="background: #ffffff; border: 1.5px solid #d1d5db; padding: 10px; border-radius: 5px; text-align: center;">
+                            <label style="font-size: 11px; color: #6b7280; display: block; margin-bottom: 5px;">Nível de Risco</label>
+                            <div id="rec_risco_${recomendacaoCount}" style="font-size: 16px; font-weight: 700; color: #374151;">-</div>
                         </div>
-                        
-                        <div style="background: #111111; padding: 10px; border-radius: 5px; text-align: center;">
-                            <label style="font-size: 11px; color: #a0a0a0; display: block; margin-bottom: 5px;">Prazo</label>
-                            <div id="rec_prazo_${recomendacaoCount}" style="font-size: 16px; font-weight: 700;">-</div>
+
+                        <div style="background: #ffffff; border: 1.5px solid #d1d5db; padding: 10px; border-radius: 5px; text-align: center;">
+                            <label style="font-size: 11px; color: #6b7280; display: block; margin-bottom: 5px;">Prazo</label>
+                            <div id="rec_prazo_${recomendacaoCount}" style="font-size: 16px; font-weight: 700; color: #374151;">-</div>
                         </div>
                     </div>
                 </div>
@@ -3463,6 +3549,14 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
             riscoElement.style.fontWeight = '700';
             
             document.getElementById(`rec_prazo_${id}`).textContent = prazo;
+
+            // Auto-preencher descrição da recomendação com texto do PRO-024969
+            const descEl = document.getElementById(`rec_descricao_${id}`);
+            if (descEl && DIAGNOSTICOS_REC[risco]) {
+                descEl.value = DIAGNOSTICOS_REC[risco].recomendacao;
+                descEl.style.border = '2px solid ' + corRisco;
+                setTimeout(() => { descEl.style.border = ''; }, 1200);
+            }
         }
 
         // Função para remover recomendação
@@ -3504,7 +3598,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                     
                     const status = taskState.status || 'PENDENTE';
                     const tarefaIndex = parseInt(numero) - 1;
-                    const tarefaNome = tarefas[tarefaIndex];
+                    const tarefaNome = taskState.textoCustom || taskState.textoOriginal || tarefas[tarefaIndex];
                     
                     // Contar fotos já existentes para esta tarefa
                     if (!taskState.fotos) taskState.fotos = [];
@@ -3590,7 +3684,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                 const taskState = taskStates[numero];
                 const status = taskState ? taskState.status || 'PENDENTE' : 'PENDENTE';
                 const tarefaIndex = parseInt(numero) - 1;
-                const tarefaNome = tarefas[tarefaIndex] || 'Operação';
+                const tarefaNome = (taskState && taskState.textoCustom) || (taskState && taskState.textoOriginal) || tarefas[tarefaIndex] || 'Operação';
                 
                 // Criar grupo
                 const opGroup = document.createElement('div');
@@ -3710,7 +3804,13 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                 conclusao: getVal('conclusao'),
                 tarefas: [],
                 recomendacoes: [],
-                fotos: fotosData || []
+                fotos: fotosData || [],
+                notaYE: document.getElementById('notaYE')?.checked || false,
+                textoYE: getVal('textoYE'),
+                notaYN: document.getElementById('notaYN')?.checked || false,
+                textoYN: getVal('textoYN'),
+                notaOutros: document.getElementById('notaOutros')?.checked || false,
+                textoOutros: getVal('outrosNotasTexto')
             };
             
             // Validar campos essenciais
@@ -3740,7 +3840,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                 if (status !== 'N/A') {
                     dados.tarefas.push({
                         op: numero,
-                        descricao: tarefa,
+                        descricao: taskState.textoCustom || taskState.textoOriginal || tarefa,
                         status: status,
                         naoConformidade: status === 'NÃO CONFORME' ? taskState.descricao : ''
                     });
@@ -4123,6 +4223,35 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                 `;
             }
             
+            // HTML das demandas técnicas e operacionais
+            let demandasHTML = '';
+            const temYE = dados.notaYE && dados.textoYE && dados.textoYE.trim();
+            const temYN = dados.notaYN && dados.textoYN && dados.textoYN.trim();
+            const temOutros = dados.notaOutros && dados.textoOutros && dados.textoOutros.trim();
+            if (temYE || temYN || temOutros) {
+                demandasHTML = `
+                    <div style="margin-top:12px;page-break-inside:avoid;">
+                        <div style="background:#0D4D3D;color:white;padding:6px 10px;font-size:11px;font-weight:bold;margin-bottom:8px;">
+                            📋 DEMANDAS TÉCNICAS E OPERACIONAIS
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:8px;">
+                            ${temYE ? `<div style="background:#e8f4f8;border-left:4px solid #0077b6;padding:8px 10px;border-radius:3px;">
+                                <div style="font-size:8px;font-weight:bold;color:#0077b6;margin-bottom:4px;">📐 YE — ENGENHARIA</div>
+                                <div style="font-size:9px;color:#333333;line-height:1.5;white-space:pre-wrap;">${dados.textoYE}</div>
+                            </div>` : ''}
+                            ${temYN ? `<div style="background:#f0f9e8;border-left:4px solid #2d6a4f;padding:8px 10px;border-radius:3px;">
+                                <div style="font-size:8px;font-weight:bold;color:#2d6a4f;margin-bottom:4px;">🧹 YN — PARA LIMPEZA</div>
+                                <div style="font-size:9px;color:#333333;line-height:1.5;white-space:pre-wrap;">${dados.textoYN}</div>
+                            </div>` : ''}
+                            ${temOutros ? `<div style="background:#fdf6e3;border-left:4px solid #856404;padding:8px 10px;border-radius:3px;">
+                                <div style="font-size:8px;font-weight:bold;color:#856404;margin-bottom:4px;">📌 OUTROS</div>
+                                <div style="font-size:9px;color:#333333;line-height:1.5;white-space:pre-wrap;">${dados.textoOutros}</div>
+                            </div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
             element.innerHTML = `
                 <div style="width: 100%; box-sizing: border-box;">
                     <!-- CABEÇALHO -->
@@ -4216,7 +4345,9 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                     </div>
                     
                     ${recomendacoesHTML}
-                    
+
+                    ${demandasHTML}
+
                     ${fotosHTML}
                     
                     <!-- ASSINATURA -->
