@@ -1172,6 +1172,7 @@
             <!-- ═══ BOTÕES DE AÇÃO ═══ -->
             <div class="action-buttons">
                 <button type="button" class="btn btn-secondary" onclick="limparFormulario()">Limpar Formulário</button>
+                <button type="button" class="btn btn-secondary" onclick="abrirPreviaEditavel()" style="background:var(--accent);color:#000;border-color:var(--accent);">✏️ Prévia Editável</button>
                 <button type="button" class="btn btn-primary" onclick="gerarPDF()">📄 Gerar PDF</button>
             </div>
         </form>
@@ -4016,6 +4017,438 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
             }
         }
 
+        // ═══════════════════════════════════════════════════════
+        // PRÉVIA EDITÁVEL — funções compartilhadas
+        // ═══════════════════════════════════════════════════════
+
+        function gerarPaginaEditavel(titulo, corBarra, conteudoHTML, nomeArquivo, modoLaudo) {
+            nomeArquivo = nomeArquivo || titulo.replace(/[^a-zA-Z0-9_\-]/g,'_') + '.pdf';
+            modoLaudo = !!modoLaudo;
+            return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>✏️ Prévia — ${titulo}</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\/script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Arial, sans-serif; background: #e5e7eb; }
+
+  /* ── TOOLBAR ── */
+  #toolbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+    background: ${corBarra}; color: white;
+    padding: 10px 24px; display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+  }
+  #toolbar .ttitle { font-size: 14px; font-weight: 700; flex: 1; }
+  #toolbar .thint  { font-size: 11px; opacity: 0.78; }
+  #toolbar .tbtn {
+    padding: 8px 18px; border: none; border-radius: 6px;
+    font-weight: 700; cursor: pointer; font-size: 13px; white-space: nowrap;
+    background: #ffffff; color: ${corBarra};
+  }
+  #toolbar .tbtn:hover { opacity: 0.85; }
+
+  /* ── PÁGINA (tela) ── */
+  #page-wrap { padding: 70px 0 40px; display: flex; justify-content: center; }
+  #report-box {
+    width: 210mm; background: #ffffff;
+    padding: ${modoLaudo ? '0' : '12mm 15mm'}; margin: 16px auto;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18); border-radius: 3px;
+    font-family: Arial, sans-serif;
+  }
+
+  /* Neutralizar page-break na tela — evita espaços em branco enormes */
+  @media screen {
+    #report-box * {
+      page-break-before: auto !important;
+      page-break-after:  auto !important;
+      break-before: auto !important;
+      break-after:  auto !important;
+    }
+  }
+
+  /* ── EDIÇÃO ── */
+  [contenteditable="true"] { outline: none; cursor: text; }
+  [contenteditable="true"]:hover { box-shadow: 0 0 0 2px rgba(0,180,130,0.4); border-radius: 2px; }
+  [contenteditable="true"]:focus { box-shadow: 0 0 0 2px #00b482; border-radius: 2px; background: rgba(0,180,130,0.04); }
+
+  /* ── TROCAR FOTO ── */
+  .foto-wrap { position: relative; display: inline-block; width: 100%; }
+  .foto-wrap img { display: block; max-width: 100%; height: auto; }
+  .foto-trocar-btn {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.72); color: #fff;
+    border: none; border-radius: 5px; padding: 5px 12px;
+    font-size: 11px; font-weight: 700; cursor: pointer;
+    white-space: nowrap; z-index: 5; transition: background 0.2s;
+  }
+  .foto-trocar-btn:hover { background: rgba(0,0,0,0.9); }
+
+  /* ── LAUDOS: reset de posicionamento herdado ── */
+  #report-box > div {
+    position: relative !important;
+    width: 100% !important; max-width: 100% !important;
+    left: auto !important; top: auto !important;
+    overflow: visible !important;
+  }
+
+  /* ── IMPRESSÃO ── */
+  @page { size: A4; margin: 10mm 12mm; }
+  @media print {
+    #toolbar, .foto-trocar-btn { display: none !important; }
+    html, body { margin: 0 !important; padding: 0 !important; background: white !important; }
+    #page-wrap  { padding: 0 !important; margin: 0 !important; display: block !important; }
+    #report-box {
+      width: 100% !important;
+      padding: 0 !important; margin: 0 !important;
+      box-shadow: none !important; border-radius: 0 !important;
+    }
+    .pbefore { page-break-before: always !important; break-before: page !important; }
+    img { max-width: 100% !important; height: auto !important; page-break-inside: avoid; }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  }
+</style>
+</head>
+<body>
+<div id="toolbar">
+  <span class="ttitle">✏️ Prévia Editável — ${titulo}</span>
+  <span class="thint">Clique em qualquer texto para editar • Clique na foto para trocar</span>
+  <button class="tbtn" id="btn-gerar-pdf" onclick="gerarPDFFinal()">📄 Gerar PDF Final</button>
+</div>
+<div id="page-wrap"><div id="report-box">${conteudoHTML}</div></div>
+<script>
+  // 1. Capturar page-break-before:always → classe .pbefore (restaurada só na impressão)
+  document.querySelectorAll('#report-box [style]').forEach(function(el) {
+    var s = el.style;
+    if (s.pageBreakBefore === 'always' || s.breakBefore === 'page' || s.breakBefore === 'always') {
+      el.classList.add('pbefore');
+      s.pageBreakBefore = '';
+      s.breakBefore = '';
+    }
+    if (s.minHeight && parseFloat(s.minHeight) > 200) s.minHeight = 'auto';
+  });
+
+  // 2. Tornar textos editáveis
+  document.querySelectorAll('#report-box *').forEach(function(el) {
+    var skip = ['script','style','img','svg','path','input','select','textarea','button'];
+    if (skip.includes(el.tagName.toLowerCase())) return;
+    var hasOnlyText = Array.from(el.childNodes).every(function(n){
+      return n.nodeType === 3 || (n.nodeType === 1 && ['STRONG','EM','B','I','SPAN','BR','A'].includes(n.tagName));
+    });
+    if (hasOnlyText && el.textContent.trim().length > 0) {
+      el.setAttribute('contenteditable','true');
+    }
+  });
+
+  // 3. Adicionar botão "Trocar foto" em cada imagem
+  document.querySelectorAll('#report-box img').forEach(function(img) {
+    if (img.style.height && parseFloat(img.style.height) > 400) img.style.height = 'auto';
+    var parent = img.parentNode;
+    if (parent && parent.classList && parent.classList.contains('foto-wrap')) return;
+
+    var btn = document.createElement('button');
+    btn.className = 'foto-trocar-btn';
+    btn.textContent = '📷 Trocar foto';
+    btn.onclick = function(e) {
+      e.stopPropagation();
+      var inp = document.createElement('input');
+      inp.type = 'file'; inp.accept = 'image/*';
+      inp.onchange = function() {
+        if (!inp.files[0]) return;
+        var reader = new FileReader();
+        reader.onload = function(ev) { img.src = ev.target.result; };
+        reader.readAsDataURL(inp.files[0]);
+      };
+      inp.click();
+    };
+
+    if (img.style.position === 'absolute') {
+      // Fotos de laudo (position:absolute) — normalizar para exibição correta
+      img.style.position = 'relative';
+      img.style.top = '';
+      img.style.left = '';
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.display = 'block';
+      parent.appendChild(btn);
+    } else {
+      // Fotos normais do relatório — envolver em foto-wrap
+      var wrap = document.createElement('div');
+      wrap.className = 'foto-wrap';
+      parent.insertBefore(wrap, img);
+      wrap.appendChild(img);
+      wrap.appendChild(btn);
+    }
+  });
+
+  // 4. Gerar PDF Final — layout normalizado + recorte nos .pbefore, máx. 3 páginas
+  async function gerarPDFFinal() {
+    var btn      = document.getElementById('btn-gerar-pdf');
+    var toolbar  = document.getElementById('toolbar');
+    var pageWrap = document.getElementById('page-wrap');
+    var reportBox = document.getElementById('report-box');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Gerando PDF...'; }
+    try {
+      var jsPDFLib = window.jspdf && window.jspdf.jsPDF;
+      if (!jsPDFLib) throw new Error('jsPDF não carregado');
+
+      // 1. Ocultar UI + normalizar #report-box para coincidir com criarElementoPDF
+      toolbar.style.display = 'none';
+      pageWrap.style.paddingTop = '0';
+      document.querySelectorAll('.foto-trocar-btn').forEach(function(b){ b.style.visibility='hidden'; });
+      var savedRB = {
+        boxShadow:    reportBox.style.boxShadow,
+        borderRadius: reportBox.style.borderRadius,
+        margin:       reportBox.style.margin,
+        padding:      reportBox.style.padding
+      };
+      reportBox.style.boxShadow    = 'none';
+      reportBox.style.borderRadius = '0';
+      reportBox.style.margin       = '0 auto';
+      reportBox.style.padding      = '${modoLaudo ? '0' : '15mm'}';
+      await new Promise(function(r){ setTimeout(r, 300); }); // aguardar reflow
+
+      var pdf = new jsPDFLib('p', 'mm', 'a4');
+      var PW = 210, PH = 297, SC = 2, MAX_PAG = 3;
+
+      // 2. LAUDO: ocultar Tabela 22 + compactar espaçamentos antes da captura
+      var _lc = [];
+      if (${modoLaudo}) {
+        reportBox.querySelectorAll('div').forEach(function(t) {
+          var fc = Array.from(t.children||[]);
+          if (fc.some(function(f){return f.textContent&&f.textContent.includes('Tabela 22');}) &&
+              fc.some(function(f){return f.tagName==='TABLE';})) {
+            _lc.push({el:t,p:'display',v:t.style.display}); t.style.display='none';
+          }
+        });
+        reportBox.querySelectorAll('div').forEach(function(d) {
+          if (d.style.gap&&parseFloat(d.style.gap)>=10){_lc.push({el:d,p:'gap',v:d.style.gap});d.style.gap='5px';}
+          if (d.style.marginTop&&parseFloat(d.style.marginTop)>=15){_lc.push({el:d,p:'marginTop',v:d.style.marginTop});d.style.marginTop='6px';}
+          if (d.style.marginBottom&&parseFloat(d.style.marginBottom)>=15){_lc.push({el:d,p:'marginBottom',v:d.style.marginBottom});d.style.marginBottom='6px';}
+        });
+        Array.from(reportBox.children).forEach(function(c) {
+          if (c.tagName==='DIV'&&c.style.padding){_lc.push({el:c,p:'padding',v:c.style.padding});c.style.padding='8px 10px';}
+        });
+        // Normalizar fotos absolutas para evitar corte no html2canvas
+        reportBox.querySelectorAll('img').forEach(function(img) {
+          var wrap = img.parentElement;
+          if (wrap && getComputedStyle(img).position === 'absolute') {
+            _lc.push({el:wrap,p:'height',v:wrap.style.height});
+            _lc.push({el:wrap,p:'overflow',v:wrap.style.overflow});
+            _lc.push({el:wrap,p:'position',v:wrap.style.position});
+            _lc.push({el:img,p:'position',v:img.style.position});
+            _lc.push({el:img,p:'width',v:img.style.width});
+            _lc.push({el:img,p:'height',v:img.style.height});
+            _lc.push({el:img,p:'top',v:img.style.top});
+            _lc.push({el:img,p:'left',v:img.style.left});
+            _lc.push({el:img,p:'objectFit',v:img.style.objectFit});
+            wrap.style.height = 'auto';
+            wrap.style.overflow = 'visible';
+            wrap.style.position = 'relative';
+            img.style.position = 'relative';
+            img.style.width = '100%';
+            img.style.height = 'auto';
+            img.style.top = '';
+            img.style.left = '';
+            img.style.objectFit = '';
+          }
+        });
+        await new Promise(function(r){ setTimeout(r, 300); });
+      }
+
+      // 3. Posições dos .pbefore (apenas modo relatório)
+      var boxTop = reportBox.getBoundingClientRect().top;
+      var breakYs = [0];
+      if (!${modoLaudo}) {
+        reportBox.querySelectorAll('.pbefore').forEach(function(el) {
+          if (breakYs.length >= MAX_PAG) return;
+          var y = Math.round(el.getBoundingClientRect().top - boxTop);
+          if (y > 20) breakYs.push(y);
+        });
+      }
+      breakYs.push(reportBox.offsetHeight);
+
+      // 4. Capturar canvas
+      var canvas = await html2canvas(reportBox, {
+        scale: SC, useCORS: true, allowTaint: true, backgroundColor: '#ffffff', logging: false
+      });
+
+      // 5. Restaurar estilos
+      Object.assign(reportBox.style, savedRB);
+      toolbar.style.display = '';
+      pageWrap.style.paddingTop = '';
+      document.querySelectorAll('.foto-trocar-btn').forEach(function(b){ b.style.visibility=''; });
+      if (${modoLaudo}) { _lc.forEach(function(c){ c.el.style[c.p]=c.v; }); }
+
+      // 6. Construir páginas PDF
+      if (${modoLaudo}) {
+        // Laudo: comprime para caber em no máximo 2 páginas
+        var mX=2, mT=3, usH=PH-mT-5, iW=PW-(mX*2);
+        var natH=(canvas.height*iW)/canvas.width;
+        var iH=Math.min(natH,usH*2);
+        var imgD=canvas.toDataURL('image/jpeg',0.95);
+        pdf.addImage(imgD,'JPEG',mX,mT,iW,iH);
+        if (iH>usH){ pdf.addPage(); pdf.addImage(imgD,'JPEG',mX,mT-usH,iW,iH); }
+      } else {
+        // Relatório: fatia em segmentos A4 pelos .pbefore
+        var A4px = Math.round(PH * canvas.width / PW);
+        var adicionarSegmento = function(yStart, yFim, primeiraP, maxPags) {
+          var offset = yStart, usado = 0;
+          while (offset < yFim && usado < maxPags) {
+            var sliceH = Math.min(A4px, yFim - offset);
+            var s = document.createElement('canvas');
+            s.width = canvas.width; s.height = sliceH;
+            s.getContext('2d').drawImage(canvas, 0, -offset);
+            if (!primeiraP || usado > 0) pdf.addPage();
+            pdf.addImage(s.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, PW, (sliceH * PW) / canvas.width);
+            offset += sliceH; usado++;
+          }
+          return usado;
+        };
+        if (breakYs.length <= 2) {
+          adicionarSegmento(0, canvas.height, true, 999);
+        } else {
+          adicionarSegmento(breakYs[0] * SC, breakYs[1] * SC, true, 1);
+          var pgsUsadas = 1;
+          for (var i = 1; i < breakYs.length - 1; i++) {
+            var isUltimo = (i === breakYs.length - 2);
+            if (!isUltimo && pgsUsadas >= MAX_PAG) break;
+            var maxSeg = isUltimo ? 999 : (MAX_PAG - pgsUsadas);
+            var used = adicionarSegmento(breakYs[i] * SC, breakYs[i + 1] * SC, false, maxSeg);
+            pgsUsadas += used;
+          }
+        }
+      }
+
+      pdf.save('${nomeArquivo}');
+    } catch(e) {
+      if (reportBox) { reportBox.style.boxShadow=''; reportBox.style.borderRadius=''; reportBox.style.margin=''; reportBox.style.padding=''; }
+      if (toolbar)  toolbar.style.display = '';
+      if (pageWrap) pageWrap.style.paddingTop = '';
+      document.querySelectorAll('.foto-trocar-btn').forEach(function(b){ b.style.visibility=''; });
+      alert('❌ Erro ao gerar PDF: ' + e.message);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = '📄 Gerar PDF Final'; }
+    }
+  }
+<\/script>
+</body></html>`;
+        }
+
+        function abrirPreviaEditavel() {
+            const dados = coletarDados();
+            if (!dados) return;
+            try {
+                const el = criarElementoPDF(dados);
+                const conteudoHTML = el.innerHTML;
+                if (el.parentNode) el.parentNode.removeChild(el);
+                const nomeArquivo = ((dados.numeroRelatorio || dados.equipamento || 'relatorio')
+                    .replace(/[\s\/\\]+/g,'_').replace(/[^a-zA-Z0-9_\-\.]/g,'') + '.pdf');
+                const pagina = gerarPaginaEditavel('RELATÓRIO DE INSPEÇÃO', '#1a1a2e', conteudoHTML, nomeArquivo);
+                const blob = new Blob([pagina], { type: 'text/html;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const win = window.open(url, '_blank');
+                if (!win) alert('⚠️ Pop-up bloqueado. Permita pop-ups para este site.');
+                setTimeout(() => URL.revokeObjectURL(url), 300000);
+            } catch(e) {
+                alert('❌ Erro ao abrir prévia: ' + e.message);
+            }
+        }
+
+        function abrirPreviaLaudo(idElemento, titulo, corBarra) {
+            const elemento = document.getElementById(idElemento);
+            if (!elemento) { alert('Abra o laudo primeiro.'); return; }
+            try {
+                // Substituir inputs/selects/textareas → divs de texto editável
+                const inputsSub = [];
+                elemento.querySelectorAll('input[type="text"],input[type="date"],input[type="number"],input[type="email"]').forEach(inp => {
+                    const div = document.createElement('div');
+                    div.style.cssText = 'width:100%;padding:6px;border:1px solid #ccc;border-radius:4px;font-size:'+(inp.style.fontSize||'10px')+';font-family:Arial;background:#fff;box-sizing:border-box;min-height:28px;line-height:1.4;color:#333;';
+                    if (inp.type==='date' && inp.value) { const p=inp.value.split('-'); div.textContent=p[2]+'/'+p[1]+'/'+p[0]; }
+                    else div.textContent = inp.value || '';
+                    inp.parentNode.insertBefore(div, inp); inp.style.display = 'none';
+                    inputsSub.push({inp, div});
+                });
+                const selectsSub = [];
+                elemento.querySelectorAll('select').forEach(sel => {
+                    const div = document.createElement('div');
+                    div.style.cssText = 'width:100%;padding:6px;border:1px solid #ccc;border-radius:4px;font-size:10px;font-weight:600;font-family:Arial;background:#fff;box-sizing:border-box;min-height:28px;line-height:1.4;color:#333;';
+                    div.textContent = sel.options[sel.selectedIndex]?.text || sel.value || '';
+                    sel.parentNode.insertBefore(div, sel); sel.style.display = 'none';
+                    selectsSub.push({sel, div});
+                });
+                const tasSub = [];
+                elemento.querySelectorAll('textarea').forEach(ta => {
+                    const div = document.createElement('div');
+                    div.style.cssText = 'width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;font-family:Arial;font-size:11px;line-height:1.6;color:#333;background:#fff;box-sizing:border-box;white-space:pre-wrap;word-break:break-word;min-height:40px;';
+                    div.textContent = ta.value || '';
+                    ta.parentNode.insertBefore(div, ta); ta.style.display = 'none';
+                    tasSub.push({ta, div});
+                });
+                // Ocultar botões do laudo
+                const btns = [];
+                elemento.querySelectorAll('button').forEach(btn => { btns.push({btn, d:btn.style.display}); btn.style.display='none'; });
+                // Ocultar linhas de ação (GERAR PDF, NOME DO ARQUIVO)
+                const linhasOcultar = [];
+                Array.from(elemento.children).forEach(el => {
+                    if (el.textContent && (el.textContent.includes('GERAR PDF') || el.textContent.includes('NOME DO ARQUIVO'))) {
+                        linhasOcultar.push({el, d: el.style.display}); el.style.display = 'none';
+                    }
+                });
+
+                // Capturar HTML resultante
+                const conteudoHTML = elemento.innerHTML;
+
+                // Restaurar tudo
+                inputsSub.forEach(i => { i.inp.style.display=''; i.div.remove(); });
+                selectsSub.forEach(i => { i.sel.style.display=''; i.div.remove(); });
+                tasSub.forEach(i => { i.ta.style.display=''; i.div.remove(); });
+                btns.forEach(i => { i.btn.style.display=i.d||''; });
+                linhasOcultar.forEach(i => { i.el.style.display=i.d||''; });
+
+                // Abrir HTML de prévia editável
+                // Montar nome do arquivo baseado no tipo de laudo (nota_ativo_ri)
+                function _sanitize(s){ return (s||'').replace(/[\s\/\\]+/g,'_').replace(/[^a-zA-Z0-9_\-\.]/g,''); }
+                let nomeArquivo;
+                if (idElemento === 'laudo_documento') {
+                    const nota = _sanitize(document.getElementById('laudo_numero_nota')?.value);
+                    const ativo = _sanitize(document.getElementById('laudo_ativo')?.value);
+                    nomeArquivo = [nota, ativo].filter(Boolean).join('_') + '.pdf';
+                } else if (idElemento === 'laudoPAC_documento') {
+                    const nota = _sanitize(document.getElementById('laudoPAC_numero_nota')?.value);
+                    const ativo = _sanitize(document.getElementById('laudoPAC_ativo')?.value);
+                    const ri   = _sanitize(document.getElementById('laudoPAC_ri')?.value);
+                    nomeArquivo = [nota, ativo, ri].filter(Boolean).join('_') + '.pdf';
+                } else if (idElemento === 'riscoAlto_documento') {
+                    const nota = _sanitize(document.getElementById('ra_nota')?.value);
+                    const ativo = _sanitize(document.getElementById('ra_ativo')?.value);
+                    nomeArquivo = [nota, ativo].filter(Boolean).join('_') + '.pdf';
+                } else if (idElemento === 'sujidade_documento') {
+                    const nota = _sanitize(document.getElementById('suj_nota')?.value);
+                    const ativo = _sanitize(document.getElementById('suj_ativo')?.value);
+                    nomeArquivo = [nota, ativo].filter(Boolean).join('_') + '.pdf';
+                } else {
+                    const nomeBase = titulo.replace(/[^a-zA-Z0-9_\-]/g,'_');
+                    nomeArquivo = nomeBase + '.pdf';
+                }
+                const pagina = gerarPaginaEditavel(titulo, corBarra, conteudoHTML, nomeArquivo, true);
+                const blob = new Blob([pagina], { type: 'text/html;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const win = window.open(url, '_blank');
+                if (!win) alert('⚠️ Pop-up bloqueado. Permita pop-ups para este site.');
+                setTimeout(() => URL.revokeObjectURL(url), 300000);
+            } catch(e) {
+                alert('❌ Erro ao abrir prévia: ' + e.message);
+            }
+        }
+
+        function abrirPreviaSujidade() {
+            abrirPreviaLaudo('sujidade_documento', 'LAUDO SUJIDADE', '#5D4037');
+        }
+
         // Função para criar elemento HTML do PDF
         function criarElementoPDF(dados) {
             const element = document.createElement('div');
@@ -4090,7 +4523,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                             REGISTROS FOTOGRÁFICOS (${dados.fotos.length} foto(s))
                         </div>
                         ${fotosPares.map((par, parIndex) => `
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; page-break-inside: avoid; ${parIndex > 0 ? 'page-break-before: always;' : ''} margin-bottom: 20px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; page-break-inside: avoid; margin-bottom: 20px;">
                                 ${par.map(foto => `
                                     <div style="border: 2px solid #ddd; border-radius: 4px; overflow: hidden; background: #ffffff;">
                                         <div style="width: 100%; height: 280px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; padding: 7px 5px;">
@@ -5131,7 +5564,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                     </div>
                     
                     <!-- BOTÕES -->
-                    <div style="padding: 30px 40px; background: #f8f9fa; border-top: 3px solid #005a45;"><div style="display: flex; gap: 15px; flex-wrap: wrap;"><button onclick="gerarPDFLaudoReal()" style="flex: 1; min-width: 200px; padding: 18px 30px; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer;">📄 GERAR PDF</button><button onclick="limparFormularioLaudo()" style="flex: 1; min-width: 200px; padding: 18px 30px; background: #ffc107; color: #000000; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer;">🔄 LIMPAR</button><button onclick="document.getElementById('modalLaudo').remove()" style="flex: 1; min-width: 200px; padding: 18px 30px; background: #6c757d; color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer;">✖️ FECHAR</button></div></div>
+                    <div style="padding: 30px 40px; background: #f8f9fa; border-top: 3px solid #005a45;"><div style="display: flex; gap: 15px; flex-wrap: wrap;"><button onclick="abrirPreviaLaudo('laudo_documento','LAUDO DE CONDIÇÃO ESTRUTURAL','#003d2e')" style="flex: 1; min-width: 200px; padding: 18px 30px; background: #005a45; color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer;">✏️ PRÉVIA EDITÁVEL</button><button onclick="gerarPDFLaudoReal()" style="flex: 1; min-width: 200px; padding: 18px 30px; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer;">📄 GERAR PDF</button><button onclick="limparFormularioLaudo()" style="flex: 1; min-width: 200px; padding: 18px 30px; background: #ffc107; color: #000000; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer;">🔄 LIMPAR</button><button onclick="document.getElementById('modalLaudo').remove()" style="flex: 1; min-width: 200px; padding: 18px 30px; background: #6c757d; color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer;">✖️ FECHAR</button></div></div>
                 </div>
             `;
             
@@ -5996,6 +6429,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                     <!-- BOTÕES -->
                     <div style="padding: 30px 40px; background: #f8f9fa; border-top: 3px solid #0f3460;">
                         <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <button onclick="abrirPreviaLaudo('laudoPAC_documento','LAUDO PAC','#e65100')" style="flex: 1; min-width: 200px; padding: 18px 30px; background: #ff8f00; color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer;">✏️ PRÉVIA EDITÁVEL</button>
                             <button onclick="gerarPDFLaudoPACReal()" style="flex: 1; min-width: 200px; padding: 18px 30px; background: linear-gradient(135deg, #e65100 0%, #ff8f00 100%); color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer;">📄 GERAR PDF</button>
                             <button onclick="limparFormularioLaudoPAC()" style="flex: 1; min-width: 200px; padding: 18px 30px; background: #ffc107; color: #000000; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer;">🔄 LIMPAR</button>
                             <button onclick="document.getElementById('modalLaudoPAC').remove()" style="flex: 1; min-width: 200px; padding: 18px 30px; background: #6c757d; color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer;">✖️ FECHAR</button>
@@ -7590,6 +8024,7 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                     <!-- BOTÕES -->
                     <div style="padding: 30px 40px; background: #f8f9fa; border-top: 3px solid #8B0000;">
                         <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <button onclick="abrirPreviaLaudo('riscoAlto_documento','TABELA 11 — RISCO ALTO','#8B0000')" style="flex: 1; min-width: 200px; padding: 18px 30px; background: #c0392b; color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer;">✏️ PRÉVIA EDITÁVEL</button>
                             <button onclick="gerarPDFRiscoAlto()" style="flex: 1; min-width: 200px; padding: 18px 30px; background: linear-gradient(135deg, #8B0000, #dc3545); color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer;">📄 GERAR PDF</button>
                             <button onclick="if(confirm('Limpar tudo?')){document.getElementById('modalRiscoAlto').remove();contadorFotosRA=0;abrirAcompanhamentoRiscoAlto()}" style="flex: 1; min-width: 200px; padding: 18px 30px; background: #ffc107; color: #333; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer;">🔄 LIMPAR</button>
                             <button onclick="document.getElementById('modalRiscoAlto').remove()" style="flex: 1; min-width: 200px; padding: 18px 30px; background: #6c757d; color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer;">✖️ FECHAR</button>
@@ -7606,8 +8041,23 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                 const reader = new FileReader();
                 reader.onload = e => {
                     const img = document.getElementById('ra_foto_' + numero + '_preview');
+                    if (!img) return;
                     img.src = e.target.result;
                     img.style.display = 'block';
+                    img.style.zIndex = '2';
+                    // Ocultar label para que a foto fique visível
+                    const cont = img.parentElement;
+                    const lbl = cont ? cont.querySelector('label') : null;
+                    if (lbl) lbl.style.display = 'none';
+                    // Botão Trocar
+                    if (cont && !cont.querySelector('.ra-trocar-btn')) {
+                        const trocarBtn = document.createElement('button');
+                        trocarBtn.className = 'ra-trocar-btn';
+                        trocarBtn.style.cssText = 'position:absolute;top:8px;right:8px;z-index:4;background:rgba(0,0,0,0.65);color:#fff;border:none;border-radius:5px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;';
+                        trocarBtn.innerHTML = '🔄 Trocar';
+                        trocarBtn.onclick = () => input.click();
+                        cont.appendChild(trocarBtn);
+                    }
                 };
                 reader.readAsDataURL(input.files[0]);
             }
@@ -8180,6 +8630,7 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                     <!-- BOTÕES -->
                     <div style="padding:30px 40px;background:#f8f9fa;border-top:3px solid #795548;">
                         <div style="display:flex;gap:15px;flex-wrap:wrap;">
+                            <button onclick="abrirPreviaSujidade()" style="flex:1;min-width:200px;padding:18px 30px;background:#795548;color:white;border:none;border-radius:8px;font-weight:700;font-size:15px;cursor:pointer;">✏️ PRÉVIA EDITÁVEL</button>
                             <button onclick="gerarPDFSujidade()" style="flex:1;min-width:200px;padding:18px 30px;background:linear-gradient(135deg,#5D4037,#795548);color:white;border:none;border-radius:8px;font-weight:700;font-size:15px;cursor:pointer;">📄 GERAR PDF</button>
                             <button onclick="if(confirm('Limpar tudo?')){window.__sujState={};document.getElementById('modalSujidade').remove();abrirLaudoSujidade()}" style="flex:1;min-width:200px;padding:18px 30px;background:#ffc107;color:#333;border:none;border-radius:8px;font-weight:700;font-size:15px;cursor:pointer;">🔄 LIMPAR</button>
                             <button onclick="salvarEstadoSujidade();document.getElementById('modalSujidade').remove()" style="flex:1;min-width:200px;padding:18px 30px;background:#6c757d;color:white;border:none;border-radius:8px;font-weight:700;font-size:15px;cursor:pointer;">✖️ FECHAR</button>
