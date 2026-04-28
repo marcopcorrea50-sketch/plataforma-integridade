@@ -3013,6 +3013,7 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
                         <div class="task-number">${numero}</div>
                         <div class="task-description" id="task-desc-${numero}">${tarefa}</div>
                         <button type="button" onclick="event.stopPropagation(); iniciarEdicaoTarefa('${numero}')" title="Editar descrição desta tarefa" style="margin-left:auto; flex-shrink:0; background:transparent; border:1px solid rgba(255,255,255,0.25); border-radius:5px; color:rgba(255,255,255,0.7); font-size:11px; padding:2px 7px; cursor:pointer; line-height:1.4;">✏️</button>
+                        <button type="button" onclick="event.stopPropagation(); excluirTarefa('${numero}')" title="Excluir esta tarefa" style="flex-shrink:0; background:transparent; border:1px solid rgba(255,100,100,0.4); border-radius:5px; color:rgba(255,140,140,0.95); font-size:12px; padding:2px 8px; cursor:pointer; line-height:1.4; margin-left:4px;">✕</button>
                     </div>
                     <div class="task-content" id="task-content-${numero}">
                         <div class="task-status-buttons">
@@ -3126,6 +3127,23 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
 
         function cancelarEdicaoTarefa(numero) {
             _renderDescricaoTarefa(numero);
+        }
+
+        function excluirTarefa(numero) {
+            if (!confirm('Excluir a tarefa OP ' + numero + '?')) return;
+            // Remover fotos vinculadas a esta tarefa
+            const fotoIds = (taskStates[numero] && taskStates[numero].fotos) || [];
+            fotosData = fotosData.filter(function(f) { return !fotoIds.includes(f.id); });
+            // Marcar como excluída no estado
+            if (taskStates[numero]) taskStates[numero].excluida = true;
+            // Remover o elemento do DOM
+            const conteudo = document.getElementById('task-content-' + numero);
+            if (conteudo) {
+                const item = conteudo.closest('.task-item');
+                if (item) item.remove();
+            }
+            // Atualizar galeria de fotos
+            renderFotos();
         }
 
         function _renderDescricaoTarefa(numero) {
@@ -5419,7 +5437,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                                     </div>
 
                                     <div style="padding: 10px 12px; background: #f8f9fa; border: 1px solid #dddddd; border-radius: 7px;">
-                                        <div style="font-size: 10px; color: #555555; margin-bottom: 4px;">Data limite para elaboração:</div>
+                                        <div style="font-size: 10px; color: #555555; margin-bottom: 4px;">Data de Conclusão Desejada:</div>
                                         <input id="laudo_data_limite" type="date" readonly style="width: 100%; padding: 6px; border: 2px solid #005a45; border-radius: 6px; font-size: 12px; font-weight: 700; color: #dc3545; background: #ffffff; box-sizing: border-box; min-height: 28px">
                                     </div>
                                 </div>
