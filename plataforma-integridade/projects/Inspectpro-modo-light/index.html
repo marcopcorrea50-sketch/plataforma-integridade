@@ -4282,6 +4282,28 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
       // 2. LAUDO: ocultar Tabela 22 + compactar espaçamentos antes da captura
       var _lc = [];
       if (${modoLaudo}) {
+        // Ocultar acordeões QUANTITATIVOS fechados (qbody display:none) e botão Códigos SALA
+        reportBox.querySelectorAll('.qbody').forEach(function(qbody) {
+          if (qbody.style.display === 'none') {
+            var item = qbody.parentElement;
+            if (item) { _lc.push({el:item,p:'display',v:item.style.display}); item.style.display='none'; }
+          }
+        });
+        // Verificar se algum acordeão ficou visível; se nenhum, ocultar o bloco inteiro QUANTITATIVOS
+        var qContainer = reportBox.querySelector('div[style*="flex-direction:column"]');
+        if (qContainer) {
+          var algumAberto = Array.from(qContainer.children).some(function(c){ return c.style.display !== 'none'; });
+          if (!algumAberto) {
+            var qWrapper = qContainer.closest('div[style*="border: 2px solid #005a45"]') || qContainer.parentElement && qContainer.parentElement.parentElement;
+            if (qWrapper) { _lc.push({el:qWrapper,p:'display',v:qWrapper.style.display}); qWrapper.style.display='none'; }
+          }
+        }
+        // Ocultar botão "Ver Códigos SALA"
+        reportBox.querySelectorAll('button').forEach(function(b){
+          if(b.getAttribute('onclick') && b.getAttribute('onclick').indexOf('modalCodigosSala') !== -1){
+            _lc.push({el:b,p:'display',v:b.style.display}); b.style.display='none';
+          }
+        });
         reportBox.querySelectorAll('div').forEach(function(t) {
           var fc = Array.from(t.children||[]);
           if (fc.some(function(f){return f.textContent&&f.textContent.includes('Tabela 22');}) &&
@@ -5305,7 +5327,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                             <div>
                                 <label style="display: block; font-size: 11px; font-weight: 600; color: #555555; margin-bottom: 5px;">INSPETOR RESPONSÁVEL</label>
-                                <input id="laudo_inspetor" type="text" value="01495822 (Marco Correa)" style="width: 100%; padding: 8px 6px; border: 2px solid #cccccc; border-radius: 6px; font-size: 10px; box-sizing: border-box; line-height: 1.5; vertical-align: middle; min-height: 32px">
+                                <select id="laudo_inspetor" style="width: 100%; padding: 8px 6px; border: 2px solid #cccccc; border-radius: 6px; font-size: 10px; box-sizing: border-box; min-height: 32px; background: #fff;"><option value="">— Selecione —</option><option value="C0692520 (Cleide)">C0692520 — Cleide</option><option value="C0681667 (Luiggy)">C0681667 — Luiggy</option><option value="C0716375 (Hernandes)">C0716375 — Hernandes</option><option value="C0714145 (Iago)">C0714145 — Iago</option><option value="C0724522 (Aline)">C0724522 — Aline</option><option value="01495822 (Marco Correa)" selected>01495822 — Marco Correa</option><option value="01992511 (Balbino)">01992511 — Balbino</option><option value="64520088 (Ellen)">64520088 — Ellen</option></select>
                             </div>
                             <div>
                                 <label style="display: block; font-size: 11px; font-weight: 600; color: #555555; margin-bottom: 5px;">DATA DA INSPEÇÃO</label>
@@ -5321,7 +5343,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                             <div><label style="display: block; font-size: 11px; font-weight: 600; color: #555555; margin-bottom: 5px;">Nº NOTA</label><input id="laudo_numero_nota" type="text" value="${Date.now().toString().slice(-12)}" style="width: 100%; padding: 8px 6px; border: 2px solid #cccccc; border-radius: 6px; font-size: 10px; background: #ffffff; box-sizing: border-box; line-height: 1.5; vertical-align: middle; min-height: 32px"></div>
                             <div><label style="display: block; font-size: 11px; font-weight: 600; color: #555555; margin-bottom: 5px;">Nº ORDEM</label><input id="laudo_numero_ordem" type="text" value="20250${Math.floor(Math.random() * 10000000)}" style="width: 100%; padding: 8px 6px; border: 2px solid #cccccc; border-radius: 6px; font-size: 10px; background: #ffffff; box-sizing: border-box; line-height: 1.5; vertical-align: middle; min-height: 32px"></div>
-                            <div><label style="display: block; font-size: 11px; font-weight: 600; color: #555555; margin-bottom: 5px;">AVALIADOR TÉCNICO</label><input id="laudo_avaliador" type="text" value="01495822 (Marco Correa)" style="width: 100%; padding: 8px 6px; border: 2px solid #cccccc; border-radius: 6px; font-size: 10px; box-sizing: border-box; line-height: 1.5; vertical-align: middle; min-height: 32px"></div>
+                            <div><label style="display: block; font-size: 11px; font-weight: 600; color: #555555; margin-bottom: 5px;">AVALIADOR TÉCNICO</label><select id="laudo_avaliador" style="width: 100%; padding: 8px 6px; border: 2px solid #cccccc; border-radius: 6px; font-size: 10px; box-sizing: border-box; min-height: 32px; background: #fff;"><option value="">— Selecione —</option><option value="C0692520 (Cleide)">C0692520 — Cleide</option><option value="C0681667 (Luiggy)">C0681667 — Luiggy</option><option value="C0716375 (Hernandes)">C0716375 — Hernandes</option><option value="C0714145 (Iago)">C0714145 — Iago</option><option value="C0724522 (Aline)">C0724522 — Aline</option><option value="01495822 (Marco Correa)" selected>01495822 — Marco Correa</option><option value="01992511 (Balbino)">01992511 — Balbino</option><option value="64520088 (Ellen)">64520088 — Ellen</option></select></div>
                         </div>
                         
                         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px;">
@@ -5331,34 +5353,124 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                         
                         <!-- QUANTITATIVOS -->
                         <div style="margin-top: 20px; padding: 20px; background: #ffffff; border-radius: 8px; border: 2px solid #005a45;">
-                            <h4 style="margin: 0 0 15px 0; color: #003d2e; font-size: 13px; font-weight: 700; border-bottom: 2px solid #005a45; padding-bottom: 8px;">
-                                📊 QUANTITATIVOS
+                            <h4 style="margin: 0 0 15px 0; color: #003d2e; font-size: 13px; font-weight: 700; border-bottom: 2px solid #005a45; padding-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                                <span>📊 QUANTITATIVOS</span>
+                                <button type="button" onclick="document.getElementById('modalCodigosSala').style.display='flex'" style="font-size: 10px; font-weight: 600; color: #1a3a5c; background: #e8f0fe; border: 1.5px solid #1a3a5c; border-radius: 5px; padding: 3px 10px; cursor: pointer; white-space: nowrap;">📋 Ver Códigos SALA</button>
                             </h4>
-                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
-                                <div>
-                                    <label style="display: block; font-size: 10px; font-weight: 600; color: #555555; margin-bottom: 5px;">REC metálico (CD - kg)</label>
-                                    <input id="laudo_rec_metalico" type="text" placeholder="Ex. C2-9999" style="width: 100%; padding: 7px 5px; border: 1px solid #cccccc; border-radius: 4px; font-size: 9px; box-sizing: border-box; line-height: 1.5; vertical-align: middle; min-height: 32px">
+                            <div style="display:flex;flex-direction:column;gap:6px;">
+
+                                <!-- REC -->
+                                <div style="border:1px solid #ddd;border-radius:6px;overflow:hidden;">
+                                    <button type="button" onclick="(function(b){var p=b.parentElement.querySelector('.qbody');var o=b.querySelector('.qico');if(p.style.display==='none'){p.style.display='grid';o.textContent='▲';}else{p.style.display='none';o.textContent='▼';}})(this)" style="width:100%;background:#f0f0f0;color:#333;border:none;border-bottom:1px solid #ddd;padding:7px 12px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:10px;font-weight:700;letter-spacing:0.5px;">
+                                        <span>REC</span><span class="qico">▼</span>
+                                    </button>
+                                    <div class="qbody" style="display:none;grid-template-columns:repeat(3,1fr);gap:12px;padding:12px;background:#f9fffe;">
+                                        <div>
+                                            <label style="display:block;font-size:10px;font-weight:600;color:#555;margin-bottom:5px;">REC metálico — kg (C#-KKKK)</label>
+                                            <input id="laudo_rec_metalico" type="text" placeholder="Ex. C2-9999" style="width:100%;padding:7px 5px;border:1px solid #cccccc;border-radius:4px;font-size:9px;box-sizing:border-box;min-height:32px">
+                                        </div>
+                                        <div>
+                                            <label style="display:block;font-size:10px;font-weight:600;color:#555;margin-bottom:5px;">Trinca — mm (T#-KKKK)</label>
+                                            <input id="laudo_tamanho_trinca" type="text" placeholder="Ex. T2-9999" style="width:100%;padding:7px 5px;border:1px solid #cccccc;border-radius:4px;font-size:9px;box-sizing:border-box;min-height:32px">
+                                        </div>
+                                        <div>
+                                            <label style="display:block;font-size:10px;font-weight:600;color:#555;margin-bottom:5px;">Solda — mm (S#-KKKK)</label>
+                                            <input id="laudo_quantidade_solda" type="text" placeholder="Ex. S2-9999" style="width:100%;padding:7px 5px;border:1px solid #cccccc;border-radius:4px;font-size:9px;box-sizing:border-box;min-height:32px">
+                                        </div>
+                                        <div>
+                                            <label style="display:block;font-size:10px;font-weight:600;color:#555;margin-bottom:5px;">Fixações — qtd (Q#-KKKK)</label>
+                                            <input id="laudo_quantidade_fixacoes" type="text" placeholder="Ex. Q2-9999" style="width:100%;padding:7px 5px;border:1px solid #cccccc;border-radius:4px;font-size:9px;box-sizing:border-box;min-height:32px">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label style="display: block; font-size: 10px; font-weight: 600; color: #555555; margin-bottom: 5px;">Tamanho trinca (CD - mm)</label>
-                                    <input id="laudo_tamanho_trinca" type="text" placeholder="Ex. T2-9999" style="width: 100%; padding: 7px 5px; border: 1px solid #cccccc; border-radius: 4px; font-size: 9px; box-sizing: border-box; line-height: 1.5; vertical-align: middle; min-height: 32px">
+
+                                <!-- CR -->
+                                <div style="border:1px solid #ddd;border-radius:6px;overflow:hidden;">
+                                    <button type="button" onclick="(function(b){var p=b.parentElement.querySelector('.qbody');var o=b.querySelector('.qico');if(p.style.display==='none'){p.style.display='grid';o.textContent='▲';}else{p.style.display='none';o.textContent='▼';}})(this)" style="width:100%;background:#f0f0f0;color:#333;border:none;border-bottom:1px solid #ddd;padding:7px 12px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:10px;font-weight:700;letter-spacing:0.5px;">
+                                        <span>CR — Caminho de Rolamento</span><span class="qico">▼</span>
+                                    </button>
+                                    <div class="qbody" style="display:none;grid-template-columns:repeat(3,1fr);gap:12px;padding:12px;background:#fffdf5;">
+                                        <div>
+                                            <label style="display:block;font-size:10px;font-weight:600;color:#555;margin-bottom:5px;">Dormentes (MD-KKKK)</label>
+                                            <input id="laudo_cr_dormentes" type="text" placeholder="Ex. MD-9999" style="width:100%;padding:7px 5px;border:1px solid #cccccc;border-radius:4px;font-size:9px;box-sizing:border-box;min-height:32px">
+                                        </div>
+                                        <div>
+                                            <label style="display:block;font-size:10px;font-weight:600;color:#555;margin-bottom:5px;">Trilho (MT-KKKK)</label>
+                                            <input id="laudo_cr_trilho" type="text" placeholder="Ex. MT-9999" style="width:100%;padding:7px 5px;border:1px solid #cccccc;border-radius:4px;font-size:9px;box-sizing:border-box;min-height:32px">
+                                        </div>
+                                        <div>
+                                            <label style="display:block;font-size:10px;font-weight:600;color:#555;margin-bottom:5px;">Fixações CR (MF-KKKK)</label>
+                                            <input id="laudo_cr_fixacoes" type="text" placeholder="Ex. MF-9999" style="width:100%;padding:7px 5px;border:1px solid #cccccc;border-radius:4px;font-size:9px;box-sizing:border-box;min-height:32px">
+                                        </div>
+                                        <div>
+                                            <label style="display:block;font-size:10px;font-weight:600;color:#555;margin-bottom:5px;">Lastro (ML-KKKK)</label>
+                                            <input id="laudo_cr_lastro" type="text" placeholder="Ex. ML-9999" style="width:100%;padding:7px 5px;border:1px solid #cccccc;border-radius:4px;font-size:9px;box-sizing:border-box;min-height:32px">
+                                        </div>
+                                        <div>
+                                            <label style="display:block;font-size:10px;font-weight:600;color:#555;margin-bottom:5px;">Caminho de rolamento (MX)</label>
+                                            <input id="laudo_cr_mx" type="text" placeholder="MX" style="width:100%;padding:7px 5px;border:1px solid #cccccc;border-radius:4px;font-size:9px;box-sizing:border-box;min-height:32px">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label style="display: block; font-size: 10px; font-weight: 600; color: #555555; margin-bottom: 5px;">Quantidade de solda (CD - mm)</label>
-                                    <input id="laudo_quantidade_solda" type="text" placeholder="Ex. S2-9999" style="width: 100%; padding: 7px 5px; border: 1px solid #cccccc; border-radius: 4px; font-size: 9px; box-sizing: border-box; line-height: 1.5; vertical-align: middle; min-height: 32px">
+
+                                <!-- CONCRETO -->
+                                <div style="border:1px solid #ddd;border-radius:6px;overflow:hidden;">
+                                    <button type="button" onclick="(function(b){var p=b.parentElement.querySelector('.qbody');var o=b.querySelector('.qico');if(p.style.display==='none'){p.style.display='grid';o.textContent='▲';}else{p.style.display='none';o.textContent='▼';}})(this)" style="width:100%;background:#f0f0f0;color:#333;border:none;border-bottom:1px solid #ddd;padding:7px 12px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:10px;font-weight:700;letter-spacing:0.5px;">
+                                        <span>CONCRETO</span><span class="qico">▼</span>
+                                    </button>
+                                    <div class="qbody" style="display:none;grid-template-columns:repeat(3,1fr);gap:12px;padding:12px;background:#f5f9ff;">
+                                        <div>
+                                            <label style="display:block;font-size:10px;font-weight:600;color:#555;margin-bottom:5px;">OAEs (EX-Y-W)</label>
+                                            <input id="laudo_concreto_oae" type="text" placeholder="Ex. EX-1-A" style="width:100%;padding:7px 5px;border:1px solid #cccccc;border-radius:4px;font-size:9px;box-sizing:border-box;min-height:32px">
+                                        </div>
+                                        <div>
+                                            <label style="display:block;font-size:10px;font-weight:600;color:#555;margin-bottom:5px;">Túneis (UX-Y-W)</label>
+                                            <input id="laudo_concreto_tunel" type="text" placeholder="Ex. UX-1-A" style="width:100%;padding:7px 5px;border:1px solid #cccccc;border-radius:4px;font-size:9px;box-sizing:border-box;min-height:32px">
+                                        </div>
+                                        <div>
+                                            <label style="display:block;font-size:10px;font-weight:600;color:#555;margin-bottom:5px;">Est. Civis Portuárias (PX-Y-W)</label>
+                                            <input id="laudo_concreto_portuario" type="text" placeholder="Ex. PX-1-A" style="width:100%;padding:7px 5px;border:1px solid #cccccc;border-radius:4px;font-size:9px;box-sizing:border-box;min-height:32px">
+                                        </div>
+                                        <div>
+                                            <label style="display:block;font-size:10px;font-weight:600;color:#555;margin-bottom:5px;">Civil - Demais escopos (AX-Y-W)</label>
+                                            <input id="laudo_concreto_civil" type="text" placeholder="Ex. AX-1-A" style="width:100%;padding:7px 5px;border:1px solid #cccccc;border-radius:4px;font-size:9px;box-sizing:border-box;min-height:32px">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label style="display: block; font-size: 10px; font-weight: 600; color: #555555; margin-bottom: 5px;">Quantidade de fixações (CD - quantidade)</label>
-                                    <input id="laudo_quantidade_fixacoes" type="text" placeholder="Ex. Q2-9999" style="width: 100%; padding: 7px 5px; border: 1px solid #cccccc; border-radius: 4px; font-size: 9px; box-sizing: border-box; line-height: 1.5; vertical-align: middle; min-height: 32px">
+
+                                <!-- NÃO IE -->
+                                <div style="border:1px solid #ddd;border-radius:6px;overflow:hidden;">
+                                    <button type="button" onclick="(function(b){var p=b.parentElement.querySelector('.qbody');var o=b.querySelector('.qico');if(p.style.display==='none'){p.style.display='grid';o.textContent='▲';}else{p.style.display='none';o.textContent='▼';}})(this)" style="width:100%;background:#f0f0f0;color:#333;border:none;border-bottom:1px solid #ddd;padding:7px 12px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:10px;font-weight:700;letter-spacing:0.5px;">
+                                        <span>NÃO IE</span><span class="qico">▼</span>
+                                    </button>
+                                    <div class="qbody" style="display:none;grid-template-columns:repeat(3,1fr);gap:12px;padding:12px;background:#fafafa;">
+                                        <div>
+                                            <label style="display:block;font-size:10px;font-weight:600;color:#555;margin-bottom:5px;">Outros (Z1~ZO)</label>
+                                            <input id="laudo_naoie_outros" type="text" placeholder="Ex. Z2" style="width:100%;padding:7px 5px;border:1px solid #cccccc;border-radius:4px;font-size:9px;box-sizing:border-box;min-height:32px">
+                                        </div>
+                                        <div>
+                                            <label style="display:block;font-size:10px;font-weight:600;color:#555;margin-bottom:5px;">Telhas (ZT)</label>
+                                            <input id="laudo_naoie_telhas" type="text" placeholder="ZT" style="width:100%;padding:7px 5px;border:1px solid #cccccc;border-radius:4px;font-size:9px;box-sizing:border-box;min-height:32px">
+                                        </div>
+                                        <div>
+                                            <label style="display:block;font-size:10px;font-weight:600;color:#555;margin-bottom:5px;">Condição Insegura (ZC)</label>
+                                            <input id="laudo_naoie_condicao" type="text" placeholder="ZC" style="width:100%;padding:7px 5px;border:1px solid #cccccc;border-radius:4px;font-size:9px;box-sizing:border-box;min-height:32px">
+                                        </div>
+                                        <div>
+                                            <label style="display:block;font-size:10px;font-weight:600;color:#555;margin-bottom:5px;">Serviço de Apoio (ZA)</label>
+                                            <input id="laudo_naoie_apoio" type="text" placeholder="ZA" style="width:100%;padding:7px 5px;border:1px solid #cccccc;border-radius:4px;font-size:9px;box-sizing:border-box;min-height:32px">
+                                        </div>
+                                        <div>
+                                            <label style="display:block;font-size:10px;font-weight:600;color:#555;margin-bottom:5px;">Demanda Engenharia (ZE)</label>
+                                            <input id="laudo_naoie_engenharia" type="text" placeholder="ZE" style="width:100%;padding:7px 5px;border:1px solid #cccccc;border-radius:4px;font-size:9px;box-sizing:border-box;min-height:32px">
+                                        </div>
+                                        <div>
+                                            <label style="display:block;font-size:10px;font-weight:600;color:#555;margin-bottom:5px;">Demanda Inspeção (ZI)</label>
+                                            <input id="laudo_naoie_inspecao" type="text" placeholder="ZI" style="width:100%;padding:7px 5px;border:1px solid #cccccc;border-radius:4px;font-size:9px;box-sizing:border-box;min-height:32px">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label style="display: block; font-size: 10px; font-weight: 600; color: #555555; margin-bottom: 5px;">Volume de concreto (CD - m³)</label>
-                                    <input id="laudo_volume_concreto" type="text" placeholder="Ex. V2-9999" style="width: 100%; padding: 7px 5px; border: 1px solid #cccccc; border-radius: 4px; font-size: 9px; box-sizing: border-box; line-height: 1.5; vertical-align: middle; min-height: 32px">
-                                </div>
-                                <div>
-                                    <label style="display: block; font-size: 10px; font-weight: 600; color: #555555; margin-bottom: 5px;">Área de PAC (Ri - m²)</label>
-                                    <input id="laudo_area_pac" type="text" placeholder="Ex. R3-9999" style="width: 100%; padding: 7px 5px; border: 1px solid #cccccc; border-radius: 4px; font-size: 9px; box-sizing: border-box; line-height: 1.5; vertical-align: middle; min-height: 32px">
-                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -5498,9 +5610,10 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                                 <th style="padding: 8px; border: 1px solid #333; width: 80px;">OBS.</th>
                                 <th style="padding: 8px; border: 1px solid #333; width: 80px;">MATERIAL</th>
                                 <th style="padding: 8px; border: 1px solid #333; width: 70px;">PESO (Kg)</th>
+                                <th style="padding: 8px; border: 1px solid #333; width: 36px;">AÇÃO</th>
                             </tr></thead>
                             <tbody id="laudo_bom_tbody">
-                                ${[1,2,3,4,5,6,7,8,9,10].map(i => '<tr><td style="padding: 4px; border: 1px solid #cccccc; text-align: center;"><input type="text" value="' + (i*10) + '" style="width: 100%; padding: 4px; border: none; background: transparent; text-align: center; font-size: 9px; color: #333333; box-sizing: border-box;"></td><td style="padding: 4px; border: 1px solid #cccccc;"><input type="text" style="width: 100%; padding: 4px; border: none; background: transparent; text-align: center; font-size: 9px; color: #333333; box-sizing: border-box;"></td><td style="padding: 4px; border: 1px solid #cccccc;"><input type="text" style="width: 100%; padding: 4px; border: none; background: transparent; font-size: 9px; color: #333333; box-sizing: border-box;"></td><td style="padding: 4px; border: 1px solid #cccccc;"><input type="text" style="width: 100%; padding: 4px; border: none; background: transparent; text-align: center; font-size: 9px; color: #333333; box-sizing: border-box;"></td><td style="padding: 4px; border: 1px solid #cccccc;"><input type="text" style="width: 100%; padding: 4px; border: none; background: transparent; text-align: center; font-size: 9px; color: #333333; box-sizing: border-box;"></td><td style="padding: 4px; border: 1px solid #cccccc;"><input type="text" style="width: 100%; padding: 4px; border: none; background: transparent; text-align: center; font-size: 9px; color: #333333; box-sizing: border-box;" oninput="calcularPesoTotalBOM(this)"></td></tr>').join('')}
+                                ${[1,2,3,4,5,6,7,8,9,10].map(i => '<tr><td style="padding: 4px; border: 1px solid #cccccc; text-align: center;"><input type="text" value="' + (i*10) + '" style="width: 100%; padding: 4px; border: none; background: transparent; text-align: center; font-size: 9px; color: #333333; box-sizing: border-box;"></td><td style="padding: 4px; border: 1px solid #cccccc;"><input type="text" style="width: 100%; padding: 4px; border: none; background: transparent; text-align: center; font-size: 9px; color: #333333; box-sizing: border-box;"></td><td style="padding: 4px; border: 1px solid #cccccc;"><input type="text" style="width: 100%; padding: 4px; border: none; background: transparent; font-size: 9px; color: #333333; box-sizing: border-box;"></td><td style="padding: 4px; border: 1px solid #cccccc;"><input type="text" style="width: 100%; padding: 4px; border: none; background: transparent; text-align: center; font-size: 9px; color: #333333; box-sizing: border-box;"></td><td style="padding: 4px; border: 1px solid #cccccc;"><input type="text" style="width: 100%; padding: 4px; border: none; background: transparent; text-align: center; font-size: 9px; color: #333333; box-sizing: border-box;"></td><td style="padding: 4px; border: 1px solid #cccccc;"><input type="text" style="width: 100%; padding: 4px; border: none; background: transparent; text-align: center; font-size: 9px; color: #333333; box-sizing: border-box;" oninput="calcularPesoTotalBOM(this)"></td><td style="padding: 4px; border: 1px solid #cccccc; text-align: center;"><button onclick="this.closest(\'tr\').remove()" style="background: #cc3333; color: white; border: none; border-radius: 4px; width: 22px; height: 22px; cursor: pointer; font-size: 12px; font-weight: 700; line-height: 1; padding: 0;">✕</button></td></tr>').join('')}
                             </tbody>
                         </table>
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding: 10px; background: #f0f8f0; border-radius: 6px; border: 2px solid #005a45;">
@@ -6118,7 +6231,9 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                 '<td style="padding:4px;border:1px solid ' + corBorda + ';">' +
                     '<input type="text" style="width:100%;padding:4px;border:none;background:transparent;text-align:center;font-size:9px;color:#333333;box-sizing:border-box;"></td>' +
                 '<td style="padding:4px;border:1px solid ' + corBorda + ';">' +
-                    '<input type="text" oninput="calcularPesoTotalBOM(this)" style="width:100%;padding:4px;border:none;background:transparent;text-align:center;font-size:9px;color:#333333;box-sizing:border-box;"></td>';
+                    '<input type="text" oninput="calcularPesoTotalBOM(this)" style="width:100%;padding:4px;border:none;background:transparent;text-align:center;font-size:9px;color:#333333;box-sizing:border-box;"></td>' +
+                '<td style="padding:4px;border:1px solid ' + corBorda + ';text-align:center;">' +
+                    '<button onclick="this.closest(\'tr\').remove()" style="background:#cc3333;color:white;border:none;border-radius:4px;width:22px;height:22px;cursor:pointer;font-size:12px;font-weight:700;line-height:1;padding:0;">✕</button></td>';
             tbody.appendChild(tr);
             // scroll suave para a nova linha
             tr.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -6168,7 +6283,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                             <div>
                                 <label style="display: block; font-size: 11px; font-weight: 600; color: #555555; margin-bottom: 5px;">INSPETOR RESPONSÁVEL</label>
-                                <input id="laudoPAC_inspetor" type="text" value="" placeholder="Matrícula (Nome)" style="width: 100%; padding: 8px 6px; border: 2px solid #cccccc; border-radius: 6px; font-size: 10px; box-sizing: border-box; line-height: 1.5; min-height: 32px">
+                                <select id="laudoPAC_inspetor" style="width: 100%; padding: 8px 6px; border: 2px solid #cccccc; border-radius: 6px; font-size: 10px; box-sizing: border-box; min-height: 32px; background: #fff;"><option value="">— Selecione —</option><option value="C0692520 (Cleide)">C0692520 — Cleide</option><option value="C0681667 (Luiggy)">C0681667 — Luiggy</option><option value="C0716375 (Hernandes)">C0716375 — Hernandes</option><option value="C0714145 (Iago)">C0714145 — Iago</option><option value="C0724522 (Aline)">C0724522 — Aline</option><option value="01495822 (Marco Correa)" selected>01495822 — Marco Correa</option><option value="01992511 (Balbino)">01992511 — Balbino</option><option value="64520088 (Ellen)">64520088 — Ellen</option></select>
                             </div>
                             <div>
                                 <label style="display: block; font-size: 11px; font-weight: 600; color: #555555; margin-bottom: 5px;">DATA DA INSPEÇÃO</label>
@@ -6184,7 +6299,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                             <div><label style="display: block; font-size: 11px; font-weight: 600; color: #555555; margin-bottom: 5px;">Nº NOTA</label><input id="laudoPAC_numero_nota" type="text" placeholder="Nº Nota" style="width: 100%; padding: 8px 6px; border: 2px solid #cccccc; border-radius: 6px; font-size: 10px; background: #ffffff; box-sizing: border-box; min-height: 32px"></div>
                             <div><label style="display: block; font-size: 11px; font-weight: 600; color: #555555; margin-bottom: 5px;">O.M INSPEÇÃO</label><input id="laudoPAC_om_inspecao" type="text" placeholder="Nº O.M" style="width: 100%; padding: 8px 6px; border: 2px solid #cccccc; border-radius: 6px; font-size: 10px; background: #ffffff; box-sizing: border-box; min-height: 32px"></div>
-                            <div><label style="display: block; font-size: 11px; font-weight: 600; color: #555555; margin-bottom: 5px;">AVALIADOR TÉCNICO</label><input id="laudoPAC_avaliador" type="text" placeholder="Matrícula (Nome)" style="width: 100%; padding: 8px 6px; border: 2px solid #cccccc; border-radius: 6px; font-size: 10px; box-sizing: border-box; min-height: 32px"></div>
+                            <div><label style="display: block; font-size: 11px; font-weight: 600; color: #555555; margin-bottom: 5px;">AVALIADOR TÉCNICO</label><select id="laudoPAC_avaliador" style="width: 100%; padding: 8px 6px; border: 2px solid #cccccc; border-radius: 6px; font-size: 10px; box-sizing: border-box; min-height: 32px; background: #fff;"><option value="">— Selecione —</option><option value="C0692520 (Cleide)">C0692520 — Cleide</option><option value="C0681667 (Luiggy)">C0681667 — Luiggy</option><option value="C0716375 (Hernandes)">C0716375 — Hernandes</option><option value="C0714145 (Iago)">C0714145 — Iago</option><option value="C0724522 (Aline)">C0724522 — Aline</option><option value="01495822 (Marco Correa)" selected>01495822 — Marco Correa</option><option value="01992511 (Balbino)">01992511 — Balbino</option><option value="64520088 (Ellen)">64520088 — Ellen</option></select></div>
                         </div>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
@@ -6202,8 +6317,9 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                         
                         <!-- QUANTITATIVOS PAC -->
                         <div style="margin-top: 20px; padding: 20px; background: #ffffff; border-radius: 8px; border: 2px solid #0f3460;">
-                            <h4 style="margin: 0 0 15px 0; color: #0f3460; font-size: 13px; font-weight: 700; border-bottom: 2px solid #0f3460; padding-bottom: 8px;">
-                                📊 QUANTITATIVOS PAC
+                            <h4 style="margin: 0 0 15px 0; color: #0f3460; font-size: 13px; font-weight: 700; border-bottom: 2px solid #0f3460; padding-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                                <span>📊 QUANTITATIVOS PAC</span>
+                                <button type="button" onclick="document.getElementById('modalCodigosSala').style.display='flex'" style="font-size: 10px; font-weight: 600; color: #1a3a5c; background: #e8f0fe; border: 1.5px solid #1a3a5c; border-radius: 5px; padding: 3px 10px; cursor: pointer; white-space: nowrap;">📋 Ver Códigos SALA</button>
                             </h4>
                             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
                                 <div>
@@ -6348,9 +6464,10 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                                 <th style="padding: 8px; border: 1px solid #333; width: 80px;">OBS.</th>
                                 <th style="padding: 8px; border: 1px solid #333; width: 80px;">MATERIAL</th>
                                 <th style="padding: 8px; border: 1px solid #333; width: 70px;">PESO (Kg)</th>
+                                <th style="padding: 8px; border: 1px solid #333; width: 36px;">AÇÃO</th>
                             </tr></thead>
                             <tbody id="laudoPAC_bom_tbody">
-                                ${[1,2,3,4,5,6,7,8,9,10].map(i => '<tr><td style="padding: 4px; border: 1px solid #cccccc; text-align: center;"><input type="text" value="' + (i*10) + '" style="width: 100%; padding: 4px; border: none; background: transparent; text-align: center; font-size: 9px; color: #333333; box-sizing: border-box;"></td><td style="padding: 4px; border: 1px solid #cccccc;"><input type="text" style="width: 100%; padding: 4px; border: none; background: transparent; text-align: center; font-size: 9px; color: #333333; box-sizing: border-box;"></td><td style="padding: 4px; border: 1px solid #cccccc;"><input type="text" style="width: 100%; padding: 4px; border: none; background: transparent; font-size: 9px; color: #333333; box-sizing: border-box;"></td><td style="padding: 4px; border: 1px solid #cccccc;"><input type="text" style="width: 100%; padding: 4px; border: none; background: transparent; text-align: center; font-size: 9px; color: #333333; box-sizing: border-box;"></td><td style="padding: 4px; border: 1px solid #cccccc;"><input type="text" style="width: 100%; padding: 4px; border: none; background: transparent; text-align: center; font-size: 9px; color: #333333; box-sizing: border-box;"></td><td style="padding: 4px; border: 1px solid #cccccc;"><input type="text" style="width: 100%; padding: 4px; border: none; background: transparent; text-align: center; font-size: 9px; color: #333333; box-sizing: border-box;" oninput="calcularPesoTotalBOM(this)"></td></tr>').join('')}
+                                ${[1,2,3,4,5,6,7,8,9,10].map(i => '<tr><td style="padding: 4px; border: 1px solid #cccccc; text-align: center;"><input type="text" value="' + (i*10) + '" style="width: 100%; padding: 4px; border: none; background: transparent; text-align: center; font-size: 9px; color: #333333; box-sizing: border-box;"></td><td style="padding: 4px; border: 1px solid #cccccc;"><input type="text" style="width: 100%; padding: 4px; border: none; background: transparent; text-align: center; font-size: 9px; color: #333333; box-sizing: border-box;"></td><td style="padding: 4px; border: 1px solid #cccccc;"><input type="text" style="width: 100%; padding: 4px; border: none; background: transparent; font-size: 9px; color: #333333; box-sizing: border-box;"></td><td style="padding: 4px; border: 1px solid #cccccc;"><input type="text" style="width: 100%; padding: 4px; border: none; background: transparent; text-align: center; font-size: 9px; color: #333333; box-sizing: border-box;"></td><td style="padding: 4px; border: 1px solid #cccccc;"><input type="text" style="width: 100%; padding: 4px; border: none; background: transparent; text-align: center; font-size: 9px; color: #333333; box-sizing: border-box;"></td><td style="padding: 4px; border: 1px solid #cccccc;"><input type="text" style="width: 100%; padding: 4px; border: none; background: transparent; text-align: center; font-size: 9px; color: #333333; box-sizing: border-box;" oninput="calcularPesoTotalBOM(this)"></td><td style="padding: 4px; border: 1px solid #cccccc; text-align: center;"><button onclick="this.closest(\'tr\').remove()" style="background: #cc3333; color: white; border: none; border-radius: 4px; width: 22px; height: 22px; cursor: pointer; font-size: 12px; font-weight: 700; line-height: 1; padding: 0;">✕</button></td></tr>').join('')}
                             </tbody>
                         </table>
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding: 10px; background: #f0f8ff; border-radius: 6px; border: 2px solid #0f3460;">
@@ -7995,7 +8112,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                         </h3>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                            <div><label style="display: block; font-size: 11px; font-weight: 600; color: #555555; margin-bottom: 5px;">INSPETOR RESPONSÁVEL</label><input id="ra_inspetor" type="text" value="01495822 (Marco Correa)" style="width: 100%; padding: 8px 6px; border: 2px solid #8B0000; border-radius: 6px; font-size: 10px; box-sizing: border-box; min-height: 32px"></div>
+                            <div><label style="display: block; font-size: 11px; font-weight: 600; color: #555555; margin-bottom: 5px;">INSPETOR RESPONSÁVEL</label><select id="ra_inspetor" style="width: 100%; padding: 8px 6px; border: 2px solid #8B0000; border-radius: 6px; font-size: 10px; box-sizing: border-box; min-height: 32px; background: #fff;"><option value="">— Selecione —</option><option value="C0692520 (Cleide)">C0692520 — Cleide</option><option value="C0681667 (Luiggy)">C0681667 — Luiggy</option><option value="C0716375 (Hernandes)">C0716375 — Hernandes</option><option value="C0714145 (Iago)">C0714145 — Iago</option><option value="C0724522 (Aline)">C0724522 — Aline</option><option value="01495822 (Marco Correa)" selected>01495822 — Marco Correa</option><option value="01992511 (Balbino)">01992511 — Balbino</option><option value="64520088 (Ellen)">64520088 — Ellen</option></select></div>
                             <div><label style="display: block; font-size: 11px; font-weight: 600; color: #555555; margin-bottom: 5px;">DATA DO ACOMPANHAMENTO</label><input id="ra_data" type="date" value="${new Date().toISOString().split('T')[0]}" style="width: 100%; padding: 8px 6px; border: 2px solid #8B0000; border-radius: 6px; font-size: 10px; box-sizing: border-box; min-height: 32px"></div>
                         </div>
                         
@@ -8507,7 +8624,7 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                             <span style="font-size:20px;">📋</span> IDENTIFICAÇÃO
                         </h3>
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:15px;">
-                            <div><label style="display:block;font-size:11px;font-weight:600;color:#555;margin-bottom:5px;">INSPETOR RESPONSÁVEL</label><input id="suj_inspetor" type="text" value="01495822 (Marco Correa)" style="width:100%;padding:8px 6px;border:2px solid #795548;border-radius:6px;font-size:10px;box-sizing:border-box;min-height:32px;"></div>
+                            <div><label style="display:block;font-size:11px;font-weight:600;color:#555;margin-bottom:5px;">INSPETOR RESPONSÁVEL</label><select id="suj_inspetor" style="width:100%;padding:8px 6px;border:2px solid #795548;border-radius:6px;font-size:10px;box-sizing:border-box;min-height:32px;background:#fff;"><option value="">— Selecione —</option><option value="C0692520 (Cleide)">C0692520 — Cleide</option><option value="C0681667 (Luiggy)">C0681667 — Luiggy</option><option value="C0716375 (Hernandes)">C0716375 — Hernandes</option><option value="C0714145 (Iago)">C0714145 — Iago</option><option value="C0724522 (Aline)">C0724522 — Aline</option><option value="01495822 (Marco Correa)" selected>01495822 — Marco Correa</option><option value="01992511 (Balbino)">01992511 — Balbino</option><option value="64520088 (Ellen)">64520088 — Ellen</option></select></div>
                             <div><label style="display:block;font-size:11px;font-weight:600;color:#555;margin-bottom:5px;">DATA DA INSPEÇÃO</label><input id="suj_data" type="date" value="${new Date().toISOString().split('T')[0]}" style="width:100%;padding:8px 6px;border:2px solid #795548;border-radius:6px;font-size:10px;box-sizing:border-box;min-height:32px;"></div>
                         </div>
                         <div style="margin-bottom:15px;">
@@ -9124,6 +9241,123 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
         }
     </script>
 
+    <!-- MODAL CÓDIGOS SALA -->
+    <div id="modalCodigosSala" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:99997;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;">
+        <div style="background:#fff;border-radius:10px;max-width:760px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#1a3a5c;border-radius:10px 10px 0 0;">
+                <span style="color:#fff;font-size:14px;font-weight:700;">📋 Referência de Códigos — Campo SALA</span>
+                <button type="button" onclick="document.getElementById('modalCodigosSala').style.display='none'" style="background:rgba(255,255,255,0.2);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;font-weight:700;line-height:1;">✕</button>
+            </div>
+            <div style="padding:16px 20px 20px;">
+                <p style="margin:0 0 12px;font-size:11px;color:#666;">Tabela de referência dos códigos utilizados no campo <strong>Sala</strong> dos quantitativos. Somente consulta.</p>
+                <table style="width:100%;border-collapse:collapse;font-size:11px;">
+                    <thead>
+                        <tr style="background:#1a3a5c;color:#fff;">
+                            <th style="padding:7px 10px;border:1px solid #ccc;width:80px;text-align:center;">Tipo</th>
+                            <th style="padding:7px 10px;border:1px solid #ccc;text-align:center;">Códigos</th>
+                            <th style="padding:7px 10px;border:1px solid #ccc;width:200px;">Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background:#f0f7ff;">
+                            <td style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-weight:700;">PAC</td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-family:monospace;letter-spacing:0.5px;">
+                                <b>R1</b>-<span style="color:#0097a7;">KKKK</span>, <b>R2</b>-<span style="color:#0097a7;">KKKK</span>, <b>R3</b>-<span style="color:#0097a7;">KKKK</span>, <b>R4</b>-<span style="color:#0097a7;">KKKK</span>, <b>R5</b>-<span style="color:#0097a7;">KKKK</span>, <b>RX</b>-<span style="color:#0097a7;">KKKK</span>
+                            </td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;">PAC</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="4" style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-weight:700;vertical-align:middle;">REC</td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-family:monospace;letter-spacing:0.5px;">
+                                <b>C1</b>-<span style="color:#0097a7;">KKKK</span>, <b>C2</b>-<span style="color:#0097a7;">KKKK</span>, <b>C3</b>-<span style="color:#0097a7;">KKKK</span>, <b>C4</b>-<span style="color:#0097a7;">KKKK</span>, <b>C5</b>-<span style="color:#0097a7;">KKKK</span>, <b>CX</b>-<span style="color:#0097a7;">KKKK</span>
+                            </td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;">REC metálico</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-family:monospace;letter-spacing:0.5px;">
+                                <b>T1</b>-<span style="color:#0097a7;">KKKK</span>, <b>T2</b>-<span style="color:#0097a7;">KKKK</span>, <b>T3</b>-<span style="color:#0097a7;">KKKK</span>, <b>T4</b>-<span style="color:#0097a7;">KKKK</span>, <b>T5</b>-<span style="color:#0097a7;">KKKK</span>, <b>TX</b>-<span style="color:#0097a7;">KKKK</span>
+                            </td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;">Trinca</td>
+                        </tr>
+                        <tr style="background:#fafafa;">
+                            <td style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-family:monospace;letter-spacing:0.5px;">
+                                <b>S1</b>-<span style="color:#0097a7;">KKKK</span>, <b>S2</b>-<span style="color:#0097a7;">KKKK</span>, <b>S3</b>-<span style="color:#0097a7;">KKKK</span>, <b>S4</b>-<span style="color:#0097a7;">KKKK</span>, <b>S5</b>-<span style="color:#0097a7;">KKKK</span>, <b>SX</b>-<span style="color:#0097a7;">KKKK</span>
+                            </td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;">Solda</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-family:monospace;letter-spacing:0.5px;">
+                                <b>Q1</b>-<span style="color:#0097a7;">KKKK</span>, <b>Q2</b>-<span style="color:#0097a7;">KKKK</span>, <b>Q3</b>-<span style="color:#0097a7;">KKKK</span>, <b>Q4</b>-<span style="color:#0097a7;">KKKK</span>, <b>Q5</b>-<span style="color:#0097a7;">KKKK</span>, <b>QX</b>-<span style="color:#0097a7;">KKKK</span>
+                            </td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;">Quantidade de fixações - REC</td>
+                        </tr>
+                        <tr style="background:#f0f7ff;">
+                            <td rowspan="2" style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-weight:700;vertical-align:middle;">CR</td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-family:monospace;letter-spacing:0.5px;">
+                                <b>MD</b>-<span style="color:#0097a7;">KKKK</span>, <b>MT</b>-<span style="color:#0097a7;">KKKK</span>, <b>MF</b>-<span style="color:#0097a7;">KKKK</span>, <b>ML</b>-<span style="color:#0097a7;">KKKK</span>
+                            </td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;">Caminho de rolamento<br><span style="font-size:10px;color:#666;">(Dormentes; Trilho; Fixações, Lastro)</span></td>
+                        </tr>
+                        <tr style="background:#f0f7ff;">
+                            <td style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-family:monospace;font-weight:700;">MX</td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;">Caminho de rolamento</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="4" style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-weight:700;vertical-align:middle;">CONCRETO</td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-family:monospace;letter-spacing:0.5px;">
+                                <b>EX</b>-<span style="color:#f9a825;">Y</span>-<span style="color:#2e7d32;">W</span>
+                            </td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;">OAEs</td>
+                        </tr>
+                        <tr style="background:#fafafa;">
+                            <td style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-family:monospace;letter-spacing:0.5px;">
+                                <b>UX</b>-<span style="color:#f9a825;">Y</span>-<span style="color:#2e7d32;">W</span>
+                            </td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;">Túneis</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-family:monospace;letter-spacing:0.5px;">
+                                <b>PX</b>-<span style="color:#f9a825;">Y</span>-<span style="color:#2e7d32;">W</span>
+                            </td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;">Estruturas Civis Portuárias</td>
+                        </tr>
+                        <tr style="background:#fafafa;">
+                            <td style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-family:monospace;letter-spacing:0.5px;">
+                                <b>AX</b>-<span style="color:#f9a825;">Y</span>-<span style="color:#2e7d32;">W</span>
+                            </td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;">Civil - Demais escopos</td>
+                        </tr>
+                        <tr style="background:#f0f7ff;">
+                            <td rowspan="6" style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-weight:700;vertical-align:middle;">Não IE</td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-family:monospace;font-weight:700;">Z1 &nbsp;Z2 &nbsp;Z3 &nbsp;Z4 &nbsp;Z5 &nbsp;ZX &nbsp;ZO</td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;">Não IE - Outros</td>
+                        </tr>
+                        <tr style="background:#f0f7ff;">
+                            <td style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-family:monospace;font-weight:700;">ZT</td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;">Não IE - Telhas</td>
+                        </tr>
+                        <tr style="background:#f0f7ff;">
+                            <td style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-family:monospace;font-weight:700;">ZC</td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;">Não IE - Condição Insegura</td>
+                        </tr>
+                        <tr style="background:#f0f7ff;">
+                            <td style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-family:monospace;font-weight:700;">ZA</td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;">Serviço de Apoio</td>
+                        </tr>
+                        <tr style="background:#f0f7ff;">
+                            <td style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-family:monospace;font-weight:700;">ZE</td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;">Demanda Engenharia</td>
+                        </tr>
+                        <tr style="background:#f0f7ff;">
+                            <td style="padding:7px 10px;border:1px solid #ccc;text-align:center;font-family:monospace;font-weight:700;">ZI</td>
+                            <td style="padding:7px 10px;border:1px solid #ccc;">Demanda Inspeção</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="margin:12px 0 0;font-size:10px;color:#888;font-style:italic;">KKKK = número sequencial &nbsp;|&nbsp; Y = subtipo &nbsp;|&nbsp; W = variante</p>
+            </div>
+        </div>
+    </div>
     <!-- MODAL DE LAYOUT DE INSTALAÇÃO -->
     <!-- MODAL DO LAYOUT - NÃO USADO (abre em nova aba)
     <div id="modalLayout" class="modal-layout">
