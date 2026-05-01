@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Análise de Programação Semanal · IE-022</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #edf1f7; --white: #fff; --border: #dde3ed;
+    --text: #111827; --text-2: #4b5563; --text-3: #9ca3af;
+    --primary: #1554a3; --primary-2: #1b6dd4;
+    --check: #d97706; --check-pale: #fef3c7;
+    --do: #059669; --do-pale: #d1fae5;
+    --shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  a { text-decoration: none; }
+
+  .header {
+    background: linear-gradient(120deg, #0b1730 0%, #0f2848 60%, #0e3060 100%);
+    padding: 40px 48px 36px;
+    position: relative; overflow: hidden;
+  }
+  .header::after {
+    content: '📅'; position: absolute; right: 60px; top: 30px;
+    font-size: 7rem; opacity: 0.06; pointer-events: none;
+  }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.78rem; color: rgba(255,255,255,0.5);
+    margin-bottom: 20px; transition: color 0.2s;
+  }
+  .back-link:hover { color: rgba(255,255,255,0.85); }
+  .badge-id {
+    display: inline-block; background: var(--check-pale); color: var(--check);
+    font-size: 0.7rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; margin-bottom: 12px;
+  }
+  .header h1 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 800;
+    color: #fff; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 10px;
+  }
+  .header h1 span { color: #60a5fa; }
+  .header-desc { color: rgba(255,255,255,0.55); font-size: 0.9rem; line-height: 1.7; max-width: 600px; }
+  .header-meta {
+    display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap;
+  }
+  .meta-chip {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 999px; padding: 5px 14px;
+    font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.7);
+  }
+
+  .content { max-width: 900px; margin: 0 auto; padding: 40px 24px 60px; }
+
+  .section { background: var(--white); border: 1px solid var(--border); border-radius: 18px; padding: 28px 32px; margin-bottom: 20px; box-shadow: var(--shadow); }
+  .section-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 800; color: var(--text); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+  .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+  .feature-item {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .feature-icon { font-size: 1.4rem; margin-bottom: 8px; }
+  .feature-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .feature-desc { font-size: 0.78rem; color: var(--text-2); line-height: 1.5; }
+
+  .steps { counter-reset: step; }
+  .step { display: flex; gap: 16px; margin-bottom: 16px; }
+  .step-num {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--primary);
+    color: #fff; font-size: 0.8rem; font-weight: 800; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0; margin-top: 2px;
+  }
+  .step-text { font-size: 0.875rem; color: var(--text-2); line-height: 1.65; }
+  .step-text strong { color: var(--text); }
+
+  .info-box {
+    background: var(--check-pale); border: 1px solid #fde68a; border-radius: 12px;
+    padding: 16px 20px; display: flex; gap: 12px; align-items: flex-start;
+    font-size: 0.84rem; color: #78350f; line-height: 1.6;
+  }
+
+  .download-section {
+    background: linear-gradient(135deg, #0f2848, #0e3060);
+    border-radius: 18px; padding: 32px; text-align: center; color: #fff;
+  }
+  .download-section h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+  .download-section p { color: rgba(255,255,255,0.6); font-size: 0.86rem; margin-bottom: 20px; }
+  .btn-download {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    color: #fff; padding: 12px 28px; border-radius: 12px;
+    font-size: 0.88rem; font-weight: 700;
+    box-shadow: 0 4px 16px rgba(21,84,163,0.4);
+    transition: all 0.2s;
+  }
+  .btn-download:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(21,84,163,0.5); }
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 12px;
+    color: rgba(255,255,255,0.6); font-size: 0.8rem; font-weight: 600;
+    border: 1px solid rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 10px;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.08); color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a class="back-link" href="../../portal-v2.html">← Voltar ao Portal</a>
+  <div class="badge-id">IE-022 · Prática 7 – Rotina e Performance</div>
+  <h1>Análise de <span>Programação</span><br/>Semanal</h1>
+  <p class="header-desc">
+    Planilha de programação e acompanhamento semanal das ordens de manutenção da equipe de
+    Integridade Estrutural — integrada ao SAP IW38 com importação automática de dados.
+  </p>
+  <div class="header-meta">
+    <span class="meta-chip">📅 Atualização semanal</span>
+    <span class="meta-chip">🏭 INSES · INSESCI · SC69HH</span>
+    <span class="meta-chip">👤 Público: Gestão</span>
+    <span class="meta-chip">⚡ Integração SAP IW38</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- Funcionalidades -->
+  <div class="section">
+    <div class="section-title">🔧 Funcionalidades</div>
+    <div class="feature-grid">
+      <div class="feature-item">
+        <div class="feature-icon">📥</div>
+        <div class="feature-title">Importação SAP</div>
+        <div class="feature-desc">Importa automaticamente o arquivo IW38 exportado do SAP com detecção dinâmica de colunas.</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Análise por Equipe</div>
+        <div class="feature-desc">Calcula % de execução por centro de trabalho: INSES, INSESCI e SC69HH.</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">👤</div>
+        <div class="feature-title">Análise por Inspetor</div>
+        <div class="feature-desc">Rastreia programação e execução individualizada por matrícula e nome do inspetor.</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📅</div>
+        <div class="feature-title">Controle Semanal</div>
+        <div class="feature-desc">Organiza dados por semana ISO e calcula datas de início e fim do período automaticamente.</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🤖</div>
+        <div class="feature-title">Automação SAP GUI</div>
+        <div class="feature-desc">Macro BaixarEImportarIW38 para download automático via SAP GUI Scripting (IW38).</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">⚠️</div>
+        <div class="feature-title">Desvios e Alertas</div>
+        <div class="feature-desc">Identifica ordens não executadas e desvios de programação com formatação automática.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Como usar -->
+  <div class="section">
+    <div class="section-title">🚀 Como Usar</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text"><strong>Abra a planilha</strong> Analise_Programacao_Semanal.xlsm no Excel. Habilite as macros quando solicitado.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text"><strong>Opção A – Manual:</strong> Exporte o relatório IW38 do SAP como Excel, depois clique em <em>Importar IW38</em> e selecione o arquivo.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text"><strong>Opção B – Automático:</strong> Com o SAP aberto, clique em <em>Baixar e Importar IW38</em> — a macro abre a transação, preenche os filtros e faz o download sozinha.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-text"><strong>Informe a semana</strong> quando solicitado. Os dados são carregados na aba <em>Base_IW38</em> e os relatórios de programação são gerados automaticamente.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-text"><strong>Acesse os resultados</strong> nas abas de análise: % de execução por equipe, detalhamento por inspetor e ordens em aberto.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Aviso -->
+  <div class="info-box">
+    <span style="font-size:1.2rem">⚠️</span>
+    <div>
+      <strong>Atenção:</strong> Este módulo é uma planilha Excel com macros VBA (.xlsm). É necessário o Microsoft Excel com macros habilitadas para utilizá-la. A funcionalidade de automação SAP requer que o SAP GUI Scripting esteja habilitado no sistema.
+    </div>
+  </div>
+
+  <!-- Download -->
+  <div class="download-section" style="margin-top:20px">
+    <h3>📥 Arquivo da Planilha</h3>
+    <p>Baixe a planilha para sua máquina e abra no Microsoft Excel.<br/>Habilite as macros para acesso completo às funcionalidades.</p>
+    <a class="btn-download" href="../../dados/Analise_Programacao_Semanal.xlsm" download>
+      ⬇️ Baixar Analise_Programacao_Semanal.xlsm
+    </a>
+    <br/>
+    <a class="btn-secondary" href="../../portal-v2.html">
+      ← Voltar ao Portal
+    </a>
+  </div>
+
+</div>
+</body>
+</html>
