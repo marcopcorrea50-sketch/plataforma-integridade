@@ -1060,10 +1060,6 @@
           Documentos de Referência
           <span class="sb-item-cnt" id="cnt-ref">0</span>
         </button>
-      <button class="sb-item" id="btnFerramentas">
-        <span class="sb-item-dot" style="background:rgba(255,255,255,0.25)"></span>
-        ⚡ Sistemas e ferramentas
-      </button>
       </div>
 
     </nav>
@@ -1468,35 +1464,12 @@ function init() {
 }
 
 init();
-
-// ── Ferramentas da Operação ──────────────────────────
-(function () {
-  const btnF    = document.getElementById('btnFerramentas');
-  const section = document.getElementById('acesso-rapido');
-  const grid    = document.querySelector('.grid');
-
-  btnF.addEventListener('click', function (e) {
-    e.stopPropagation();
-    document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
-    this.classList.add('active');
-    if (grid)    grid.style.display    = 'none';
-    if (section) section.style.display = 'block';
-  });
-
-  document.getElementById('sidebarNav').addEventListener('click', function (e) {
-    const btn = e.target.closest('.sb-item');
-    if (btn && btn.id !== 'btnFerramentas') {
-      if (section) section.style.display = 'none';
-      if (grid)    grid.style.display    = '';
-    }
-  }, true);
-})();
 </script>
 
 <!-- ── Acesso Rápido ── -->
 <style>
   .quick-access-section {
-    display: none; max-width: 1200px; margin: 0 auto 56px; padding: 0 28px;
+    max-width: 1200px; margin: 0 auto 56px; padding: 0 28px;
   }
   .quick-header {
     display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
