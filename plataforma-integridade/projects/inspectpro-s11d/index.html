@@ -512,6 +512,24 @@
             transition: opacity 0.2s;
         }
         .op-foto-item:hover .op-foto-remove { opacity: 1; }
+        .op-foto-formas {
+            position: absolute;
+            bottom: 22px;
+            left: 4px;
+            background: rgba(0,90,69,0.88);
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 9px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 3px 7px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+            z-index: 5;
+        }
+        .op-foto-item:hover .op-foto-formas { opacity: 1; }
 
         /* ---- STATUS SELECTOR ---- */
         .status-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }
@@ -811,7 +829,7 @@
 
     <!-- ===== SPLASH SCREEN ===== -->
     <div id="capaAbertura" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:linear-gradient(135deg,#000000 0%,#061a12 50%,#000000 100%);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;">
-        <div style="position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;opacity:0.25;">
+        <div style="position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;opacity:0.25;pointer-events:none;">
             <div class="gear gear-1" style="filter:drop-shadow(0 0 20px #00D9FF);"></div>
             <div class="gear gear-2" style="filter:drop-shadow(0 0 20px #FFD700);"></div>
             <div class="gear gear-3" style="filter:drop-shadow(0 0 20px #FF6B35);"></div>
@@ -830,7 +848,7 @@
         <h1 style="color:white;font-size:52px;font-weight:800;text-align:center;margin:0 20px 14px;z-index:2;letter-spacing:3px;animation:fadeInDown 1s ease;text-shadow:0 0 40px rgba(0,230,138,0.3);">InspectPro</h1>
         <p style="color:rgba(255,255,255,0.9);font-size:18px;text-align:center;margin:0 20px 10px;z-index:2;animation:fadeInUp 1s ease 0.3s both;">Sistema Profissional de Integridade Estrutural</p>
         <p style="color:rgba(0,230,138,0.8);font-size:16px;margin-bottom:50px;z-index:2;animation:fadeInUp 1s ease 0.5s both;">Integridade Estrutural | Vale S11D</p>
-        <button onclick="fecharCapa()" style="background:rgba(0,230,138,0.1);color:#00e68a;border:2px solid rgba(0,230,138,0.5);padding:18px 60px;font-size:18px;font-weight:700;border-radius:50px;cursor:pointer;z-index:2;transition:all 0.3s;animation:pulse 2s ease infinite;text-transform:uppercase;letter-spacing:4px;backdrop-filter:blur(10px);"
+        <button type="button" onclick="fecharCapa()" style="background:rgba(0,230,138,0.1);color:#00e68a;border:2px solid rgba(0,230,138,0.5);padding:18px 60px;font-size:18px;font-weight:700;border-radius:50px;cursor:pointer;position:relative;z-index:10;transition:all 0.3s;animation:pulse 2s ease infinite;text-transform:uppercase;letter-spacing:4px;backdrop-filter:blur(10px);"
             onmouseover="this.style.background='rgba(0,230,138,0.2)';this.style.boxShadow='0 0 40px rgba(0,230,138,0.3)'"
             onmouseout="this.style.background='rgba(0,230,138,0.1)';this.style.boxShadow='none'">ACESSAR</button>
         <p style="position:absolute;bottom:28px;color:rgba(0,230,138,0.5);font-size:12px;z-index:2;letter-spacing:1px;">Sistema de Relatórios V15.0 &nbsp;|&nbsp; © 2026 Vale</p>
@@ -1969,7 +1987,18 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
                     if (fotosRestauradas > 0 && typeof atualizarListaArquivos === 'function') {
                         atualizarListaArquivos();
                     }
-                    
+
+                    // Restaurar fotos e campos dos formulários (Laudo, PAC, RA, SUJ)
+                    try {
+                        const fotosFormJSON = await buscarPDFnoDB('autosave_fotos_formulario');
+                        if (fotosFormJSON) _restaurarFormPendente.fotos = JSON.parse(fotosFormJSON);
+                        const camposFormJSON = await buscarPDFnoDB('autosave_campos_formulario');
+                        if (camposFormJSON) _restaurarFormPendente.campos = JSON.parse(camposFormJSON);
+                        if (Object.keys(_restaurarFormPendente.fotos).length > 0 || Object.keys(_restaurarFormPendente.campos).length > 0) {
+                            _iniciarWatcherRestauracao();
+                        }
+                    } catch(e) { console.warn('Restauração formulário:', e); }
+
                     console.log('✅ BACKUP RESTAURADO!');
                     
                     setTimeout(() => {
@@ -3691,8 +3720,9 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                     fotoItem.className = 'op-foto-item';
                     
                     fotoItem.innerHTML = `
-                        <img src="${foto.src}" alt="Foto ${index + 1}">
+                        <img id="op_foto_${foto.id}_img" src="${foto.src}" alt="Foto ${index + 1}">
                         <div class="op-foto-numero">Foto ${index + 1}</div>
+                        <button type="button" class="op-foto-formas" onclick="abrirAnotacaoOP(${foto.id})">✏️ Formas</button>
                         <button type="button" class="op-foto-remove" onclick="removerFoto(${foto.id})">×</button>
                     `;
                     
@@ -5043,7 +5073,18 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                 if (fotosData && fotosData.length > 0) {
                     salvarPDFnoDB('autosave_fotosData', JSON.stringify(fotosData)).catch(() => {});
                 }
-                
+
+                // Fotos dos formulários (Laudo, PAC, RA, SUJ — previews base64)
+                var _fotosForm = _coletarFotosFormulario();
+                if (Object.keys(_fotosForm).length > 0) {
+                    salvarPDFnoDB('autosave_fotos_formulario', JSON.stringify(_fotosForm)).catch(function(){});
+                }
+                // Campos dos formulários estendidos (laudo_, laudoPAC_, ra_, suj_, etc.)
+                var _camposForm = _coletarCamposFormulario();
+                if (Object.keys(_camposForm).length > 0) {
+                    salvarPDFnoDB('autosave_campos_formulario', JSON.stringify(_camposForm)).catch(function(){});
+                }
+
                 // taskStates (pode ser grande com muitas tarefas complexas)
                 if (taskStates && Object.keys(taskStates).length > 0) {
                     salvarPDFnoDB('autosave_taskStates', JSON.stringify(taskStates)).catch(() => {});
@@ -5059,6 +5100,68 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                 console.error('Erro ao salvar:', error);
             }
         }
+
+        // ===== SUPORTE A FOTOS E CAMPOS DOS FORMULÁRIOS (Laudo, PAC, RA, SUJ) =====
+        var _restaurarFormPendente = { campos: {}, fotos: {} };
+
+        function _coletarFotosFormulario() {
+            var fotos = {};
+            document.querySelectorAll('img[id$="_preview"]').forEach(function(img) {
+                if (img.src && img.src.startsWith('data:') && img.style.display !== 'none') {
+                    fotos[img.id] = img.src;
+                }
+            });
+            return fotos;
+        }
+
+        function _coletarCamposFormulario() {
+            var campos = {};
+            document.querySelectorAll('input[id]:not([type="file"]), textarea[id], select[id]').forEach(function(el) {
+                if (el.type === 'checkbox') { campos[el.id] = el.checked; }
+                else if (el.type === 'radio') { if (el.checked) campos[el.id] = el.value; }
+                else if (el.value) { campos[el.id] = el.value; }
+            });
+            return campos;
+        }
+
+        function _aplicarRestauracao() {
+            Object.keys(_restaurarFormPendente.campos).forEach(function(id) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                var val = _restaurarFormPendente.campos[id];
+                if (el.type === 'checkbox') { el.checked = !!val; }
+                else if (el.type === 'radio') { if (el.value === val) el.checked = true; }
+                else { el.value = val; }
+                delete _restaurarFormPendente.campos[id];
+            });
+            Object.keys(_restaurarFormPendente.fotos).forEach(function(id) {
+                var img = document.getElementById(id);
+                if (img && _restaurarFormPendente.fotos[id]) {
+                    img.src = _restaurarFormPendente.fotos[id];
+                    img.style.display = 'block';
+                    img.style.zIndex = '3';
+                    // Mostrar botão Formas se existir
+                    var btnF = document.getElementById(id.replace('_preview','_btn_formas'));
+                    if (btnF) btnF.style.display = 'block';
+                    delete _restaurarFormPendente.fotos[id];
+                }
+            });
+        }
+
+        function _iniciarWatcherRestauracao() {
+            _aplicarRestauracao();
+            var hasPending = function() {
+                return Object.keys(_restaurarFormPendente.campos).length > 0 ||
+                       Object.keys(_restaurarFormPendente.fotos).length > 0;
+            };
+            if (!hasPending()) return;
+            var obs = new MutationObserver(function() {
+                _aplicarRestauracao();
+                if (!hasPending()) obs.disconnect();
+            });
+            obs.observe(document.body, { childList: true, subtree: true });
+        }
+        // ===== FIM SUPORTE FOTOS/CAMPOS FORMULÁRIO =====
 
         function exportarBackup() {
             try {
@@ -5105,7 +5208,9 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                         subtipo: typeof subtipoAtual !== 'undefined' ? subtipoAtual : null,
                         tarefasMarcadas: tarefasMarcadas,
                         fotosBase64: fotosBase64,
-                        taskStates: taskStates || {}
+                        taskStates: taskStates || {},
+                        fotosFormulario: _coletarFotosFormulario(),
+                        camposFormulario: _coletarCamposFormulario()
                     }
                 };
                 
@@ -5165,7 +5270,16 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                     if (dados.taskStates && Object.keys(dados.taskStates).length > 0) {
                         await salvarPDFnoDB('autosave_taskStates', JSON.stringify(dados.taskStates));
                     }
-                    
+
+                    // Fotos dos formulários (Laudo, PAC, RA, SUJ)
+                    if (dados.fotosFormulario && Object.keys(dados.fotosFormulario).length > 0) {
+                        await salvarPDFnoDB('autosave_fotos_formulario', JSON.stringify(dados.fotosFormulario));
+                    }
+                    // Campos dos formulários estendidos
+                    if (dados.camposFormulario && Object.keys(dados.camposFormulario).length > 0) {
+                        await salvarPDFnoDB('autosave_campos_formulario', JSON.stringify(dados.camposFormulario));
+                    }
+
                     // Apenas flag no localStorage (leve)
                     localStorage.setItem('backup_importado', 'true');
                     
@@ -5675,7 +5789,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                             <span style="font-size: 20px;">📸</span> EVIDÊNCIAS FOTOGRÁFICAS
                         </h3>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                            ${[1,2,3,4].map(i => `<div style="background: #ffffff; border: 1px solid #dddddd; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05);"><div style="background: #003d2e; color: white; padding: 12px 15px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px;"><span>📷</span> FOTO ${i}</div><div style="height: 250px; display: flex; align-items: center; justify-content: center; background: #f5f5f5; position: relative; overflow: hidden;"><img id="laudo_foto_${i}_preview" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; min-height: 32px"><label for="laudo_foto_${i}" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 15px; padding: 40px; position: relative; z-index: 1;"><div style="width: 80px; height: 80px; border-radius: 50%; background: #005a45; display: flex; align-items: center; justify-content: center; font-size: 36px; box-shadow: 0 4px 8px rgba(0,93,69,0.3);">📷</div><span style="font-size: 12px; color: #888888; font-weight: 600;">Adicionar foto</span></label><input type="file" id="laudo_foto_${i}" accept="image/*" onchange="previewFotoLaudo(${i}, this)" style="display: none; min-height: 32px"></div></div>`).join('')}
+                            ${[1,2,3,4].map(i => `<div style="background: #ffffff; border: 1px solid #dddddd; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05);"><div style="background: #003d2e; color: white; padding: 12px 15px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px;"><span>📷</span> FOTO ${i}</div><div style="height: 250px; display: flex; align-items: center; justify-content: center; background: #f5f5f5; position: relative; overflow: hidden;"><img id="laudo_foto_${i}_preview" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; min-height: 32px"><label for="laudo_foto_${i}" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 15px; padding: 40px; position: relative; z-index: 1;"><div style="width: 80px; height: 80px; border-radius: 50%; background: #005a45; display: flex; align-items: center; justify-content: center; font-size: 36px; box-shadow: 0 4px 8px rgba(0,93,69,0.3);">📷</div><span style="font-size: 12px; color: #888888; font-weight: 600;">Adicionar foto</span></label><input type="file" id="laudo_foto_${i}" accept="image/*" onchange="previewFotoLaudo(${i}, this)" style="display: none; min-height: 32px"><button type="button" id="laudo_foto_${i}_btn_formas" data-fotoid="laudo_foto_${i}_preview" onclick="abrirAnotacao(this.dataset.fotoid)" style="display:none;position:absolute;bottom:8px;left:8px;z-index:10;background:rgba(0,90,69,0.88);color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;">✏️ Formas</button></div></div>`).join('')}
                         </div>
                     </div>
                     
@@ -5796,6 +5910,9 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                     // Ocultar label de upload
                     const label = container.querySelector('label');
                     if (label) label.style.display = 'none';
+                    // Mostrar botão Formas
+                    const btnF = document.getElementById('laudo_foto_' + numero + '_btn_formas');
+                    if (btnF) btnF.style.display = 'block';
                 };
                 reader.readAsDataURL(input.files[0]);
             }
@@ -6130,6 +6247,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                 const canvas = await html2canvas(elemento, {
                     scale: 1.8,
                     useCORS: true,
+                    allowTaint: true,
                     logging: false,
                     backgroundColor: '#ffffff',
                     windowWidth: 794,
@@ -6137,7 +6255,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                     scrollX: 0,
                     scrollY: 0,
                     x: 0,
-                    y: 0
+                    y: 0,
                 });
 
                 // Remover override cores
@@ -6529,7 +6647,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                             <span style="font-size: 20px;">📸</span> EVIDÊNCIAS FOTOGRÁFICAS
                         </h3>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                            ${[1,2,3,4].map(i => '<div style="background: #ffffff; border: 1px solid #dddddd; border-radius: 8px; overflow: hidden;"><div style="background: #0f3460; color: white; padding: 12px 15px; font-size: 12px; font-weight: 700;">📷 FOTO ' + i + '</div><div style="height: 250px; display: flex; align-items: center; justify-content: center; background: #f5f5f5; position: relative; overflow: hidden;"><img id="laudoPAC_foto_' + i + '_preview" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"><label for="laudoPAC_foto_' + i + '" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 15px; padding: 40px; z-index: 1;"><div style="width: 80px; height: 80px; border-radius: 50%; background: #0f3460; display: flex; align-items: center; justify-content: center; font-size: 36px;">📷</div><span style="font-size: 12px; color: #888888; font-weight: 600;">Adicionar foto</span></label><input type="file" id="laudoPAC_foto_' + i + '" accept="image/*" onchange="previewFotoLaudoPAC(' + i + ', this)" style="display: none;"></div></div>').join('')}
+                            ${[1,2,3,4].map(i => '<div style="background: #ffffff; border: 1px solid #dddddd; border-radius: 8px; overflow: hidden;"><div style="background: #0f3460; color: white; padding: 12px 15px; font-size: 12px; font-weight: 700;">📷 FOTO ' + i + '</div><div style="height: 250px; display: flex; align-items: center; justify-content: center; background: #f5f5f5; position: relative; overflow: hidden;"><img id="laudoPAC_foto_' + i + '_preview" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"><label for="laudoPAC_foto_' + i + '" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 15px; padding: 40px; z-index: 1;"><div style="width: 80px; height: 80px; border-radius: 50%; background: #0f3460; display: flex; align-items: center; justify-content: center; font-size: 36px;">📷</div><span style="font-size: 12px; color: #888888; font-weight: 600;">Adicionar foto</span></label><input type="file" id="laudoPAC_foto_' + i + '" accept="image/*" onchange="previewFotoLaudoPAC(' + i + ', this)" style="display: none;"><button type="button" id="laudoPAC_foto_' + i + '_btn_formas" data-fotoid="laudoPAC_foto_' + i + '_preview" onclick="abrirAnotacao(this.dataset.fotoid)" style="display:none;position:absolute;bottom:8px;left:8px;z-index:10;background:rgba(15,52,96,0.88);color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;">✏️ Formas</button></div></div>').join('')}
                         </div>
                     </div>
                     
@@ -6641,6 +6759,8 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                     preview.style.display = 'block';
                     const label = preview.parentElement.querySelector('label');
                     if (label) label.style.display = 'none';
+                    const btnF = document.getElementById('laudoPAC_foto_' + numero + '_btn_formas');
+                    if (btnF) btnF.style.display = 'block';
                 };
                 reader.readAsDataURL(input.files[0]);
             }
@@ -6784,7 +6904,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                     });
                 }
 
-                const canvas = await html2canvas(elemento, { scale: 1.8, useCORS: true, logging: false, backgroundColor: '#ffffff', windowWidth: 794, width: 794, scrollX: 0, scrollY: 0, x: 0, y: 0 });
+                const canvas = await html2canvas(elemento, { scale: 1.8, useCORS: true, allowTaint: true, logging: false, backgroundColor: '#ffffff', windowWidth: 794, width: 794, scrollX: 0, scrollY: 0, x: 0, y: 0 });
                 const pacStyleEl = document.getElementById('pac-pdf-light');
                 if (pacStyleEl) pacStyleEl.remove();
 
@@ -8113,7 +8233,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                             <span style="font-size: 20px;">📸</span> EVIDÊNCIAS FOTOGRÁFICAS
                         </h3>
                         <div id="ra_fotos_container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                            ${[1,2,3,4,5,6].map(i => '<div style="background: #ffffff; border: 1px solid #dddddd; border-radius: 8px; overflow: hidden;"><div style="background: #8B0000; color: white; padding: 10px 15px; font-size: 11px; font-weight: 700; display: flex; justify-content: space-between; align-items: center;">📷 FOTO ' + i + '<input type="text" placeholder="Legenda..." style="flex: 1; margin-left: 10px; padding: 4px 8px; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; font-size: 9px; color: white; background: rgba(0,0,0,0.3); box-sizing: border-box;"></div><div style="height: 200px; display: flex; align-items: center; justify-content: center; background: #f5f5f5; position: relative; overflow: hidden;"><img id="ra_foto_' + i + '_preview" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"><label for="ra_foto_' + i + '" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 30px; z-index: 1;"><div style="width: 60px; height: 60px; border-radius: 50%; background: #8B0000; display: flex; align-items: center; justify-content: center; font-size: 28px;">📷</div><span style="font-size: 11px; color: #888888;">Adicionar foto</span></label><input type="file" id="ra_foto_' + i + '" accept="image/*" onchange="previewFotoRA(' + i + ', this)" style="display: none;"></div></div>').join('')}
+                            ${[1,2,3,4,5,6].map(i => '<div style="background: #ffffff; border: 1px solid #dddddd; border-radius: 8px; overflow: hidden;"><div style="background: #8B0000; color: white; padding: 10px 15px; font-size: 11px; font-weight: 700; display: flex; justify-content: space-between; align-items: center;">📷 FOTO ' + i + '<input type="text" placeholder="Legenda..." style="flex: 1; margin-left: 10px; padding: 4px 8px; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; font-size: 9px; color: white; background: rgba(0,0,0,0.3); box-sizing: border-box;"></div><div style="height: 200px; display: flex; align-items: center; justify-content: center; background: #f5f5f5; position: relative; overflow: hidden;"><img id="ra_foto_' + i + '_preview" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"><label for="ra_foto_' + i + '" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 30px; z-index: 1;"><div style="width: 60px; height: 60px; border-radius: 50%; background: #8B0000; display: flex; align-items: center; justify-content: center; font-size: 28px;">📷</div><span style="font-size: 11px; color: #888888;">Adicionar foto</span></label><input type="file" id="ra_foto_' + i + '" accept="image/*" onchange="previewFotoRA(' + i + ', this)" style="display: none;"><button type="button" id="ra_foto_' + i + '_btn_formas" data-fotoid="ra_foto_' + i + '_preview" onclick="abrirAnotacao(this.dataset.fotoid)" style="display:none;position:absolute;bottom:8px;left:8px;z-index:10;background:rgba(139,0,0,0.88);color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;">✏️ Formas</button></div></div>').join('')}
                         </div>
                     </div>
                     
@@ -8193,6 +8313,9 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                         trocarBtn.onclick = () => input.click();
                         cont.appendChild(trocarBtn);
                     }
+                    // Mostrar botão Formas
+                    const btnF = document.getElementById('ra_foto_' + numero + '_btn_formas');
+                    if (btnF) btnF.style.display = 'block';
                 };
                 reader.readAsDataURL(input.files[0]);
             }
@@ -8341,7 +8464,7 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                 elemento.style.width='794px'; elemento.style.maxWidth='794px'; elemento.style.margin='0'; elemento.style.boxShadow='none';
 
                 await new Promise(r=>setTimeout(r,1000));
-                const canvas = await html2canvas(elemento, {scale:2,useCORS:true,logging:false,backgroundColor:'#ffffff',windowWidth:794,width:794,scrollX:0,scrollY:0,x:0,y:0});
+                const canvas = await html2canvas(elemento, {scale:2,useCORS:true,allowTaint:true,logging:false,backgroundColor:'#ffffff',windowWidth:794,width:794,scrollX:0,scrollY:0,x:0,y:0});
 
                 // Restaurar TUDO
                 elemento.style.width=largOrig; elemento.style.maxWidth=mwOrig; elemento.style.margin=mgOrig; elemento.style.boxShadow=bsOrig;
@@ -8423,6 +8546,9 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                         }
                         trocarBtn.style.display = 'block';
                     }
+                    // Mostrar botão Formas
+                    const btnF = document.getElementById('suj_foto_' + numero + '_btn_formas');
+                    if (btnF) btnF.style.display = 'block';
                 };
                 reader.readAsDataURL(input.files[0]);
             }
@@ -8489,7 +8615,7 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                 '<label for="suj_foto_' + i + '" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:10px;padding:30px;z-index:1;">' +
                 '<div style="width:60px;height:60px;border-radius:50%;background:#795548;display:flex;align-items:center;justify-content:center;font-size:28px;">📷</div>' +
                 '<span style="font-size:11px;color:#888;">Adicionar foto</span></label>' +
-                '<input type="file" id="suj_foto_' + i + '" accept="image/*" onchange="previewFotoSuj(' + i + ', this)" style="display:none;"></div>';
+                '<input type="file" id="suj_foto_' + i + '" accept="image/*" onchange="previewFotoSuj(' + i + ', this)" style="display:none;"><button type="button" id="suj_foto_' + i + '_btn_formas" data-fotoid="suj_foto_' + i + '_preview" onclick="abrirAnotacao(this.dataset.fotoid)" style="display:none;position:absolute;bottom:8px;left:8px;z-index:10;background:rgba(121,85,72,0.88);color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;">✏️ Formas</button></div>';
             container.appendChild(div);
         }
 
@@ -8726,7 +8852,7 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                                 '<label for="suj_foto_' + i + '" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:10px;padding:30px;z-index:1;">' +
                                 '<div style="width:60px;height:60px;border-radius:50%;background:#795548;display:flex;align-items:center;justify-content:center;font-size:28px;">📷</div>' +
                                 '<span style="font-size:11px;color:#888;">Adicionar foto</span></label>' +
-                                '<input type="file" id="suj_foto_' + i + '" accept="image/*" onchange="previewFotoSuj(' + i + ', this)" style="display:none;"></div></div>'
+                                '<input type="file" id="suj_foto_' + i + '" accept="image/*" onchange="previewFotoSuj(' + i + ', this)" style="display:none;"><button type="button" id="suj_foto_' + i + '_btn_formas" data-fotoid="suj_foto_' + i + '_preview" onclick="abrirAnotacao(this.dataset.fotoid)" style="display:none;position:absolute;bottom:8px;left:8px;z-index:10;background:rgba(121,85,72,0.88);color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;">✏️ Formas</button></div></div>'
                             ).join('')}
                         </div>
                         <div style="margin-top:12px;text-align:center;">
@@ -8889,7 +9015,7 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                 elemento.style.width='794px'; elemento.style.maxWidth='794px'; elemento.style.margin='0'; elemento.style.boxShadow='none';
 
                 await new Promise(r=>setTimeout(r,1000));
-                const canvas = await html2canvas(elemento, {scale:2,useCORS:true,logging:false,backgroundColor:'#ffffff',windowWidth:794,width:794,scrollX:0,scrollY:0,x:0,y:0});
+                const canvas = await html2canvas(elemento, {scale:2,useCORS:true,allowTaint:true,logging:false,backgroundColor:'#ffffff',windowWidth:794,width:794,scrollX:0,scrollY:0,x:0,y:0});
 
                 elemento.style.width=largOrig; elemento.style.maxWidth=mwOrig; elemento.style.margin=mgOrig; elemento.style.boxShadow=bsOrig;
                 savedStyles.forEach(s => { s.el.style[s.prop] = s.val || ''; });
@@ -9101,6 +9227,17 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                     }
                 } catch(e) { /* silencioso */ }
                 
+                // Restaurar fotos e campos dos formulários (Laudo, PAC, RA, SUJ)
+                try {
+                    const fotosFormJSON = await buscarPDFnoDB('autosave_fotos_formulario');
+                    if (fotosFormJSON) _restaurarFormPendente.fotos = JSON.parse(fotosFormJSON);
+                    const camposFormJSON = await buscarPDFnoDB('autosave_campos_formulario');
+                    if (camposFormJSON) _restaurarFormPendente.campos = JSON.parse(camposFormJSON);
+                    if (Object.keys(_restaurarFormPendente.fotos).length > 0 || Object.keys(_restaurarFormPendente.campos).length > 0) {
+                        _iniciarWatcherRestauracao();
+                    }
+                } catch(e) { console.warn('Restauração formulário auto-save:', e); }
+
                 // Fallback: restaurar fotosData do localStorage (as pequenas)
                 if (dadosFormulario.fotosData && Array.isArray(dadosFormulario.fotosData)) {
                     const fotosLocais = dadosFormulario.fotosData.filter(f => f.data && f.data !== '[INDEXEDDB]' && f.data !== '[FOTO REMOVIDA - MUITO GRANDE]');
@@ -9337,6 +9474,264 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
         <div style="display:flex;gap:10px;margin-top:16px;"><button id="pwaInstallBtn" onclick="pwaInstall()" style="flex:1;padding:12px;background:#00e68a;color:#000;border:none;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;">⬇️ INSTALAR</button><button onclick="document.getElementById('pwaInstallBanner').style.display='none'" style="padding:12px 18px;background:rgba(255,255,255,0.08);color:#a0a0a0;border:1px solid #333;border-radius:10px;font-size:12px;cursor:pointer;">Depois</button></div>
     </div>
     <div id="pwaStatusIndicator" style="display:none;position:fixed;top:12px;right:12px;z-index:99998;background:rgba(0,0,0,0.85);border:1px solid #00e68a;border-radius:20px;padding:6px 14px;font-size:10px;color:#00e68a;font-weight:700;">⚡ APP MODE</div>
+
+
+    <!-- ===== FERRAMENTA DE FORMAS / ANOTAÇÃO EM FOTOS ===== -->
+    <style>
+        .an-btn { background:#2a2a2a; color:#fff; border:2px solid #555; border-radius:6px; padding:5px 12px; font-size:14px; cursor:pointer; transition:all 0.15s; }
+        .an-btn.an-ativo { background:#005a45; border-color:#00e68a; color:#00e68a; box-shadow:0 0 8px rgba(0,230,138,0.3); }
+        .an-cor-btn { width:26px; height:26px; border-radius:5px; cursor:pointer; border:2px solid #666; transition:border-color 0.1s; flex-shrink:0; }
+        .an-cor-btn.an-cor-ativa { border:3px solid #fff; transform:scale(1.2); }
+        #canvasAnotacao { cursor:crosshair; display:block; }
+    </style>
+    <div id="modalAnotacao" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.94);z-index:999999;flex-direction:column;align-items:center;justify-content:flex-start;">
+        <!-- Toolbar -->
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:#111;width:100%;box-sizing:border-box;flex-wrap:wrap;border-bottom:1px solid #333;">
+            <span style="color:#aaa;font-size:11px;font-weight:700;white-space:nowrap;">FORMAS:</span>
+            <button type="button" id="an_ret" class="an-btn an-ativo" onclick="selAn('retangulo')" title="Retângulo">▭</button>
+            <button type="button" id="an_cir" class="an-btn" onclick="selAn('circulo')" title="Elipse">◯</button>
+            <button type="button" id="an_set" class="an-btn" onclick="selAn('seta')" title="Seta">➔</button>
+            <button type="button" id="an_lin" class="an-btn" onclick="selAn('linha')" title="Linha">╱</button>
+            <button type="button" id="an_tex" class="an-btn" onclick="selAn('texto')" title="Texto">T</button>
+            <button type="button" id="an_liv" class="an-btn" onclick="selAn('livre')" title="Lápis livre">✏</button>
+            <div style="width:1px;height:28px;background:#444;margin:0 4px;flex-shrink:0;"></div>
+            <button class="an-cor-btn an-cor-ativa" style="background:#ff0000;" onclick="setCor(this,'#ff0000')" title="Vermelho"></button>
+            <button class="an-cor-btn" style="background:#ffff00;" onclick="setCor(this,'#ffff00')" title="Amarelo"></button>
+            <button class="an-cor-btn" style="background:#00ff00;" onclick="setCor(this,'#00ff00')" title="Verde"></button>
+            <button class="an-cor-btn" style="background:#00aaff;" onclick="setCor(this,'#00aaff')" title="Azul"></button>
+            <button class="an-cor-btn" style="background:#ff8800;" onclick="setCor(this,'#ff8800')" title="Laranja"></button>
+            <button class="an-cor-btn" style="background:#ffffff;" onclick="setCor(this,'#ffffff')" title="Branco"></button>
+            <button class="an-cor-btn" style="background:#000000;" onclick="setCor(this,'#000000')" title="Preto"></button>
+            <div style="width:1px;height:28px;background:#444;margin:0 4px;flex-shrink:0;"></div>
+            <label style="color:#aaa;font-size:10px;white-space:nowrap;">Espessura:</label>
+            <select id="an_esp" onchange="setEsp(this.value)" style="background:#222;color:#fff;border:1px solid #555;border-radius:5px;padding:4px 6px;font-size:11px;">
+                <option value="2">Fina (2)</option>
+                <option value="4" selected>Média (4)</option>
+                <option value="7">Grossa (7)</option>
+                <option value="12">Extra (12)</option>
+            </select>
+            <div id="an_texto_area" style="display:none;align-items:center;gap:6px;">
+                <input id="an_texto_input" type="text" placeholder="Digite o texto..." style="background:#222;color:#fff;border:1px solid #555;border-radius:5px;padding:4px 8px;font-size:12px;width:180px;">
+                <select id="an_font_size" style="background:#222;color:#fff;border:1px solid #555;border-radius:5px;padding:4px 6px;font-size:11px;">
+                    <option value="16">Pequeno</option>
+                    <option value="24" selected>Médio</option>
+                    <option value="36">Grande</option>
+                    <option value="52">Extra</option>
+                </select>
+            </div>
+            <div style="flex:1;min-width:8px;"></div>
+            <button type="button" onclick="desfazerAn()" style="background:#333;color:#fff;border:1px solid #555;border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer;white-space:nowrap;">↩ Desfazer</button>
+            <button type="button" onclick="limparAn()" style="background:#5c1a1a;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer;white-space:nowrap;">🗑 Limpar</button>
+        </div>
+        <!-- Canvas -->
+        <div style="flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:12px;width:100%;box-sizing:border-box;background:#1a1a1a;">
+            <canvas id="canvasAnotacao"></canvas>
+        </div>
+        <!-- Rodapé -->
+        <div style="display:flex;gap:12px;padding:10px 16px;background:#111;width:100%;box-sizing:border-box;justify-content:flex-end;border-top:1px solid #333;">
+            <span style="flex:1;color:#666;font-size:10px;align-self:center;">Clique e arraste para desenhar • Duplo-clique para desfazer o último</span>
+            <button type="button" onclick="fecharAnotacao()" style="background:#333;color:#fff;border:1px solid #555;border-radius:8px;padding:8px 24px;font-size:13px;font-weight:600;cursor:pointer;">✕ Cancelar</button>
+            <button type="button" onclick="aplicarAnotacao()" style="background:#005a45;color:#fff;border:none;border-radius:8px;padding:8px 28px;font-size:13px;font-weight:700;cursor:pointer;">✓ Aplicar</button>
+        </div>
+    </div>
+    <script>
+    (function() {
+        var _an = {
+            imgId: null, ferramenta: 'retangulo', cor: '#ff0000', esp: 4,
+            desenhando: false, sx: 0, sy: 0, historico: [], snapshot: null
+        };
+
+
+        // Wrappers para botões Formas (evitam problemas de aspas em template strings)
+        window.abrirFotoFormas = function(prefix, n) { window.abrirAnotacao(prefix + n + '_preview'); };
+        // Abre anotação para foto da galeria OP (atualiza fotosData ao aplicar)
+        window.abrirAnotacaoOP = function(fotoId) { window.abrirAnotacao('op_foto_' + fotoId + '_img'); };
+        window.abrirAnotacao = function(imgId) {
+            var img = document.getElementById(imgId);
+            if (!img || !img.src || !img.src.startsWith('data:')) {
+                alert('Adicione uma foto primeiro para usar as Formas!');
+                return;
+            }
+            _an.imgId = imgId;
+            _an.historico = [];
+            var canvas = document.getElementById('canvasAnotacao');
+            var ctx = canvas.getContext('2d');
+            var image = new Image();
+            image.onload = function() {
+                var maxW = Math.min(image.naturalWidth, window.innerWidth * 0.9, 1400);
+                var scale = maxW / image.naturalWidth;
+                canvas.width = image.naturalWidth * scale;
+                canvas.height = image.naturalHeight * scale;
+                ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+                _an.historico.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+            };
+            image.src = img.src;
+            document.getElementById('modalAnotacao').style.display = 'flex';
+            selAn('retangulo');
+        };
+
+        window.fecharAnotacao = function() {
+            document.getElementById('modalAnotacao').style.display = 'none';
+        };
+
+        window.aplicarAnotacao = function() {
+            var canvas = document.getElementById('canvasAnotacao');
+            var dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+            var img = document.getElementById(_an.imgId);
+            if (img) {
+                img.src = dataUrl;
+                img.style.display = 'block';
+                img.style.zIndex = '3';
+            }
+            // Se for foto da galeria OP, actualizar fotosData para persistência
+            // IDs de fotos OP são floats (Date.now()+i+Math.random()), regex aceita dígitos e ponto decimal
+            var opMatch = _an.imgId && _an.imgId.match(/^op_foto_([\d.]+)_img$/);
+            if (opMatch && typeof fotosData !== 'undefined') {
+                var fotoId = parseFloat(opMatch[1]);
+                var fotoEntry = fotosData.find(function(f) { return f.id === fotoId; });
+                if (fotoEntry) fotoEntry.src = dataUrl;
+            }
+            fecharAnotacao();
+            if (typeof salvarAutomaticamente === 'function') salvarAutomaticamente();
+        };
+
+        window.selAn = function(f) {
+            _an.ferramenta = f;
+            var map = { retangulo:'ret', circulo:'cir', seta:'set', linha:'lin', texto:'tex', livre:'liv' };
+            Object.keys(map).forEach(function(k) {
+                var btn = document.getElementById('an_' + map[k]);
+                if (btn) btn.classList.remove('an-ativo');
+            });
+            var btn = document.getElementById('an_' + map[f]);
+            if (btn) btn.classList.add('an-ativo');
+            var taArea = document.getElementById('an_texto_area');
+            if (taArea) taArea.style.display = f === 'texto' ? 'flex' : 'none';
+            var canvas = document.getElementById('canvasAnotacao');
+            if (canvas) canvas.style.cursor = f === 'texto' ? 'text' : 'crosshair';
+        };
+
+        window.setCor = function(btn, c) {
+            _an.cor = c;
+            document.querySelectorAll('.an-cor-btn').forEach(function(b) { b.classList.remove('an-cor-ativa'); });
+            btn.classList.add('an-cor-ativa');
+        };
+        window.setEsp = function(v) { _an.esp = parseInt(v); };
+
+        window.desfazerAn = function() {
+            if (_an.historico.length <= 1) return;
+            _an.historico.pop();
+            var canvas = document.getElementById('canvasAnotacao');
+            canvas.getContext('2d').putImageData(_an.historico[_an.historico.length - 1], 0, 0);
+        };
+
+        window.limparAn = function() {
+            if (_an.historico.length === 0) return;
+            var canvas = document.getElementById('canvasAnotacao');
+            canvas.getContext('2d').putImageData(_an.historico[0], 0, 0);
+            _an.historico = [_an.historico[0]];
+        };
+
+        function getPos(canvas, e) {
+            var r = canvas.getBoundingClientRect();
+            var touch = e.touches ? e.touches[0] : e;
+            return {
+                x: (touch.clientX - r.left) * (canvas.width / r.width),
+                y: (touch.clientY - r.top) * (canvas.height / r.height)
+            };
+        }
+
+        function desenharForma(ctx, sx, sy, ex, ey, f, cor, esp) {
+            ctx.strokeStyle = cor;
+            ctx.fillStyle = cor;
+            ctx.lineWidth = esp;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            var dx = ex - sx, dy = ey - sy;
+            ctx.beginPath();
+            if (f === 'retangulo') {
+                ctx.strokeRect(sx, sy, dx, dy);
+            } else if (f === 'circulo') {
+                var rx = Math.abs(dx / 2), ry = Math.abs(dy / 2);
+                ctx.ellipse(sx + dx / 2, sy + dy / 2, rx || 1, ry || 1, 0, 0, Math.PI * 2);
+                ctx.stroke();
+            } else if (f === 'linha') {
+                ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke();
+            } else if (f === 'seta') {
+                ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke();
+                var angle = Math.atan2(dy, dx);
+                var len = Math.min(esp * 7, 50);
+                ctx.beginPath();
+                ctx.moveTo(ex, ey);
+                ctx.lineTo(ex - len * Math.cos(angle - 0.42), ey - len * Math.sin(angle - 0.42));
+                ctx.lineTo(ex - len * Math.cos(angle + 0.42), ey - len * Math.sin(angle + 0.42));
+                ctx.closePath(); ctx.fill();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var canvas = document.getElementById('canvasAnotacao');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+
+            canvas.addEventListener('dblclick', function() { window.desfazerAn(); });
+
+            function onStart(e) {
+                e.preventDefault();
+                _an.desenhando = true;
+                var p = getPos(canvas, e);
+                _an.sx = p.x; _an.sy = p.y;
+                if (_an.ferramenta === 'texto') {
+                    _an.desenhando = false;
+                    var txt = (document.getElementById('an_texto_input') || {}).value || '?';
+                    var fs = parseInt((document.getElementById('an_font_size') || {}).value || '24');
+                    ctx.font = 'bold ' + fs + 'px Arial';
+                    ctx.fillStyle = _an.cor;
+                    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+                    ctx.lineWidth = 2;
+                    ctx.strokeText(txt, p.x, p.y);
+                    ctx.fillText(txt, p.x, p.y);
+                    _an.historico.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+                    return;
+                }
+                if (_an.ferramenta === 'livre') {
+                    _an.historico.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+                    ctx.beginPath(); ctx.moveTo(p.x, p.y);
+                } else {
+                    _an.snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                }
+            }
+
+            function onMove(e) {
+                e.preventDefault();
+                if (!_an.desenhando) return;
+                var p = getPos(canvas, e);
+                if (_an.ferramenta === 'livre') {
+                    ctx.strokeStyle = _an.cor; ctx.lineWidth = _an.esp;
+                    ctx.lineCap = 'round'; ctx.lineTo(p.x, p.y); ctx.stroke();
+                } else {
+                    ctx.putImageData(_an.snapshot, 0, 0);
+                    desenharForma(ctx, _an.sx, _an.sy, p.x, p.y, _an.ferramenta, _an.cor, _an.esp);
+                }
+            }
+
+            function onEnd(e) {
+                if (!_an.desenhando) return;
+                _an.desenhando = false;
+                if (_an.ferramenta !== 'livre') {
+                    _an.historico.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+                }
+            }
+
+            canvas.addEventListener('mousedown', onStart);
+            canvas.addEventListener('mousemove', onMove);
+            canvas.addEventListener('mouseup', onEnd);
+            canvas.addEventListener('mouseleave', onEnd);
+            canvas.addEventListener('touchstart', onStart, {passive:false});
+            canvas.addEventListener('touchmove', onMove, {passive:false});
+            canvas.addEventListener('touchend', onEnd);
+        });
+    })();
+    </script>
 
 </body>
 </html>
