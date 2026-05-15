@@ -4260,7 +4260,13 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
       await new Promise(function(r){ setTimeout(r, 300); }); // aguardar reflow
 
       var pdf = new jsPDFLib('p', 'mm', 'a4');
-      var PW = 210, PH = 297, SC = 2, MAX_PAG = 3;
+      var PW = 210, PH = 297, MAX_PAG = 3;
+      // Escala adaptativa: evita canvas gigante que causa "Invalid string length"
+      var _estPx = (reportBox.offsetWidth || 800) * (reportBox.scrollHeight || reportBox.offsetHeight || 3000);
+      var SC = 2;
+      if (_estPx > 8000000)  SC = 1.5;
+      if (_estPx > 14000000) SC = 1.2;
+      if (_estPx > 22000000) SC = 1.0;
 
       // 2. LAUDO: ocultar Tabela 22 + compactar espaçamentos antes da captura
       var _lc = [];
@@ -5898,7 +5904,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                 reader.onload = function(e) {
                     const preview = document.getElementById(`laudo_foto_${numero}_preview`);
                     const container = preview.parentElement;
-                    
+
                     // Atualizar imagem
                     preview.src = e.target.result;
                     preview.style.display = 'block';
@@ -5906,10 +5912,19 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                     preview.style.height = '250px';
                     preview.style.objectFit = 'cover';
                     preview.style.objectPosition = 'center';
-                    
+
                     // Ocultar label de upload
                     const label = container.querySelector('label');
                     if (label) label.style.display = 'none';
+                    // Botão Trocar (criado apenas uma vez)
+                    if (container && !container.querySelector('.laudo-trocar-btn')) {
+                        const trocarBtn = document.createElement('button');
+                        trocarBtn.className = 'laudo-trocar-btn';
+                        trocarBtn.style.cssText = 'position:absolute;top:8px;right:8px;z-index:4;background:rgba(0,0,0,0.65);color:#fff;border:none;border-radius:5px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;';
+                        trocarBtn.innerHTML = '🔄 Trocar';
+                        trocarBtn.onclick = function() { input.click(); };
+                        container.appendChild(trocarBtn);
+                    }
                     // Mostrar botão Formas
                     const btnF = document.getElementById('laudo_foto_' + numero + '_btn_formas');
                     if (btnF) btnF.style.display = 'block';
@@ -6755,10 +6770,20 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const preview = document.getElementById('laudoPAC_foto_' + numero + '_preview');
+                    const container = preview.parentElement;
                     preview.src = e.target.result;
                     preview.style.display = 'block';
-                    const label = preview.parentElement.querySelector('label');
+                    const label = container.querySelector('label');
                     if (label) label.style.display = 'none';
+                    // Botão Trocar (criado apenas uma vez)
+                    if (container && !container.querySelector('.laudoPAC-trocar-btn')) {
+                        const trocarBtn = document.createElement('button');
+                        trocarBtn.className = 'laudoPAC-trocar-btn';
+                        trocarBtn.style.cssText = 'position:absolute;top:8px;right:8px;z-index:4;background:rgba(0,0,0,0.65);color:#fff;border:none;border-radius:5px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;';
+                        trocarBtn.innerHTML = '🔄 Trocar';
+                        trocarBtn.onclick = function() { input.click(); };
+                        container.appendChild(trocarBtn);
+                    }
                     const btnF = document.getElementById('laudoPAC_foto_' + numero + '_btn_formas');
                     if (btnF) btnF.style.display = 'block';
                 };
@@ -8250,6 +8275,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                             <button onclick="preencherConclusaoRA('sem_evolucao')" style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;">✅ Sem Evolução (Estável)</button>
                             <button onclick="preencherConclusaoRA('com_evolucao')" style="padding: 8px 16px; background: #FFA500; color: white; border: none; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;">⚠️ Com Evolução</button>
                             <button onclick="preencherConclusaoRA('reclassificar')" style="padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;">🔴 Reclassificar Risco</button>
+                            <button onclick="preencherConclusaoRA('concluido')" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;">✔️ Laudo Concluído</button>
                         </div>
                         <textarea id="ra_conclusao" style="width: 100%; min-height: 150px; padding: 15px; border: 2px solid #cccccc; border-radius: 8px; font-family: Arial, sans-serif; font-size: 12px; line-height: 1.6; resize: vertical; box-sizing: border-box;">ESTRUTURA INSPECIONADA SEM EVOLUÇÃO DA(S) ANOMALIA(S) IDENTIFICADA(S) NO LAUDO DE CONDIÇÃO ESTRUTURAL Nº _______. 
 
@@ -8347,6 +8373,8 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                 ta.value = `ESTRUTURA INSPECIONADA COM EVOLUÇÃO DA(S) ANOMALIA(S) IDENTIFICADA(S) NO LAUDO DE CONDIÇÃO ESTRUTURAL Nº ${numLaudo}.\n\nFoi constatada progressão dos mecanismos de degradação previamente identificados. Observa-se avanço de corrosão / trinca / deformação / perda de seção nos componentes estruturais [DESCREVER COMPONENTES]. A taxa de deterioração indica necessidade de intervenção prioritária.\n\nRecomenda-se priorizar a execução do reparo conforme escopo definido no laudo original, a fim de evitar comprometimento adicional da capacidade portante da estrutura.\n\nMANTER CLASSIFICAÇÃO DE RISCO: ${risco}.\nPRÓXIMO ACOMPANHAMENTO PREVISTO EM: ${proxAcomp}.`;
             } else if (tipo === 'reclassificar') {
                 ta.value = `ESTRUTURA INSPECIONADA COM EVOLUÇÃO SIGNIFICATIVA DA(S) ANOMALIA(S) IDENTIFICADA(S) NO LAUDO DE CONDIÇÃO ESTRUTURAL Nº ${numLaudo}.\n\nOs mecanismos de degradação apresentaram progressão acelerada, com agravamento das condições estruturais em relação ao último acompanhamento. Identificadas novas ocorrências de [DESCREVER: trincas / deformações / perda de seção / instabilidade] que comprometem a integridade e segurança operacional.\n\nDiante da evolução constatada, faz-se necessária a reclassificação do nível de risco da estrutura.\n\nALTERAR CLASSIFICAÇÃO DE RISCO PARA: MUITO ALTO.\nAÇÃO IMEDIATA REQUERIDA: Interdição parcial / restrição operacional / reparo emergencial.\nPRÓXIMO ACOMPANHAMENTO PREVISTO EM: ${proxAcomp}.`;
+            } else if (tipo === 'concluido') {
+                ta.value = `Foi realizado acompanhamento em campo da condição classificada como risco alto, onde foi constatado que as não conformidades referentes ao lodo, registradas sob o nº XXXXXXXXXXXX, foram executadas e concluídas conforme as recomendações estabelecidas na nota nº XXXXXXXX.\n\nDiante da correção das anomalias identificadas e das evidências registradas em campo, recomenda-se o encaminhamento à Engenharia responsável para avaliação e inativação do plano de acompanhamento nº XXXXXXX, considerando que as tratativas foram devidamente concluídas.`;
             }
         }
         
