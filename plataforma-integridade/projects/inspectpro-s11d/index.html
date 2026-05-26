@@ -848,9 +848,25 @@
         <h1 style="color:white;font-size:52px;font-weight:800;text-align:center;margin:0 20px 14px;z-index:2;letter-spacing:3px;animation:fadeInDown 1s ease;text-shadow:0 0 40px rgba(0,230,138,0.3);">InspectPro</h1>
         <p style="color:rgba(255,255,255,0.9);font-size:18px;text-align:center;margin:0 20px 10px;z-index:2;animation:fadeInUp 1s ease 0.3s both;">Sistema Profissional de Integridade Estrutural</p>
         <p style="color:rgba(0,230,138,0.8);font-size:16px;margin-bottom:50px;z-index:2;animation:fadeInUp 1s ease 0.5s both;">Integridade Estrutural | Vale S11D</p>
-        <button type="button" onclick="fecharCapa()" style="background:rgba(0,230,138,0.1);color:#00e68a;border:2px solid rgba(0,230,138,0.5);padding:18px 60px;font-size:18px;font-weight:700;border-radius:50px;cursor:pointer;position:relative;z-index:10;transition:all 0.3s;animation:pulse 2s ease infinite;text-transform:uppercase;letter-spacing:4px;backdrop-filter:blur(10px);"
-            onmouseover="this.style.background='rgba(0,230,138,0.2)';this.style.boxShadow='0 0 40px rgba(0,230,138,0.3)'"
-            onmouseout="this.style.background='rgba(0,230,138,0.1)';this.style.boxShadow='none'">ACESSAR</button>
+        <!-- Botão padrão (sem rascunho salvo) -->
+        <div id="capaBtn_padrao" style="z-index:10;display:flex;flex-direction:column;align-items:center;gap:12px;">
+            <button type="button" onclick="fecharCapa(false)" style="background:rgba(0,230,138,0.1);color:#00e68a;border:2px solid rgba(0,230,138,0.5);padding:18px 60px;font-size:18px;font-weight:700;border-radius:50px;cursor:pointer;position:relative;z-index:10;transition:all 0.3s;animation:pulse 2s ease infinite;text-transform:uppercase;letter-spacing:4px;backdrop-filter:blur(10px);"
+                onmouseover="this.style.background='rgba(0,230,138,0.2)';this.style.boxShadow='0 0 40px rgba(0,230,138,0.3)'"
+                onmouseout="this.style.background='rgba(0,230,138,0.1)';this.style.boxShadow='none'">ACESSAR</button>
+        </div>
+        <!-- Botões com rascunho salvo (oculto por padrão, exibido via JS) -->
+        <div id="capaBtn_rascunho" style="z-index:10;display:none;flex-direction:column;align-items:center;gap:14px;">
+            <div id="capaRascunhoInfo" style="background:rgba(0,204,122,0.12);border:1px solid rgba(0,204,122,0.45);border-radius:14px;padding:12px 28px;text-align:center;margin-bottom:4px;">
+                <div style="font-size:13px;color:#00e68a;font-weight:700;letter-spacing:1px;">📦 RASCUNHO SALVO</div>
+                <div id="capaRascunhoData" style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:4px;"></div>
+            </div>
+            <button type="button" onclick="fecharCapa(true)" style="background:rgba(0,230,138,0.18);color:#00e68a;border:2px solid rgba(0,230,138,0.6);padding:16px 48px;font-size:16px;font-weight:700;border-radius:50px;cursor:pointer;transition:all 0.3s;text-transform:uppercase;letter-spacing:3px;backdrop-filter:blur(10px);"
+                onmouseover="this.style.background='rgba(0,230,138,0.28)';this.style.boxShadow='0 0 30px rgba(0,230,138,0.3)'"
+                onmouseout="this.style.background='rgba(0,230,138,0.18)';this.style.boxShadow='none'">📂 Continuar Laudo</button>
+            <button type="button" onclick="iniciarNovoLaudo()" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);border:1.5px solid rgba(255,255,255,0.2);padding:13px 48px;font-size:14px;font-weight:600;border-radius:50px;cursor:pointer;transition:all 0.3s;letter-spacing:2px;"
+                onmouseover="this.style.background='rgba(255,255,255,0.12)';this.style.color='#fff'"
+                onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.7)'">📋 Novo Laudo</button>
+        </div>
         <p style="position:absolute;bottom:28px;color:rgba(0,230,138,0.5);font-size:12px;z-index:2;letter-spacing:1px;">Sistema de Relatórios V15.0 &nbsp;|&nbsp; © 2026 Vale</p>
     </div>
 
@@ -1164,8 +1180,9 @@
                             <option value="">📝 Selecione o tipo de conclusão...</option>
                             <option value="automatica">✨ Conclusão Automática (Baseada nas Tarefas)</option>
                             <option value="diagnostico_risco">🔬 Diagnóstico por Nível de Risco (Auto)</option>
-                            <option value="com_anomalia">⚠️ Com Anomalia — Sem Risco à Operação</option>
-                            <option value="sem_anomalia">✅ Sem Anomalia — Equipamento Conforme</option>
+                            <option value="sem_anomalia">✅ Sem Não Conformidades</option>
+                            <option value="com_anomalia">⚠️ Com Não Conformidades</option>
+                            <option value="anomalias_estaveis">🔄 Anomalias Anteriores Revisitadas e Estáveis</option>
                         </select>
                         <button type="button" class="add-btn" onclick="gerarConclusaoSelecionada()" style="padding:10px 20px;white-space:nowrap;">🔄 Gerar</button>
                     </div>
@@ -3267,16 +3284,25 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
                 // Diagnóstico baseado no maior nível de risco das recomendações
                 conclusao = gerarConclusaoDiagnostico();
                 if (!conclusao) return;
-            } else if (tipo === 'com_anomalia') {
-                // Conclusão padrão: COM ANOMALIA - SEM RISCO
-                conclusao = `APÓS INSPEÇÃO EM CAMPO, SEGUINDO A LISTA DE TAREFAS DO RESPECTIVO PLANO SISTEMÁTICO, FORAM IDENTIFICADAS ANOMALIAS ESTRUTURAIS QUE ESTÃO REGISTRADAS E SOB GESTÃO DO PROCESSO DE INTEGRIDADE ESTRUTURAL, ENTRETANTO, TAIS CONDIÇÕES NÃO OFERECEM RISCO À SEGURANÇA DAS PESSOAS E À OPERAÇÃO DO ATIVO.
-
-DETALHES DA INSPEÇÃO E DAS TRATATIVAS DAS OPORTUNIDADES ENCONTRADAS, ESTÃO INSERIDOS NA OM DE INSPEÇÃO CADASTRADA NO TEAMCENTER.`;
             } else if (tipo === 'sem_anomalia') {
-                // Conclusão padrão: SEM ANOMALIA
-                conclusao = `APÓS INSPEÇÃO EM CAMPO, SEGUINDO A LISTA DE TAREFAS DO RESPECTIVO PLANO SISTEMÁTICO, NÃO FORAM IDENTIFICADAS ANOMALIAS ESTRUTURAIS, DESTA FORMA PODENDO OPERAR NORMALMENTE, SEM OFERECER RISCO À SEGURANÇA DAS PESSOAS E À OPERAÇÃO DO ATIVO.
-
-DETALHES DA INSPEÇÃO E DAS TRATATIVAS DAS OPORTUNIDADES ENCONTRADAS, ESTÃO INSERIDOS NA OM DE INSPEÇÃO CADASTRADA NO TEAMCENTER.`;
+                // Conclusão: SEM NÃO CONFORMIDADES
+                const _ativoSA = (function(){ const s = document.getElementById('ativo'); return (s && s.selectedIndex > 0 ? (s.options[s.selectedIndex].text || s.value) : '') || '[NOME DO ATIVO]'; })();
+                const _localSA = (function(){ const s = document.getElementById('local'); return (s && s.selectedIndex > 0 ? (s.options[s.selectedIndex].text || s.value) : '') || '[LOCAL]'; })();
+                const _dataSA = (function(){ const d = document.getElementById('data')?.value; return d ? new Date(d + 'T00:00:00').toLocaleDateString('pt-BR') : '[DATA]'; })();
+                conclusao = `Foi realizada inspeção estrutural no ativo ${_ativoSA}, localizado em ${_localSA}, em ${_dataSA}, conforme procedimento PRO-024969 - Inspeção Estrutural de Equipamentos de Mina.\n\nDurante a inspeção, foram avaliadas as condições estruturais aparentes do ativo, considerando os principais componentes sujeitos a desgaste, deformações, corrosão, trincas, falhas de fixação e demais manifestações que possam comprometer sua integridade estrutural.\n\nCom base nas evidências observadas em campo, o ativo encontra-se em condições adequadas de operação, não apresentando não conformidades estruturais que comprometam a segurança operacional ou a integridade do equipamento.\n\nRecomenda-se manter a rotina de inspeções periódicas conforme diretrizes estabelecidas no PGS-0003241 - Programa de Gerenciamento de Segurança, bem como o acompanhamento contínuo das condições estruturais e operacionais do ativo.`;
+            } else if (tipo === 'com_anomalia') {
+                // Conclusão: COM NÃO CONFORMIDADES
+                const _ativoCA = (function(){ const s = document.getElementById('ativo'); return (s && s.selectedIndex > 0 ? (s.options[s.selectedIndex].text || s.value) : '') || '[NOME DO ATIVO]'; })();
+                const _localCA = (function(){ const s = document.getElementById('local'); return (s && s.selectedIndex > 0 ? (s.options[s.selectedIndex].text || s.value) : '') || '[LOCAL]'; })();
+                const _dataCA = (function(){ const d = document.getElementById('data')?.value; return d ? new Date(d + 'T00:00:00').toLocaleDateString('pt-BR') : '[DATA]'; })();
+                const _ordemCA = document.getElementById('ordem')?.value || '[2026XXXXXXXXX]';
+                conclusao = `Foi realizada inspeção estrutural no ativo ${_ativoCA}, localizado em ${_localCA}, em ${_dataCA}, conforme procedimento PRO-024969 - Inspeção Estrutural de Equipamentos de Mina.\n\nDurante a inspeção, foram avaliadas as condições estruturais aparentes do ativo, sendo identificadas anomalias e/ou não conformidades que requerem tratativa, acompanhamento ou correção conforme criticidade observada.\n\nPara a(s) condição(ões) identificada(s), foi(ram) cadastrada(s) nota(s) de manutenção de nº ${_ordemCA} para correção das anomalias, visando o acompanhamento e a execução das ações corretivas necessárias.\n\nQuando as condições identificadas envolverem possível modificação de projeto, alteração estrutural ou forem classificadas preliminarmente como risco alto, recomenda-se o envolvimento da Engenharia responsável para avaliação técnica, validação da criticidade e definição das ações corretivas necessárias.\n\nRecomenda-se o acompanhamento das tratativas em rota sistemática de inspeção e a reavaliação das condições estruturais após a execução das ações corretivas, conforme diretrizes estabelecidas no PGS-0003241 - Programa de Gerenciamento de Segurança.`;
+            } else if (tipo === 'anomalias_estaveis') {
+                // Conclusão: ANOMALIAS ANTERIORES REVISITADAS E ESTÁVEIS
+                const _ativoAE = (function(){ const s = document.getElementById('ativo'); return (s && s.selectedIndex > 0 ? (s.options[s.selectedIndex].text || s.value) : '') || '[NOME DO ATIVO]'; })();
+                const _localAE = (function(){ const s = document.getElementById('local'); return (s && s.selectedIndex > 0 ? (s.options[s.selectedIndex].text || s.value) : '') || '[LOCAL]'; })();
+                const _dataAE = (function(){ const d = document.getElementById('data')?.value; return d ? new Date(d + 'T00:00:00').toLocaleDateString('pt-BR') : '[DATA]'; })();
+                conclusao = `Foi realizada inspeção estrutural no ativo ${_ativoAE}, localizado em ${_localAE}, em ${_dataAE}, conforme procedimento PRO-024969 - Inspeção Estrutural de Equipamentos de Mina.\n\nDurante a inspeção, foram revisitadas as anomalias registradas nos laudos anteriores, sendo constatado que as condições permanecem estáveis, sem evolução significativa em relação à última avaliação.\n\nAs manifestações observadas não apresentam, no momento da inspeção, indícios de agravamento que comprometam a segurança operacional ou a integridade estrutural do ativo.\n\nRecomenda-se manter o acompanhamento por meio das rotas sistemáticas de inspeção, conforme diretrizes estabelecidas no PGS-0003241 - Programa de Gerenciamento de Segurança, garantindo o monitoramento contínuo da possível evolução das anomalias e a atualização das recomendações sempre que necessário.`;
             }
             
             // Inserir no campo de conclusão
@@ -5461,8 +5487,9 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
             const dataHoje = new Date().toISOString().split('T')[0];
             
             modal.innerHTML = `
-                <div style="max-width:210mm;margin:0 auto 12px auto;display:flex;justify-content:flex-start;">
+                <div style="max-width:210mm;margin:0 auto 12px auto;display:flex;justify-content:space-between;align-items:center;">
                     <button onclick="document.getElementById('modalLaudo').remove()" style="background:rgba(255,255,255,0.12);color:#fff;border:1.5px solid rgba(255,255,255,0.3);border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;backdrop-filter:blur(4px);transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.22)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">← Voltar para tela principal</button>
+                    ${_htmlBotoesSecao('laudo_', 4, 'rascunho_laudo', '#005a45')}
                 </div>
                 <div id="laudo_documento" style="max-width: 210mm; margin: 0 auto; background: #f5f5f5; box-shadow: 0 2px 20px rgba(0,0,0,0.15); min-height: 32px">
 
@@ -5820,10 +5847,11 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
             `;
             
             document.body.appendChild(modal);
+            _inicBtnSecao('laudo_', 4, 'rascunho_laudo');
             for (let i = 0; i < 2; i++) adicionarRecomendacaoLaudo();
             calcularRiscoTabela11();
         }
-        
+
         function atualizarCabecalhoLaudo(valor) {
             document.getElementById('laudo_codigo_cabecalho').textContent = valor || 'FEKS-BFE-CAR-RC_2092-RC03-ST1';
         }
@@ -6430,8 +6458,9 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
             contadorRecomendacoesLaudoPAC = 0;
             
             modal.innerHTML = `
-                <div style="max-width:210mm;margin:0 auto 12px auto;display:flex;justify-content:flex-start;">
+                <div style="max-width:210mm;margin:0 auto 12px auto;display:flex;justify-content:space-between;align-items:center;">
                     <button onclick="document.getElementById('modalLaudoPAC').remove()" style="background:rgba(255,255,255,0.12);color:#fff;border:1.5px solid rgba(255,255,255,0.3);border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;backdrop-filter:blur(4px);transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.22)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">← Voltar para tela principal</button>
+                    ${_htmlBotoesSecao('laudoPAC_', 4, 'rascunho_laudopac', '#0f3460')}
                 </div>
                 <div id="laudoPAC_documento" style="max-width: 210mm; margin: 0 auto; background: #f5f5f5; box-shadow: 0 2px 20px rgba(0,0,0,0.15);">
 
@@ -6707,11 +6736,12 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
             `;
             
             document.body.appendChild(modal);
+            _inicBtnSecao('laudoPAC_', 4, 'rascunho_laudopac');
             for (let i = 0; i < 2; i++) adicionarRecomendacaoLaudoPAC();
             atualizarRiPAC();
             calcularPrazoLaudoPAC();
         }
-        
+
         function atualizarRiPAC() {
             const ri = document.getElementById('laudoPAC_ri').value;
             const display = document.getElementById('laudoPAC_condicao_display');
@@ -8184,8 +8214,9 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
             const dataHoje = new Date().toLocaleDateString('pt-BR');
             
             modal.innerHTML = `
-                <div style="max-width:210mm;margin:0 auto 12px auto;display:flex;justify-content:flex-start;">
+                <div style="max-width:210mm;margin:0 auto 12px auto;display:flex;justify-content:space-between;align-items:center;">
                     <button onclick="document.getElementById('modalRiscoAlto').remove()" style="background:rgba(255,255,255,0.12);color:#fff;border:1.5px solid rgba(255,255,255,0.3);border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;backdrop-filter:blur(4px);transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.22)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">← Voltar para tela inicial</button>
+                    ${_htmlBotoesSecao('ra_', 6, 'rascunho_riscoalto', '#8B0000')}
                 </div>
                 <div id="riscoAlto_documento" style="max-width: 210mm; margin: 0 auto; background: #f5f5f5; box-shadow: 0 2px 20px rgba(0,0,0,0.15); min-height: 32px">
 
@@ -8315,8 +8346,9 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
             `;
             
             document.body.appendChild(modal);
+            _inicBtnSecao('ra_', 6, 'rascunho_riscoalto');
         }
-        
+
         function previewFotoRA(numero, input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -8703,8 +8735,12 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
             const dataHoje = new Date().toLocaleDateString('pt-BR');
 
             modal.innerHTML = `
-                <div style="max-width:210mm;margin:0 auto 12px auto;display:flex;justify-content:flex-start;">
+                <div style="max-width:210mm;margin:0 auto 12px auto;display:flex;justify-content:space-between;align-items:center;">
                     <button onclick="salvarEstadoSujidade();document.getElementById('modalSujidade').remove()" style="background:rgba(255,255,255,0.15);color:#fff;border:1.5px solid rgba(255,255,255,0.45);border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.28)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">← Voltar para tela inicial</button>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <button onclick="salvarRascunhoSujidade()" style="background:#5D4037;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;">💾 Salvar Rascunho</button>
+                        <button id="btnCarregar_suj_" onclick="carregarRascunhoSujidade()" style="background:#1565C0;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;opacity:0.4;pointer-events:none;">📂 Carregar Rascunho</button>
+                    </div>
                 </div>
 
                 <div id="sujidade_documento" style="max-width:210mm;margin:0 auto;background:#f5f5f5;box-shadow:0 2px 20px rgba(0,0,0,0.15);">
@@ -8930,6 +8966,12 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
 
             document.body.appendChild(modal);
             if (window.__sujState && Object.keys(window.__sujState).length) restaurarEstadoSujidade();
+            buscarPDFnoDB('rascunho_sujidade').then(function(d) {
+                if (d) {
+                    var b = document.getElementById('btnCarregar_suj_');
+                    if (b) { b.style.opacity = '1'; b.style.pointerEvents = 'auto'; }
+                }
+            });
         }
 
         async function gerarPDFSujidade() {
@@ -9098,39 +9140,88 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
         // ========================================
         // FECHAR CAPA DE ABERTURA
         // ========================================
-        function fecharCapa() {
+        function fecharCapa(restaurar) {
             const capa = document.getElementById('capaAbertura');
             capa.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
             capa.style.opacity = '0';
             capa.style.transform = 'scale(1.1)';
-            
+
             setTimeout(() => {
                 capa.style.display = 'none';
-                
-                // Restaurar backup pendente se existir
+
+                if (restaurar === false) {
+                    window._backupPendente = false;
+                    window._backupDados = null;
+                    return;
+                }
+
                 if (window._backupPendente && window._backupDados) {
                     window._backupPendente = false;
                     const bd = window._backupDados;
-                    
+
                     if (bd.subtipoAtual && typeof selecionarSubtipo === 'function') {
                         selecionarSubtipo(bd.templateAtual, bd.subtipoAtual);
                     } else if (bd.templateAtual && typeof selecionarTemplate === 'function') {
                         selecionarTemplate(bd.templateAtual);
                     }
-                    
-                    setTimeout(() => {
+
+                    setTimeout(async () => {
                         dadosFormulario = bd;
-                        const campos = ['numeroRelatorio', 'ordem', 'disciplina', 'ativo', 'local', 
-                                       'inspetor', 'data', 'conclusao', 'ferramentas', 'tecnica', 
+                        const campos = ['numeroRelatorio', 'ordem', 'disciplina', 'ativo', 'local',
+                                       'inspetor', 'data', 'conclusao', 'ferramentas', 'tecnica',
                                        'nivel', 'unidade', 'area'];
                         campos.forEach(id => {
                             const el = document.getElementById(id);
                             if (el && bd[id]) el.value = bd[id];
                         });
-                        console.log('📦 Backup restaurado após capa');
+
+                        try {
+                            const fotosFormJSON = await buscarPDFnoDB('autosave_fotos_formulario');
+                            if (fotosFormJSON) _restaurarFormPendente.fotos = JSON.parse(fotosFormJSON);
+                            const camposFormJSON = await buscarPDFnoDB('autosave_campos_formulario');
+                            if (camposFormJSON) _restaurarFormPendente.campos = JSON.parse(camposFormJSON);
+                            if (Object.keys(_restaurarFormPendente.fotos).length > 0 || Object.keys(_restaurarFormPendente.campos).length > 0) {
+                                _iniciarWatcherRestauracao();
+                            }
+                        } catch(e) {}
+
+                        try {
+                            const fotosJSON = await buscarPDFnoDB('autosave_fotos');
+                            if (fotosJSON) {
+                                const fotos = JSON.parse(fotosJSON);
+                                if (fotos && fotos.length > 0) {
+                                    arquivosAnexados = fotos;
+                                    if (typeof atualizarListaArquivos === 'function') atualizarListaArquivos();
+                                }
+                            }
+                        } catch(e) {}
+
+                        try {
+                            const tsJSON = await buscarPDFnoDB('autosave_taskStates');
+                            if (tsJSON) taskStates = JSON.parse(tsJSON);
+                        } catch(e) {}
+
+                        const toast = document.createElement('div');
+                        toast.style.cssText = 'position:fixed;bottom:20px;right:20px;background:linear-gradient(135deg,#0a2a1e,#0D4D3D);color:white;padding:14px 22px;border-radius:12px;font-size:13px;font-weight:600;z-index:99999;box-shadow:0 8px 30px rgba(0,0,0,0.3);display:flex;align-items:center;gap:10px;';
+                        toast.innerHTML = '✅ Rascunho restaurado com sucesso!';
+                        document.body.appendChild(toast);
+                        setTimeout(() => { toast.style.transition='all 0.4s';toast.style.opacity='0';setTimeout(()=>toast.remove(),500); }, 3500);
+
+                        console.log('📦 Rascunho restaurado após capa (completo)');
                     }, 600);
                 }
             }, 800);
+        }
+
+        function iniciarNovoLaudo() {
+            if (!confirm('⚠️ Tem certeza que deseja iniciar um novo laudo?\n\nO rascunho salvo será descartado.')) return;
+            localStorage.removeItem('relatorio_vale_backup');
+            ['autosave_fotos','autosave_fotosData','autosave_fotos_formulario','autosave_campos_formulario','autosave_taskStates'].forEach(k => {
+                try { excluirPDFdoDB(k).catch(()=>{}); } catch(e) {}
+            });
+            window._backupPendente = false;
+            window._backupDados = null;
+            fecharCapa(false);
         }
 
         function baixarLayout() {
@@ -9186,16 +9277,20 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                     // Guardar flag para restaurar depois que fechar a capa
                     window._backupPendente = true;
                     window._backupDados = JSON.parse(JSON.stringify(dadosFormulario));
-                    
-                    // Adicionar indicador na capa de que há sessão anterior
-                    const capa = document.getElementById('capaAbertura');
-                    if (capa) {
-                        const badge = document.createElement('div');
-                        badge.style.cssText = 'position: absolute; bottom: 60px; z-index: 3; background: rgba(0,204,122,0.15); border: 1px solid #00cc7a; border-radius: 10px; padding: 10px 20px; text-align: center;';
-                        badge.innerHTML = '<div style="font-size: 11px; color: #00cc7a; font-weight: 600;">📦 Sessão anterior encontrada</div><div style="font-size: 9px; color: rgba(255,255,255,0.6); margin-top: 4px;">Salva em ' + tempoFormatado + '</div>';
-                        capa.appendChild(badge);
+
+                    // Mostrar botões "Continuar" / "Novo Laudo" na capa
+                    const btnPadrao = document.getElementById('capaBtn_padrao');
+                    const btnRascunho = document.getElementById('capaBtn_rascunho');
+                    const rascunhoData = document.getElementById('capaRascunhoData');
+                    if (btnPadrao) btnPadrao.style.display = 'none';
+                    if (btnRascunho) btnRascunho.style.display = 'flex';
+                    if (rascunhoData) {
+                        const infoParts = [];
+                        if (dadosFormulario.numeroRelatorio) infoParts.push('Nº ' + dadosFormulario.numeroRelatorio);
+                        if (dadosFormulario.totalFotos > 0) infoParts.push(dadosFormulario.totalFotos + ' foto(s)');
+                        rascunhoData.textContent = 'Salvo em ' + tempoFormatado + (infoParts.length ? '  ·  ' + infoParts.join(' · ') : '');
                     }
-                    return; // Não restaurar agora, esperar fecharCapa
+                    return; // Não restaurar agora, esperar escolha do usuário
                 }
                 
                 // Preencher campos básicos
@@ -9335,10 +9430,132 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
             }
         });
         
+        // =========================================================
+        // RASCUNHO POR SEÇÃO (Laudo / Laudo PAC / Risco Alto / Sujidade)
+        // =========================================================
+
+        function _toastSecao(msg, cor) {
+            const t = document.createElement('div');
+            t.style.cssText = 'position:fixed;bottom:22px;right:22px;background:' + cor + ';color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:700;z-index:99999;box-shadow:0 4px 20px rgba(0,0,0,0.45);pointer-events:none;';
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => { t.style.transition='opacity 0.4s'; t.style.opacity='0'; setTimeout(()=>t.remove(),450); }, 2800);
+        }
+
+        function _nomeSecao(prefixo) {
+            return { 'laudo_':'Laudo', 'laudoPAC_':'Laudo PAC', 'ra_':'Risco Alto', 'suj_':'Sujidade' }[prefixo] || prefixo;
+        }
+
+        async function salvarRascunhoSecao(prefixo, numFotos, chaveDB) {
+            try {
+                const dados = { _timestamp: new Date().toISOString(), _prefixo: prefixo };
+                document.querySelectorAll('input[id], textarea[id], select[id]').forEach(el => {
+                    if (!el.id.startsWith(prefixo) || el.type === 'file') return;
+                    if (el.type === 'checkbox') dados[el.id] = el.checked;
+                    else if (el.type === 'radio') { if (el.checked) dados[el.id] = el.value; }
+                    else if (el.value) dados[el.id] = el.value;
+                });
+                const fotos = {};
+                document.querySelectorAll('img[id^="' + prefixo + 'foto_"][id$="_preview"]').forEach(img => {
+                    if (img.src && img.src.startsWith('data:') && img.style.display !== 'none') fotos[img.id] = img.src;
+                });
+                for (let i = 1; i <= (numFotos || 6); i++) {
+                    const img = document.getElementById(prefixo + 'foto_' + i + '_preview');
+                    if (img && img.src && img.src.startsWith('data:') && img.style.display !== 'none') fotos[img.id] = img.src;
+                }
+                dados._fotos = fotos;
+                await salvarPDFnoDB(chaveDB, JSON.stringify(dados));
+                const ts = new Date(dados._timestamp).toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+                const btn = document.getElementById('btnCarregar_' + prefixo.replace('_',''));
+                if (btn) { btn.innerHTML = '📂 Carregar (' + ts + ')'; btn.style.opacity = '1'; btn.disabled = false; }
+                _toastSecao('💾 Rascunho do ' + _nomeSecao(prefixo) + ' salvo!', '#005a45');
+            } catch(e) { console.error(e); alert('Erro ao salvar: ' + e.message); }
+        }
+
+        async function carregarRascunhoSecao(prefixo, numFotos, chaveDB) {
+            try {
+                const dadosJSON = await buscarPDFnoDB(chaveDB);
+                if (!dadosJSON) { alert('Nenhum rascunho salvo para ' + _nomeSecao(prefixo) + '.'); return; }
+                const dados = JSON.parse(dadosJSON);
+                const ts = dados._timestamp ? new Date(dados._timestamp).toLocaleString('pt-BR') : '?';
+                if (!confirm('Carregar rascunho do ' + _nomeSecao(prefixo) + '\nsalvo em ' + ts + '?\n\nOs dados atuais serão substituídos.')) return;
+                Object.keys(dados).forEach(id => {
+                    if (id.startsWith('_')) return;
+                    const el = document.getElementById(id); if (!el) return;
+                    if (el.type === 'checkbox') el.checked = !!dados[id];
+                    else if (el.type === 'radio') { if (el.value === dados[id]) el.checked = true; }
+                    else el.value = dados[id];
+                    el.dispatchEvent(new Event('input', {bubbles:true}));
+                    el.dispatchEvent(new Event('change', {bubbles:true}));
+                });
+                if (dados._fotos) {
+                    Object.keys(dados._fotos).forEach(imgId => {
+                        const img = document.getElementById(imgId); if (!img) return;
+                        img.src = dados._fotos[imgId]; img.style.display = 'block'; img.style.zIndex = '3';
+                        const btnF = document.getElementById(imgId.replace('_preview','_btn_formas'));
+                        if (btnF) btnF.style.display = 'block';
+                    });
+                }
+                _toastSecao('📂 Rascunho do ' + _nomeSecao(prefixo) + ' carregado!', '#1565C0');
+            } catch(e) { console.error(e); alert('Erro ao carregar: ' + e.message); }
+        }
+
+        async function _inicBtnSecao(prefixo, numFotos, chaveDB) {
+            try {
+                const dadosJSON = await buscarPDFnoDB(chaveDB);
+                const btn = document.getElementById('btnCarregar_' + prefixo.replace('_',''));
+                if (!btn) return;
+                if (dadosJSON) {
+                    const d = JSON.parse(dadosJSON);
+                    const ts = d._timestamp ? new Date(d._timestamp).toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '';
+                    btn.innerHTML = '📂 Carregar' + (ts ? ' (' + ts + ')' : ''); btn.style.opacity='1'; btn.disabled=false;
+                } else {
+                    btn.innerHTML = '📂 Carregar'; btn.style.opacity='0.45'; btn.disabled=true;
+                }
+            } catch(e) {}
+        }
+
+        function _htmlBotoesSecao(prefixo, numFotos, chaveDB, cor) {
+            const pid = prefixo.replace('_','');
+            return '<div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">' +
+                '<button onclick="salvarRascunhoSecao(\'' + prefixo + '\',' + (numFotos||6) + ',\'' + chaveDB + '\')" ' +
+                'style="background:' + cor + ';color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;" ' +
+                'onmouseover="this.style.opacity=\'0.85\'" onmouseout="this.style.opacity=\'1\'">💾 Salvar Rascunho</button>' +
+                '<button id="btnCarregar_' + pid + '" onclick="carregarRascunhoSecao(\'' + prefixo + '\',' + (numFotos||6) + ',\'' + chaveDB + '\')" ' +
+                'style="background:rgba(255,255,255,0.12);color:#fff;border:1.5px solid rgba(255,255,255,0.35);border-radius:8px;padding:9px 16px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;opacity:0.45;" ' +
+                'onmouseover="if(!this.disabled)this.style.background=\'rgba(255,255,255,0.22)\'" onmouseout="this.style.background=\'rgba(255,255,255,0.12)\'">📂 Carregar</button>' +
+                '</div>';
+        }
+
+        async function salvarRascunhoSujidade() {
+            salvarEstadoSujidade();
+            try {
+                window.__sujState._timestamp = new Date().toISOString();
+                await salvarPDFnoDB('rascunho_sujidade', JSON.stringify(window.__sujState));
+                const ts = new Date(window.__sujState._timestamp).toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+                const btn = document.getElementById('btnCarregar_suj_');
+                if (btn) { btn.innerHTML = '📂 Carregar (' + ts + ')'; btn.style.opacity='1'; btn.style.pointerEvents='auto'; }
+                _toastSecao('💾 Rascunho da Sujidade salvo!', '#5D4037');
+            } catch(e) { alert('Erro: ' + e.message); }
+        }
+
+        async function carregarRascunhoSujidade() {
+            try {
+                const dadosJSON = await buscarPDFnoDB('rascunho_sujidade');
+                if (!dadosJSON) { alert('Nenhum rascunho salvo para Sujidade.'); return; }
+                const dados = JSON.parse(dadosJSON);
+                const ts = dados._timestamp ? new Date(dados._timestamp).toLocaleString('pt-BR') : '?';
+                if (!confirm('Carregar rascunho da Sujidade\nsalvo em ' + ts + '?\n\nOs dados atuais serão substituídos.')) return;
+                window.__sujState = dados;
+                restaurarEstadoSujidade();
+                _toastSecao('📂 Rascunho da Sujidade carregado!', '#1565C0');
+            } catch(e) { alert('Erro: ' + e.message); }
+        }
+
         function carregarInspetoresSalvos() {
             try {
                 const inspetores = JSON.parse(localStorage.getItem('inspetores_customizados') || '[]');
-                
+
                 if (inspetores.length > 0) {
                     const select = document.getElementById('seletorInspetor');
                     const opcaoOutro = select.querySelector('option[value="OUTRO"]');
