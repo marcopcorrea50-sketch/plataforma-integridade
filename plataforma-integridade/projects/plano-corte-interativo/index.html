@@ -1,0 +1,2437 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gerador de Plano de Atividade Segura</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf/dist/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --teal: #007e7a;
+      --teal-dark: #005f5a;
+      --blue: #1d4ed8;
+      --ink: #182230;
+      --muted: #667085;
+      --line: #d0d5dd;
+      --fill: #f8fafc;
+      --soft-teal: #e6f4f1;
+      --soft-yellow: #fff6d6;
+      --soft-red: #ffe4e2;
+      --red: #b42318;
+      --orange: #b54708;
+      --green: #027a48;
+      --white: #ffffff;
+      --shadow: 0 14px 34px rgba(15, 23, 42, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #eef2f6;
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: var(--white);
+      color: var(--ink);
+      border-radius: 6px;
+      min-height: 34px;
+      padding: 7px 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    button:hover {
+      border-color: var(--teal);
+      color: var(--teal-dark);
+    }
+
+    button.primary {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    button.warn {
+      color: var(--red);
+      border-color: #fecdca;
+      background: #fffafa;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 1px 0 rgba(16, 24, 40, .04);
+    }
+
+    .topbar-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 10px 18px;
+      display: grid;
+      grid-template-columns: minmax(300px, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 160px;
+      height: 52px;
+      object-fit: contain;
+      object-position: left center;
+      flex: 0 0 auto;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.15;
+    }
+
+    .brand small {
+      display: block;
+      color: var(--muted);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .layout {
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 16px 18px 34px;
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr) 320px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .nav, .panel, .side-panel {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .nav {
+      position: sticky;
+      top: 96px;
+      padding: 10px;
+    }
+
+    .nav a {
+      display: block;
+      color: var(--ink);
+      text-decoration: none;
+      padding: 10px 10px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .nav a:hover, .nav a.active {
+      background: var(--soft-teal);
+      color: var(--teal-dark);
+    }
+
+    .main {
+      display: grid;
+      gap: 14px;
+    }
+
+    .panel {
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #fff;
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.25;
+    }
+
+    .panel-body {
+      padding: 14px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .wide { grid-column: 1 / -1; }
+
+    label {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--ink);
+      background: #fff;
+      padding: 8px 9px;
+      outline: none;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 84px;
+      line-height: 1.35;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(0, 126, 122, .12);
+    }
+
+    .row-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .row-title {
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      background: var(--fill);
+      border-bottom: 1px solid var(--line);
+      font-weight: 700;
+    }
+
+    .row-title span {
+      overflow-wrap: anywhere;
+    }
+
+    .row-body {
+      padding: 12px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .inline-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .mini {
+      font-size: 12px;
+      min-height: 30px;
+      padding: 5px 8px;
+      border-radius: 5px;
+    }
+
+    .status {
+      min-height: 20px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--soft-teal);
+      color: var(--teal-dark);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .search-results {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .photo-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+      min-width: 0;
+    }
+
+    .photo-card img {
+      width: 100%;
+      height: 112px;
+      object-fit: cover;
+      display: block;
+      background: #e4e7ec;
+    }
+
+    .photo-frame,
+    .report-photo-frame {
+      position: relative;
+      width: 100%;
+      background: #e4e7ec;
+      overflow: hidden;
+    }
+
+    .photo-frame {
+      height: 190px;
+    }
+
+    .photo-frame img,
+    .report-photo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      background: #f8fafc;
+    }
+
+    .annotation-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .shape-count {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .photo-meta {
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .photo-meta strong {
+      font-size: 12px;
+      line-height: 1.2;
+      min-height: 30px;
+      overflow: hidden;
+    }
+
+    .photo-meta small {
+      color: var(--muted);
+      line-height: 1.25;
+      min-height: 30px;
+      overflow-wrap: anywhere;
+    }
+
+    .photo-caption {
+      width: 100%;
+      min-height: 34px;
+      font-size: 12px;
+    }
+
+    .shape-toggle {
+      position: absolute;
+      right: 6px;
+      top: 6px;
+      z-index: 2;
+      min-height: 26px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      border-color: rgba(16, 24, 40, .24);
+      background: rgba(255, 255, 255, .92);
+      color: var(--ink);
+      font-size: 11px;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(16, 24, 40, .14);
+    }
+
+    .shape-tools {
+      display: grid;
+      gap: 7px;
+      border-top: 1px solid var(--line);
+      padding-top: 7px;
+    }
+
+    .shape-add,
+    .shape-row {
+      display: grid;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .shape-add {
+      grid-template-columns: auto 1fr;
+    }
+
+    .shape-row {
+      grid-template-columns: 72px 34px repeat(4, minmax(32px, 1fr)) auto;
+    }
+
+    .shape-row input[type="number"] {
+      min-height: 28px;
+      padding: 4px;
+      font-size: 11px;
+    }
+
+    .shape-row select,
+    .shape-add select {
+      min-height: 30px;
+      padding: 4px;
+      font-size: 11px;
+    }
+
+    .shape-add input[type="color"],
+    .shape-row input[type="color"] {
+      min-height: 30px;
+      padding: 2px;
+    }
+
+    .annotation-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: none;
+      background: rgba(0, 0, 0, .74);
+    }
+
+    .annotation-modal.open {
+      display: block;
+    }
+
+    .annotation-dialog {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      background: #181818;
+      color: #fff;
+    }
+
+    .annotation-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-bottom: 1px solid #2f2f2f;
+      background: #111;
+    }
+
+    .annotation-title {
+      margin: 0;
+      max-width: 280px;
+      overflow: hidden;
+      color: #d0d5dd;
+      font-size: 12px;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .annotation-tools {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .tool-label,
+    .annotation-tools label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+      font-size: 12px;
+      color: #f2f4f7;
+      font-weight: 700;
+    }
+
+    .tool-label {
+      margin-right: 2px;
+      font-family: Georgia, "Times New Roman", serif;
+      letter-spacing: .2px;
+    }
+
+    .tool-btn,
+    .color-swatch {
+      min-width: 42px;
+      min-height: 34px;
+      border: 2px solid #4a4a4a;
+      border-radius: 7px;
+      background: #222;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .tool-btn.active,
+    .color-swatch.active {
+      border-color: #ffc400;
+      box-shadow: 0 0 0 2px #00a98f;
+    }
+
+    .tool-icon {
+      display: inline-block;
+      width: 16px;
+      height: 13px;
+      position: relative;
+    }
+
+    .tool-icon.rect {
+      border: 2px solid currentColor;
+    }
+
+    .tool-icon.circle {
+      width: 15px;
+      height: 15px;
+      border: 2px solid currentColor;
+      border-radius: 999px;
+    }
+
+    .tool-icon.line::before,
+    .tool-icon.arrow::before {
+      content: "";
+      position: absolute;
+      left: 1px;
+      right: 1px;
+      top: 6px;
+      height: 2px;
+      background: currentColor;
+      transform: rotate(-38deg);
+      transform-origin: center;
+    }
+
+    .tool-icon.arrow::after {
+      content: "";
+      position: absolute;
+      right: -1px;
+      top: 2px;
+      width: 8px;
+      height: 8px;
+      border-top: 2px solid currentColor;
+      border-right: 2px solid currentColor;
+      transform: rotate(8deg);
+    }
+
+    .color-swatch {
+      min-width: 28px;
+      width: 28px;
+      min-height: 28px;
+      border-color: #777;
+      background: var(--swatch);
+    }
+
+    .toolbar-divider {
+      width: 1px;
+      height: 34px;
+      margin: 0 4px;
+      background: #3a3a3a;
+    }
+
+    .thickness-select {
+      min-height: 32px;
+      min-width: 116px;
+      border-radius: 6px;
+      border: 1px solid #d0d5dd;
+      background: #fff;
+      color: #101828;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .annotation-toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .annotation-toolbar .shape-count {
+      color: #d0d5dd;
+    }
+
+    .annotation-toolbar-actions button,
+    .annotation-footer button {
+      min-height: 34px;
+      border-radius: 7px;
+      border-color: #4a4a4a;
+      background: #2a2a2a;
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .annotation-toolbar-actions .danger,
+    .annotation-footer .cancel {
+      border-color: #7a271a;
+      background: #7a271a;
+    }
+
+    .annotation-footer .apply {
+      border-color: #008c7a;
+      background: #008c7a;
+    }
+
+    .annotation-workspace {
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      background: #1a1a1a;
+      overflow: auto;
+    }
+
+    .annotation-stage {
+      position: relative;
+      width: min(92vw, calc((100vh - 178px) * var(--photo-aspect, 1.777)));
+      max-height: calc(100vh - 190px);
+      aspect-ratio: var(--photo-aspect, 1.777);
+      margin: 0 auto;
+      border-radius: 0;
+      overflow: hidden;
+      background: transparent;
+      cursor: crosshair;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .annotation-stage img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      background: transparent;
+      pointer-events: none;
+    }
+
+    .annotation-stage .annotation-svg {
+      z-index: 2;
+    }
+
+    .annotation-hint {
+      color: #98a2b3;
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .annotation-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 10px 12px;
+      border-top: 1px solid #2f2f2f;
+      background: #111;
+    }
+
+    .annotation-footer-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .annotation-footer-actions button {
+      min-width: 118px;
+    }
+
+    .side-panel {
+      position: sticky;
+      top: 96px;
+      padding: 14px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .metric b {
+      display: block;
+      font-size: 20px;
+      line-height: 1;
+      color: var(--teal-dark);
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .chart-wrap {
+      height: 230px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .empty {
+      color: var(--muted);
+      background: var(--fill);
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      font-weight: 700;
+    }
+
+    .footer-note {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .hidden-input {
+      display: none;
+    }
+
+    .report-shell {
+      position: fixed;
+      left: -99999px;
+      top: 0;
+      width: 794px;
+      background: transparent;
+      color: #182230;
+      font-family: Arial, Helvetica, sans-serif;
+      padding: 0;
+      letter-spacing: 0;
+    }
+
+    .report-page {
+      width: 794px;
+      min-height: 1123px;
+      padding: 30px 34px 40px;
+      background: #fff;
+      position: relative;
+      overflow: hidden;
+      page-break-after: always;
+    }
+
+    .report-header {
+      display: grid;
+      grid-template-columns: 165px minmax(0, 1fr) 74px;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 2px solid var(--teal);
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .report-logo {
+      width: 136px;
+      max-width: 136px;
+      height: auto;
+      display: block;
+    }
+
+    .report-kicker {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .report-shell h1 {
+      margin: 0;
+      font-size: 16px;
+      color: var(--teal-dark);
+      line-height: 1.2;
+    }
+
+    .report-shell h2 {
+      margin: 13px 0 7px;
+      font-size: 14px;
+      color: #fff;
+      background: var(--teal);
+      padding: 7px 9px;
+      border-radius: 4px;
+      line-height: 1.15;
+    }
+
+    .report-shell h3 {
+      margin: 9px 0 5px;
+      font-size: 12px;
+      color: var(--teal-dark);
+    }
+
+    .report-subtitle {
+      color: var(--muted);
+      margin-top: 3px;
+      font-size: 10.5px;
+      line-height: 1.25;
+    }
+
+    .report-rev {
+      justify-self: end;
+      text-align: right;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 7px;
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 1.25;
+    }
+
+    .report-rev strong {
+      display: block;
+      color: var(--teal-dark);
+      font-size: 13px;
+    }
+
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 6px 0 10px;
+      font-size: 10.2px;
+      table-layout: fixed;
+    }
+
+    .report-table th, .report-table td {
+      border: 1px solid var(--line);
+      padding: 5px 6px;
+      vertical-align: top;
+      text-align: left;
+      line-height: 1.24;
+      overflow-wrap: anywhere;
+    }
+
+    .report-table th {
+      background: var(--teal);
+      color: #fff;
+    }
+
+    .report-label {
+      background: var(--soft-teal);
+      font-weight: 700;
+      width: 120px;
+      color: #243b53;
+    }
+
+    .report-callout {
+      background: var(--soft-yellow);
+      border: 1px solid #e4c766;
+      border-radius: 4px;
+      padding: 8px;
+      font-size: 10.5px;
+      line-height: 1.3;
+      margin: 7px 0 9px;
+    }
+
+    .report-photos {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 8px 0 12px;
+    }
+
+    .report-photo {
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 6px;
+      break-inside: avoid;
+    }
+
+    .report-photo img {
+      width: 100%;
+      height: 170px;
+      object-fit: contain;
+      display: block;
+      background: #e4e7ec;
+      border-radius: 3px;
+    }
+
+    .report-photo-frame {
+      height: 170px;
+      border-radius: 3px;
+    }
+
+    .report-photo figcaption {
+      margin-top: 5px;
+      font-size: 9.5px;
+      line-height: 1.25;
+      color: #344054;
+    }
+
+    .report-chart {
+      display: block;
+      width: 460px;
+      max-width: 100%;
+      margin: 6px auto 10px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 6px;
+      background: #fff;
+    }
+
+    .report-footer {
+      position: absolute;
+      left: 34px;
+      right: 34px;
+      bottom: 18px;
+      border-top: 1px solid var(--line);
+      padding-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.2;
+    }
+
+    .risk-chip {
+      display: inline-block;
+      min-width: 56px;
+      text-align: center;
+      border-radius: 999px;
+      padding: 2px 6px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 9px;
+    }
+
+    .risk-baixo { background: var(--green); }
+    .risk-medio { background: var(--orange); }
+    .risk-alto { background: #d92d20; }
+    .risk-critico { background: #7a271a; }
+
+    .signature-space {
+      height: 42px;
+      color: var(--muted);
+    }
+
+    @media print {
+      .topbar, .nav, .side-panel { display: none; }
+      body { background: #fff; }
+      .layout { display: block; padding: 0; }
+      .panel { box-shadow: none; border: 0; }
+    }
+
+    @media (max-width: 1180px) {
+      .layout {
+        grid-template-columns: 210px minmax(0, 1fr);
+      }
+      .side-panel {
+        grid-column: 1 / -1;
+        position: static;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .topbar-inner {
+        grid-template-columns: 1fr;
+      }
+      .brand-logo {
+        width: 170px;
+        height: 56px;
+      }
+      .actions {
+        justify-content: flex-start;
+      }
+      .layout {
+        grid-template-columns: 1fr;
+        padding: 12px;
+      }
+      .nav {
+        position: static;
+        display: flex;
+        overflow-x: auto;
+      }
+      .nav a {
+        white-space: nowrap;
+      }
+      .grid.cols-2, .grid.cols-3, .grid.cols-4 {
+        grid-template-columns: 1fr;
+      }
+      .search-results, .photo-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .annotation-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .annotation-toolbar-actions {
+        margin-left: 0;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .search-results, .photo-grid, .report-photos {
+        grid-template-columns: 1fr;
+      }
+      .actions button {
+        flex: 1 1 140px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <img class="brand-logo" id="brandLogo" alt="Vale" />
+          <div>
+            <h1>Gerador de Plano de Atividade Segura</h1>
+            <small id="docSubtitle">SANY 2200S - S11D</small>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="primary" id="pdfBtn" type="button">📄 Gerar PDF</button>
+          <button id="saveBtn" type="button">💾 Salvar</button>
+          <button id="loadBtn" type="button">📂 Carregar</button>
+          <button id="resetBtn" class="warn" type="button">Restaurar modelo</button>
+          <input id="loadFile" class="hidden-input" type="file" accept="application/json,.json" />
+        </div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav class="nav" aria-label="Seções">
+        <a href="#identificacao" class="active">Identificação</a>
+        <a href="#equipamento">Equipamento</a>
+        <a href="#procedimento">Procedimento</a>
+        <a href="#etapas">Etapas</a>
+        <a href="#riscos">Riscos</a>
+        <a href="#epis">EPIs</a>
+        <a href="#evidencias">Evidências</a>
+        <a href="#assinaturas">Assinaturas</a>
+      </nav>
+
+      <main class="main">
+        <section id="identificacao" class="panel">
+          <div class="panel-head">
+            <h2>Identificação</h2>
+            <span class="pill" id="revisionPill">REV00</span>
+          </div>
+          <div class="panel-body grid cols-3">
+            <label>Título do relatório<input data-bind="meta.titulo" /></label>
+            <label>Cliente/Unidade<input data-bind="meta.cliente" /></label>
+            <label>Revisão<input data-bind="meta.revisao" /></label>
+            <label>Área/local<input data-bind="meta.local" /></label>
+            <label>Data da avaliação<input data-bind="meta.dataAvaliacao" type="date" /></label>
+            <label>Início da atividade<input data-bind="meta.inicioAtividade" type="date" /></label>
+            <label>Previsão de término<input data-bind="meta.terminoAtividade" type="date" /></label>
+            <label>Responsável da área<input data-bind="meta.responsavelArea" /></label>
+            <label>Responsável Vale<input data-bind="meta.responsavelVale" /></label>
+            <label>E-mail<input data-bind="meta.email" type="email" /></label>
+            <label>Telefone<input data-bind="meta.telefone" /></label>
+            <label>Empresa executante<input data-bind="meta.empresa" /></label>
+            <label>Elaborador<input data-bind="meta.elaborador" /></label>
+            <label>Função<input data-bind="meta.funcao" /></label>
+            <label>Status geral
+              <select data-bind="meta.status">
+                <option>Em preparação</option>
+                <option>Em execução</option>
+                <option>Concluído</option>
+                <option>Cancelado</option>
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <section id="equipamento" class="panel">
+          <div class="panel-head">
+            <h2>Equipamento e atividade</h2>
+          </div>
+          <div class="panel-body grid cols-2">
+            <label>Equipamento/Estrutura<input data-bind="equipamento.nome" /></label>
+            <label>Modelo/Tag<input data-bind="equipamento.modelo" /></label>
+            <label>Dimensões/Peso estimado<input data-bind="equipamento.peso" /></label>
+            <label>Local de execução<input data-bind="equipamento.localExecucao" /></label>
+            <label>Ferramentas principais<input data-bind="equipamento.ferramentas" /></label>
+            <label>Recursos de içamento<input data-bind="equipamento.icamento" /></label>
+            <label class="wide">Observações<textarea data-bind="equipamento.observacoes"></textarea></label>
+            <label class="wide">Resumo operacional<textarea data-bind="equipamento.resumo"></textarea></label>
+          </div>
+        </section>
+
+        <section id="procedimento" class="panel">
+          <div class="panel-head">
+            <h2>Procedimento</h2>
+            <button type="button" data-action="add-procedimento">＋ Adicionar</button>
+          </div>
+          <div id="procedimentoList" class="panel-body grid"></div>
+        </section>
+
+        <section id="etapas" class="panel">
+          <div class="panel-head">
+            <h2>Etapas</h2>
+            <button type="button" data-action="add-etapa">＋ Adicionar</button>
+          </div>
+          <div id="etapasList" class="panel-body grid"></div>
+        </section>
+
+        <section id="riscos" class="panel">
+          <div class="panel-head">
+            <h2>Riscos e controles</h2>
+            <button type="button" data-action="add-risco">＋ Adicionar</button>
+          </div>
+          <div id="riscosList" class="panel-body grid"></div>
+        </section>
+
+        <section id="epis" class="panel">
+          <div class="panel-head">
+            <h2>EPIs e recursos obrigatórios</h2>
+            <button type="button" data-action="add-epi">＋ Adicionar</button>
+          </div>
+          <div id="episList" class="panel-body grid"></div>
+        </section>
+
+        <section id="evidencias" class="panel">
+          <div class="panel-head">
+            <h2>Evidências gerais</h2>
+            <button type="button" data-action="add-evidencia">＋ Adicionar</button>
+          </div>
+          <div id="evidenciasList" class="panel-body grid"></div>
+        </section>
+
+        <section id="assinaturas" class="panel">
+          <div class="panel-head">
+            <h2>Assinaturas</h2>
+            <button type="button" data-action="add-assinatura">＋ Adicionar</button>
+          </div>
+          <div id="assinaturasList" class="panel-body grid"></div>
+        </section>
+      </main>
+
+      <aside class="side-panel">
+        <div class="metric-grid">
+          <div class="metric"><b id="metricEtapas">0</b><span>Etapas</span></div>
+          <div class="metric"><b id="metricRiscos">0</b><span>Riscos</span></div>
+          <div class="metric"><b id="metricFotos">0</b><span>Fotos</span></div>
+          <div class="metric"><b id="metricCriticos">0</b><span>Críticos</span></div>
+        </div>
+        <div>
+          <h2 style="font-size:15px;margin:0 0 8px;">Distribuição de riscos</h2>
+          <div class="chart-wrap">
+            <canvas id="riskChart"></canvas>
+          </div>
+        </div>
+        <div class="footer-note" id="statusLine">Modelo pronto.</div>
+      </aside>
+    </div>
+  </div>
+
+  <div id="annotationModal" class="annotation-modal" aria-hidden="true">
+    <div class="annotation-dialog" role="dialog" aria-modal="true" aria-labelledby="annotationTitle">
+      <div class="annotation-toolbar">
+        <div class="annotation-tools">
+          <span class="tool-label">FORMAS:</span>
+          <button class="tool-btn active" type="button" data-annotation-tool="rect" title="Retângulo"><span class="tool-icon rect"></span></button>
+          <button class="tool-btn" type="button" data-annotation-tool="circle" title="Círculo"><span class="tool-icon circle"></span></button>
+          <button class="tool-btn" type="button" data-annotation-tool="arrow" title="Seta"><span class="tool-icon arrow"></span></button>
+          <button class="tool-btn" type="button" data-annotation-tool="line" title="Linha"><span class="tool-icon line"></span></button>
+          <span class="toolbar-divider"></span>
+          <button class="color-swatch active" type="button" data-annotation-color="#ff1f1f" style="--swatch:#ff1f1f" title="Vermelho"></button>
+          <button class="color-swatch" type="button" data-annotation-color="#fff200" style="--swatch:#fff200" title="Amarelo"></button>
+          <button class="color-swatch" type="button" data-annotation-color="#18e61f" style="--swatch:#18e61f" title="Verde"></button>
+          <button class="color-swatch" type="button" data-annotation-color="#29aeea" style="--swatch:#29aeea" title="Azul"></button>
+          <button class="color-swatch" type="button" data-annotation-color="#ff8a1f" style="--swatch:#ff8a1f" title="Laranja"></button>
+          <button class="color-swatch" type="button" data-annotation-color="#ffffff" style="--swatch:#ffffff" title="Branco"></button>
+          <button class="color-swatch" type="button" data-annotation-color="#111111" style="--swatch:#111111" title="Preto"></button>
+          <span class="toolbar-divider"></span>
+          <label>Espessura:
+            <select id="annotationStroke" class="thickness-select">
+              <option value="0.35">Muito fina</option>
+              <option value="0.55" selected>Fina</option>
+              <option value="0.8">Média</option>
+              <option value="1.1">Grossa</option>
+            </select>
+          </label>
+        </div>
+        <div class="annotation-toolbar-actions">
+          <span class="annotation-title" id="annotationTitle">Marcar foto</span>
+          <span class="shape-count" id="annotationCount">0 formas</span>
+          <button type="button" id="undoAnnotationBtn">↩ Desfazer</button>
+          <button class="danger" type="button" id="clearAnnotationBtn">Limpar</button>
+        </div>
+      </div>
+      <div class="annotation-workspace">
+        <div id="annotationStage" class="annotation-stage">
+          <img id="annotationImage" alt="Foto para marcação" />
+          <div id="annotationLayer"></div>
+        </div>
+      </div>
+      <div class="annotation-footer">
+        <div class="annotation-hint">Clique e arraste para desenhar. Use Aplicar para salvar no relatório ou Cancelar para descartar.</div>
+        <div class="annotation-footer-actions">
+          <button class="cancel" type="button" id="cancelAnnotationBtn">✕ Cancelar</button>
+          <button class="apply" type="button" id="applyAnnotationBtn">✓ Aplicar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pdfArea" class="report-shell" aria-hidden="true"></div>
+
+  <script>
+    const levels = ["Baixo", "Médio", "Alto", "Crítico"];
+    const levelColors = {
+      "Baixo": "#027a48",
+      "Médio": "#b54708",
+      "Alto": "#d92d20",
+      "Crítico": "#7a271a"
+    };
+    const valeLogoPngData = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAlgAAAJYCAMAAACJuGjuAAAC+lBMVEX////+//6xraWOiX3r6+nHxL6fm5D29vXc29eGgHPj4t+8ubKOx5a+uExxwI/Osz2kt16CvoDXszbptiyrsVOVt2p5tHpiuZJku5JotpCy1cX3+/m04Mt0xqDO6d2DzKrl8+yY1bjy+fZ0pY7T39lrjHzs8u9wl4U7blaYsaVDblo/dFtVeWkvV0UwWEYwWUcwWkcxW0gyXEkyXUkzX0s0YEw0YUw1Yk42Y082ZE83ZlA4Z1E4aFI5aVM5alQ6a1U6bVY7bVY8b1c9cFg9cVk9clo+c1s/dFw/dl0/d15AeF9BeV9CemBDfGFDfWJDfmNEf2RFgGVFgWZGg2dHhWhIhmpJh2pJiWtKimxLi21MjG5MjW9Mj3BNkHFOkXJOknJPlHRQlXVRlnZRl3dSmHhSm3lTnHpUnXxVn31WoH5Xon9Xo39Xo4BYpYJZpoJap4NaqYRbqoVcq4ZcrYddr4lesIpfsYtgs4xgtI1ht49iuJBjuZFkupJku5NlvZNmvpVnv5ZnwZdowphtxJum2cH6/PvB5NR5yKPZ7+SMzq/t9/Kcx7NTmXhRmHdgmW5ym2OPnlKwpD9IbUs3ZU8yXkowWUYxXElAaFY9cFl/nY/h7OeBr5rb5uFbg3G/z8hgh3U1Y043ZlFCaEs4bFY6bFVjfUvBqDlQd1Gal0JahlxGgmeOqZw7Y1GkvbJOfmdIh2plnYO/2MxlqIlrrYyLt6NytpZ4vp2PwKlTknVLjG5blHq1yL9LcmDK2dJWjXOsw7lVh3BNlHVOlXZnwJaGgXROkHFJi25TjGd7i0rhtDDnti3nti7nuDP36L3oujr468f036TpvUH679Dw0n7+/Pfty2z9+e/sxVr89uXqwEr78trw1o3246/z25jNy8Xu7uzKyMK0zZPBv7h+d2p+eGp/eWvOzMeBe23T0c2qpp3Y1tKDfXCalYrz9PKVkITx8e+RjIG3tKzf39v4+fijn5X7+/qnopmHgnTm5eKKhXjo5+X9/PyuqqH9/v37YZrXAAATiklEQVR42uzStUEDAQAAwPwUuMtscXd3nQAZIp6SxXCo6Eh/N8OFAAAAAAAAgL0BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEg+vL8fC0fzW5GG23m+2X3WR2vDh/nJ4EIdhfMJiOh/2ri1Gv2zys16qVSrlULOTzuWwmk12uNuvZ4vl+sMcuCE4uz0+vvkp96bRbzcbfWOlUMhGPRSOp1frl9n4Qgn94ux6fTka9TvfXJztnteU2EgTQ1TIN2TuLwxhmZmZmZvqNkYfDzMycLDOTq2WZ2V74gHkJPPkErIVwYlC3Sg91f6Gvqq+onyHWurVrVq/76OP3912nwUWksKq1pL7UJmukJ9bqDStXXdn//r6nzi2CkCqa71mVtlirVq5YvmzZlY+v1tDYIp5EQ1lRi2ZVNmItXbL488qLB2hsEY8Nq5LyYlkjW7EWLVz45cffXDfnBu8LhCIepyOJ0xMK+G7RghtVVo3asNIp1oL5877df7XNZFeML+R0Rf3BsFtVNFR3OOiPujyBBC27cK3KikrlOpmHWHPnLKi8WvGcWfCFHFF/WGUM2D1Ag6lBbyxEbgnVal99k6YVJ7Fmz5pfefW6KayKxLxhhQF7IgBK2OsICLrhIBL76u+lFSexZs6ct/8b7IxPhGJ+N4N7Vj3FraArJEQt2gST00rmLNasmTOmf//xAcxADjiSswpYGmhqkQeckcqKNK1EiDVt6rcXa7CulpArqDJg6QFKMOYjF3hSkUx2WZhYU6bVHsJIrUQkGmbAMkH1e7iNV+KDkhZZFinW5EmXzh+QjA52j9fNMgbcrgAZwQWpudwmixZr4oTDX71iqFZOr8qyQvFHSAoOtGpxZYBY4yfvPSAZqRWwbAk7SQu9NGi7oDFijRv7/XevGLUJqgAsa9x6xSLK6m2ycWKNmbD3gAHJnmwrYDpQXNTvOpHKZdlIsUaPOnxI8OPSW5GoHq00vPTIQTfNTQaLNXJSe5HPtKRQPMz0AUF6SqofqdFmsFgj2tVWCdtpArEgA51ecSl3oqHeaLGGD7v03XUxze7wK0wviovLrSvR2mK4WEM7nH9RQFx5dDxhoMBCyCz+Yg0ZUl0lcY8rNzD98AssotFmuFiDB3X66iZCXKUOLA/5wDGzEMQa2KF9G8fn7H4FmH5AjVFgcc0sBLEGDKw9wOvJFY+40oAo58CizEIQq3+/g99I/J5ccQD83AOLnmZhiNX36+9u8ogrXlBg4WQWf7H67NYZWolkXDFeqDESASez+IvVu9/eF/XFFeMHBRZaZvEXq1ev6ir8uNIAf4AswMos/mL17tWz06Fb4uOKnmAhZhaSWD06fNeQ1WtBYBrmDyzKLCSxul/INOF9Tr8KjCdKNEEGiMssJLG69dhbk9kXoly10hAbWJRZSGJ17Vp9QOyHxykIi/0vhzKrDkmsLp07fSOlqxXj7pXqoMUXidTagiZW56+/Sl05Pm1aAeONEhcbWITU3IQmVpfdF6+nSvYUfzab9gkWcavRhiZWlwvn257hfMDhV0GIV0HxgUV8UF+HJdbOLj2f+n4nEYkHFWBCcBsQWMSt1hY8sbp2rz7w5GHlDXMudgoshMzCE6tb98duDiWfJx5UgQnDS4GFn1nixer+0M3hrYAn7lf5DysKLKTMQhRr1/83h5J2ynFQZfxBCiyirAVTrB4Xztf4Qp5Y1P/kU445BxYd/4Hz0hBBrJ59q/1ht8IMANACizILQawdvU6eAmD8oeM/8DMLV6wd27YyEO8Vna+GmlkIYvXqdeyMnb9ZdL4aPs3FqGL16bP9dwv37ZCO/8CnodGGK1bffoJDCz+w6GkWilhHjpwWGVr4gUWZhSRW//7bkqElSi2VzlfDzywksbZvH8w9tPADi7hVZEMWa8DRgSdPCdkOFcTAIj4or8MWa9Cg07yfO+D/nUrUlKKLNXjwCP7bISh0vhouJcXoYg0ZeoLzdghWCx3/gYxUZDOBWMdP87w7BMj7u5WWFj+z8MUaNmzk79weloI9581mWlhspJpSE4jVbsQeTkMLrJZCWyOtq+kyC02sUR15DC1gOQVyfQOtqukyC0+s0WNOn7FYQee4ys+VyytoUc2XWXhijek4btzJrTr2Q7Dacwrq5NIyWlITZhamWGPHjZ/8+ymWnVoALK8wV5ZtJbSiZswsZLEmTDy7JQ8AMtcKtF0wSZEpA4syC12sSZPPnrFkqBZocVWgbeimCyzKLPOINXXa2TN5DCCTafXWv1pRYJmNslLziDVl2rQZZ7ecslsB0hpWLE+bVhp1xeYLLMosE4k1fca5mb/9vtUCVoAUVlntOYW59+5qi0z48wR9m2UqsWbNvjxn85ZTFmaFJE/eAK1gTw6rXPleH5ozsCizTCXWrMtz5/762+YtW/PsoMl1Ty/QsCalsuQkrXrwEZxJA4syy2xizZv/xcJFv2xKynXKYrczsP4DALNb8nLyC++yb1fHDQMBEIZPFYSZsaowx8zMzPazywi+BupJA2HmBnZndmv4R/NJuhseS6Wvf4QlYCEzCy6s1fXLq61Wq93u9A6+rXdoaHj4OByNjoz+CisvYMEyC/KJtb6xud3c2d3bPzi0OZwuj9fnDwTDkWg0/jusuQmjYW5+DjasxntYTqfb4/UHAsHQv7CggSVm0YZVxgaWmEUXFgmwxCzKsK4L6MASs64Zw6ouG/SJWYRhTVUM+rTpPF1Y+ZJlNHxmpcnCygpYJMwiC6taMwzTZstUYZVZgKVNZ4jCogGWZj2MJ3jCIrqdqs1XacISsMiYRRKWgEXHLIqwyIClWcXxGEFYaQGLkFkEYRECS5s9gw+L8hehVhoDDytTMoTT7gph6LBiAhYts6DDqs4bymlW9ww4rLOu0XiZhRpWeEzAomZWEDUsAYt6N+eYYYWe2Tur7daNNgx/csy+gTK3WbmHn5mZmZnxAspNzzc4/+5xuZvKDLdhZ2kk24ktx44sO46sn0lvt6yZsSWNstY8Z4Xws6RX73yfvV7A8vZbQMchIfwqfFjPpVjqrf+y75M4TqcV4phkMA5b4nRUxqzLuRTr6ZtoHfyFZYewurskRHtkhT9sGi9Wpcz++39uyOhRn1mhL1IiGYKCZYtibSiNWX/OoVhXr7udut+3wrCJSyJ0bCtEt0OxVENfxJQRq2aFkBPLKFjCsLLamPW73In1x2sCWg+nbAGzOgngTuGDhge8i8f/YAMnf2LZpuKYlTuxEmiwShbSIAGO5jIfU9xgoatbL3di4f1ZAfddzplYggGL81e3AKErigkfMj+iOAxwl+15eROLjQPVbdaFXInFD1hiIRfo7xMXZwAfwlGlMkAN63kTa1QkxXh3/TpHYv2OE7AEqdYsYOHzP6QP0b3HfT4AGjkTq9/JQ5uVI7G2xbdTOV0ABo6i5EVu4PAaDYAND3IlVrfhkXKC+y7nRixOwBJn18ZHpF2BEiuMKRX0sZxQL1a/4VIeOP+7nIh1cf2AhZ5glSVeYs2P+UEfmbo5EYtZ9rDjUS4Itn+RC7F+zQtY4hhjC5gdcpLmlElksgOM7vgFshKrP4pkOC21DcoJD1zKhVjPXEuJcTiTStdHc5mnyF434vHeyFiscvEgCsczKDcY911UL9bPmjdRcrgTCxjEp2uTwWlIhXN5i3q+b2cs1sSjE8D5XysX64J8wBIPTVa/J1FilThuYHSPeT7QYt29rVqsX6wfsICDId6qFr5wLcUrJxrRh74VLVZkzFIsVjIBC//8aItwiVUIBJUFalUtVgTGzkWlYjXvIGmkblh2Sayc4BvSgegOPmqxIjj/M4VicQOWPN6eBcRUWS0b7mmu+GMB/5qoxbp7+0fKxPrpNQYlTq8r2DRhiWXvihcZ9uRNniVaLHqgqUys9Y8I+Y96VsMQummO2uLV67xaDlcaFS1WJDsXFImVXMACTMGDYlOi6cQ8NvVMfq+qxTLO/1SJWBd2KBWO55bIKIwzYHjHFD7etltY2S98LVYk7vYPFIj14/OUDv5CqMrCEou7nIPTdN6Uf3atxaI7mtmL9b3tuylhUBnOY1tQkFrOqWHBgE+UphZrWZt1IXOxkg1YQGXA+Ec1xRHjBTG0EDNVccSfD9RiUXD+wYzFemqH0qNkWdyGqmXzHh1hTQM1QtUwxmmxMGZlK9aDiQYszrrOm4e8Eou3FVEKWcgacL+N2MHQYkHMylKsb6UQsODOxXhVVn2Ge1wC0R01dQYiYmqxjNueylCs5gOUKtUab73ZXHk5p+xGnHY3shv0aztL8HNq1jXfy0ysNAIW4JZZjDhQYkkv55TgmgfhP5PR5OESBseUT9xnshLr+fOUNrt2/IIhNhImp3HdYBE77O6EYV2heEvnzTrllPat2Yj19cfvprRpj1jcKxoEBYm9ejIhjvmQ6PkFqxaLbnsqE7GaDiUMf12nREBxJDplijEd7qrHG2JHQlos45pnn0tfrNQDFk65YOLGEktwOacfknB0sCR6jQ0tVkzM+nrqYj17nrLAxY3B2uHSoT174IhPDsIQBEx+jdparLiYlbZYX0srYHEmiccGlljif2UYZOhXcQpebFBQi2Xc9nzKYmUQsOCvHtkHNFZdzmGDytIgV65osZZjvPBWqmI9dZayorG0ysISq+CLC8rM5T1srarFisG99JUUxXr5JcoMmDyGU5v9vrAPZECQmh9FHPWAoerEqtUp19xxa3pifekVnzICQzdM4+FJInevnoXsnHoEmHhPzUKs+XQvmgV8+VzGrNTEat5CacFf1ylFzj7YJYnawm7FBXtWyuQQ2g2WYFC+MV74WkpiZRiwsNjESxMc94yKvKI17n/G1wkZVPR0QwyGe+kLn09DrCwDFtyoMEy5E6whJI6GJvUj5LiBL4OkxYrlplvTuGJ94ZWAsgPOXMCh+kziJKZlgzmzt9OPP+vWYgHBbc+nIFazQhnjL6KmshoiC/gwwSDM/EiLFUvwwpcSF2szu4CFvQJWWZi87JbUwCAXU4vFi1lJi5VtwMKeCSbTQbZhm+IIxsySgQ0cLVY8N20mK9YjrxikgNIVVZZfYNLLOeJ0e1osDi+9nKhYj7qkAjTDNgn/zazO81KWPU+LFU/wyhcSFGuzSEoIChZWWVBisSlvOYdZkszrWiwOlWZiYn381dtIEZi+a1VvwqSWc6RpaLF4nN1MSqzPvGAQoCy+jw9n4m966RcseYYHWiweL72akFgQsDIG13WGC5iB4far8tgdLRY/Zn02EbE226QOfAFbuxvySmY5x6o1SksZ4tv3aLH4MSsJsdQFLDxFRvh79TAOyKauoIGzQy2WQMxaX6xPZhqwOHMveGQsEd27HdF7JhsbWiwexkuvrivWh7dcUoo7lW7JcU6Qn/N9SG6jthZLIGZ9ck2xNu8gxeC6zopvetkwhC9u9q4Wi4tRaa4nloqABeA2BG7dx2GY2HuKlxqsW5Fi8Tl7+zpifeIFUk/DioDxlnMGTOKF1Uo21LACYgWxGDFiub63HN84OTHridXF+sCWR+rBdR35N73kV/RUHPHeXQfFGixiGR8sF2s2jWOvSCeF4PGPryyW+oCFMVxmOYf3dppAMOat66BYHGZHkWKd/B0woHJmVbH+skPqwauP6HIOvpKkKXcmyUprijU/ViCWipi1mlifOEfqwapTeDmnwZ84BtwJLuJrsQQIXnpiFbHet3U35QNj17YQNg4ojvYwrOLCIw78F0bSYkXgP/7hFcRSG7AAp8wsoHa4giYcFXFdR4slwi1n5MVSHbCA6twCuMs5EN0d6TPJ+ZEWS4izD8mK9eI5yhFBqQ/RvSVzvmiSCHX8GC2WGOeekBPrvcoDFmB4jT77v1ejtkx5cLzCmeTQ0WIJxqzTUmKdcShfeKUNBgMI4nWnT0J0sFLVYglhOGdkxMpHwAKCemHU79r/wJrz3vSya/+fWpXEOBhY9v+44hCoPrOFiRDLFgSr1RPBzkPiYuUmYAF+u9rr/JN9j+Iw6p0QPZfEMA47IfZdApxeR5xeJfoz8+k5dOI496KoWO/c8kkQjcbfeq+gWGecv7db1waxRAEARd8XoBDc3aG8bQHXdKWB1YZwyXB3mZlHxDk13OCGb4Pd5e+FlWywYG39O2ElHSzYqH4d1nzpPCQCue75L8NabgmQ0G7nV2FtrgRSsFmfh1WtBUhho+ezsGYNFmk3a/uTsNIPFjbr47DSDxas9X0UVobBgj8bPe+HVSz9CZDaaffUe2GNLR+HDGC/872wNv+HTOCo721Y2QcLKouvwyo2Mg8W5ArjL8MaKUQYLNhtfxlWnMGCtr7nYVXbQhRQKT6FVWyEWLBZIw9hDccbLNhvfwirvSNEA23Vu7BiDxY26zqsgWIlxASnhcH+geHCaYgKOtr7B+IPFrRVDdZPoFIJvwUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAXAHqyveM97CTUAAAAABJRU5ErkJggg==";
+
+    const initialState = {
+      meta: {
+        titulo: "Plano de Corte de Lança de Guindaste SANY 2200S - S11D",
+        cliente: "Vale / S11D",
+        revisao: "REV00",
+        local: "Overland TR 1083KS01",
+        dataAvaliacao: "2026-03-23",
+        inicioAtividade: "2026-03-24",
+        terminoAtividade: "2026-03-24",
+        responsavelArea: "Rafaela Lima",
+        responsavelVale: "Rafaela Lima",
+        email: "rafaela.lima@vale.com",
+        telefone: "94 99216-1675",
+        empresa: "PLANGECON",
+        elaborador: "Adilson da Silva",
+        funcao: "Eng. Mecânico",
+        status: "Em preparação"
+      },
+      equipamento: {
+        nome: "Lança do Guindaste SANY 2200S",
+        modelo: "SANY 2200S / SANY-GD02 SAC-2200S",
+        peso: "8.000 kg (peso estimado)",
+        localExecucao: "Overland TR 1083KS01",
+        ferramentas: "Conjunto de oxiflame, instrumentos de medição, lona antichama, extintor, rádio de comunicação",
+        icamento: "Guindaste de 500 t, cabos de aço, cintas de amarração, moitão de roldana e acessórios validados",
+        observacoes: "Local do corte por seção em vermelho, para passagem de cabo da lingada. Realizar lingada no moitão de roldana com gaiola, conforme plano de rigging.",
+        resumo: "Executar o corte da lança do guindaste por etapas, com suporte do guindaste, acesso por PEMT, controle de carga suspensa, trabalho a quente e remoção segura das seções."
+      },
+      procedimentos: [
+        {
+          titulo: "Planejamento e liberação",
+          descricao: "Avaliar simultaneidade, quantidade de pessoas mobilizadas, interferências, ART, PTS/CRM, plano de rigging e bloqueios necessários antes do corte."
+        },
+        {
+          titulo: "Sequência de corte",
+          descricao: "Realizar abertura 150 x 300 mm, executar lingada, cortar longitudinalmente entre lanças 03 e 04 a 1000 mm da torção e finalizar separação superior com carga suportada."
+        },
+        {
+          titulo: "Remoção e descarte",
+          descricao: "Remover a peça seccionada com apoio do guindaste, controlar pontos quentes e seccionar em partes menores para descarte sem movimentação manual acima de 20 kg."
+        }
+      ],
+      etapas: [
+        etapa(1, "Preparação da área", "Observar arredores, interferências e linhas energizadas.", "Seguir PNR0188, ART e PTS/CRM; isolar área e validar acessos.", "Área liberada e sem interferência crítica.", "Rafaela Lima", "Equipe de inspeção / responsável da área", "Pendente", "guindaste SANY 2200S rigging boom"),
+        etapa(2, "Acesso com PEMT", "Posicionar PEMT Mills 1.350 AJ 42 m para corte inicial.", "Manter raio de operação seguro e evitar contato com o seccionamento.", "PEMT estável e posicionada com área sinalizada.", "Operação", "PEMT / operador habilitado", "Pendente", "mobile elevating work platform crane boom"),
+        etapa(3, "Abertura para lingada", "Executar corte retangular ovalizado de 150 x 300 mm na seção transversal.", "Sem cantos vivos; corte vazando da esquerda para direita conforme croqui.", "Furo com bordas sem cantos vivos e dimensão conferida.", "Equipe de corte", "Oxiflame / medição", "Pendente", "oxy cutting steel opening"),
+        etapa(4, "Lingada e ancoragem", "Envolver lança com cabo de aço/cintas e lingar ao guindaste de 500 t.", "Usar ponto de pega/olhal conforme plano de rigging; manter ancoragem até finalização.", "Conjunto de içamento validado e etiqueta vigente.", "Rigging", "Guindaste 500 t / acessórios de içamento", "Pendente", "crane lifting sling wire rope"),
+        etapa(5, "Corte longitudinal", "Realizar corte entre lanças 03 e 04 a 1000 mm da torção.", "Cortar no sentido longitudinal, com operação pelo lado esquerdo quando aplicável.", "Seccionamento controlado, sem contato do operador com a peça.", "Equipe de corte", "Oxiflame / PEMT", "Pendente", "steel boom cutting torch"),
+        etapa(6, "Separação superior", "Com lanças 3 e 4 amarradas/suportadas, realizar corte superior.", "Confirmar tensão controlada e suporte antes da separação total.", "Separação concluída com carga controlada pelo guindaste.", "Rigging + corte", "Guindaste / equipe de corte", "Pendente", "crane boom dismantling")
+      ],
+      riscos: [
+        risco("Carga suspensa", "Queda de componente ou acessório", "Crítico", "Zona de exclusão, sinaleiro, plano de rigging, inspeção de acessórios e nunca permanecer sob carga.", "Rigging"),
+        risco("Trabalho a quente", "Incêndio, queimadura, projeção de fagulhas", "Alto", "EPI térmico, lona antichama, extintor, vigia de fogo e liberação PTS/CRM.", "Equipe de corte"),
+        risco("Energia elétrica/interferências", "Choque elétrico e contato com rede", "Alto", "Inspeção de entorno e atendimento à PNR0188 antes da atividade.", "Responsável da área"),
+        risco("Trabalho em altura/PEMT", "Queda de pessoa ou material", "Alto", "Operador habilitado, check da PEMT, cinto, talabarte, isolamento inferior e observador.", "Operação"),
+        risco("Ergonomia e movimentação manual", "Lesão por esforço ou esmagamento", "Médio", "Não movimentar manualmente acima de 20 kg; usar dispositivo de içamento quando necessário.", "Operação")
+      ],
+      epis: [
+        epi("Capacete com jugular", "Obrigatório", "Conforme padrão da área"),
+        epi("Óculos de segurança / face shield", "Obrigatório", "Para corte e projeção de partículas"),
+        epi("Luvas de raspa/térmicas", "Obrigatório", "Trabalho a quente"),
+        epi("Cinto de segurança e talabarte", "Obrigatório", "Uso em PEMT"),
+        epi("Botina de segurança", "Obrigatório", "Biqueira e solado compatíveis"),
+        epi("Protetor auricular", "Obrigatório", "Corte e operação de equipamentos")
+      ],
+      evidencias: [
+        evidencia("Registro inicial", "Fotos da área antes da atividade e interferências mapeadas."),
+        evidencia("Registro de execução", "Fotos dos pontos de corte, lingada e suporte da carga."),
+        evidencia("Registro final", "Fotos da remoção, destinação e área liberada.")
+      ],
+      assinaturas: [
+        assinatura("Responsável da área", "Rafaela Lima", "Vale", "", ""),
+        assinatura("Responsável CMD", "", "", "", ""),
+        assinatura("Responsável empresa/cliente", "", "PLANGECON", "", "")
+      ]
+    };
+
+    let state = clone(initialState);
+    let searchCache = {};
+    let riskChart = null;
+    let annotationEditor = {
+      open: false,
+      scope: null,
+      index: null,
+      photoIndex: null,
+      tool: "rect",
+      color: "#ff1f1f",
+      stroke: 0.55,
+      drawing: false,
+      startX: 0,
+      startY: 0,
+      draft: null,
+      workingAnnotations: []
+    };
+
+    function etapa(numero, titulo, oQue, como, aceite, responsavel, recursos, status, termo) {
+      return {
+        numero, titulo, oQue, como, aceite, responsavel, recursos, status,
+        riscoCritico: "", controle: "", termoBusca: termo, fotos: []
+      };
+    }
+
+    function risco(perigo, consequencia, nivel, controle, responsavel) {
+      return { perigo, consequencia, nivel, controle, responsavel };
+    }
+
+    function epi(nome, obrigatorio, observacao) {
+      return { nome, obrigatorio, observacao };
+    }
+
+    function evidencia(tipo, legenda) {
+      return { tipo, legenda, fotos: [] };
+    }
+
+    function assinatura(papel, nome, empresa, data, assinaturaTexto) {
+      return { papel, nome, empresa, data, assinaturaTexto };
+    }
+
+    function clone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function uid() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function formatDate(value) {
+      if (!value) return "";
+      const parts = String(value).split("-");
+      if (parts.length !== 3) return value;
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+
+    function getPath(path) {
+      return path.split(".").reduce((acc, key) => acc ? acc[key] : undefined, state);
+    }
+
+    function setPath(path, value) {
+      const parts = path.split(".");
+      let obj = state;
+      while (parts.length > 1) obj = obj[parts.shift()];
+      obj[parts[0]] = value;
+    }
+
+    function setStatus(message) {
+      document.getElementById("statusLine").textContent = message;
+    }
+
+    function renderBoundFields() {
+      document.querySelectorAll("[data-bind]").forEach(field => {
+        const val = getPath(field.dataset.bind);
+        if (field.value !== String(val ?? "")) field.value = val ?? "";
+      });
+      document.getElementById("docSubtitle").textContent = `${state.equipamento.modelo || "Modelo"} - ${state.meta.cliente || "Cliente"}`;
+      document.getElementById("revisionPill").textContent = state.meta.revisao || "REV";
+    }
+
+    function renderProcedimentos() {
+      const root = document.getElementById("procedimentoList");
+      root.innerHTML = state.procedimentos.map((item, i) => `
+        <article class="row-card">
+          <div class="row-title">
+            <span>${i + 1}. ${escapeHtml(item.titulo || "Procedimento")}</span>
+            <button class="mini warn" type="button" data-action="remove-procedimento" data-index="${i}">✕ remover</button>
+          </div>
+          <div class="row-body grid cols-2">
+            <label>Título<input data-array="procedimentos" data-index="${i}" data-field="titulo" value="${escapeHtml(item.titulo)}" /></label>
+            <label>Descrição<textarea data-array="procedimentos" data-index="${i}" data-field="descricao">${escapeHtml(item.descricao)}</textarea></label>
+          </div>
+        </article>
+      `).join("") || `<div class="empty">Nenhum procedimento cadastrado.</div>`;
+    }
+
+    function renderEtapas() {
+      const root = document.getElementById("etapasList");
+      root.innerHTML = state.etapas.map((item, i) => `
+        <article class="row-card">
+          <div class="row-title">
+            <span>Etapa ${escapeHtml(item.numero)} - ${escapeHtml(item.titulo || "Sem título")}</span>
+            <button class="mini warn" type="button" data-action="remove-etapa" data-index="${i}">✕ remover</button>
+          </div>
+          <div class="row-body">
+            <div class="grid cols-4">
+              <label>Nº<input data-array="etapas" data-index="${i}" data-field="numero" value="${escapeHtml(item.numero)}" /></label>
+              <label>Título<input data-array="etapas" data-index="${i}" data-field="titulo" value="${escapeHtml(item.titulo)}" /></label>
+              <label>Responsável<input data-array="etapas" data-index="${i}" data-field="responsavel" value="${escapeHtml(item.responsavel)}" /></label>
+              <label>Status
+                <select data-array="etapas" data-index="${i}" data-field="status">
+                  ${["Pendente", "Em andamento", "Concluído", "N/A"].map(opt => `<option ${item.status === opt ? "selected" : ""}>${opt}</option>`).join("")}
+                </select>
+              </label>
+            </div>
+            <div class="grid cols-2">
+              <label>O que fazer<textarea data-array="etapas" data-index="${i}" data-field="oQue">${escapeHtml(item.oQue)}</textarea></label>
+              <label>Como fazer<textarea data-array="etapas" data-index="${i}" data-field="como">${escapeHtml(item.como)}</textarea></label>
+              <label>Critério de aceite<textarea data-array="etapas" data-index="${i}" data-field="aceite">${escapeHtml(item.aceite)}</textarea></label>
+              <label>Recursos<textarea data-array="etapas" data-index="${i}" data-field="recursos">${escapeHtml(item.recursos)}</textarea></label>
+              <label>Risco crítico<textarea data-array="etapas" data-index="${i}" data-field="riscoCritico">${escapeHtml(item.riscoCritico)}</textarea></label>
+              <label>Controle obrigatório<textarea data-array="etapas" data-index="${i}" data-field="controle">${escapeHtml(item.controle)}</textarea></label>
+            </div>
+            <div class="grid">
+              <label>Busca de fotos 🔍
+                <input data-array="etapas" data-index="${i}" data-field="termoBusca" value="${escapeHtml(item.termoBusca)}" />
+              </label>
+              <div class="inline-actions">
+                <button type="button" data-action="search-stage" data-index="${i}">🔍 Buscar Openverse</button>
+                <button type="button" data-action="upload-stage" data-index="${i}">Enviar fotos</button>
+                <input class="hidden-input" type="file" accept="image/*" multiple data-file-stage="${i}" />
+                <span class="status" id="stageStatus-${i}"></span>
+              </div>
+              <div class="search-results" id="stageResults-${i}">${renderSearchResults("stage", i)}</div>
+              <div class="photo-grid">${renderPhotos(item.fotos, "stage", i)}</div>
+            </div>
+          </div>
+        </article>
+      `).join("") || `<div class="empty">Nenhuma etapa cadastrada.</div>`;
+    }
+
+    function renderRiscos() {
+      const root = document.getElementById("riscosList");
+      root.innerHTML = state.riscos.map((item, i) => `
+        <article class="row-card">
+          <div class="row-title">
+            <span>${escapeHtml(item.nivel)} - ${escapeHtml(item.perigo || "Risco")}</span>
+            <button class="mini warn" type="button" data-action="remove-risco" data-index="${i}">✕ remover</button>
+          </div>
+          <div class="row-body grid cols-2">
+            <label>Perigo<input data-array="riscos" data-index="${i}" data-field="perigo" value="${escapeHtml(item.perigo)}" /></label>
+            <label>Nível
+              <select data-array="riscos" data-index="${i}" data-field="nivel">
+                ${levels.map(opt => `<option ${item.nivel === opt ? "selected" : ""}>${opt}</option>`).join("")}
+              </select>
+            </label>
+            <label>Consequência<textarea data-array="riscos" data-index="${i}" data-field="consequencia">${escapeHtml(item.consequencia)}</textarea></label>
+            <label>Controle obrigatório<textarea data-array="riscos" data-index="${i}" data-field="controle">${escapeHtml(item.controle)}</textarea></label>
+            <label>Responsável<input data-array="riscos" data-index="${i}" data-field="responsavel" value="${escapeHtml(item.responsavel)}" /></label>
+          </div>
+        </article>
+      `).join("") || `<div class="empty">Nenhum risco cadastrado.</div>`;
+      updateChart();
+    }
+
+    function renderEpis() {
+      const root = document.getElementById("episList");
+      root.innerHTML = state.epis.map((item, i) => `
+        <article class="row-card">
+          <div class="row-title">
+            <span>${escapeHtml(item.nome || "EPI")}</span>
+            <button class="mini warn" type="button" data-action="remove-epi" data-index="${i}">✕ remover</button>
+          </div>
+          <div class="row-body grid cols-3">
+            <label>EPI/Recurso<input data-array="epis" data-index="${i}" data-field="nome" value="${escapeHtml(item.nome)}" /></label>
+            <label>Obrigatoriedade
+              <select data-array="epis" data-index="${i}" data-field="obrigatorio">
+                ${["Obrigatório", "Conforme análise", "Não aplicável"].map(opt => `<option ${item.obrigatorio === opt ? "selected" : ""}>${opt}</option>`).join("")}
+              </select>
+            </label>
+            <label>CA/Observação<input data-array="epis" data-index="${i}" data-field="observacao" value="${escapeHtml(item.observacao)}" /></label>
+          </div>
+        </article>
+      `).join("") || `<div class="empty">Nenhum EPI cadastrado.</div>`;
+    }
+
+    function renderEvidencias() {
+      const root = document.getElementById("evidenciasList");
+      root.innerHTML = state.evidencias.map((item, i) => `
+        <article class="row-card">
+          <div class="row-title">
+            <span>${escapeHtml(item.tipo || "Evidência")}</span>
+            <button class="mini warn" type="button" data-action="remove-evidencia" data-index="${i}">✕ remover</button>
+          </div>
+          <div class="row-body">
+            <div class="grid cols-2">
+              <label>Tipo<input data-array="evidencias" data-index="${i}" data-field="tipo" value="${escapeHtml(item.tipo)}" /></label>
+              <label>Legenda/Descrição<input data-array="evidencias" data-index="${i}" data-field="legenda" value="${escapeHtml(item.legenda)}" /></label>
+            </div>
+            <div class="inline-actions">
+              <button type="button" data-action="upload-evidence" data-index="${i}">Enviar fotos</button>
+              <input class="hidden-input" type="file" accept="image/*" multiple data-file-evidence="${i}" />
+            </div>
+            <div class="photo-grid">${renderPhotos(item.fotos, "evidence", i)}</div>
+          </div>
+        </article>
+      `).join("") || `<div class="empty">Nenhuma evidência cadastrada.</div>`;
+    }
+
+    function renderAssinaturas() {
+      const root = document.getElementById("assinaturasList");
+      root.innerHTML = state.assinaturas.map((item, i) => `
+        <article class="row-card">
+          <div class="row-title">
+            <span>${escapeHtml(item.papel || "Assinatura")}</span>
+            <button class="mini warn" type="button" data-action="remove-assinatura" data-index="${i}">✕ remover</button>
+          </div>
+          <div class="row-body grid cols-3">
+            <label>Papel<input data-array="assinaturas" data-index="${i}" data-field="papel" value="${escapeHtml(item.papel)}" /></label>
+            <label>Nome<input data-array="assinaturas" data-index="${i}" data-field="nome" value="${escapeHtml(item.nome)}" /></label>
+            <label>Empresa<input data-array="assinaturas" data-index="${i}" data-field="empresa" value="${escapeHtml(item.empresa)}" /></label>
+            <label>Data<input type="date" data-array="assinaturas" data-index="${i}" data-field="data" value="${escapeHtml(item.data)}" /></label>
+            <label>Assinatura/Registro<input data-array="assinaturas" data-index="${i}" data-field="assinaturaTexto" value="${escapeHtml(item.assinaturaTexto)}" /></label>
+          </div>
+        </article>
+      `).join("") || `<div class="empty">Nenhuma assinatura cadastrada.</div>`;
+    }
+
+    function renderSearchResults(scope, index) {
+      const key = `${scope}-${index}`;
+      const results = searchCache[key] || [];
+      return results.map((item, resultIndex) => `
+        <div class="photo-card">
+          <img src="${escapeHtml(item.thumb)}" alt="${escapeHtml(item.title)}" crossorigin="anonymous" />
+          <div class="photo-meta">
+            <strong>${escapeHtml(item.title || "Imagem")}</strong>
+            <small>${escapeHtml(item.creator || "Autor não informado")} · ${escapeHtml(item.license || "licença aberta")}</small>
+            <button class="mini" type="button" data-action="attach-search" data-scope="${scope}" data-index="${index}" data-result="${resultIndex}">Anexar</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function shapeLabel(type) {
+      return type === "arrow" ? "Seta" : type === "circle" ? "Círculo" : type === "line" ? "Linha" : "Retângulo";
+    }
+
+    function normalizeShape(shape) {
+      const x = Number(shape.x ?? 20);
+      const y = Number(shape.y ?? 20);
+      const w = Number(shape.w ?? 45);
+      const h = Number(shape.h ?? 30);
+      if (shape.type === "arrow" || shape.type === "line") return { x, y, w, h };
+      return {
+        x: w < 0 ? x + w : x,
+        y: h < 0 ? y + h : y,
+        w: Math.abs(w),
+        h: Math.abs(h)
+      };
+    }
+
+    function photoAspect(photo) {
+      const aspect = Number(photo?.aspect);
+      return Number.isFinite(aspect) && aspect > 0.2 && aspect < 6 ? aspect : 16 / 9;
+    }
+
+    function renderShapeSvg(annotations = [], prefix = "mark", aspect = 16 / 9) {
+      if (!annotations.length) return "";
+      const viewWidth = Math.max(25, Math.min(600, Number(aspect) * 100 || 177.78));
+      const scaleX = viewWidth / 100;
+      const body = annotations.map((shape, i) => {
+        const color = escapeHtml(shape.color || "#d92d20");
+        const { x, y, w, h } = normalizeShape(shape);
+        const stroke = Math.max(0.3, Math.min(1.1, Number(shape.stroke ?? 0.55)));
+        if (shape.type === "circle") {
+          return `<ellipse cx="${(x + w / 2) * scaleX}" cy="${y + h / 2}" rx="${(w / 2) * scaleX}" ry="${h / 2}" fill="none" stroke="${color}" stroke-width="${stroke}"></ellipse>`;
+        }
+        if (shape.type === "arrow") {
+          const arrowStroke = Math.min(stroke, 0.7);
+          const sx = x * scaleX;
+          const sy = y;
+          const ex = (x + w) * scaleX;
+          const ey = y + h;
+          const dx = ex - sx;
+          const dy = ey - sy;
+          const len = Math.max(0.01, Math.hypot(dx, dy));
+          const ux = dx / len;
+          const uy = dy / len;
+          const px = -uy;
+          const py = ux;
+          const headLen = Math.min(Math.max(arrowStroke * 5.2, 3.4), len * 0.34);
+          const headWidth = Math.max(arrowStroke * 4.2, 2.8);
+          const baseX = ex - ux * headLen;
+          const baseY = ey - uy * headLen;
+          const p1x = baseX + px * headWidth / 2;
+          const p1y = baseY + py * headWidth / 2;
+          const p2x = baseX - px * headWidth / 2;
+          const p2y = baseY - py * headWidth / 2;
+          return `<g><line x1="${sx}" y1="${sy}" x2="${baseX}" y2="${baseY}" stroke="${color}" stroke-width="${arrowStroke}" stroke-linecap="round"></line><polygon points="${ex},${ey} ${p1x},${p1y} ${p2x},${p2y}" fill="${color}"></polygon></g>`;
+        }
+        if (shape.type === "line") {
+          return `<line x1="${x * scaleX}" y1="${y}" x2="${(x + w) * scaleX}" y2="${y + h}" stroke="${color}" stroke-width="${stroke}" stroke-linecap="round"></line>`;
+        }
+        return `<rect x="${x * scaleX}" y="${y}" width="${w * scaleX}" height="${h}" fill="none" stroke="${color}" stroke-width="${stroke}"></rect>`;
+      }).join("");
+      return `<svg class="annotation-svg" viewBox="0 0 ${viewWidth} 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${body}</svg>`;
+    }
+
+    function renderShapeControls(annotations = [], scope, index, photoIndex) {
+      if (!annotations.length) return `<small style="color:var(--muted);">Sem formas.</small>`;
+      return annotations.map((shape, shapeIndex) => `
+        <div class="shape-row">
+          <select data-annotation-field="type" data-scope="${scope}" data-index="${index}" data-photo="${photoIndex}" data-shape="${shapeIndex}">
+            ${["arrow", "rect", "circle"].map(type => `<option value="${type}" ${shape.type === type ? "selected" : ""}>${type === "arrow" ? "Seta" : type === "rect" ? "Retângulo" : "Círculo"}</option>`).join("")}
+          </select>
+          <input type="color" data-annotation-field="color" data-scope="${scope}" data-index="${index}" data-photo="${photoIndex}" data-shape="${shapeIndex}" value="${escapeHtml(shape.color || "#d92d20")}" title="Cor" />
+          <input type="number" data-annotation-field="x" data-scope="${scope}" data-index="${index}" data-photo="${photoIndex}" data-shape="${shapeIndex}" value="${Number(shape.x ?? 20)}" title="X" />
+          <input type="number" data-annotation-field="y" data-scope="${scope}" data-index="${index}" data-photo="${photoIndex}" data-shape="${shapeIndex}" value="${Number(shape.y ?? 20)}" title="Y" />
+          <input type="number" data-annotation-field="w" data-scope="${scope}" data-index="${index}" data-photo="${photoIndex}" data-shape="${shapeIndex}" value="${Number(shape.w ?? 45)}" title="Largura" />
+          <input type="number" data-annotation-field="h" data-scope="${scope}" data-index="${index}" data-photo="${photoIndex}" data-shape="${shapeIndex}" value="${Number(shape.h ?? 30)}" title="Altura" />
+          <button class="mini warn" type="button" data-action="remove-shape" data-scope="${scope}" data-index="${index}" data-photo="${photoIndex}" data-shape="${shapeIndex}">✕</button>
+        </div>
+      `).join("");
+    }
+
+    function renderPhotos(photos, scope, index) {
+      if (!photos || !photos.length) return `<div class="empty">Sem fotos anexadas.</div>`;
+      return photos.map((photo, photoIndex) => {
+        const shapeCount = photo.annotations?.length || 0;
+        return `
+          <div class="photo-card">
+            <div class="photo-frame">
+              <img src="${escapeHtml(photo.src)}" alt="${escapeHtml(photo.caption || photo.title || "Foto")}" crossorigin="anonymous" />
+              ${renderShapeSvg(photo.annotations || [], `${scope}-${index}-${photoIndex}`, photoAspect(photo))}
+              <button class="shape-toggle" type="button" data-action="open-annotator" data-scope="${scope}" data-index="${index}" data-photo="${photoIndex}">＋ Forma</button>
+            </div>
+            <div class="photo-meta">
+              <input class="photo-caption" data-photo-caption="${scope}" data-index="${index}" data-photo="${photoIndex}" value="${escapeHtml(photo.caption || "")}" />
+              <small>${escapeHtml(photo.creator || photo.origin || "arquivo local")} ${photo.license ? "· " + escapeHtml(photo.license) : ""}</small>
+              <div class="shape-add">
+                <button class="mini" type="button" data-action="open-annotator" data-scope="${scope}" data-index="${index}" data-photo="${photoIndex}">＋ Forma</button>
+                <span class="shape-count">${shapeCount} ${shapeCount === 1 ? "forma" : "formas"}</span>
+              </div>
+              <button class="mini warn" type="button" data-action="remove-photo" data-scope="${scope}" data-index="${index}" data-photo="${photoIndex}">✕ remover</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderAll() {
+      renderBoundFields();
+      renderProcedimentos();
+      renderEtapas();
+      renderRiscos();
+      renderEpis();
+      renderEvidencias();
+      renderAssinaturas();
+      updateMetrics();
+      saveDraft();
+    }
+
+    function updateMetrics() {
+      const photos = state.etapas.reduce((acc, e) => acc + (e.fotos?.length || 0), 0) + state.evidencias.reduce((acc, e) => acc + (e.fotos?.length || 0), 0);
+      document.getElementById("metricEtapas").textContent = state.etapas.length;
+      document.getElementById("metricRiscos").textContent = state.riscos.length;
+      document.getElementById("metricFotos").textContent = photos;
+      document.getElementById("metricCriticos").textContent = state.riscos.filter(r => r.nivel === "Crítico").length;
+    }
+
+    function updateChart() {
+      const counts = levels.map(level => state.riscos.filter(r => r.nivel === level).length);
+      const ctx = document.getElementById("riskChart");
+      if (!window.Chart || !ctx) return;
+      if (!riskChart) {
+        riskChart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: levels,
+            datasets: [{
+              label: "Quantidade",
+              data: counts,
+              backgroundColor: levels.map(level => levelColors[level]),
+              borderWidth: 1,
+              borderColor: levels.map(level => levelColors[level])
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: { precision: 0, stepSize: 1 },
+                grid: { color: "#e4e7ec" }
+              },
+              x: {
+                grid: { display: false }
+              }
+            },
+            plugins: {
+              legend: { display: false }
+            }
+          }
+        });
+      } else {
+        riskChart.data.datasets[0].data = counts;
+        riskChart.update();
+      }
+      updateMetrics();
+    }
+
+    async function searchOpenverse(stageIndex) {
+      const etapaItem = state.etapas[stageIndex];
+      const query = (etapaItem.termoBusca || etapaItem.titulo || "").trim();
+      const status = document.getElementById(`stageStatus-${stageIndex}`);
+      if (!query) {
+        status.textContent = "Digite um termo.";
+        return;
+      }
+      status.textContent = "Buscando...";
+      try {
+        const params = `q=${encodeURIComponent(query)}&page_size=12&mature=false`;
+        let response = await fetch(`https://api.openverse.org/v1/images/?${params}`);
+        if (!response.ok) {
+          response = await fetch(`https://api.openverse.engineering/v1/images/?${params}`);
+        }
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        searchCache[`stage-${stageIndex}`] = (data.results || []).map(item => ({
+          id: item.id || uid(),
+          title: item.title || "Imagem Openverse",
+          thumb: item.thumbnail || item.url,
+          src: item.thumbnail || item.url,
+          url: item.url,
+          sourceUrl: item.foreign_landing_url || item.url,
+          creator: item.creator || "",
+          license: item.license || "",
+          licenseUrl: item.license_url || "",
+          aspect: item.width && item.height ? Number(item.width) / Number(item.height) : 16 / 9
+        })).filter(item => item.thumb);
+        status.textContent = `${searchCache[`stage-${stageIndex}`].length} imagens encontradas.`;
+        renderEtapas();
+      } catch (error) {
+        status.textContent = "Falha na busca. Verifique a conexão.";
+        setStatus(`Busca Openverse falhou: ${error.message}`);
+      }
+    }
+
+    function attachSearch(scope, index, resultIndex) {
+      const key = `${scope}-${index}`;
+      const item = searchCache[key]?.[resultIndex];
+      if (!item) return;
+      const photo = {
+        id: uid(),
+        src: item.src,
+        caption: item.title || "Imagem anexada",
+        title: item.title,
+        creator: item.creator,
+        license: item.license,
+        licenseUrl: item.licenseUrl,
+        sourceUrl: item.sourceUrl,
+        origin: "Openverse",
+        aspect: photoAspect(item),
+        annotations: []
+      };
+      if (scope === "stage") state.etapas[index].fotos.push(photo);
+      renderAll();
+      setStatus("Imagem anexada.");
+    }
+
+    function photoCollection(scope) {
+      return scope === "stage" ? state.etapas : state.evidencias;
+    }
+
+    function getPhoto(scope, index, photoIndex) {
+      return photoCollection(scope)?.[Number(index)]?.fotos?.[Number(photoIndex)];
+    }
+
+    function addShape(scope, index, photoIndex, type, color) {
+      const photo = getPhoto(scope, index, photoIndex);
+      if (!photo) return;
+      if (!Array.isArray(photo.annotations)) photo.annotations = [];
+      const defaults = {
+        arrow: { x: 18, y: 72, w: 56, h: -36 },
+        line: { x: 18, y: 72, w: 56, h: -36 },
+        rect: { x: 18, y: 18, w: 54, h: 36 },
+        circle: { x: 30, y: 20, w: 36, h: 36 }
+      };
+      photo.annotations.push({ type, color, stroke: annotationEditor.stroke, ...(defaults[type] || defaults.rect) });
+      photo.shapesOpen = true;
+      renderAll();
+      setStatus("Forma adicionada à foto.");
+    }
+
+    function editorPhoto() {
+      return getPhoto(annotationEditor.scope, annotationEditor.index, annotationEditor.photoIndex);
+    }
+
+    function syncAnnotationToolbar() {
+      document.querySelectorAll("[data-annotation-tool]").forEach(button => {
+        button.classList.toggle("active", button.dataset.annotationTool === annotationEditor.tool);
+      });
+      document.querySelectorAll("[data-annotation-color]").forEach(button => {
+        button.classList.toggle("active", button.dataset.annotationColor.toLowerCase() === annotationEditor.color.toLowerCase());
+      });
+      const stroke = document.getElementById("annotationStroke");
+      if (stroke) stroke.value = String(annotationEditor.stroke);
+    }
+
+    function openAnnotationEditor(scope, index, photoIndex) {
+      const photo = getPhoto(scope, index, photoIndex);
+      if (!photo) return;
+      if (!Array.isArray(photo.annotations)) photo.annotations = [];
+      annotationEditor = {
+        ...annotationEditor,
+        open: true,
+        scope,
+        index: Number(index),
+        photoIndex: Number(photoIndex),
+        draft: null,
+        drawing: false,
+        workingAnnotations: clone(photo.annotations)
+      };
+      document.getElementById("annotationModal").classList.add("open");
+      document.getElementById("annotationModal").setAttribute("aria-hidden", "false");
+      document.getElementById("annotationImage").src = photo.src;
+      document.getElementById("annotationTitle").textContent = `Marcar foto - ${photo.caption || photo.title || "sem legenda"}`;
+      document.getElementById("annotationStage").style.setProperty("--photo-aspect", photoAspect(photo));
+      syncAnnotationToolbar();
+      renderAnnotationLayer();
+      setStatus("Editor de formas aberto. Arraste sobre a foto para marcar a região.");
+    }
+
+    function closeAnnotationEditor(message = "Edição de formas cancelada.") {
+      annotationEditor.open = false;
+      annotationEditor.drawing = false;
+      annotationEditor.draft = null;
+      annotationEditor.workingAnnotations = [];
+      document.getElementById("annotationModal").classList.remove("open");
+      document.getElementById("annotationModal").setAttribute("aria-hidden", "true");
+      document.getElementById("annotationImage").removeAttribute("src");
+      document.getElementById("annotationLayer").innerHTML = "";
+      renderAll();
+      setStatus(message);
+    }
+
+    function applyAnnotationEditor() {
+      const photo = editorPhoto();
+      if (photo) {
+        photo.annotations = clone(annotationEditor.workingAnnotations || []);
+        saveDraft();
+      }
+      closeAnnotationEditor("Marcações aplicadas à foto.");
+    }
+
+    function annotationPoint(event) {
+      const rect = document.getElementById("annotationStage").getBoundingClientRect();
+      const aspect = photoAspect(editorPhoto());
+      const stageAspect = rect.width / rect.height;
+      let imageWidth = rect.width;
+      let imageHeight = rect.height;
+      let imageLeft = 0;
+      let imageTop = 0;
+      if (stageAspect > aspect) {
+        imageHeight = rect.height;
+        imageWidth = imageHeight * aspect;
+        imageLeft = (rect.width - imageWidth) / 2;
+      } else {
+        imageWidth = rect.width;
+        imageHeight = imageWidth / aspect;
+        imageTop = (rect.height - imageHeight) / 2;
+      }
+      const x = ((event.clientX - rect.left - imageLeft) / imageWidth) * 100;
+      const y = ((event.clientY - rect.top - imageTop) / imageHeight) * 100;
+      return {
+        x: Math.max(0, Math.min(100, x)),
+        y: Math.max(0, Math.min(100, y))
+      };
+    }
+
+    function shapeFromDrag(start, end) {
+      return {
+        type: annotationEditor.tool,
+        color: annotationEditor.color,
+        stroke: annotationEditor.stroke,
+        x: start.x,
+        y: start.y,
+        w: end.x - start.x,
+        h: end.y - start.y
+      };
+    }
+
+    function renderAnnotationLayer() {
+      const photo = editorPhoto();
+      const annotations = annotationEditor.workingAnnotations || [];
+      const draft = annotationEditor.draft ? [annotationEditor.draft] : [];
+      document.getElementById("annotationLayer").innerHTML = renderShapeSvg([...annotations, ...draft], "editor", photoAspect(photo));
+      const count = annotations.length;
+      document.getElementById("annotationCount").textContent = `${count} ${count === 1 ? "forma" : "formas"}`;
+    }
+
+    function startAnnotation(event) {
+      if (!annotationEditor.open) return;
+      event.preventDefault();
+      const start = annotationPoint(event);
+      annotationEditor.drawing = true;
+      annotationEditor.startX = start.x;
+      annotationEditor.startY = start.y;
+      annotationEditor.draft = shapeFromDrag(start, start);
+      event.currentTarget.setPointerCapture?.(event.pointerId);
+      renderAnnotationLayer();
+    }
+
+    function moveAnnotation(event) {
+      if (!annotationEditor.open || !annotationEditor.drawing) return;
+      event.preventDefault();
+      const start = { x: annotationEditor.startX, y: annotationEditor.startY };
+      annotationEditor.draft = shapeFromDrag(start, annotationPoint(event));
+      renderAnnotationLayer();
+    }
+
+    function finishAnnotation(event) {
+      if (!annotationEditor.open || !annotationEditor.drawing) return;
+      event.preventDefault();
+      const photo = editorPhoto();
+      const draft = annotationEditor.draft;
+      annotationEditor.drawing = false;
+      annotationEditor.draft = null;
+      event.currentTarget.releasePointerCapture?.(event.pointerId);
+      if (!photo || !draft) return renderAnnotationLayer();
+      if (Math.abs(draft.w) < 1 && Math.abs(draft.h) < 1) return renderAnnotationLayer();
+      annotationEditor.workingAnnotations.push(draft);
+      renderAnnotationLayer();
+    }
+
+    function undoAnnotation() {
+      if (!annotationEditor.workingAnnotations?.length) return;
+      annotationEditor.workingAnnotations.pop();
+      renderAnnotationLayer();
+    }
+
+    function clearAnnotations() {
+      if (!annotationEditor.workingAnnotations?.length) return;
+      annotationEditor.workingAnnotations = [];
+      renderAnnotationLayer();
+    }
+
+    function readFiles(files, callback) {
+      [...files].forEach(file => {
+        if (!file.type.startsWith("image/")) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const src = reader.result;
+          const publish = aspect => callback({
+            id: uid(),
+            src,
+            caption: file.name.replace(/\.[^.]+$/, ""),
+            title: file.name,
+            creator: "",
+            license: "",
+            sourceUrl: "",
+            origin: "arquivo local",
+            aspect,
+            annotations: []
+          });
+          const image = new Image();
+          image.onload = () => publish(image.naturalWidth && image.naturalHeight ? image.naturalWidth / image.naturalHeight : 16 / 9);
+          image.onerror = () => publish(16 / 9);
+          image.src = src;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function saveJson() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      const name = `${(state.meta.titulo || "plano-corte").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/gi, "_").replace(/^_|_$/g, "") || "plano_corte"}.json`;
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      setStatus("Arquivo JSON salvo.");
+    }
+
+    function loadJson(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          state = JSON.parse(reader.result);
+          searchCache = {};
+          renderAll();
+          setStatus("Arquivo carregado.");
+        } catch (error) {
+          setStatus("JSON inválido.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function saveDraft() {
+      try {
+        localStorage.setItem("planoCorteInterativoDraft", JSON.stringify(state));
+      } catch (_) {}
+    }
+
+    function loadDraft() {
+      try {
+        const saved = localStorage.getItem("planoCorteInterativoDraft");
+        if (saved) state = JSON.parse(saved);
+      } catch (_) {
+        state = clone(initialState);
+      }
+    }
+
+    function reportPhotosHtml(photos) {
+      if (!photos?.length) return `<p>Sem fotos anexadas.</p>`;
+      return `<div class="report-photos">${photos.map((photo, photoIndex) => `
+        <figure class="report-photo">
+          <div class="report-photo-frame">
+            <img src="${escapeHtml(photo.src)}" alt="${escapeHtml(photo.caption || photo.title || "Foto")}" crossorigin="anonymous" />
+            ${renderShapeSvg(photo.annotations || [], `report-${photoIndex}-${uid()}`, photoAspect(photo))}
+          </div>
+          <figcaption><strong>${escapeHtml(photo.caption || photo.title || "Foto")}</strong><br>${escapeHtml(photo.creator || photo.origin || "")}${photo.license ? " · " + escapeHtml(photo.license) : ""}</figcaption>
+        </figure>
+      `).join("")}</div>`;
+    }
+
+    function riskClass(level) {
+      const key = normalizeText(level || "");
+      if (key.includes("crit")) return "risk-critico";
+      if (key.includes("alto")) return "risk-alto";
+      if (key.includes("medio")) return "risk-medio";
+      return "risk-baixo";
+    }
+
+    function normalizeText(value) {
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+    }
+
+    function chunk(items, size) {
+      const groups = [];
+      for (let i = 0; i < items.length; i += size) groups.push(items.slice(i, i + size));
+      return groups;
+    }
+
+    function reportPage(body, pageNumber, totalPages) {
+      return `
+        <section class="report-page">
+          <header class="report-header">
+            <img class="report-logo" src="${valeLogoPngData}" alt="Vale" />
+            <div>
+              <div class="report-kicker">Plano de Corte / Trabalho</div>
+              <h1>${escapeHtml(state.meta.titulo)}</h1>
+              <div class="report-subtitle">${escapeHtml(state.equipamento.modelo)} · ${escapeHtml(state.meta.cliente)} · ${escapeHtml(state.meta.status)}</div>
+            </div>
+            <div class="report-rev">
+              <strong>${escapeHtml(state.meta.revisao || "REV")}</strong>
+              ${formatDate(state.meta.dataAvaliacao) || "Data não informada"}
+            </div>
+          </header>
+          ${body}
+          <footer class="report-footer">
+            <span>Imprimir em 3 vias: responsável da área, responsável CMD e empresa/cliente.</span>
+            <span>Página ${pageNumber} de ${totalPages}</span>
+          </footer>
+        </section>
+      `;
+    }
+
+    function signaturesHtml() {
+      return `
+        <h2>8. Assinaturas</h2>
+        <table class="report-table">
+          <thead><tr><th>Papel</th><th>Nome</th><th>Empresa</th><th>Data</th><th>Assinatura</th></tr></thead>
+          <tbody>${state.assinaturas.map(a => `
+            <tr>
+              <td>${escapeHtml(a.papel)}</td>
+              <td>${escapeHtml(a.nome)}</td>
+              <td>${escapeHtml(a.empresa)}</td>
+              <td>${formatDate(a.data)}</td>
+              <td class="signature-space">${escapeHtml(a.assinaturaTexto)}</td>
+            </tr>`).join("")}</tbody>
+        </table>
+        <div class="report-callout"><strong>Nota:</strong> seguir ART, PTS/CRM, Plano de Rigging e liberações aplicáveis antes da execução.</div>
+      `;
+    }
+
+    function buildReportHtml() {
+      const chartImage = riskChart ? riskChart.toBase64Image() : "";
+      const allStagePhotos = state.etapas.flatMap(e => (e.fotos || []).map(photo => ({ ...photo, caption: `Etapa ${e.numero} - ${e.titulo}: ${photo.caption || photo.title || ""}` })));
+      const allEvidencePhotos = state.evidencias.flatMap(ev => (ev.fotos || []).map(photo => ({ ...photo, caption: `${ev.tipo}: ${photo.caption || ev.legenda || ""}` })));
+      const allPhotos = [...allStagePhotos, ...allEvidencePhotos];
+
+      const pages = [];
+      pages.push(`
+        <h2>1. Identificação da Atividade</h2>
+        <table class="report-table">
+          <tbody>
+            <tr><td class="report-label">Data da avaliação</td><td>${formatDate(state.meta.dataAvaliacao)}</td><td class="report-label">Início / Término</td><td>${formatDate(state.meta.inicioAtividade)} a ${formatDate(state.meta.terminoAtividade)}</td></tr>
+            <tr><td class="report-label">Local de execução</td><td>${escapeHtml(state.meta.local)}</td><td class="report-label">Nº de pessoas</td><td>${escapeHtml(state.meta.numeroPessoas || "4")}</td></tr>
+            <tr><td class="report-label">Responsável da área</td><td>${escapeHtml(state.meta.responsavelArea)} · ${escapeHtml(state.meta.telefone)}</td><td class="report-label">Responsável cliente</td><td>${escapeHtml(state.meta.responsavelVale)} · ${escapeHtml(state.meta.email)}</td></tr>
+            <tr><td class="report-label">Elaborador</td><td>${escapeHtml(state.meta.elaborador)}</td><td class="report-label">Empresa / Função</td><td>${escapeHtml(state.meta.empresa)} · ${escapeHtml(state.meta.funcao)}</td></tr>
+          </tbody>
+        </table>
+
+        <h2>2. Equipamento e Atividade</h2>
+        <table class="report-table">
+          <tbody>
+            <tr><td class="report-label">Equipamento / Estrutura</td><td>${escapeHtml(state.equipamento.nome)}</td><td class="report-label">Modelo / Tag</td><td>${escapeHtml(state.equipamento.modelo)}</td></tr>
+            <tr><td class="report-label">Dimensões / peso</td><td>${escapeHtml(state.equipamento.peso)}</td><td class="report-label">Recursos de içamento</td><td>${escapeHtml(state.equipamento.icamento)}</td></tr>
+            <tr><td class="report-label">Ferramentas</td><td colspan="3">${escapeHtml(state.equipamento.ferramentas)}</td></tr>
+            <tr><td class="report-label">Observações</td><td colspan="3">${escapeHtml(state.equipamento.observacoes)}</td></tr>
+          </tbody>
+        </table>
+        <div class="report-callout"><strong>Resumo operacional:</strong> ${escapeHtml(state.equipamento.resumo)}</div>
+
+        <h2>3. Etapas / Sequência de Execução</h2>
+        <table class="report-table">
+          <thead><tr><th style="width:16%;">Etapa</th><th>O que fazer</th><th>Como fazer / Aceite</th><th style="width:15%;">Responsável</th></tr></thead>
+          <tbody>${state.etapas.map(e => `
+            <tr>
+              <td><strong>${escapeHtml(e.numero)} — ${escapeHtml(e.titulo)}</strong><br>${escapeHtml(e.status)}</td>
+              <td>${escapeHtml(e.oQue)}</td>
+              <td>${escapeHtml(e.como)}<br><strong>Aceite:</strong> ${escapeHtml(e.aceite)}</td>
+              <td>${escapeHtml(e.responsavel)}</td>
+            </tr>`).join("")}</tbody>
+        </table>
+      `);
+
+      pages.push(`
+        <h2>4. Procedimento — O que Fazer / Como Fazer</h2>
+        <table class="report-table">
+          <thead><tr><th style="width:26%;">O que fazer</th><th>Como fazer</th></tr></thead>
+          <tbody>${state.procedimentos.map(p => `<tr><td><strong>${escapeHtml(p.titulo)}</strong></td><td>${escapeHtml(p.descricao)}</td></tr>`).join("")}</tbody>
+        </table>
+
+        <h2>5. Análise de Riscos e Controles</h2>
+        ${chartImage ? `<img class="report-chart" src="${chartImage}" alt="Gráfico de riscos">` : ""}
+        <table class="report-table">
+          <thead><tr><th style="width:20%;">Perigo / Risco</th><th style="width:13%;">Nível</th><th>Medidas de controle</th><th style="width:16%;">Responsável</th></tr></thead>
+          <tbody>${state.riscos.map(r => `
+            <tr>
+              <td>${escapeHtml(r.perigo)}<br><span style="color:#667085;">${escapeHtml(r.consequencia)}</span></td>
+              <td><span class="risk-chip ${riskClass(r.nivel)}">${escapeHtml(r.nivel)}</span></td>
+              <td>${escapeHtml(r.controle)}</td>
+              <td>${escapeHtml(r.responsavel)}</td>
+            </tr>`).join("")}</tbody>
+        </table>
+
+        <h2>6. EPIs Obrigatórios</h2>
+        <table class="report-table">
+          <thead><tr><th>EPI / Recurso</th><th style="width:22%;">Obrigatoriedade</th><th>CA / Observação</th></tr></thead>
+          <tbody>${state.epis.map(e => `<tr><td>${escapeHtml(e.nome)}</td><td>${escapeHtml(e.obrigatorio)}</td><td>${escapeHtml(e.observacao)}</td></tr>`).join("")}</tbody>
+        </table>
+      `);
+
+      const photoGroups = chunk(allPhotos, 4);
+      if (photoGroups.length) {
+        photoGroups.forEach((group, index) => {
+          pages.push(`
+            <h2>7. Evidências Fotográficas${photoGroups.length > 1 ? ` — ${index + 1}/${photoGroups.length}` : ""}</h2>
+            ${reportPhotosHtml(group)}
+            ${index === photoGroups.length - 1 ? `
+              <table class="report-table">
+                <thead><tr><th>Tipo de evidência</th><th>Legenda / descrição</th></tr></thead>
+                <tbody>${state.evidencias.map(e => `<tr><td>${escapeHtml(e.tipo)}</td><td>${escapeHtml(e.legenda)}</td></tr>`).join("")}</tbody>
+              </table>
+              ${signaturesHtml()}
+            ` : ""}
+          `);
+        });
+      } else {
+        pages.push(`
+          <h2>7. Evidências Fotográficas</h2>
+          <div class="report-callout">Nenhuma foto anexada. Use a busca Openverse ou envie fotos do computador antes de gerar o relatório final.</div>
+          <table class="report-table">
+            <thead><tr><th>Tipo de evidência</th><th>Legenda / descrição</th></tr></thead>
+            <tbody>${state.evidencias.map(e => `<tr><td>${escapeHtml(e.tipo)}</td><td>${escapeHtml(e.legenda)}</td></tr>`).join("")}</tbody>
+          </table>
+          ${signaturesHtml()}
+        `);
+      }
+
+      const totalPages = pages.length;
+      return pages.map((body, index) => reportPage(body, index + 1, totalPages)).join("");
+    }
+
+    async function generatePdf() {
+      if (!window.html2canvas || !window.jspdf?.jsPDF) {
+        setStatus("Bibliotecas de PDF não carregadas. Verifique a conexão.");
+        return;
+      }
+      setStatus("Montando PDF...");
+      const report = document.getElementById("pdfArea");
+      report.innerHTML = buildReportHtml();
+      await new Promise(resolve => setTimeout(resolve, 300));
+      try {
+        const pdf = new jspdf.jsPDF("p", "mm", "a4");
+        const pages = [...report.querySelectorAll(".report-page")];
+        for (let i = 0; i < pages.length; i++) {
+          if (i > 0) pdf.addPage();
+          const canvas = await html2canvas(pages[i], {
+            scale: 2,
+            backgroundColor: "#ffffff",
+            useCORS: true,
+            allowTaint: false,
+            imageTimeout: 15000
+          });
+          const imgData = canvas.toDataURL("image/jpeg", 0.94);
+          pdf.addImage(imgData, "JPEG", 0, 0, 210, 297);
+        }
+        const name = `${(state.meta.titulo || "plano-corte").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/gi, "_").replace(/^_|_$/g, "") || "plano_corte"}.pdf`;
+        pdf.save(name);
+        setStatus("PDF gerado.");
+      } catch (error) {
+        setStatus("Não foi possível gerar o PDF. Se usou imagem externa, tente anexar por upload local.");
+      }
+    }
+
+    document.addEventListener("input", event => {
+      const el = event.target;
+      if (el.dataset.bind) {
+        setPath(el.dataset.bind, el.value);
+        renderBoundFields();
+        updateMetrics();
+        saveDraft();
+      }
+      if (el.dataset.array) {
+        state[el.dataset.array][Number(el.dataset.index)][el.dataset.field] = el.value;
+        if (el.dataset.array === "riscos") updateChart();
+        updateMetrics();
+        saveDraft();
+      }
+      if (el.dataset.photoCaption) {
+        const collection = el.dataset.photoCaption === "stage" ? state.etapas : state.evidencias;
+        collection[Number(el.dataset.index)].fotos[Number(el.dataset.photo)].caption = el.value;
+        saveDraft();
+      }
+    });
+
+    document.addEventListener("change", event => {
+      const el = event.target;
+      if (el.dataset.bind) {
+        setPath(el.dataset.bind, el.value);
+        renderBoundFields();
+        updateMetrics();
+        saveDraft();
+      }
+      if (el.dataset.array) {
+        state[el.dataset.array][Number(el.dataset.index)][el.dataset.field] = el.value;
+        if (el.dataset.array === "riscos") updateChart();
+        updateMetrics();
+        saveDraft();
+      }
+      if (el.dataset.annotationField) {
+        const photo = getPhoto(el.dataset.scope, el.dataset.index, el.dataset.photo);
+        const shape = photo?.annotations?.[Number(el.dataset.shape)];
+        if (shape) {
+          const field = el.dataset.annotationField;
+          shape[field] = ["x", "y", "w", "h"].includes(field) ? Number(el.value) : el.value;
+          renderAll();
+        }
+      }
+      if (el.dataset.fileStage) {
+        const i = Number(el.dataset.fileStage);
+        readFiles(el.files, photo => {
+          state.etapas[i].fotos.push(photo);
+          renderAll();
+        });
+        el.value = "";
+      }
+      if (el.dataset.fileEvidence) {
+        const i = Number(el.dataset.fileEvidence);
+        readFiles(el.files, photo => {
+          state.evidencias[i].fotos.push(photo);
+          renderAll();
+        });
+        el.value = "";
+      }
+    });
+
+    document.addEventListener("click", event => {
+      const button = event.target.closest("button");
+      if (!button) return;
+      const action = button.dataset.action;
+      const index = Number(button.dataset.index);
+
+      if (action === "add-procedimento") state.procedimentos.push({ titulo: "Novo procedimento", descricao: "" });
+      if (action === "remove-procedimento") state.procedimentos.splice(index, 1);
+      if (action === "add-etapa") state.etapas.push(etapa(state.etapas.length + 1, "Nova etapa", "", "", "", "", "", "Pendente", ""));
+      if (action === "remove-etapa") state.etapas.splice(index, 1);
+      if (action === "add-risco") state.riscos.push(risco("Novo risco", "", "Médio", "", ""));
+      if (action === "remove-risco") state.riscos.splice(index, 1);
+      if (action === "add-epi") state.epis.push(epi("Novo EPI/Recurso", "Obrigatório", ""));
+      if (action === "remove-epi") state.epis.splice(index, 1);
+      if (action === "add-evidencia") state.evidencias.push(evidencia("Nova evidência", ""));
+      if (action === "remove-evidencia") state.evidencias.splice(index, 1);
+      if (action === "add-assinatura") state.assinaturas.push(assinatura("Nova assinatura", "", "", "", ""));
+      if (action === "remove-assinatura") state.assinaturas.splice(index, 1);
+      if (action === "search-stage") return searchOpenverse(index);
+      if (action === "upload-stage") return document.querySelector(`[data-file-stage="${index}"]`)?.click();
+      if (action === "upload-evidence") return document.querySelector(`[data-file-evidence="${index}"]`)?.click();
+      if (action === "attach-search") return attachSearch(button.dataset.scope, Number(button.dataset.index), Number(button.dataset.result));
+      if (action === "open-annotator") return openAnnotationEditor(button.dataset.scope, Number(button.dataset.index), Number(button.dataset.photo));
+      if (action === "toggle-shapes") {
+        const photo = getPhoto(button.dataset.scope, button.dataset.index, button.dataset.photo);
+        if (photo) photo.shapesOpen = !photo.shapesOpen;
+      }
+      if (action === "add-shape") {
+        const scope = button.dataset.scope;
+        const photoIndex = Number(button.dataset.photo);
+        const tools = button.closest(".shape-tools");
+        const type = tools?.querySelector(`[data-shape-picker="${scope}"][data-index="${index}"][data-photo="${photoIndex}"]`)?.value || "rect";
+        const color = tools?.querySelector(`[data-shape-color="${scope}"][data-index="${index}"][data-photo="${photoIndex}"]`)?.value || "#d92d20";
+        return addShape(scope, index, photoIndex, type, color);
+      }
+      if (action === "remove-shape") {
+        const photo = getPhoto(button.dataset.scope, button.dataset.index, button.dataset.photo);
+        photo?.annotations?.splice(Number(button.dataset.shape), 1);
+      }
+      if (action === "remove-photo") {
+        const collection = button.dataset.scope === "stage" ? state.etapas : state.evidencias;
+        collection[Number(button.dataset.index)].fotos.splice(Number(button.dataset.photo), 1);
+      }
+      if (action) renderAll();
+    });
+
+    document.getElementById("annotationStage").addEventListener("pointerdown", startAnnotation);
+    document.getElementById("annotationStage").addEventListener("pointermove", moveAnnotation);
+    document.getElementById("annotationStage").addEventListener("pointerup", finishAnnotation);
+    document.getElementById("annotationStage").addEventListener("pointercancel", finishAnnotation);
+    document.querySelector(".annotation-tools").addEventListener("click", event => {
+      const toolButton = event.target.closest("[data-annotation-tool]");
+      if (toolButton) {
+        annotationEditor.tool = toolButton.dataset.annotationTool;
+        syncAnnotationToolbar();
+        return;
+      }
+      const colorButton = event.target.closest("[data-annotation-color]");
+      if (colorButton) {
+        annotationEditor.color = colorButton.dataset.annotationColor;
+        syncAnnotationToolbar();
+      }
+    });
+    document.getElementById("annotationStroke").addEventListener("change", event => {
+      annotationEditor.stroke = Number(event.target.value) || 0.55;
+      syncAnnotationToolbar();
+    });
+    document.getElementById("undoAnnotationBtn").addEventListener("click", undoAnnotation);
+    document.getElementById("clearAnnotationBtn").addEventListener("click", clearAnnotations);
+    document.getElementById("cancelAnnotationBtn").addEventListener("click", () => closeAnnotationEditor());
+    document.getElementById("applyAnnotationBtn").addEventListener("click", applyAnnotationEditor);
+    document.getElementById("annotationModal").addEventListener("click", event => {
+      if (event.target.id === "annotationModal") closeAnnotationEditor();
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && annotationEditor.open) closeAnnotationEditor();
+    });
+
+    document.getElementById("saveBtn").addEventListener("click", saveJson);
+    document.getElementById("loadBtn").addEventListener("click", () => document.getElementById("loadFile").click());
+    document.getElementById("loadFile").addEventListener("change", event => {
+      const file = event.target.files[0];
+      if (file) loadJson(file);
+      event.target.value = "";
+    });
+    document.getElementById("pdfBtn").addEventListener("click", generatePdf);
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      if (!confirm("Restaurar o modelo inicial?")) return;
+      state = clone(initialState);
+      searchCache = {};
+      renderAll();
+      setStatus("Modelo restaurado.");
+    });
+
+    document.getElementById("brandLogo").src = valeLogoPngData;
+
+    document.querySelectorAll(".nav a").forEach(link => {
+      link.addEventListener("click", () => {
+        document.querySelectorAll(".nav a").forEach(a => a.classList.remove("active"));
+        link.classList.add("active");
+      });
+    });
+
+    loadDraft();
+    renderAll();
+  </script>
+</body>
+</html>
