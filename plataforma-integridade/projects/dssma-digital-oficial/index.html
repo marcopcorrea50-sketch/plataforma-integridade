@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DSSMA Digital - Modo Iniciar DSS</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="access-mode">
+  <main class="preview-shell">
+    <section class="hero-panel" aria-label="Capa oficial do sistema DSSMA">
+      <img class="cover-art" src="assets/capa-oficial.png" alt="Registro de Participacao no DSSMA / Como Estou?">
+      <header class="topbar">
+        <img src="assets/vale-logo.png" alt="Vale">
+        <span>Sistema oficial</span>
+      </header>
+      <div class="hero-copy">
+        <p class="kicker">Modo Iniciar DSS</p>
+        <h1>Presença, condição e assinatura antes da atividade.</h1>
+        <p class="subtitle">Cada pessoa passa por uma confirmação individual. O condutor acompanha pendências em tempo real e só finaliza quando todos estiverem registrados.</p>
+      </div>
+      <div class="hero-actions">
+        <button id="startBtn" class="cover-hotspot" type="button" aria-label="Acessar sistema">Acessar sistema</button>
+      </div>
+      <figure class="vps-card">
+        <img src="assets/vps-bg.png" alt="Práticas VPS">
+      </figure>
+    </section>
+
+    <section class="system-panel" aria-label="Sistema DSSMA digital">
+      <header class="system-header">
+        <div>
+          <p>DSSMA Digital</p>
+          <h2>Registro diário - Como estou?</h2>
+        </div>
+        <div class="session-badge">
+          <strong id="sessionDate">31/05/2026</strong>
+          <span id="sessionHeaderTime">Turno Operacional</span>
+        </div>
+      </header>
+
+      <section class="session-card" aria-label="Dados do DSS">
+        <div class="section-title">
+          <h3>Dados do DSS</h3>
+          <span>Obrigatório para gerar o anexo</span>
+        </div>
+        <div class="session-grid">
+          <label>
+            Tema do dia
+            <input id="sessionTopic" type="text" value="DSSMA Digital - Como Estou?">
+          </label>
+          <label>
+            Condutor do dia
+            <input id="sessionConductor" type="text" placeholder="Nome do condutor">
+          </label>
+          <label>
+            Semana (segunda)
+            <input id="sessionDateInput" type="date">
+          </label>
+          <label>
+            Horário
+            <input id="sessionTimeInput" type="time">
+          </label>
+          <label>
+            Área
+            <input id="sessionArea" type="text" placeholder="Área">
+          </label>
+          <label>
+            Turma
+            <input id="sessionShift" type="text" placeholder="Turma">
+          </label>
+        </div>
+        <div class="week-selector" aria-label="Dia do registro semanal">
+          <div>
+            <strong>Dia do registro</strong>
+            <span>Preencha de segunda a sexta e gere o PDF semanal ao final.</span>
+          </div>
+          <div id="weekDayButtons" class="week-day-buttons"></div>
+        </div>
+      </section>
+
+      <section class="status-grid" aria-label="Indicadores">
+        <article>
+          <span id="doneCount">0</span>
+          <p>Concluídos</p>
+        </article>
+        <article>
+          <span id="pendingCount">6</span>
+          <p>Pendentes</p>
+        </article>
+        <article class="attention">
+          <span id="attentionCount">0</span>
+          <p>Atenção</p>
+        </article>
+      </section>
+
+      <section class="setup-card" aria-label="Cadastro de participantes">
+        <div class="section-title">
+          <h3>Alimentar lista de participantes</h3>
+          <span>Cadastro rápido</span>
+        </div>
+        <div class="setup-grid">
+          <label>
+            Nome
+            <input id="newName" type="text" placeholder="Nome completo">
+          </label>
+          <label>
+            Matrícula
+            <input id="newBadge" type="text" placeholder="Matrícula">
+          </label>
+          <button id="addPersonBtn" type="button">Adicionar</button>
+        </div>
+        <label class="import-box">
+          Importar vários participantes
+          <textarea id="bulkPeople" rows="3" placeholder="Nome;Matrícula&#10;Nome;Matrícula"></textarea>
+        </label>
+        <div class="setup-actions">
+          <button id="importPeopleBtn" type="button">Importar lista</button>
+          <button id="clearPeopleBtn" type="button">Limpar lista</button>
+        </div>
+      </section>
+
+      <section class="flow-grid">
+        <div class="participant-list">
+          <div class="section-title">
+            <h3>Chamada do DSS</h3>
+            <span id="lockStatus">Impressão bloqueada</span>
+          </div>
+          <div id="participantRows" class="participant-rows"></div>
+        </div>
+
+        <div class="checkin-card">
+          <div class="section-title">
+            <h3>Confirmação individual</h3>
+            <span id="currentStatus">Aguardando</span>
+          </div>
+          <div class="person-focus">
+            <span id="currentInitials">--</span>
+            <div>
+              <strong id="currentName">Selecione um participante</strong>
+              <p id="currentBadge">Matrícula</p>
+            </div>
+          </div>
+
+          <div class="mood-options" aria-label="Como estou hoje">
+            <button id="goodBtn" class="mood-button good" type="button">
+              <span class="face">✓</span>
+              <strong>1 - Estou bem</strong>
+              <small>Liberado para seguir o DSS</small>
+            </button>
+            <button id="badBtn" class="mood-button bad" type="button">
+              <span class="face">!</span>
+              <strong>2 - Preciso de atenção</strong>
+              <small>Condutor conversa antes da tarefa</small>
+            </button>
+          </div>
+
+          <div class="signature-box">
+            <div class="signature-title">
+              <span>Rubrica digital obrigatória</span>
+              <button id="clearSignatureBtn" type="button">Limpar</button>
+            </div>
+            <canvas id="signatureCanvas" aria-label="Área para rubricar na tela"></canvas>
+            <small>Assine com o dedo, caneta touch ou mouse.</small>
+          </div>
+
+          <div id="alertBox" class="alert-box" hidden>
+            Participante marcou atenção. Converse antes de liberar a atividade.
+          </div>
+
+          <button id="confirmBtn" class="confirm-button" type="button">Confirmar participação</button>
+          <div class="situation-box">
+            <label>
+              Situação sem assinatura
+              <select id="situationSelect">
+                <option value="Ausência justificada">Ausência justificada</option>
+                <option value="Férias">Férias</option>
+                <option value="Folga">Folga</option>
+                <option value="Atestado">Atestado</option>
+                <option value="Afastado">Afastado</option>
+                <option value="Treinamento">Treinamento</option>
+                <option value="Não convocado">Não convocado</option>
+              </select>
+            </label>
+            <button id="excuseBtn" class="secondary-action" type="button">Aplicar situação</button>
+          </div>
+        </div>
+      </section>
+
+      <footer class="system-footer">
+        <span id="finalMessage">Finalize a chamada para liberar impressão/PDF.</span>
+        <div class="footer-actions">
+          <button id="generateFinalBtn" type="button" disabled>Gerar formulário final</button>
+          <button id="printPdfBtn" type="button" disabled>Imprimir / Salvar PDF</button>
+          <button id="exportCsvBtn" type="button" disabled>Exportar CSV</button>
+        </div>
+      </footer>
+
+      <section id="finalForm" class="final-form" hidden aria-label="Formulário final gerado">
+        <div class="section-title">
+          <h3>Formulário final gerado</h3>
+          <span>Oficial</span>
+        </div>
+        <div id="finalTableWrap"></div>
+      </section>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

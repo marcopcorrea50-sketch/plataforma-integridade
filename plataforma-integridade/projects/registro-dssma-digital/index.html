@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro DSSMA Digital - Como Estou?</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <section id="coverScreen" class="cover-screen" aria-label="Capa de acesso">
+    <div class="cover-shade"></div>
+    <header class="cover-topbar">
+      <img src="assets/vale-logo.png" alt="Vale">
+      <span>DSSMA Digital</span>
+    </header>
+    <div class="cover-main">
+      <div class="cover-content">
+        <p class="cover-kicker">Saúde, Segurança, Meio Ambiente e Qualidade</p>
+        <h1>Registro de Participação no DSSMA</h1>
+        <p class="cover-subtitle">Como Estou?</p>
+        <div class="cover-meta" aria-label="Dados rápidos">
+          <span id="coverDate">--/--/----</span>
+          <span id="coverProfile">Operacional</span>
+          <span>Controle digital</span>
+        </div>
+        <div class="cover-actions">
+          <button id="openSystem" class="cover-primary" type="button">Acessar formulário</button>
+          <button id="coverPrint" class="cover-secondary" type="button">Imprimir direto</button>
+        </div>
+      </div>
+      <figure class="cover-vps">
+        <img src="assets/vps-bg.png" alt="Práticas VPS">
+      </figure>
+    </div>
+  </section>
+
+  <div class="app-shell">
+    <aside class="control-panel" aria-label="Painel de automação">
+      <div class="brand-strip">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div>
+          <strong>Registro DSSMA</strong>
+          <span>Como Estou?</span>
+        </div>
+      </div>
+
+      <section class="panel-section">
+        <h2>Documento</h2>
+        <label>
+          Cabeçalho
+          <input data-field="header" type="text">
+        </label>
+        <label>
+          Código / revisão
+          <input data-field="procedure" type="text">
+        </label>
+        <label>
+          Diretoria emitente
+          <input data-field="directorate" type="text">
+        </label>
+        <label>
+          Título
+          <input data-field="title" type="text">
+        </label>
+        <div class="field-grid two">
+          <label>
+            Gerência
+            <input data-field="management" type="text">
+          </label>
+          <label>
+            Área
+            <input data-field="area" type="text">
+          </label>
+        </div>
+        <div class="field-grid three">
+          <label>
+            Perfil
+            <select data-field="profile">
+              <option>Administrativo</option>
+              <option>Operacional</option>
+            </select>
+          </label>
+          <label>
+            Turma
+            <input data-field="shift" type="text">
+          </label>
+          <label>
+            Horário
+            <input data-field="time" type="time">
+          </label>
+        </div>
+      </section>
+
+      <section class="panel-section">
+        <div class="section-title-row">
+          <h2>Reuniões</h2>
+          <label class="compact-field">
+            Qtd.
+            <input id="meetingCount" type="number" min="1" max="7" value="5">
+          </label>
+        </div>
+        <div id="meetingEditor" class="meeting-editor"></div>
+        <div class="button-row">
+          <button id="setTodayDates" type="button">Datas de hoje</button>
+          <button id="clearMeetings" type="button">Limpar temas</button>
+        </div>
+      </section>
+
+      <section class="panel-section">
+        <div class="section-title-row">
+          <h2>Participantes</h2>
+          <button id="addParticipant" class="small-button" type="button">Adicionar</button>
+        </div>
+        <div id="participantEditor" class="participant-editor"></div>
+        <label>
+          Importar lista
+          <textarea id="bulkParticipants" rows="5" placeholder="Nome;Matrícula&#10;Nome;Matrícula"></textarea>
+        </label>
+        <button id="importParticipants" type="button">Importar participantes</button>
+      </section>
+
+      <section class="panel-section actions-section">
+        <h2>Automação</h2>
+        <div class="button-grid">
+          <button id="fillGood" type="button">Marcar todos 1</button>
+          <button id="clearMoods" type="button">Limpar marcações</button>
+          <button id="clearSignatures" type="button">Limpar rubricas</button>
+          <button id="resetModel" type="button">Restaurar modelo</button>
+        </div>
+        <div class="button-grid">
+          <button id="exportCsv" type="button">Baixar CSV</button>
+          <button id="downloadJson" type="button">Baixar backup</button>
+          <label class="file-button">
+            Carregar backup
+            <input id="uploadJson" type="file" accept="application/json">
+          </label>
+          <button id="printSheet" type="button">Imprimir / PDF</button>
+        </div>
+        <p id="saveStatus" class="save-status" role="status">Pronto.</p>
+      </section>
+    </aside>
+
+    <main class="workspace">
+      <div class="screen-toolbar">
+        <strong>Prévia do formulário</strong>
+        <div class="toolbar-actions">
+          <button id="showCover" type="button">Capa</button>
+          <span>Pronto para impressão em A4 paisagem.</span>
+        </div>
+      </div>
+
+      <section id="sheet" class="print-sheet" aria-label="Registro de Participação no DSSMA"></section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

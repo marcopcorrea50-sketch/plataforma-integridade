@@ -1290,6 +1290,10 @@ select option{background:var(--bg-surface);color:var(--text-primary);}
       <div class="nav-item" onclick="switchSection('sec-feedbacks',this)" title="Feedbacks">
         <div class="nav-icon">💬</div><span class="nav-label">Feedbacks</span>
       </div>
+      <div class="nav-divider"></div>
+      <div class="nav-item" onclick="switchSection('sec-dssma',this)" title="DSSMA Digital">
+        <div class="nav-icon">📋</div><span class="nav-label">DSSMA Digital</span>
+      </div>
     </nav>
 
     <div class="sidebar-footer">
@@ -1895,6 +1899,75 @@ select option{background:var(--bg-surface);color:var(--text-primary);}
         </div>
       </div><!-- /sec-feedbacks -->
 
+      <!-- ══════════════ DSSMA DIGITAL ══════════════ -->
+      <div id="sec-dssma" class="section">
+        <div class="section-header">
+          <h2>DSSMA Digital — Ferramentas de Registro</h2>
+          <p>Registro de Participação no DSSMA / Como Estou? — Controle digital de presença, condição e assinatura antes da atividade.</p>
+        </div>
+        <div class="pilares-grid">
+
+          <a href="../dssma-digital-oficial/index.html" target="_blank" style="text-decoration:none;color:inherit;">
+            <div class="pilar-card pessoas" style="cursor:pointer;">
+              <div class="pilar-header">
+                <div class="pilar-header-inner">
+                  <div class="pilar-name">Iniciar DSS — Modo Oficial</div>
+                  <div class="pilar-badge">Chamada com assinatura digital</div>
+                </div>
+                <div class="pilar-icon-bg">✍️</div>
+              </div>
+              <div class="pilar-body">
+                <div class="pilar-stats">
+                  <div class="pilar-stat">
+                    <div class="pilar-stat-num">📋</div>
+                    <div class="pilar-stat-lbl">Chamada individual</div>
+                  </div>
+                  <div class="pilar-stat">
+                    <div class="pilar-stat-num">✍️</div>
+                    <div class="pilar-stat-lbl">Rubrica digital</div>
+                  </div>
+                  <div class="pilar-stat">
+                    <div class="pilar-stat-num">📄</div>
+                    <div class="pilar-stat-lbl">Anexo 1 semanal</div>
+                  </div>
+                </div>
+                <p style="margin-top:14px;font-size:.82rem;color:var(--text-secondary);line-height:1.5;">Fluxo completo de DSS: confirmação individual com humor + rubrica touch, controle semanal SEG-SEX, geração do Anexo 1 oficial para impressão/PDF.</p>
+              </div>
+            </div>
+          </a>
+
+          <a href="../registro-dssma-digital/index.html" target="_blank" style="text-decoration:none;color:inherit;">
+            <div class="pilar-card seguranca" style="cursor:pointer;">
+              <div class="pilar-header">
+                <div class="pilar-header-inner">
+                  <div class="pilar-name">Registro DSSMA — Formulário Rápido</div>
+                  <div class="pilar-badge">Edição direta e impressão</div>
+                </div>
+                <div class="pilar-icon-bg">📝</div>
+              </div>
+              <div class="pilar-body">
+                <div class="pilar-stats">
+                  <div class="pilar-stat">
+                    <div class="pilar-stat-num">⚡</div>
+                    <div class="pilar-stat-lbl">Edição rápida</div>
+                  </div>
+                  <div class="pilar-stat">
+                    <div class="pilar-stat-num">📊</div>
+                    <div class="pilar-stat-lbl">Exportar CSV</div>
+                  </div>
+                  <div class="pilar-stat">
+                    <div class="pilar-stat-num">🖨️</div>
+                    <div class="pilar-stat-lbl">Impressão A4</div>
+                  </div>
+                </div>
+                <p style="margin-top:14px;font-size:.82rem;color:var(--text-secondary);line-height:1.5;">Formulário direto com painel de controle lateral: edite temas, participantes e marcações em tempo real. Prévia A4 paisagem para impressão ou PDF.</p>
+              </div>
+            </div>
+          </a>
+
+        </div>
+      </div><!-- /sec-dssma -->
+
     </div><!-- /page-content -->
   </main>
 </div><!-- /app -->
@@ -1909,7 +1982,8 @@ const SECTION_LABELS = {
   'sec-arcadis': 'Treinamento ARCADIS',
   'sec-aso': 'Acomp. ASO',
   'sec-ferias': 'Férias & Cronograma',
-  'sec-feedbacks': 'Feedbacks'
+  'sec-feedbacks': 'Feedbacks',
+  'sec-dssma': 'DSSMA Digital'
 };
 
 function switchSection(secId, navEl) {
