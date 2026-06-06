@@ -1,0 +1,48 @@
+==========================================================
+GERADOR DE RELATORIO BASELINE N2 - PADRAO VALE - v14
+==========================================================
+
+ARQUIVOS DESTA PASTA
+--------------------
+Gerador_Relatorio_N2.html  - Ferramenta principal (abra no navegador)
+gerar_relatorio_n2.py      - Script Python alternativo
+amostra/                   - Exemplo de configuração + fotos
+LEIA-ME.txt                - Este arquivo
+
+COMO USAR (HTML - RECOMENDADO)
+------------------------------
+1. Abra Gerador_Relatorio_N2.html no Chrome ou Edge.
+2. Aba "1. Cabecalho": preencha dados + carregue logo da Vale.
+3. Aba "7. Componentes": clique "Carregar TCLD" e arraste fotos.
+4. Aba "5. Planos": adicione planos de manutencao.
+5. Aba "6. Desenhos/Visao": liste desenhos + foto panoramica.
+6. Aba "9. Recomendacoes": adicione recomendacoes gerais.
+7. Clique no botao verde "Baixar DOCX" no topo.
+8. Abra o DOCX no Word, Ctrl+A, F9 para atualizar indices.
+
+PRINCIPAIS RECURSOS v14
+-----------------------
+- Estrutura ABNT em 8 secoes (1.1, 2.1, 3.1, 3.2, 4.1, 5.1, 5.2, 7.1, 8.1)
+- Numeracao hierarquica de figuras: Figura 5.1, 6.1, 6.2 (X = secao)
+- INDICE DE FIGURAS construido manualmente (com hyperlinks - 100% confiavel)
+- Lista de desenhos em 3 colunas com bordas visiveis
+- Pranchas de 6 fotos por pagina com 1 legenda unica
+- Logo da Vale no cabecalho de todas paginas
+- Compressao automatica de fotos (1920px / JPEG 78%)
+- Armazenamento em IndexedDB (suporta centenas de fotos)
+- Backup Sessao em JSON com todas as fotos
+- Indicador visual de uso de memoria com alertas em 4 niveis
+
+PADRAO DE NOMENCLATURA DE FOTOS
+-------------------------------
+Para importacao automatica via script Python:
+[COMPONENTE]_[TAG]_[NN].jpg
+Exemplo: CABECA_TAMBOR_001.jpg
+
+BACKUP - IMPORTANTE
+-------------------
+A cada 10-15 minutos de trabalho, clique no botao verde
+"Backup Sessao" para salvar tudo (incluindo fotos) num arquivo
+JSON que voce pode restaurar depois com o botao "Restaurar".
+
+Versao: 14 (Junho 2026)

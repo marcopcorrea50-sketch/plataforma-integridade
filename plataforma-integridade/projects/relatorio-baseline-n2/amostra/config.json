@@ -1,0 +1,248 @@
+{
+  "cabec_central": "INTEGRIDADE ESTRUTURAL",
+  "classificacao": "USO INTERNO",
+  "projeto_top": "PROJETO FERRO S11D",
+  "tipo_relatorio": "OPERACAO – MANUTENCAO",
+  "patio": "MINA - CIRCUITO DE MANUSEIO 2092",
+  "circuito": "CIRCUITO 2092KS / TCLD-001",
+  "descricao_inspecao": "INSPECAO VISUAL – TCLD-001",
+  "relatorio_subtipo": "RELATÓRIO TÉCNICO – BASELINE N2",
+  "n_vale": "",
+  "n_doc": "RL_TCLD001_BASELINE_01",
+  "revisao": "A",
+  "codigo_template": "PE-G-606 - Rev. 5",
+  "objetivo": "Este relatório visa identificar e documentar a condição inicial (baseline) das estruturas metálicas do Transportador de Longa Distância TCLD-001, abrangendo os subsistemas de cabeça/acionamento, estrutura de sustentação, galeria de proteção, passarelas, conjunto de esticamento, cauda, fundações e sistema de proteção anticorrosiva. As áreas de foco incluem cavaletes, longarinas, transversinas, suportes de roletes, juntas parafusadas, regiões soldadas e interfaces civis. Serão avaliados os elementos de fixação, regiões soldadas, integridade do revestimento anticorrosivo e conformidade com os requisitos de projeto.",
+  "normas": [
+    "ABNT NBR. 8800 – Norma Brasileira para Estruturas Metálicas.",
+    "Norma de Soldagem AWS D1.1 Ed 2015.",
+    "PRO-024969 – Inspeção Integridade Estrutural.",
+    "PNR- 000048 – Estruturas de Aço.",
+    "ABNT NBR 4628-3 - Avaliação do grau de enferrujamento.",
+    "PGS-005273 – Proteção anticorrosiva de pintura.",
+    "PNR-00047 – Integridade Estrutural."
+  ],
+  "metodologia": "A inspeção visual baseline das estruturas metálicas do TCLD-001 foi realizada seguindo procedimento detalhado: inspeção visual minuciosa por trecho identificando sinais de desgaste, corrosão, trincas, deformações e flambagem; verificação de juntas parafusadas e ligações soldadas; avaliação do sistema de proteção anticorrosiva conforme ISO 4628-3; documentação fotográfica de toda evidência relevante. A inspeção foi conduzida com EPIs adequados (NR-12, NR-35) e com emissão prévia de Permissão de Trabalho e Análise Preliminar de Risco.",
+  "materiais_equipamentos": [
+    "Câmera fotográfica digital",
+    "Lanterna de inspeção LED",
+    "Trena metálica 30 m (com calibração)",
+    "Paquímetro digital (com calibração)",
+    "Medidor de espessura de pintura",
+    "Cartelas visuais ISO 4628",
+    "Registro de campo / tablet"
+  ],
+  "desenhos": [
+    "DF-2092KS-M-90037E-M-500001_REV_0",
+    "DF-2092KS-M-90037E-M-500002_REV_0",
+    "DF-2092KS-M-90037E-M-500003_REV_0",
+    "DF-2092KS-M-90037E-M-500004_REV_0",
+    "DF-2092KS-M-90037E-M-500005_REV_0",
+    "DF-2092KS-M-90037E-M-500006_REV_0"
+  ],
+  "nota_descritiva": "O Transportador de Longa Distância TCLD-001 integra o circuito de manuseio do Pátio 2092 do Projeto Ferro S11D. Trata-se de um transportador de correia com comprimento total de aproximadamente 12,5 km, largura de correia 1.600 mm, capacidade nominal de 4.500 t/h, destinado ao transporte de minério de ferro entre a região de mina e a unidade de processamento. O equipamento opera em regime 24h/dia com manutenção planejada conforme PMOC vigente. Esta inspeção baseline registra a condição inicial das estruturas metálicas e civis para servir como referência em inspeções futuras.",
+  "fotos_panoramicas": [
+    {
+      "arquivo": "PANO_VISTA_001.jpg",
+      "legenda": "Vista panorâmica do Transportador de Longa Distância TCLD-001."
+    },
+    {
+      "arquivo": "PANO_LATERAL_001.jpg",
+      "legenda": "Vista lateral do TCLD-001 - trecho central."
+    }
+  ],
+  "componentes": [
+    {
+      "titulo": "INSPEÇÃO ESTRUTURAL DA CABEÇA DE ACIONAMENTO",
+      "introducao": "Avaliação visual da cabeça de acionamento incluindo mesa do redutor, suportes do motor, fundações e chumbadores.",
+      "layout": "2",
+      "fotos": [
+        {
+          "arquivo": "CABECA_TAMBOR_001.jpg",
+          "legenda": "Estrutura da mesa de acionamento e suporte do tambor motor sem alterações estruturais.",
+          "recomendacao": ""
+        },
+        {
+          "arquivo": "CABECA_FUNDACAO_001.jpg",
+          "legenda": "Fundação da cabeça de acionamento - chumbadores íntegros, sem evidência de descolamento de grout.",
+          "recomendacao": ""
+        }
+      ]
+    },
+    {
+      "titulo": "ESTRUTURA METÁLICA - CAVALETES",
+      "introducao": "Avaliação dos cavaletes da estrutura de sustentação, ligações parafusadas, contraventamentos e bases.",
+      "layout": "1",
+      "fotos": [
+        {
+          "arquivo": "CAVALETE_CV01_001.jpg",
+          "legenda": "Cavalete CV-01 - estrutura íntegra, perfis sem deformações.",
+          "recomendacao": ""
+        },
+        {
+          "arquivo": "CAVALETE_CV01_002.jpg",
+          "legenda": "Base de fixação do cavalete CV-01 - chumbadores e arruelas íntegros.",
+          "recomendacao": ""
+        },
+        {
+          "arquivo": "CAVALETE_CV15_001.jpg",
+          "legenda": "Cavalete CV-15 - banzo inferior com início de oxidação superficial (ISO 4628-3 Ri 2) em área localizada.",
+          "recomendacao": "Realizar limpeza mecânica da área afetada, aplicação de primer anticorrosivo e repintura conforme PGS-005273. Monitorar evolução em próxima inspeção."
+        }
+      ]
+    },
+    {
+      "titulo": "ESTRUTURA METÁLICA - LONGARINAS E TRANSVERSINAS",
+      "introducao": "",
+      "layout": "2",
+      "fotos": [
+        {
+          "arquivo": "LONGARINA_TR03_001.jpg",
+          "legenda": "Longarinas TR-03 vista superior - integridade preservada.",
+          "recomendacao": ""
+        },
+        {
+          "arquivo": "LONGARINA_TR03_002.jpg",
+          "legenda": "Longarinas TR-03 vista inferior - sem evidências de trincas ou deformações.",
+          "recomendacao": ""
+        }
+      ]
+    },
+    {
+      "titulo": "GALERIA DE PROTEÇÃO",
+      "introducao": "",
+      "layout": "2",
+      "fotos": [
+        {
+          "arquivo": "GALERIA_TR05_001.jpg",
+          "legenda": "Galeria TR-05 - telha de fechamento íntegra.",
+          "recomendacao": ""
+        },
+        {
+          "arquivo": "GALERIA_TR05_002.jpg",
+          "legenda": "Galeria TR-05 - calha de drenagem com pequena ruptura em junta soldada, permitindo entrada localizada de água.",
+          "recomendacao": "Reparar imediatamente a calha (soldagem + selante). Inspecionar estrutura abaixo do ponto de infiltração para descartar danos secundários."
+        }
+      ]
+    },
+    {
+      "titulo": "PASSARELAS, ESCADAS E PLATAFORMAS",
+      "introducao": "Avaliação de conformidade com NR-12 e NR-35.",
+      "layout": "1",
+      "fotos": [
+        {
+          "arquivo": "PASSARELA_TR08_001.jpg",
+          "legenda": "Passarela TR-08 - piso em grade metálica, fixações completas, conformidade com NR-12.",
+          "recomendacao": ""
+        }
+      ]
+    },
+    {
+      "titulo": "GUARDA-CORPOS E RODAPÉS",
+      "introducao": "",
+      "layout": "1",
+      "fotos": [
+        {
+          "arquivo": "GUARDACORPO_TR10_001.jpg",
+          "legenda": "Guarda-corpo TR-10 - barra horizontal superior íntegra, altura conforme NR-12 (1,10 m).",
+          "recomendacao": ""
+        }
+      ]
+    },
+    {
+      "titulo": "CONJUNTO DE ESTICAMENTO",
+      "introducao": "",
+      "layout": "2",
+      "fotos": [
+        {
+          "arquivo": "ESTICAMENTO_GERAL_001.jpg",
+          "legenda": "Conjunto de esticamento - vista geral do carro tensor.",
+          "recomendacao": ""
+        },
+        {
+          "arquivo": "ESTICAMENTO_CONTRAPESO_001.jpg",
+          "legenda": "Contrapeso do sistema de esticamento - estrutura íntegra.",
+          "recomendacao": ""
+        }
+      ]
+    },
+    {
+      "titulo": "CONJUNTO DE CAUDA / RETORNO",
+      "introducao": "",
+      "layout": "2",
+      "fotos": [
+        {
+          "arquivo": "CAUDA_GERAL_001.jpg",
+          "legenda": "Cauda - vista geral do conjunto.",
+          "recomendacao": ""
+        },
+        {
+          "arquivo": "CAUDA_RASPADOR_001.jpg",
+          "legenda": "Suporte do raspador interno - íntegro e completo.",
+          "recomendacao": ""
+        }
+      ]
+    },
+    {
+      "titulo": "FUNDAÇÕES E CHUMBADORES",
+      "introducao": "",
+      "layout": "1",
+      "fotos": [
+        {
+          "arquivo": "FUNDACAO_CV05_001.jpg",
+          "legenda": "Fundação do cavalete CV-05 - bloco de concreto íntegro, sem fissuras visíveis.",
+          "recomendacao": ""
+        }
+      ]
+    },
+    {
+      "titulo": "SISTEMA DE PROTEÇÃO ANTICORROSIVA",
+      "introducao": "Avaliação conforme ISO 4628-3 (enferrujamento) e ISO 4628-5 (descascamento).",
+      "layout": "2",
+      "fotos": [
+        {
+          "arquivo": "PINTURA_TR06_001.jpg",
+          "legenda": "6º segmento - pintura conservada, sem evidência de descolamento.",
+          "recomendacao": ""
+        },
+        {
+          "arquivo": "PINTURA_TR06_002.jpg",
+          "legenda": "6º segmento - desplacamento localizado da proteção anticorrosiva (ISO 4628-5 grau 3) com indício de início de oxidação do substrato.",
+          "recomendacao": "Programar repintura completa do trecho na próxima parada planejada, conforme especificação PGS-005273. Realizar tratamento adequado do substrato antes da nova aplicação."
+        }
+      ]
+    },
+    {
+      "titulo": "REGIÕES SOLDADAS",
+      "introducao": "",
+      "layout": "1",
+      "fotos": [
+        {
+          "arquivo": "SOLDA_NO12_001.jpg",
+          "legenda": "Solda no nó 12 - indícios de defeito na junta soldada na região superior, com aparente fissura.",
+          "recomendacao": "Recomenda-se avaliação detalhada por inspetor de solda certificado e aplicação de ensaios não destrutivos (Líquido Penetrante - LP) para determinar extensão e profundidade do defeito. Caso confirmado, realizar reparo conforme AWS D1.1."
+        }
+      ]
+    }
+  ],
+  "resumo": "A inspeção visual baseline detalhada do Transportador de Longa Distância TCLD-001 revelou que a maioria das estruturas inspecionadas (cabeça/acionamento, cavaletes, longarinas, passarelas, guarda-corpos, conjuntos de esticamento e cauda, fundações) encontra-se em bom estado de conservação, sem evidências de não conformidades significativas. Foram identificados pontos pontuais de atenção: (i) início de oxidação superficial em área localizada do cavalete CV-15; (ii) ruptura em junta soldada da calha de drenagem da galeria TR-05; (iii) desplacamento localizado da proteção anticorrosiva no 6º segmento; (iv) indícios de defeito em junta soldada do nó 12. Em síntese, exceto pelos pontos específicos identificados, a maior parte das estruturas está em boas condições, indicando manutenção eficaz e prontidão para uso como referência baseline.",
+  "conclusao": "A condição geral do Transportador de Longa Distância TCLD-001 é satisfatória na maioria das seções inspecionadas, sem sinais visíveis de deformações ou desgaste significativo, indicando que o equipamento está sendo mantido dentro dos padrões de segurança esperados. Foram identificados quatro pontos específicos de atenção (corrosão localizada, ruptura em calha, desplacamento de pintura e defeito em junta soldada) que demandam ações corretivas conforme detalhado na Seção 6 (Recomendações). As demais estruturas - cabeça, longarinas, passarelas, guarda-corpos, conjuntos de esticamento e cauda, fundações - encontram-se em conformidade com o projeto inicial e em condição adequada para servir como referência baseline. Para os pontos com indícios de fissura em junta soldada, recomenda-se ensaio não destrutivo por líquido penetrante para confirmação. De maneira geral, a inspeção atesta a integridade estrutural do ativo na data desta inspeção baseline, estabelecendo o estado de referência para inspeções futuras.",
+  "recomendacoes": [
+    "Realizar a próxima inspeção visual em ciclo conforme PMOC vigente (recomendado semestral para a condição atual).",
+    "Implementar ronda operacional com registro fotográfico das áreas identificadas como ponto de atenção, com periodicidade trimestral.",
+    "Atualizar o cadastro do ativo no sistema SAP com os dados desta inspeção baseline.",
+    "Estabelecer marco de inspeção subsequente em até 180 dias para verificar evolução dos pontos identificados.",
+    "Manter este relatório arquivado como referência baseline para todas as inspeções futuras do TCLD-001."
+  ],
+  "revisoes": [
+    {
+      "rev": "A",
+      "te": "A",
+      "descricao": "EMISSAO INICIAL - BASELINE",
+      "por": "MAR",
+      "ver": "",
+      "ap": "",
+      "aut": "",
+      "data": "04/06/26"
+    }
+  ]
+}

@@ -1,0 +1,2144 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gerador de Relatório Baseline N2 - Padrão Vale</title>
+<style>
+  :root { --bg:#f3f5f8; --surface:#fff; --ink:#17202a; --muted:#607080; --line:#d8dee7;
+    --strong:#005AA7; --green:#26734d; --warn:#a56713; --shadow:0 4px 14px rgba(0,0,0,.06); }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.5 Arial,sans-serif; }
+  button, input, textarea, select { font: inherit; }
+  button { border:1px solid var(--line); background:var(--surface); border-radius:5px; padding:8px 14px; cursor:pointer; }
+  button:hover { background:#f0f4f8; }
+  button.primary { background:var(--strong); color:#fff; border-color:var(--strong); padding:10px 18px; font-weight:600; }
+  button.primary:hover { background:#004a8a; }
+  button.success { background:var(--green); color:#fff; border-color:var(--green); }
+  button.small { padding:5px 10px; font-size:12px; }
+  button.danger { color:#a33b3b; border-color:#e6c0c0; }
+  .app { display:grid; grid-template-columns:240px minmax(0,1fr); min-height:100vh; }
+  aside { background:#0E3F62; color:#dce7f2; padding:18px 16px; }
+  .brand { padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,.15); margin-bottom:14px; }
+  .brand h1 { margin:4px 0 0; font-size:15px; line-height:1.2; }
+  .brand .kicker { font-size:10px; color:#7faed1; letter-spacing:.05em; }
+  .brand .ver { font-size:11px; color:#7faed1; margin-top:4px; }
+  .tabs { display:grid; gap:4px; }
+  .tabs button { width:100%; text-align:left; background:transparent; color:#dce7f2; border:none; padding:9px 10px; border-radius:4px; font-size:13px; }
+  .tabs button:hover { background:rgba(255,255,255,.07); }
+  .tabs button.active { background:#fff; color:#0E3F62; font-weight:600; }
+  main { padding:22px 28px 40px; }
+  .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px; }
+  .topbar h2 { margin:0; color:#0E3F62; font-size:20px; }
+  .actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .panel { display:none; background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:22px; box-shadow:var(--shadow); }
+  .panel.active { display:block; }
+  .panel h3 { margin:0 0 14px; color:#0E3F62; font-size:15px; border-bottom:1px solid var(--line); padding-bottom:8px; }
+  .row { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px; margin-bottom:8px; }
+  .row.three { grid-template-columns:repeat(3, minmax(0,1fr)); }
+  .row.full { grid-template-columns:1fr; }
+  label { display:grid; gap:4px; font-size:12px; color:#314253; font-weight:600; }
+  input, textarea, select { width:100%; border:1px solid var(--line); border-radius:5px; padding:8px 10px; font-weight:normal; color:var(--ink); background:#fff; }
+  textarea { min-height:90px; resize:vertical; font-family:Arial; }
+  .item { background:#f7faff; border:1px solid var(--line); border-radius:6px; padding:14px; margin-bottom:10px; }
+  .item header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:10px; flex-wrap:wrap; }
+  .item header strong { color:#0E3F62; font-size:14px; }
+  .item .badge { font-size:11px; color:#666; background:#e8eef5; padding:2px 8px; border-radius:10px; }
+  .help { background:#fffaeb; border-left:4px solid #f5b83a; padding:10px 14px; border-radius:4px; font-size:13px; color:#6b5310; margin-bottom:16px; }
+  .help code { background:#fff; padding:1px 5px; border-radius:3px; font-family:Consolas,monospace; font-size:12px; }
+  .help strong { color:#5a4308; }
+  .drop-zone { border:2px dashed #c0d0e0; border-radius:8px; padding:28px; text-align:center; color:var(--muted); cursor:pointer; transition:all .15s; background:#fafcff; }
+  .drop-zone:hover, .drop-zone.dragover { border-color:var(--strong); background:#eef5ff; color:var(--strong); }
+  .photos { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:8px; margin-top:10px; }
+  .photo { position:relative; border:1px solid var(--line); border-radius:5px; overflow:hidden; height:110px; background:#000; }
+  .photo img { width:100%; height:100%; object-fit:cover; }
+  .photo .x { position:absolute; top:3px; right:3px; background:rgba(0,0,0,.8); color:#fff; border:none; border-radius:50%; width:22px; height:22px; cursor:pointer; padding:0; font-size:12px; }
+  .photo .lbl { position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,.75); color:#fff; font-size:10px; padding:3px 5px; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .photo.has-rec::after { content:"R"; position:absolute; top:3px; left:3px; background:#26734d; color:#fff; width:18px; height:18px; border-radius:50%; font-size:11px; display:flex; align-items:center; justify-content:center; font-weight:bold; }
+  .preview-header { border:2px solid #000; padding:0; margin-top:14px; background:#fff; font-family:Arial; font-size:10px; }
+  .preview-header table { width:100%; border-collapse:collapse; }
+  .preview-header td { border:1px solid #000; padding:5px 7px; vertical-align:middle; font-size:9pt; }
+  .status { margin-top:8px; padding:8px 12px; border-radius:4px; font-size:13px; min-height:36px; }
+  .status.ok { background:#e6f4ec; color:var(--green); border-left:4px solid var(--green); }
+  .status.err { background:#fdecec; color:#a33b3b; border-left:4px solid #a33b3b; }
+  .status.info { background:#eef5ff; color:var(--strong); border-left:4px solid var(--strong); }
+  details { margin-top:10px; padding:8px; background:#fff; border:1px solid var(--line); border-radius:4px; }
+  details summary { cursor:pointer; color:#0E3F62; font-size:12px; font-weight:600; }
+  details > div { margin-top:8px; }
+  .foto-row { display:flex; gap:8px; align-items:flex-start; margin-bottom:8px; padding:8px; background:#fff; border-radius:4px; border:1px solid var(--line); }
+  .foto-row img { width:80px; height:60px; object-fit:cover; border-radius:3px; flex-shrink:0; }
+  .foto-row > div { flex:1; display:flex; flex-direction:column; gap:5px; }
+  .foto-row input, .foto-row textarea { font-size:12px; padding:4px 6px; min-height:30px; }
+  .foto-row textarea { min-height:40px; }
+  .foto-row .fname { font-size:10px; color:#888; word-break:break-all; }
+  .layout-select { background:#0E3F62; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer; }
+  .progress { background:#e8eef5; height:6px; border-radius:3px; overflow:hidden; margin-top:8px; }
+  .progress .fill { background:var(--strong); height:100%; transition:width .3s; }
+  @keyframes pulse { 0% { transform:scale(1); box-shadow:0 0 0 0 rgba(38,115,77,.7); } 50% { transform:scale(1.05); box-shadow:0 0 0 8px rgba(38,115,77,0); } 100% { transform:scale(1); box-shadow:0 0 0 0 rgba(38,115,77,0); } }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside>
+    <div class="brand">
+      <div class="kicker">Padrão Vale / N2</div>
+      <h1>Baseline N2</h1>
+      <div class="ver">v1.0 - TCLD</div>
+    </div>
+    <nav class="tabs">
+      <button data-tab="cabec" class="active">1. Cabeçalho</button>
+      <button data-tab="objetivo">2. Objetivo</button>
+      <button data-tab="referencias">3. Referências</button>
+      <button data-tab="metodologia">4. Metodologia</button>
+      <button data-tab="planos">5. Planos Manut.</button>
+      <button data-tab="visao">6. Desenhos/Visão</button>
+      <button data-tab="componentes">7. Componentes</button>
+      <button data-tab="conclusao">8. Conclusão</button>
+      <button data-tab="recomendacoes">9. Recomendações</button>
+      <button data-tab="revisoes">10. Revisões</button>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <h2 id="title">Cabeçalho</h2>
+      <div class="actions">
+        <button class="small" onclick="aplicarTemplate('tld')">Carregar TCLD</button>
+        <button class="small" onclick="aplicarTemplate('rc')">Carregar Recuperadora</button>
+        <button class="small success" onclick="backupSessao()" title="Baixar arquivo .json com TUDO (metadados + fotos). Faça isto regularmente!">💾 Backup Sessão</button>
+        <button class="small" onclick="document.getElementById('rest').click()" title="Restaurar de um backup salvo">📂 Restaurar</button>
+        <input type="file" id="rest" hidden accept=".json" onchange="restaurarSessao(event.target.files[0])">
+        <button class="small" onclick="exportJSON()">Exportar JSON (sem fotos)</button>
+        <button class="small" onclick="document.getElementById('imp').click()">Importar JSON</button>
+        <input type="file" id="imp" hidden accept=".json" onchange="importJSON(event)">
+        <button class="primary" onclick="gerarDocx()">⬇ Baixar DOCX</button>
+        <button class="success" onclick="gerarPDF()" title="Gera PDF otimizado para email (máx 30 MB)">📑 Baixar PDF (email)</button>
+      </div>
+    </div>
+    <div class="status info" id="status">Preencha os campos e clique em "Baixar DOCX" para gerar o relatório.</div>
+    <div class="status info" id="libStatus" style="margin-top:6px;font-size:12px;">⏳ Carregando bibliotecas...</div>
+    <div id="memoryWidget" style="margin-top:8px;padding:10px 14px;background:#fff;border:1px solid var(--line);border-radius:6px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:12px;">
+        <strong id="memTitle" style="color:#0E3F62;">💾 Uso de memória do navegador</strong>
+        <span id="memDetails" style="color:#666;font-size:11px;">aguardando...</span>
+      </div>
+      <div style="position:relative;height:22px;background:#eef2f7;border-radius:11px;overflow:hidden;border:1px solid #d8dee7;">
+        <div id="memBar" style="height:100%;width:0%;background:linear-gradient(90deg, #26734d 0%, #2d8959 100%);transition:width .4s, background .4s;border-radius:11px;"></div>
+        <div id="memPct" style="position:absolute;top:0;left:0;right:0;text-align:center;line-height:22px;font-size:11px;color:#fff;font-weight:600;text-shadow:0 0 3px rgba(0,0,0,.3);">0%</div>
+      </div>
+      <div id="memMsg" style="margin-top:6px;font-size:11px;color:#666;">Adicione fotos nos componentes — a barra mostrará o uso de memória.</div>
+    </div>
+    <div class="help" style="margin-top:6px;font-size:12px;">
+      <strong>⚠ Importante:</strong> Suas fotos ficam salvas no navegador (IndexedDB). Para evitar perda em caso de fechamento acidental, clique em <strong>💾 Backup Sessão</strong> regularmente — gera um arquivo .json com tudo que você pode restaurar depois.<br>
+      <strong>Fotos importadas são comprimidas automaticamente</strong> (máx 1920px / JPEG 78%) para economizar memória sem perda visual significativa.
+    </div>
+
+    <!-- 1. CABECALHO -->
+    <section id="cabec" class="panel active">
+      <h3>Logo do Cabeçalho (canto superior esquerdo)</h3>
+      <div class="help">Faça upload do logo da Vale (PNG ou JPG). Recomendado: imagem com fundo transparente ou branco, máx. 200x80px. Será inserida automaticamente em todas as páginas.</div>
+      <div style="display:flex;gap:14px;align-items:center;margin-bottom:14px;">
+        <div id="logoPreview" style="width:160px;height:80px;border:2px dashed #c0d0e0;border-radius:6px;display:flex;align-items:center;justify-content:center;background:#fafcff;color:#999;font-size:11px;">sem logo</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <button class="small" onclick="document.getElementById('logoInput').click()">📤 Carregar logo</button>
+          <input type="file" id="logoInput" hidden accept="image/*" onchange="importLogo(event.target.files[0])">
+          <button class="small danger" onclick="removerLogo()">🗑 Remover logo</button>
+        </div>
+      </div>
+
+      <h3>Cabeçalho Corporativo (aparece em todas as páginas)</h3>
+      <div class="row">
+        <label>Cabeçalho central (topo)
+          <input type="text" data-f="cabec_central" value="INTEGRIDADE ESTRUTURAL"></label>
+        <label>Classificação
+          <select data-f="classificacao">
+            <option>USO INTERNO</option><option>RESTRITO</option><option>CONFIDENCIAL</option><option>PUBLICO</option>
+          </select>
+        </label>
+        <label>Projeto (topo direita)
+          <input type="text" data-f="projeto_top" value="PROJETO FERRO S11D"></label>
+        <label>Tipo do relatório (Linha 1)
+          <input type="text" data-f="tipo_relatorio" value="OPERACAO – MANUTENCAO"></label>
+        <label>Pátio / Área (Linha 2)
+          <input type="text" data-f="patio" placeholder="MINA - CIRCUITO DE MANUSEIO 2092"></label>
+        <label>Circuito / Equipamento (Linha 3)
+          <input type="text" data-f="circuito" placeholder="CIRCUITO 2092KS / TCLD-001"></label>
+        <label>Descrição da inspeção (Linha 4)
+          <input type="text" data-f="descricao_inspecao" placeholder="INSPECAO VISUAL – TCLD-001"></label>
+        <label>Subtipo do relatório (Linha 5)
+          <input type="text" data-f="relatorio_subtipo" value="RELATÓRIO TÉCNICO – BASELINE N2"></label>
+        <label>Nº VALE
+          <input type="text" data-f="n_vale"></label>
+        <label>Nº (documento)
+          <input type="text" data-f="n_doc" placeholder="RL_TCLD001_BASELINE_01"></label>
+        <label>Revisão
+          <input type="text" data-f="revisao" value="A"></label>
+        <label>Código de template (rodapé)
+          <input type="text" data-f="codigo_template" value="PE-G-606 - Rev. 5"></label>
+      </div>
+      <h3 style="margin-top:18px;">Preview do cabeçalho</h3>
+      <div class="preview-header" id="pvHeader"></div>
+    </section>
+
+    <!-- 2. OBJETIVO -->
+    <section id="objetivo" class="panel">
+      <h3>1. OBJETIVO do relatório</h3>
+      <div class="help">Texto introdutório que aparecerá na Seção 1. Descreva o propósito da inspeção e os subsistemas avaliados.</div>
+      <label>
+        <textarea data-f="objetivo" rows="10"></textarea>
+      </label>
+    </section>
+
+    <!-- 3. REFERENCIAS -->
+    <section id="referencias" class="panel">
+      <h3>2. REFERÊNCIAS E NORMAS</h3>
+      <div id="normasList"></div>
+      <button class="small" onclick="addNorma()">+ Adicionar norma</button>
+    </section>
+
+    <!-- 4. METODOLOGIA -->
+    <section id="metodologia" class="panel">
+      <h3>3. METODOLOGIA - Texto descritivo</h3>
+      <label>
+        <textarea data-f="metodologia" rows="7"></textarea>
+      </label>
+      <h3 style="margin-top:18px;">3.1 Materiais e equipamentos utilizados</h3>
+      <div id="matList"></div>
+      <button class="small" onclick="addMat()">+ Adicionar material</button>
+      <h3 style="margin-top:18px;">3.2 Desenhos de referência</h3>
+      <div class="help">Liste os códigos dos desenhos de referência. Eles serão dispostos em 2 colunas no relatório.</div>
+      <div id="desList"></div>
+      <button class="small" onclick="addDes()">+ Adicionar desenho</button>
+    </section>
+
+    <!-- 5. PLANOS DE MANUTENCAO -->
+    <section id="planos" class="panel">
+      <h3>4. LISTA DOS PLANOS DE MANUTENÇÃO E LOCAL DE INSTALAÇÃO</h3>
+      <h3 style="margin-top:18px;">4.1 PLANOS E LOCAIS CADASTRADOS</h3>
+      <label>Texto de contexto (opcional)
+        <textarea data-f="planos_texto_contexto" rows="4" placeholder="Ex: As listas dos planos de manutenção ainda não foram iniciadas..."></textarea>
+      </label>
+      <h3 style="margin-top:18px;">Planos cadastrados</h3>
+      <div id="planosList"></div>
+      <button class="small" onclick="addPlano()">+ Adicionar plano</button>
+    </section>
+
+    <!-- 6. VISAO GERAL (Desenhos) -->
+    <section id="visao" class="panel">
+      <h3>3.3 Descrição geral do ativo</h3>
+      <label>
+        <textarea data-f="nota_descritiva" rows="6" placeholder="Descreva o ativo: tipo, comprimento, capacidade, contexto operacional, particularidades..."></textarea>
+      </label>
+      <h3 style="margin-top:18px;">Fotos panorâmicas (vista geral do ativo)</h3>
+      <div class="drop-zone" id="dzPano" onclick="document.getElementById('panoInput').click()">
+        Clique ou arraste fotos panorâmicas / vistas gerais (.jpg, .png)
+      </div>
+      <input type="file" id="panoInput" multiple accept="image/*" hidden onchange="importPano(event.target.files)">
+      <div id="panoList"></div>
+    </section>
+
+    <!-- 6. COMPONENTES -->
+    <section id="componentes" class="panel">
+      <h3>Componentes inspecionados</h3>
+      <div class="help">
+        <strong>Cada componente vira uma subseção em MAIÚSCULAS no relatório.</strong> Você pode adicionar quantos quiser e configurar o layout das fotos individualmente (1, 2, 4 ou 6 fotos por página).<br>
+        <strong>Para importação automática</strong>, nomeie as fotos como <code>NOMECURTO_QUALQUER_NN.jpg</code> e arraste; o sistema agrupa por prefixo.
+      </div>
+      <div id="componentesList"></div>
+      <button class="small" onclick="addComponente()">+ Adicionar componente</button>
+      <button class="small" onclick="aplicarTemplate('tld')">Carregar template TCLD (15 componentes)</button>
+      <button class="small success" onclick="aplicarLayout6Todos()" title="Force layout '6 fotos/prancha' em todos os componentes">🔄 Aplicar 6 fotos/prancha em TODOS</button>
+    </section>
+
+    <!-- 8. CONCLUSAO -->
+    <section id="conclusao" class="panel">
+      <h3>5. CONCLUSÃO</h3>
+      <label>
+        <textarea data-f="conclusao" rows="10"></textarea>
+      </label>
+      <button class="small" onclick="gerarConclusaoAuto()">Gerar conclusão automática</button>
+    </section>
+
+    <!-- 9. RECOMENDACOES -->
+    <section id="recomendacoes" class="panel">
+      <h3>6.1 Recomendações gerais</h3>
+      <div class="help">Lista numerada de recomendações gerais (Seção 6.1 do relatório). As recomendações por figura (6.2) ficam nas próprias fotos dos componentes.</div>
+      <div id="recList"></div>
+      <button class="small" onclick="addRec()">+ Adicionar recomendação</button>
+      <h3 style="margin-top:24px;">6.2 Recomendações vinculadas a figuras</h3>
+      <div id="recsPorFigura"></div>
+    </section>
+
+    <!-- 10. REVISOES -->
+    <section id="revisoes" class="panel">
+      <h3>Tabela de revisões</h3>
+      <div class="help">TE = Tipo de Emissão. A=Preliminar | B=Para Aprovação | C=Para Conhecimento | D=Para Cotação | E=Para Construção | F=Conforme Comprado | G=Conforme Construído | H=Cancelado.</div>
+      <div id="revisoesList"></div>
+      <button class="small" onclick="addRev()">+ Adicionar revisão</button>
+    </section>
+  </main>
+</div>
+
+<script>
+// ============================================================
+// CARREGAMENTO DE BIBLIOTECAS COM FALLBACK MULTIPLO
+// ============================================================
+const DOCX_CDNS = [
+  "https://unpkg.com/docx@8.5.0/build/index.umd.js",
+  "https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js",
+  "https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.js",
+  "https://unpkg.com/docx@7.8.2/build/index.js"
+];
+const SAVEAS_CDNS = [
+  "https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js",
+  "https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js",
+  "https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"
+];
+
+function loadScript(url) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = url;
+    s.onload = () => resolve(url);
+    s.onerror = () => reject(url);
+    document.head.appendChild(s);
+  });
+}
+
+async function loadWithFallback(urls, globalName) {
+  for (const url of urls) {
+    try {
+      await loadScript(url);
+      if (window[globalName]) {
+        console.log(`✓ Loaded ${globalName} from ${url}`);
+        return true;
+      }
+    } catch (e) {
+      console.warn(`✗ Failed: ${url}`);
+    }
+  }
+  return false;
+}
+
+let libsReady = false;
+async function loadLibs() {
+  const statusEl = document.getElementById('libStatus');
+  if (statusEl) statusEl.textContent = '⏳ Carregando bibliotecas (docx.js)...';
+  const okDocx = await loadWithFallback(DOCX_CDNS, 'docx');
+  const okSave = await loadWithFallback(SAVEAS_CDNS, 'saveAs');
+  if (okDocx && okSave) {
+    libsReady = true;
+    if (statusEl) statusEl.textContent = '✓ Bibliotecas carregadas. Pronto para gerar DOCX.';
+    if (statusEl) statusEl.className = 'status ok';
+  } else {
+    if (statusEl) {
+      statusEl.innerHTML = '⚠ Não foi possível carregar as bibliotecas dos CDNs públicos (provável bloqueio de rede). ' +
+        '<a href="#" onclick="mostrarFallback();return false;">Ver opções alternativas →</a>';
+      statusEl.className = 'status err';
+    }
+  }
+}
+
+function mostrarFallback() {
+  alert(`A biblioteca docx.js não pôde ser carregada do CDN.\n\n` +
+        `OPÇÕES ALTERNATIVAS:\n\n` +
+        `1. ABRIR EM CASA / REDE LIBERADA:\n` +
+        `   Mova o HTML para um computador com acesso a unpkg.com ou jsdelivr.net.\n\n` +
+        `2. USAR O SCRIPT PYTHON:\n` +
+        `   No pacote há gerar_relatorio_n2.py que faz o mesmo sem depender de CDN.\n` +
+        `   Comando: python3 gerar_relatorio_n2.py --config seu_config.json --fotos ./fotos --saida relatorio.docx\n\n` +
+        `3. EXPORTAR JSON E USAR O PYTHON:\n` +
+        `   Use o botão "Exportar JSON" para salvar os dados que você preencheu,\n` +
+        `   e processe com o script Python depois.\n\n` +
+        `4. BAIXAR docx.js LOCALMENTE:\n` +
+        `   Baixe https://unpkg.com/docx@8.5.0/build/index.umd.js em casa,\n` +
+        `   coloque na mesma pasta deste HTML com o nome 'docx.umd.js',\n` +
+        `   e o HTML usará a cópia local automaticamente.`);
+}
+
+// tenta carga local primeiro (caso usuario baixou os arquivos)
+async function tryLocalLibs() {
+  try {
+    await loadScript('./docx.umd.js');
+    if (window.docx) {
+      await loadScript('./FileSaver.min.js').catch(()=>loadWithFallback(SAVEAS_CDNS,'saveAs'));
+      libsReady = true;
+      const s = document.getElementById('libStatus');
+      if (s) { s.textContent = '✓ Bibliotecas locais carregadas.'; s.className = 'status ok'; }
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+// inicia carga
+(async () => {
+  if (!(await tryLocalLibs())) {
+    await loadLibs();
+  }
+})();
+</script>
+<script>
+// ============================================================
+// TEMPLATES
+// ============================================================
+const COMPONENTES_TLD = [
+  "INSPEÇÃO ESTRUTURAL DA CABEÇA DE ACIONAMENTO",
+  "ESTRUTURA METÁLICA - CAVALETES",
+  "ESTRUTURA METÁLICA - LONGARINAS E TRANSVERSINAS",
+  "SUPORTES DE ROLETES E ESTRUTURAS AUXILIARES",
+  "GALERIA DE PROTEÇÃO",
+  "PASSARELAS, ESCADAS E PLATAFORMAS",
+  "GUARDA-CORPOS E RODAPÉS",
+  "CURVAS VERTICAIS E HORIZONTAIS",
+  "CONJUNTO DE ESTICAMENTO",
+  "CONJUNTO DE CAUDA / RETORNO",
+  "ESTAÇÕES DE TRANSFERÊNCIA E CHUTES",
+  "FUNDAÇÕES E CHUMBADORES",
+  "SISTEMA DE PROTEÇÃO ANTICORROSIVA",
+  "JUNTAS PARAFUSADAS",
+  "REGIÕES SOLDADAS"
+];
+
+const COMPONENTES_RC = [
+  "INSPEÇÃO ESTRUTURAL DO SISTEMA DE TRANSLAÇÃO",
+  "SISTEMA DE TRANSLAÇÃO LADO ESQUERDO",
+  "SISTEMA DE TRANSLAÇÃO LADO DIREITO",
+  "VIGA EQUALIZADORA / BALANCIM DE RODAS",
+  "ESTRUTURA DE ACESSO À MESA DE GIRO DA LANÇA",
+  "ESTRUTURA DA MESA DE GIRO DA LANÇA",
+  "ESTRUTURA DAS RODAS EQUALIZADORAS",
+  "ESTRUTURA DO PORTAL",
+  "ESTRUTURA DA CONTRA LANÇA",
+  "ESTRUTURA DO CARRO TENSOR DA LANÇA",
+  "INSPEÇÕES NAS REGIÕES ARTICULADAS DO MASTRO E TALAS",
+  "INSPEÇÃO DAS ESTRUTURAS DA CABINE",
+  "INSPEÇÃO ESTRUTURAL DA LANÇA",
+  "GALERIA DA LANÇA - LADO ESQUERDO",
+  "GALERIA DA LANÇA - LADO DIREITO",
+  "INSPEÇÃO ESTRUTURAL DOS ELEMENTOS INFERIORES DA LANÇA"
+];
+
+const defaultState = {
+  logo: null,  // dataURL do logo da Vale
+  cabec_central: "INTEGRIDADE ESTRUTURAL",
+  classificacao: "USO INTERNO",
+  projeto_top: "PROJETO FERRO S11D",
+  tipo_relatorio: "OPERACAO – MANUTENCAO",
+  patio: "",
+  circuito: "",
+  descricao_inspecao: "",
+  relatorio_subtipo: "RELATÓRIO TÉCNICO – BASELINE N2",
+  n_vale: "",
+  n_doc: "",
+  revisao: "A",
+  codigo_template: "PE-G-606 - Rev. 5",
+  objetivo: "Este relatório visa identificar e documentar a condição inicial (baseline) das estruturas metálicas do ativo inspecionado, estabelecendo a condição de referência para acompanhamento futuro da integridade. Serão avaliados os elementos de fixação, regiões soldadas, integridade do revestimento anticorrosivo e conformidade com os requisitos de projeto.",
+  normas: [
+    "ABNT NBR. 8800 – Norma Brasileira para Estruturas Metálicas.",
+    "Norma de Soldagem AWS D1.1 Ed 2015.",
+    "PRO-024969 – Inspeção Integridade Estrutural.",
+    "PNR- 000048 – Estruturas de Aço.",
+    "ABNT NBR 4628-3 - Avaliação do grau de enferrujamento.",
+    "PGS-005273 – Proteção anticorrosiva de pintura.",
+    "PNR-00047 – Integridade Estrutural."
+  ],
+  metodologia: "A inspeção visual baseline das estruturas metálicas foi realizada seguindo procedimento detalhado: inspeção visual minuciosa por trecho identificando sinais de desgaste, corrosão, trincas, deformações e flambagem; verificação de juntas parafusadas e ligações soldadas; avaliação do sistema de proteção anticorrosiva conforme ISO 4628-3; documentação fotográfica de toda evidência relevante. A inspeção foi conduzida com EPIs adequados (NR-12, NR-35) e com emissão prévia de Permissão de Trabalho e Análise Preliminar de Risco.",
+  materiais: ["Câmera fotográfica digital", "Lanterna de inspeção LED", "Trena metálica 30 m (com calibração)", "Paquímetro digital", "Medidor de espessura de pintura", "Cartelas visuais ISO 4628", "Registro de campo / tablet"],
+  desenhos: [],
+  planos: [],
+  planos_texto_contexto: "",
+  nota_descritiva: "",
+  fotos_panoramicas: [],
+  componentes: [],
+  resumo: "",
+  conclusao: "",
+  recomendacoes: [
+    "Realizar a próxima inspeção visual em ciclo conforme PMOC vigente.",
+    "Implementar ronda operacional com registro fotográfico das áreas identificadas como ponto de atenção.",
+    "Atualizar o cadastro do ativo no sistema de manutenção com os dados desta inspeção baseline.",
+    "Manter este relatório arquivado como referência baseline para todas as inspeções futuras."
+  ],
+  revisoes: [{rev:"A", te:"A", descricao:"EMISSAO INICIAL - BASELINE", por:"", ver:"", ap:"", aut:"", data:""}]
+};
+
+let state = JSON.parse(JSON.stringify(defaultState));
+
+// ============================================================
+// PERSISTENCIA ROBUSTA (IndexedDB para fotos + localStorage para metadata)
+// ============================================================
+const DB_NAME = 'vale_n2_db';
+const DB_STORE = 'fotos';
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onerror = () => reject(req.error);
+    req.onsuccess = () => resolve(req.result);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(DB_STORE)) db.createObjectStore(DB_STORE);
+    };
+  });
+}
+
+async function dbPutFoto(key, dataURL) {
+  try {
+    const db = await openDB();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(DB_STORE, 'readwrite');
+      tx.objectStore(DB_STORE).put(dataURL, key);
+      tx.oncomplete = () => res();
+      tx.onerror = () => rej(tx.error);
+    });
+  } catch(e) { console.warn('dbPut falhou', e); }
+}
+
+async function dbGetFoto(key) {
+  try {
+    const db = await openDB();
+    return new Promise((res) => {
+      const tx = db.transaction(DB_STORE, 'readonly');
+      const req = tx.objectStore(DB_STORE).get(key);
+      req.onsuccess = () => res(req.result);
+      req.onerror = () => res(null);
+    });
+  } catch(e) { return null; }
+}
+
+async function dbDeleteFoto(key) {
+  try {
+    const db = await openDB();
+    const tx = db.transaction(DB_STORE, 'readwrite');
+    tx.objectStore(DB_STORE).delete(key);
+  } catch(e) {}
+}
+
+async function dbClearAll() {
+  try {
+    const db = await openDB();
+    const tx = db.transaction(DB_STORE, 'readwrite');
+    tx.objectStore(DB_STORE).clear();
+  } catch(e) {}
+}
+
+// chave única para cada foto (combinando o caminho de origem)
+function fotoKey(arquivo, ctx) {
+  return `${ctx}::${arquivo}::${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
+}
+
+// Debounce do save para evitar 1 save a cada keystroke
+let _saveTimer = null;
+function save() {
+  if (_saveTimer) clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(saveNow, 800);
+}
+
+function saveNow() {
+  try {
+    // Cria versao "lite" SEM os dados base64 (so referencias)
+    const lite = {
+      ...state,
+      fotos_panoramicas: state.fotos_panoramicas.map(f => ({
+        arquivo:f.arquivo, legenda:f.legenda, ordem:f.ordem||0,
+        recomendacao:f.recomendacao||"", dbKey:f.dbKey||null
+      })),
+      componentes: state.componentes.map(c => ({
+        titulo:c.titulo, introducao:c.introducao, layout:c.layout,
+        fotos: c.fotos.map(f => ({
+          arquivo:f.arquivo, legenda:f.legenda, ordem:f.ordem||0,
+          recomendacao:f.recomendacao||"", dbKey:f.dbKey||null
+        }))
+      }))
+    };
+    localStorage.setItem('vale_n2_state', JSON.stringify(lite));
+    updateStorageIndicator();
+  } catch(e) {
+    console.warn('save falhou', e);
+    setStatus('⚠ Erro ao salvar metadados: ' + e.message + '. Recomenda-se fazer Backup Sessão.', 'err');
+  }
+}
+
+async function load() {
+  try {
+    const raw = localStorage.getItem('vale_n2_state');
+    if (raw) {
+      state = {...defaultState, ...JSON.parse(raw)};
+      // MIGRACAO: força layout "6" em todos componentes (compatibilidade com versões antigas)
+      let migrados = 0;
+      for (const c of state.componentes) {
+        if (c.layout !== "6" && c.layout !== "2" && c.layout !== "4") {
+          c.layout = "6";
+          migrados++;
+        }
+      }
+      if (migrados > 0) {
+        console.log(`Migrados ${migrados} componente(s) para layout 6`);
+      }
+      // recarrega imagens da IndexedDB
+      for (const f of state.fotos_panoramicas) {
+        if (f.dbKey) f.data = await dbGetFoto(f.dbKey);
+      }
+      for (const c of state.componentes) {
+        for (const f of c.fotos) {
+          if (f.dbKey) f.data = await dbGetFoto(f.dbKey);
+        }
+      }
+    }
+  } catch(e) { console.warn('load fail', e); }
+}
+
+// Força layout 6 em TODOS componentes (botão manual)
+function aplicarLayout6Todos() {
+  let n = 0;
+  for (const c of state.componentes) {
+    if (c.layout !== "6") { c.layout = "6"; n++; }
+  }
+  saveNow(); render();
+  setStatus(`✓ Layout "6 fotos/prancha" aplicado em ${n} componente(s).`, 'ok');
+}
+
+// Calcula uso atual em bytes (soma dos base64 das fotos em memória)
+function calcUsoFotos() {
+  let total = 0;
+  for (const f of state.fotos_panoramicas) {
+    if (f.data) total += Math.round(f.data.length * 0.75); // base64 → bytes reais
+  }
+  for (const c of state.componentes) {
+    for (const f of c.fotos) {
+      if (f.data) total += Math.round(f.data.length * 0.75);
+    }
+  }
+  return total;
+}
+
+let _quotaCache = null;
+let _ultimoAlertaBackup = 0;
+
+async function getQuotaNavegador() {
+  if (_quotaCache !== null) return _quotaCache;
+  try {
+    if (navigator.storage && navigator.storage.estimate) {
+      const est = await navigator.storage.estimate();
+      // Limite "seguro" para uso: 70% do quota total (deixa margem para o sistema)
+      _quotaCache = Math.min(est.quota * 0.7, 500 * 1024 * 1024); // máx 500MB seguro
+      return _quotaCache;
+    }
+  } catch(e) {}
+  _quotaCache = 250 * 1024 * 1024; // fallback: 250MB
+  return _quotaCache;
+}
+
+function formatBytes(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1024*1024) return (b/1024).toFixed(1) + ' KB';
+  if (b < 1024*1024*1024) return (b/(1024*1024)).toFixed(1) + ' MB';
+  return (b/(1024*1024*1024)).toFixed(2) + ' GB';
+}
+
+async function updateStorageIndicator() {
+  try {
+    const usado = calcUsoFotos();
+    const quota = await getQuotaNavegador();
+    const pct = Math.min(100, (usado / quota) * 100);
+    const nFotos = state.componentes.reduce((s,c)=>s+c.fotos.length, 0) + state.fotos_panoramicas.length;
+
+    const bar = document.getElementById('memBar');
+    const pctEl = document.getElementById('memPct');
+    const details = document.getElementById('memDetails');
+    const msg = document.getElementById('memMsg');
+    const title = document.getElementById('memTitle');
+    if (!bar) return;
+
+    bar.style.width = pct.toFixed(1) + '%';
+    pctEl.textContent = pct.toFixed(1) + '%';
+    details.textContent = `${nFotos} fotos | ${formatBytes(usado)} de ~${formatBytes(quota)}`;
+
+    // 4 níveis de alerta com gradiente
+    let cor, msgTxt, icone;
+    if (pct < 50) {
+      cor = 'linear-gradient(90deg, #26734d 0%, #2d8959 100%)';
+      icone = '✓';
+      msgTxt = 'Tranquilo. Continue adicionando fotos normalmente.';
+    } else if (pct < 75) {
+      cor = 'linear-gradient(90deg, #d4a017 0%, #e8b829 100%)';
+      icone = '⚠';
+      msgTxt = `Atenção: ${pct.toFixed(0)}% usado. Considere fazer um Backup Sessão em breve.`;
+      // alerta uma vez ao passar de 50%
+      if (Date.now() - _ultimoAlertaBackup > 5*60*1000) {
+        setStatus(`⚠ Memória em ${pct.toFixed(0)}%. Recomendado fazer Backup Sessão.`, 'info');
+        _ultimoAlertaBackup = Date.now();
+      }
+    } else if (pct < 90) {
+      cor = 'linear-gradient(90deg, #d97c1c 0%, #e89028 100%)';
+      icone = '⚠⚠';
+      msgTxt = `ATENÇÃO: ${pct.toFixed(0)}% usado. FAÇA O BACKUP AGORA antes de adicionar mais fotos!`;
+      if (Date.now() - _ultimoAlertaBackup > 60*1000) {
+        setStatus(`⚠⚠ Memória em ${pct.toFixed(0)}%! Clique em 💾 Backup Sessão AGORA.`, 'err');
+        _ultimoAlertaBackup = Date.now();
+        // piscar o botão de backup
+        const btn = document.querySelector('button.success');
+        if (btn) {
+          btn.style.animation = 'pulse 1s infinite';
+        }
+      }
+    } else {
+      cor = 'linear-gradient(90deg, #a33b3b 0%, #c54545 100%)';
+      icone = '🚨';
+      msgTxt = `CRÍTICO: ${pct.toFixed(0)}% — Pare de adicionar fotos. Backup obrigatório, depois reinicie a sessão.`;
+      setStatus(`🚨 Memória CRÍTICA em ${pct.toFixed(0)}%! Faça backup IMEDIATAMENTE!`, 'err');
+      const btn = document.querySelector('button.success');
+      if (btn) btn.style.animation = 'pulse 0.5s infinite';
+    }
+
+    bar.style.background = cor;
+    title.innerHTML = `${icone} <span style="color:#0E3F62;">Uso de memória do navegador</span>`;
+    msg.textContent = msgTxt;
+    msg.style.color = pct >= 75 ? '#a33b3b' : (pct >= 50 ? '#856404' : '#666');
+    msg.style.fontWeight = pct >= 75 ? '600' : 'normal';
+  } catch(e) { console.warn('updateStorageIndicator:', e); }
+}
+
+function $(s){return document.querySelector(s)}
+function $$(s){return document.querySelectorAll(s)}
+function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c])}
+function setStatus(m, cls='info') { const s=$('#status'); s.textContent=m; s.className='status '+cls; }
+
+$$('.tabs button').forEach(b => b.addEventListener('click', e => {
+  $$('.tabs button').forEach(x=>x.classList.remove('active'));
+  $$('.panel').forEach(p=>p.classList.remove('active'));
+  e.target.classList.add('active');
+  $('#'+e.target.dataset.tab).classList.add('active');
+  $('#title').textContent = e.target.textContent.replace(/^\d+\. /,'');
+  render();
+}));
+
+function bindFields() {
+  $$('[data-f]').forEach(el => {
+    const f = el.dataset.f;
+    if (state[f] !== undefined && state[f] !== null) el.value = state[f];
+    el.addEventListener('input', () => { state[f] = el.value; save(); render(); });
+  });
+}
+
+// ----- normas/materiais/desenhos/recomendacoes -----
+function renderList(field, listId, isTextarea=false) {
+  const d = $(listId); if (!d) return;
+  d.innerHTML = state[field].map((v,i) => `<div class="item"><header>
+    ${isTextarea
+      ? `<textarea style="flex:1;min-height:50px" onchange="state.${field}[${i}]=this.value;save();">${esc(v)}</textarea>`
+      : `<input type="text" style="flex:1" value="${esc(v)}" onchange="state.${field}[${i}]=this.value;save();">`}
+    <button class="small danger" onclick="state.${field}.splice(${i},1);save();render();">×</button>
+  </header></div>`).join('');
+}
+function addNorma() { state.normas.push(""); save(); render(); }
+function addMat() { state.materiais.push(""); save(); render(); }
+function addDes() { state.desenhos.push(""); save(); render(); }
+function addRec() { state.recomendacoes.push(""); save(); render(); }
+
+function renderPlanos() {
+  const d = $('#planosList'); if (!d) return;
+  if (!state.planos) state.planos = [];
+  d.innerHTML = state.planos.map((p,i)=>`<div class="item">
+    <header><strong>Plano ${i+1}</strong>
+      <button class="small danger" onclick="state.planos.splice(${i},1);save();render();">Remover</button></header>
+    <div class="row">
+      <label>Centro trab. <input type="text" value="${esc(p.centro||'INSES')}" onchange="state.planos[${i}].centro=this.value;save();"></label>
+      <label>Plano <input type="text" value="${esc(p.plano||'')}" onchange="state.planos[${i}].plano=this.value;save();"></label>
+      <label>Local <input type="text" value="${esc(p.local||'')}" onchange="state.planos[${i}].local=this.value;save();"></label>
+      <label>Denominação <input type="text" value="${esc(p.denominacao||'')}" onchange="state.planos[${i}].denominacao=this.value;save();"></label>
+    </div>
+  </div>`).join('');
+}
+function addPlano() { if (!state.planos) state.planos=[]; state.planos.push({centro:"INSES",plano:"",local:"",denominacao:""}); save(); render(); }
+
+// ----- Logo -----
+async function importLogo(file) {
+  if (!file) return;
+  // Logo é pequeno, redimensiona com menos compressão
+  const rd = new FileReader();
+  rd.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const maxW = 300, maxH = 120;
+      let w = img.width, h = img.height;
+      const scale = Math.min(maxW/w, maxH/h, 1);
+      w = Math.round(w * scale); h = Math.round(h * scale);
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
+      state.logo = canvas.toDataURL('image/png');
+      save(); renderLogoPreview();
+      setStatus('✓ Logo carregado.', 'ok');
+    };
+    img.src = rd.result;
+  };
+  rd.readAsDataURL(file);
+}
+function removerLogo() {
+  state.logo = null;
+  save(); renderLogoPreview();
+}
+function renderLogoPreview() {
+  const el = document.getElementById('logoPreview');
+  if (!el) return;
+  if (state.logo) {
+    el.innerHTML = `<img src="${state.logo}" style="max-width:100%;max-height:100%;object-fit:contain;">`;
+    el.style.border = '1px solid #d8dee7';
+    el.style.background = '#fff';
+  } else {
+    el.innerHTML = 'sem logo';
+    el.style.border = '2px dashed #c0d0e0';
+    el.style.background = '#fafcff';
+  }
+}
+
+// Helpers para deletar fotos (removendo tambem da IndexedDB)
+async function deleteFotoPano(i) {
+  const f = state.fotos_panoramicas[i];
+  if (f && f.dbKey) await dbDeleteFoto(f.dbKey);
+  state.fotos_panoramicas.splice(i, 1);
+  saveNow(); render();
+}
+async function deleteFotoComp(i, j) {
+  const f = state.componentes[i] && state.componentes[i].fotos[j];
+  if (f && f.dbKey) await dbDeleteFoto(f.dbKey);
+  state.componentes[i].fotos.splice(j, 1);
+  saveNow(); render();
+}
+
+// ----- revisoes -----
+function renderRev() {
+  const d = $('#revisoesList'); if (!d) return;
+  d.innerHTML = state.revisoes.map((r,i)=>`<div class="item">
+    <header><strong>Revisão ${i+1}</strong>
+      <button class="small danger" onclick="state.revisoes.splice(${i},1);save();render();">Remover</button></header>
+    <div class="row three">
+      <label>Rev. <input type="text" value="${esc(r.rev)}" onchange="state.revisoes[${i}].rev=this.value;save();"></label>
+      <label>TE (A-H) <input type="text" value="${esc(r.te)}" onchange="state.revisoes[${i}].te=this.value;save();"></label>
+      <label>Data <input type="text" value="${esc(r.data)}" onchange="state.revisoes[${i}].data=this.value;save();" placeholder="DD/MM/AA"></label>
+    </div>
+    <label>Descrição <input type="text" value="${esc(r.descricao)}" onchange="state.revisoes[${i}].descricao=this.value;save();"></label>
+    <div class="row three">
+      <label>Por <input type="text" value="${esc(r.por)}" onchange="state.revisoes[${i}].por=this.value;save();"></label>
+      <label>Ver. <input type="text" value="${esc(r.ver)}" onchange="state.revisoes[${i}].ver=this.value;save();"></label>
+      <label>AP. <input type="text" value="${esc(r.ap)}" onchange="state.revisoes[${i}].ap=this.value;save();"></label>
+    </div>
+  </div>`).join('');
+}
+function addRev() { state.revisoes.push({rev:"",te:"",descricao:"",por:"",ver:"",ap:"",aut:"",data:""}); save(); render(); }
+
+// ----- panoramicas -----
+function renderPano() {
+  const d = $('#panoList'); if (!d) return;
+  d.innerHTML = state.fotos_panoramicas.map((f,i)=>`<div class="foto-row">
+    ${f.data ? `<img src="${f.data}">` : '<div style="width:80px;height:60px;background:#eee;display:flex;align-items:center;justify-content:center;font-size:9px;color:#888">[sem imagem]</div>'}
+    <div>
+      <span class="fname">${esc(f.arquivo)}</span>
+      <input type="text" value="${esc(f.legenda)}" onchange="state.fotos_panoramicas[${i}].legenda=this.value;save();" placeholder="Legenda - aparecerá em 'Figura N – ...'">
+    </div>
+    <button class="small danger" onclick="deleteFotoPano(${i})">×</button>
+  </div>`).join('');
+}
+async function importPano(files) {
+  const arr = Array.from(files);
+  setStatus(`⏳ Comprimindo e importando ${arr.length} foto(s)...`, 'info');
+  for (let i = 0; i < arr.length; i++) {
+    const f = arr[i];
+    setStatus(`⏳ Importando ${i+1}/${arr.length}: ${f.name}`, 'info');
+    const data = await fileToDataURL(f);
+    const dbKey = fotoKey(f.name, 'pano');
+    await dbPutFoto(dbKey, data);
+    state.fotos_panoramicas.push({arquivo:f.name, legenda:"Vista panorâmica do ativo.", data, dbKey});
+  }
+  saveNow(); render();
+  setStatus(`✓ ${arr.length} foto(s) panorâmica(s) importada(s) e comprimida(s).`, 'ok');
+}
+
+// ----- componentes -----
+function renderComponentes() {
+  const d = $('#componentesList'); if (!d) return;
+  d.innerHTML = state.componentes.map((c,i)=>{
+    const layoutLabels = {"1":"1/página", "2":"2/prancha", "4":"4/prancha", "6":"6/prancha"};
+    return `<div class="item">
+    <header>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <strong>${esc(c.titulo||'Componente '+(i+1))}</strong>
+        <span class="badge">${c.fotos.length} foto(s)</span>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <select class="layout-select" onchange="state.componentes[${i}].layout=this.value;save();">
+          ${["1","2","4","6"].map(L => `<option value="${L}" ${L===c.layout?'selected':''}>${layoutLabels[L]}</option>`).join('')}
+        </select>
+        <button class="small" onclick="moveComp(${i}, -1)">↑</button>
+        <button class="small" onclick="moveComp(${i}, 1)">↓</button>
+        <button class="small danger" onclick="state.componentes.splice(${i},1);save();render();">Remover</button>
+      </div>
+    </header>
+    <label>Título da subseção (aparece em MAIÚSCULAS)
+      <input type="text" value="${esc(c.titulo)}" onchange="state.componentes[${i}].titulo=this.value;save();render();">
+    </label>
+    <label style="margin-top:6px;">Introdução (opcional)
+      <textarea rows="2" onchange="state.componentes[${i}].introducao=this.value;save();">${esc(c.introducao)}</textarea>
+    </label>
+    <div class="drop-zone" onclick="document.getElementById('compImg${i}').click()" ondrop="dropCompFotos(event, ${i})" ondragover="event.preventDefault();this.classList.add('dragover');" ondragleave="this.classList.remove('dragover');">
+      📷 Clique ou arraste fotos aqui (${c.fotos.length} foto(s) carregada(s))
+    </div>
+    <input type="file" id="compImg${i}" multiple accept="image/*" hidden onchange="importCompFotos(${i}, event.target.files)">
+    <div class="photos" style="margin-top:8px;">
+      ${c.fotos.map((f,j)=>`<div class="photo ${f.recomendacao?'has-rec':''}" title="${esc(f.legenda||f.arquivo)}">
+        ${f.data ? `<img src="${f.data}">` : `<div style="padding:8px;font-size:10px;color:#aaa;">${esc(f.arquivo).slice(0,15)}</div>`}
+        <button class="x" onclick="deleteFotoComp(${i},${j})">×</button>
+        <div class="lbl">${esc(f.arquivo).slice(0,18)}</div>
+      </div>`).join('')}
+    </div>
+    ${c.fotos.length ? `<details ${c.fotos.some(f=>f.recomendacao)?'open':''}>
+      <summary>Editar legendas e recomendações por foto (${c.fotos.length})</summary>
+      <div>
+        ${c.fotos.map((f,j)=>`<div class="foto-row">
+          ${f.data?`<img src="${f.data}">`:'<div style="width:80px;height:60px;background:#eee"></div>'}
+          <div>
+            <span class="fname">${esc(f.arquivo)}</span>
+            <input type="text" value="${esc(f.legenda)}" onchange="state.componentes[${i}].fotos[${j}].legenda=this.value;save();render();" placeholder="Legenda - 'Figura N – legenda'">
+            <textarea onchange="state.componentes[${i}].fotos[${j}].recomendacao=this.value;save();render();" placeholder="Recomendação técnica (opcional) - se preenchida, vira 'Recomendação para Figura N' na Seção 6.2">${esc(f.recomendacao||'')}</textarea>
+          </div>
+          <button class="small danger" onclick="deleteFotoComp(${i},${j})">×</button>
+        </div>`).join('')}
+      </div>
+    </details>` : ''}
+  </div>`;
+  }).join('');
+}
+function addComponente() {
+  state.componentes.push({titulo:"NOVO COMPONENTE", introducao:"", layout:"6", fotos:[]});
+  save(); render();
+}
+function moveComp(idx, dir) {
+  const t = idx + dir;
+  if (t < 0 || t >= state.componentes.length) return;
+  [state.componentes[idx], state.componentes[t]] = [state.componentes[t], state.componentes[idx]];
+  save(); render();
+}
+async function importCompFotos(idx, files) {
+  const arr = Array.from(files);
+  setStatus(`⏳ Comprimindo e importando ${arr.length} foto(s)...`, 'info');
+  for (let i = 0; i < arr.length; i++) {
+    const f = arr[i];
+    if (i % 3 === 0 || i === arr.length - 1) {
+      setStatus(`⏳ Importando ${i+1}/${arr.length}: ${f.name}`, 'info');
+    }
+    try {
+      const data = await fileToDataURL(f);
+      const dbKey = fotoKey(f.name, `comp${idx}`);
+      await dbPutFoto(dbKey, data);
+      state.componentes[idx].fotos.push({arquivo:f.name, legenda:"", recomendacao:"", data, dbKey});
+    } catch(e) {
+      console.warn('Falha em ' + f.name, e);
+      setStatus(`⚠ Falha em ${f.name}: ${e.message}. Continuando com as demais...`, 'err');
+    }
+  }
+  saveNow(); render();
+  setStatus(`✓ ${arr.length} foto(s) importada(s) e comprimida(s) no componente.`, 'ok');
+}
+function dropCompFotos(e, idx) {
+  e.preventDefault();
+  e.target.classList.remove('dragover');
+  if (e.dataTransfer.files) importCompFotos(idx, e.dataTransfer.files);
+}
+
+// ----- recomendacoes por figura (visualizacao) -----
+function renderRecsPorFigura() {
+  const d = $('#recsPorFigura'); if (!d) return;
+  let figNum = state.fotos_panoramicas.length; // panoramicas tambem contam
+  const recs = [];
+  state.componentes.forEach(c => {
+    c.fotos.forEach(f => {
+      figNum++;
+      if (f.recomendacao) {
+        recs.push({fig: figNum, comp: c.titulo, legenda: f.legenda, rec: f.recomendacao});
+      }
+    });
+  });
+  if (!recs.length) {
+    d.innerHTML = '<div class="help">Nenhuma recomendação por figura cadastrada. Adicione recomendações nas fotos dos componentes (na aba "Componentes").</div>';
+    return;
+  }
+  d.innerHTML = recs.map(r => `<div class="item">
+    <header><strong>Recomendação para Figura ${r.fig}</strong>
+      <span class="badge">${esc(r.comp)}</span></header>
+    ${r.legenda?`<div style="font-style:italic;color:#666;font-size:12px;margin-bottom:6px;">(${esc(r.legenda)})</div>`:''}
+    <div>${esc(r.rec)}</div>
+  </div>`).join('');
+}
+
+// ----- template -----
+function aplicarTemplate(tipo) {
+  const lista = tipo === 'rc' ? COMPONENTES_RC : COMPONENTES_TLD;
+  if (state.componentes.length > 0 && !confirm(`Substituir os ${state.componentes.length} componentes atuais pelo template ${tipo.toUpperCase()}? Fotos serão preservadas onde os títulos baterem.`)) {
+    return;
+  }
+  // preserva fotos quando titulo bate
+  const fotosMap = {};
+  state.componentes.forEach(c => {
+    fotosMap[c.titulo] = c.fotos;
+  });
+  state.componentes = lista.map(t => ({
+    titulo: t,
+    introducao: "",
+    layout: "6",  // padrão: 6 fotos por prancha com 1 legenda
+    fotos: fotosMap[t] || []
+  }));
+  save(); render();
+  setStatus(`Template ${tipo.toUpperCase()} carregado com ${lista.length} componentes.`, 'ok');
+}
+
+// ----- automacao texto -----
+function gerarResumoAuto() {
+  const ncomp = state.componentes.length;
+  const nfotos = state.componentes.reduce((s,c)=>s+c.fotos.length, 0);
+  const nrecs = state.componentes.reduce((s,c)=>s+c.fotos.filter(f=>f.recomendacao).length, 0);
+  const equipamento = state.descricao_inspecao || state.circuito || '[ativo]';
+  let txt = `A inspeção visual baseline do ${equipamento} abrangeu ${ncomp} componentes estruturais, registrando ${nfotos} evidências fotográficas no total. `;
+  if (nrecs > 0) {
+    txt += `Foram identificadas ${nrecs} situações que demandam acompanhamento ou ações corretivas específicas, detalhadas na Seção 6.2 (Recomendações por Figura). `;
+    txt += `Em síntese, exceto pelos pontos específicos identificados, a maior parte das estruturas inspecionadas está em boas condições, indicando manutenção eficaz e prontidão para uso como referência baseline.`;
+  } else {
+    txt += `Em síntese, as estruturas inspecionadas encontram-se em boas condições, sem evidências de não conformidades significativas, estabelecendo uma condição baseline favorável para acompanhamento futuro.`;
+  }
+  state.resumo = txt;
+  $('#resumo textarea').value = txt;
+  save();
+  setStatus('Resumo automático gerado.', 'ok');
+}
+
+function gerarConclusaoAuto() {
+  const ncomp = state.componentes.length;
+  const nrecs = state.componentes.reduce((s,c)=>s+c.fotos.filter(f=>f.recomendacao).length, 0);
+  const equipamento = state.descricao_inspecao || state.circuito || '[ativo]';
+  let txt = `A condição geral do ${equipamento} é satisfatória nas ${ncomp} seções inspecionadas, sem sinais visíveis de deformações ou desgaste significativo na maior parte das estruturas, indicando que o equipamento está sendo mantido dentro dos padrões de segurança esperados. `;
+  if (nrecs > 0) {
+    txt += `Foram identificados ${nrecs} pontos específicos de atenção que demandam ações corretivas conforme detalhado na Seção 6 (Recomendações). `;
+  }
+  txt += `As demais estruturas encontram-se em conformidade com o projeto inicial e em condição adequada para servir como referência baseline. `;
+  txt += `De maneira geral, a inspeção atesta a integridade estrutural do ativo na data desta inspeção baseline, estabelecendo o estado de referência para inspeções futuras.`;
+  state.conclusao = txt;
+  $('#conclusao textarea').value = txt;
+  save();
+  setStatus('Conclusão automática gerada.', 'ok');
+}
+
+// ----- preview do cabecalho -----
+function renderPreviewHeader() {
+  const e = $('#pvHeader'); if (!e) return;
+  e.innerHTML = `<table>
+    <tr>
+      <td style="width:15%;height:60px;background:#fafafa;"></td>
+      <td style="width:55%;text-align:center;background:#fafafa;">
+        <b>${esc(state.cabec_central)}</b><br><b>${esc(state.classificacao)}</b>
+      </td>
+      <td style="width:30%;text-align:center;background:#fafafa;">
+        <b>${esc(state.projeto_top)}</b>
+      </td>
+    </tr>
+    <tr>
+      <td rowspan="2" colspan="1" style="vertical-align:top;font-size:9px;line-height:1.3;">
+        <b>${esc(state.tipo_relatorio)}</b><br>
+        <b>${esc(state.patio)}</b><br>
+        <b>${esc(state.circuito)}</b><br>
+        <b>${esc(state.descricao_inspecao)}</b><br>
+        <b>${esc(state.relatorio_subtipo)}</b>
+      </td>
+      <td style="width:15%;">Nº VALE<br><b>${esc(state.n_vale)}</b></td>
+      <td style="text-align:center;">PÁGINA<br><b>1/X</b></td>
+    </tr>
+    <tr>
+      <td>Nº<br><b>${esc(state.n_doc)}</b></td>
+      <td style="text-align:center;">REV.<br><b>${esc(state.revisao)}</b></td>
+    </tr>
+  </table>`;
+}
+
+function render() {
+  renderList('normas', '#normasList');
+  renderList('materiais', '#matList');
+  renderList('desenhos', '#desList');
+  renderList('recomendacoes', '#recList', true);
+  renderRev();
+  renderPano();
+  renderPlanos();
+  renderComponentes();
+  renderRecsPorFigura();
+  renderPreviewHeader();
+  renderLogoPreview();
+  updateStorageIndicator();
+}
+
+// Comprime imagem antes de armazenar - reduz drasticamente o uso de memória
+// Reduz fotos HD (5+ MB) para ~300 KB sem perda visual significativa
+const MAX_IMG_DIM = 1920;   // dimensão máxima (largura ou altura)
+const JPEG_QUALITY = 0.78;  // 78% qualidade JPEG
+
+function fileToDataURL(f) {
+  return new Promise((resolve, reject) => {
+    const rd = new FileReader();
+    rd.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          let w = img.width, h = img.height;
+          // Redimensiona mantendo aspect ratio
+          if (w > MAX_IMG_DIM || h > MAX_IMG_DIM) {
+            const scale = Math.min(MAX_IMG_DIM / w, MAX_IMG_DIM / h);
+            w = Math.round(w * scale);
+            h = Math.round(h * scale);
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, w, h);
+          // Converte para JPEG comprimido (mesmo se origem for PNG)
+          const compressed = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+          resolve(compressed);
+        } catch(e) {
+          // fallback: retorna o original sem comprimir
+          resolve(rd.result);
+        }
+      };
+      img.onerror = () => resolve(rd.result);
+      img.src = rd.result;
+    };
+    rd.onerror = reject;
+    rd.readAsDataURL(f);
+  });
+}
+
+// Backup/Restore - exporta TUDO (metadados + fotos) num arquivo .json
+async function backupSessao() {
+  try {
+    setStatus('⏳ Preparando backup...', 'info');
+    const backup = JSON.parse(JSON.stringify(state));
+    // Garante que dados base64 estão presentes
+    for (const f of backup.fotos_panoramicas) {
+      if (!f.data && f.dbKey) f.data = await dbGetFoto(f.dbKey);
+    }
+    for (const c of backup.componentes) {
+      for (const f of c.fotos) {
+        if (!f.data && f.dbKey) f.data = await dbGetFoto(f.dbKey);
+      }
+    }
+    const blob = new Blob([JSON.stringify(backup)], {type:'application/json'});
+    const nome = (state.descricao_inspecao || state.circuito || 'backup').replace(/[^a-zA-Z0-9]/g,'_');
+    const ts = new Date().toISOString().slice(0,16).replace(/[:T]/g,'-');
+    saveAs(blob, `${nome}_BACKUP_${ts}.json`);
+    setStatus(`✓ Backup salvo: ${nome}_BACKUP_${ts}.json (com todas as fotos)`, 'ok');
+  } catch(e) {
+    setStatus('Erro ao fazer backup: ' + e.message, 'err');
+  }
+}
+
+async function restaurarSessao(file) {
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    state = {...defaultState, ...data};
+    // Re-salva fotos na IndexedDB
+    for (const f of state.fotos_panoramicas) {
+      if (f.data && !f.dbKey) {
+        f.dbKey = fotoKey(f.arquivo, 'pano');
+        await dbPutFoto(f.dbKey, f.data);
+      }
+    }
+    for (let ci = 0; ci < state.componentes.length; ci++) {
+      const c = state.componentes[ci];
+      for (const f of c.fotos) {
+        if (f.data && !f.dbKey) {
+          f.dbKey = fotoKey(f.arquivo, `comp${ci}`);
+          await dbPutFoto(f.dbKey, f.data);
+        }
+      }
+    }
+    saveNow();
+    bindFields();
+    render();
+    setStatus(`✓ Sessão restaurada: ${state.componentes.reduce((s,c)=>s+c.fotos.length,0)} fotos carregadas.`, 'ok');
+  } catch(e) {
+    setStatus('Erro ao restaurar: ' + e.message, 'err');
+  }
+}
+
+// Auto-backup a cada 5 minutos (salva localStorage redundante)
+setInterval(() => { saveNow(); }, 5 * 60 * 1000);
+
+// Avisa o usuário se ele tentar fechar com fotos não salvas em backup
+window.addEventListener('beforeunload', (e) => {
+  const nFotos = state.componentes.reduce((s,c)=>s+c.fotos.length, 0) + state.fotos_panoramicas.length;
+  if (nFotos > 5) {
+    e.preventDefault();
+    e.returnValue = 'Há fotos não baixadas em backup. Tem certeza que quer sair?';
+    return e.returnValue;
+  }
+});
+
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const nome = (state.descricao_inspecao || state.circuito || 'relatorio').replace(/[^a-zA-Z0-9]/g,'_');
+  saveAs(blob, `${nome}_state.json`);
+}
+function importJSON(e) {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => { try { state = {...defaultState, ...JSON.parse(r.result)}; bindFields(); render(); save(); setStatus('JSON importado com sucesso.','ok'); } catch(err) { setStatus('Erro: '+err.message,'err'); } };
+  r.readAsText(f);
+}
+
+// drag drop panoramicas
+const dzPano = document.getElementById('dzPano');
+if (dzPano) {
+  ['dragenter','dragover'].forEach(ev=>dzPano.addEventListener(ev,e=>{e.preventDefault();dzPano.classList.add('dragover');}));
+  ['dragleave','drop'].forEach(ev=>dzPano.addEventListener(ev,e=>{e.preventDefault();dzPano.classList.remove('dragover');}));
+  dzPano.addEventListener('drop',e=>{ if (e.dataTransfer.files) importPano(e.dataTransfer.files); });
+}
+
+// ============================================================
+// GERAR DOCX - replicando layout N2 Vale exato
+// ============================================================
+async function dataURLToBuffer(dataURL) {
+  const res = await fetch(dataURL);
+  return await res.arrayBuffer();
+}
+
+// ============================================================
+// GERAR PDF OTIMIZADO PARA EMAIL (max 30 MB - email corporativo Vale)
+// ============================================================
+// Estratégia: gera HTML formatado para impressão com fotos
+// re-comprimidas mais agressivamente. Abre o "Salvar como PDF" do navegador.
+// ============================================================
+
+const PDF_MAX_DIM = 1200;        // px - dimensão máxima das fotos no PDF
+const PDF_JPEG_QUALITY = 0.65;   // qualidade JPEG mais agressiva
+const PDF_LIMITE_BYTES = 28 * 1024 * 1024; // 28MB (margem de segurança ao limite 30MB)
+
+async function recomprimirFotoPDF(dataURL) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if (w > PDF_MAX_DIM || h > PDF_MAX_DIM) {
+        const scale = Math.min(PDF_MAX_DIM/w, PDF_MAX_DIM/h);
+        w = Math.round(w * scale);
+        h = Math.round(h * scale);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', PDF_JPEG_QUALITY));
+    };
+    img.onerror = reject;
+    img.src = dataURL;
+  });
+}
+
+function escapePDF(s) {
+  return (s||"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+}
+
+async function gerarPDF() {
+  setStatus('⏳ Preparando PDF... isso pode levar alguns minutos (recomprimindo fotos)', 'info');
+  try {
+    // 1. Recomprimir todas as fotos para tamanho menor
+    let totalBytes = 0;
+    const cacheLogo = state.logo ? await recomprimirFotoPDF(state.logo) : null;
+    if (cacheLogo) totalBytes += cacheLogo.length * 0.75;
+
+    const cachePano = [];
+    for (const f of state.fotos_panoramicas) {
+      if (f.data) {
+        const d = await recomprimirFotoPDF(f.data);
+        cachePano.push({...f, _pdfData: d});
+        totalBytes += d.length * 0.75;
+      } else cachePano.push(f);
+    }
+    const cacheComp = [];
+    for (const c of state.componentes) {
+      const fotos = [];
+      for (const f of c.fotos) {
+        if (f.data) {
+          const d = await recomprimirFotoPDF(f.data);
+          fotos.push({...f, _pdfData: d});
+          totalBytes += d.length * 0.75;
+        } else fotos.push(f);
+      }
+      cacheComp.push({...c, fotos});
+    }
+
+    if (totalBytes > PDF_LIMITE_BYTES) {
+      const mb = (totalBytes / 1024 / 1024).toFixed(1);
+      if (!confirm(`⚠ Estimativa do PDF: ~${mb} MB (acima do limite 30MB de email).\n\nVocê pode:\n- Continuar mesmo assim (talvez não envie por email)\n- Cancelar e remover fotos\n\nDeseja continuar?`)) {
+        setStatus('Cancelado pelo usuário.', 'info');
+        return;
+      }
+    }
+
+    // 2. Construir HTML do relatório com numeração ABNT
+    let figGlobal = 0;
+    let secaoCorrente = 0;
+    let figNaSecao = 0;
+    function pdfProxFig() { figNaSecao++; figGlobal++; return `${secaoCorrente}.${figNaSecao}`; }
+    function pdfSetSecao(n) { secaoCorrente = n; figNaSecao = 0; }
+    const fotosIndice = [];
+
+    function pdfFigura(legenda, isInd) {
+      const num = pdfProxFig();
+      const legTxt = legenda || 'Registro fotográfico.';
+      fotosIndice.push({num, legenda: legTxt});
+      return `<div class="figcap">Figura ${num} – ${escapePDF(legTxt)}</div>`;
+    }
+
+    function pdfPrancha(fotos, layout) {
+      const cfg = {"1":{r:1,c:1,w:'90%'},"2":{r:1,c:2,w:'48%'},"4":{r:2,c:2,w:'48%'},"6":{r:3,c:2,w:'47%'}}[layout] || {r:3,c:2,w:'47%'};
+      const perPage = cfg.r * cfg.c;
+      let html = '';
+      for (let st=0; st<fotos.length; st+=perPage) {
+        const chunk = fotos.slice(st, st+perPage);
+        const legendaUsada = chunk.find(f=>f.legenda && f.legenda.trim())?.legenda || 'Registro fotográfico.';
+        html += '<div class="prancha">';
+        html += '<div class="prancha-grid" style="grid-template-columns:repeat('+cfg.c+',1fr);">';
+        for (const f of chunk) {
+          if (f._pdfData) {
+            html += '<div class="foto-box"><img src="'+f._pdfData+'"></div>';
+          }
+        }
+        html += '</div>';
+        html += pdfFigura(legendaUsada);
+        html += '</div>';
+      }
+      return html;
+    }
+
+    let body = '';
+
+    // === 1. OBJETIVO ===
+    pdfSetSecao(1);
+    body += '<h1>1. OBJETIVO</h1><h2>1.1 ESCOPO DA INSPEÇÃO</h2>';
+    body += '<p>' + escapePDF(state.objetivo).replace(/\n/g,'<br>') + '</p>';
+
+    // === 2. REFERÊNCIAS ===
+    pdfSetSecao(2);
+    body += '<h1>2. REFERÊNCIAS E NORMAS</h1><h2>2.1 NORMAS E PROCEDIMENTOS APLICÁVEIS</h2><ul>';
+    state.normas.filter(n=>n.trim()).forEach(n => body += '<li>'+escapePDF(n)+'</li>');
+    body += '</ul>';
+
+    // === 3. METODOLOGIA ===
+    pdfSetSecao(3);
+    body += '<h1>3. METODOLOGIA</h1><h2>3.1 CRITÉRIOS DE INSPEÇÃO VISUAL</h2>';
+    body += '<p>' + escapePDF(state.metodologia).replace(/\n/g,'<br>') + '</p>';
+    body += '<h2>3.2 MATERIAIS E EQUIPAMENTOS UTILIZADOS</h2><ul>';
+    state.materiais.filter(m=>m.trim()).forEach(m => body += '<li>'+escapePDF(m)+'</li>');
+    body += '</ul>';
+
+    // === 4. PLANOS ===
+    pdfSetSecao(4);
+    body += '<h1>4. LISTA DOS PLANOS DE MANUTENÇÃO E LOCAL DE INSTALAÇÃO</h1>';
+    body += '<h2>4.1 PLANOS E LOCAIS CADASTRADOS</h2>';
+    if (state.planos_texto_contexto) body += '<p>'+escapePDF(state.planos_texto_contexto).replace(/\n/g,'<br>')+'</p>';
+    if (state.planos && state.planos.length) {
+      body += '<table class="tab"><thead><tr><th>Centro trab.</th><th>Plano</th><th>Local</th><th>Denominação</th></tr></thead><tbody>';
+      state.planos.forEach(p => {
+        body += '<tr><td>'+escapePDF(p.centro||'INSES')+'</td><td>'+escapePDF(p.plano||'')+'</td><td>'+escapePDF(p.local||'')+'</td><td>'+escapePDF(p.denominacao||'')+'</td></tr>';
+      });
+      body += '</tbody></table>';
+    }
+
+    // === 5. DESENHOS ===
+    pdfSetSecao(5);
+    body += '<h1>5. DESENHOS DE REFERÊNCIA</h1><h2>5.1 LISTA DE DESENHOS</h2>';
+    const ds = state.desenhos.filter(d=>d.trim());
+    if (ds.length) {
+      // Column-major: preenche coluna 1 inteira, depois coluna 2, depois coluna 3
+      const itensPorPaginaPDF = 150; // ~50 linhas x 3 colunas
+      for (let pg=0; pg<ds.length; pg+=itensPorPaginaPDF) {
+        const dsPg = ds.slice(pg, pg+itensPorPaginaPDF);
+        const rowsPg = Math.ceil(dsPg.length / 3);
+        body += '<table class="tab3"><tbody>';
+        for (let r=0; r<rowsPg; r++) {
+          const c1 = dsPg[r] || '';
+          const c2 = dsPg[rowsPg + r] || '';
+          const c3 = dsPg[2*rowsPg + r] || '';
+          body += '<tr><td>'+escapePDF(c1)+'</td><td>'+escapePDF(c2)+'</td><td>'+escapePDF(c3)+'</td></tr>';
+        }
+        body += '</tbody></table>';
+      }
+    }
+    body += '<h2>5.2 REGISTROS DOS DESENHOS</h2>';
+    if (state.nota_descritiva) body += '<p>'+escapePDF(state.nota_descritiva).replace(/\n/g,'<br>')+'</p>';
+    for (const f of cachePano) {
+      if (f._pdfData) {
+        body += '<div class="foto-box-grande"><img src="'+f._pdfData+'"></div>';
+        body += pdfFigura(f.legenda || 'Vista panorâmica do ativo.');
+      }
+    }
+
+    // === 6. CIRCUITOS E EVIDÊNCIAS ===
+    pdfSetSecao(6);
+    body += '<h1>6. CIRCUITOS E EVIDÊNCIAS</h1>';
+    let compIdx = 0;
+    for (const comp of cacheComp) {
+      if (!comp.fotos.length && !comp.introducao) continue;
+      compIdx++;
+      body += '<h2>6.'+compIdx+' '+escapePDF(comp.titulo)+'</h2>';
+      if (comp.introducao) body += '<p>'+escapePDF(comp.introducao).replace(/\n/g,'<br>')+'</p>';
+      body += pdfPrancha(comp.fotos, comp.layout || '6');
+    }
+
+    // === 7. CONCLUSÃO ===
+    pdfSetSecao(7);
+    body += '<h1 class="pgbreak">7. CONCLUSÃO</h1><h2>7.1 RESULTADO CONSOLIDADO</h2>';
+    body += '<p>' + escapePDF(state.conclusao).replace(/\n/g,'<br>') + '</p>';
+
+    // === 8. RECOMENDAÇÕES ===
+    pdfSetSecao(8);
+    body += '<h1>8. RECOMENDAÇÕES</h1><h2>8.1 AÇÕES RECOMENDADAS</h2>';
+    if (state.recomendacoes.filter(r=>r.trim()).length) {
+      body += '<p>Com base nas inspeções realizadas, recomenda-se:</p><ol>';
+      state.recomendacoes.filter(r=>r.trim()).forEach(r => body += '<li>'+escapePDF(r).replace(/\n/g,'<br>')+'</li>');
+      body += '</ol>';
+    }
+
+    // Índice de figuras (manual)
+    let indiceFig = '<h1 class="pgbreak">ÍNDICE DE FIGURAS</h1>';
+    if (fotosIndice.length) {
+      indiceFig += '<div class="idx-fig">';
+      fotosIndice.forEach(e => {
+        indiceFig += '<div class="idx-item"><span>Figura '+e.num+' – '+escapePDF(e.legenda)+'</span></div>';
+      });
+      indiceFig += '</div>';
+    }
+
+    // Cabeçalho HTML
+    const cabec = `
+<div class="cabec-vale">
+  <table class="cabec-tab">
+    <tr>
+      <td class="logo-cell">${cacheLogo ? '<img src="'+cacheLogo+'">' : ''}</td>
+      <td class="central">
+        <b>${escapePDF(state.cabec_central)}</b><br>
+        <b>${escapePDF(state.classificacao)}</b>
+      </td>
+      <td class="direita"><b>${escapePDF(state.projeto_top)}</b></td>
+    </tr>
+  </table>
+  <table class="cabec-tab2">
+    <tr>
+      <td class="desc" rowspan="2">
+        <b>${escapePDF(state.tipo_relatorio)}</b><br>
+        <b>${escapePDF(state.patio)}</b><br>
+        <b>${escapePDF(state.circuito)}</b><br>
+        <b>${escapePDF(state.descricao_inspecao)}</b><br>
+        <b>${escapePDF(state.relatorio_subtipo)}</b>
+      </td>
+      <td class="label">N° VALE<br><b>${escapePDF(state.n_vale)}</b></td>
+      <td class="label">PÁGINA<br><b>auto</b></td>
+    </tr>
+    <tr>
+      <td class="label">N°<br><b>${escapePDF(state.n_doc)}</b></td>
+      <td class="label">REV.<br><b>${escapePDF(state.revisao)}</b></td>
+    </tr>
+  </table>
+</div>`;
+
+    const cssPDF = `
+@page { size: A4; margin: 12mm 10mm 12mm 10mm; }
+* { box-sizing: border-box; }
+body { font-family: Arial, sans-serif; font-size: 10pt; color: #000; margin: 0; padding: 0; }
+h1 { font-size: 14pt; margin: 14pt 0 8pt; font-weight: bold; }
+h2 { font-size: 12pt; margin: 10pt 0 6pt; font-weight: bold; }
+p { text-align: left; margin: 4pt 0; line-height: 1.4; }
+ul, ol { margin: 4pt 0 8pt 18pt; padding: 0; }
+li { margin: 2pt 0; }
+.pgbreak { page-break-before: always; }
+.cabec-vale { border: 1.5px solid #000; margin-bottom: 12px; }
+.cabec-tab, .cabec-tab2 { width: 100%; border-collapse: collapse; }
+.cabec-tab td, .cabec-tab2 td { border: 1px solid #000; padding: 4px 6px; font-size: 8pt; vertical-align: middle; }
+.cabec-tab .logo-cell { width: 18%; text-align: center; padding: 4px; }
+.cabec-tab .logo-cell img { max-width: 100%; max-height: 36px; }
+.cabec-tab .central { width: 55%; text-align: center; }
+.cabec-tab .direita { width: 27%; text-align: center; }
+.cabec-tab2 .desc { width: 55%; vertical-align: top; line-height: 1.2; }
+.cabec-tab2 .label { width: 22.5%; text-align: center; }
+table.tab, table.tab3 { width: 100%; border-collapse: collapse; margin: 4pt 0 10pt; }
+table.tab td, table.tab th { border: 1px solid #404040; padding: 4px 6px; font-size: 9pt; }
+table.tab th { background: #D9E1F2; font-weight: bold; text-align: center; }
+table.tab3 td { border: 1px solid #B0B0B0; padding: 3px 6px; font-size: 9pt; width: 33.3%; }
+.prancha { page-break-inside: avoid; margin: 8pt 0 14pt; }
+.prancha-grid { display: grid; gap: 4px; }
+.foto-box { border: 1px solid #B0B0B0; display: flex; align-items: center; justify-content: center; height: 5.5cm; overflow: hidden; }
+.foto-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.foto-box-grande { text-align: center; margin: 8pt 0; }
+.foto-box-grande img { max-width: 95%; max-height: 12cm; }
+.figcap { text-align: center; font-style: italic; font-size: 9pt; color: #1F4E79; margin: 4pt 0 8pt; }
+.idx-fig { margin: 8pt 0; }
+.idx-item { font-size: 10pt; margin: 2pt 0; }
+.titulo-pdf { text-align: center; font-size: 18pt; font-weight: bold; margin: 20pt 0 30pt; }
+@media print {
+  .cabec-vale { position: running(headerVale); }
+  @page { @top-center { content: element(headerVale); } }
+}
+`;
+
+    const htmlPDF = `<!doctype html><html><head><meta charset="utf-8"><title>${escapePDF(state.descricao_inspecao)||'Relatorio_N2'}</title><style>${cssPDF}</style></head>
+<body>
+${cabec}
+${indiceFig}
+${body}
+</body></html>`;
+
+    // 3. Abrir nova janela e imprimir
+    const win = window.open('', '_blank');
+    if (!win) {
+      setStatus('Bloqueador de popup ativo! Permita popups deste site e tente novamente.', 'err');
+      return;
+    }
+    win.document.open();
+    win.document.write(htmlPDF);
+    win.document.close();
+    const mbEst = (totalBytes / 1024 / 1024).toFixed(1);
+    setStatus(`✓ Janela aberta com PDF (~${mbEst} MB estimado). No diálogo de impressão escolha "Salvar como PDF" como destino.`, 'ok');
+    setTimeout(() => {
+      try { win.focus(); win.print(); } catch(e) {}
+    }, 1000);
+  } catch(e) {
+    console.error(e);
+    setStatus('Erro ao gerar PDF: ' + e.message, 'err');
+  }
+}
+
+async function gerarDocx() {
+  if (!libsReady || typeof docx === 'undefined') {
+    setStatus('⚠ Bibliotecas ainda não carregadas. Aguarde 5 segundos e tente novamente, ou veja opções alternativas abaixo.', 'err');
+    mostrarFallback();
+    return;
+  }
+  setStatus('⏳ Gerando DOCX... aguarde (pode levar 10-30s dependendo do volume de fotos)', 'info');
+  try {
+    const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
+            HeadingLevel, AlignmentType, BorderStyle, WidthType, ShadingType,
+            ImageRun, PageBreak, Header, Footer, PageNumber, LevelFormat,
+            VerticalAlign, HeightRule, TabStopType, TabStopPosition,
+            TableOfContents, InternalHyperlink, Bookmark,
+            VerticalMergeType } = docx;
+
+    const bd = { style: BorderStyle.SINGLE, size: 6, color: "000000" };
+    const bdLight = { style: BorderStyle.SINGLE, size: 4, color: "B0B0B0" };
+    const bdAll = { top: bd, bottom: bd, left: bd, right: bd };
+    const bdNoneAll = { top:{style:BorderStyle.NONE,size:0,color:"FFFFFF"}, bottom:{style:BorderStyle.NONE,size:0,color:"FFFFFF"}, left:{style:BorderStyle.NONE,size:0,color:"FFFFFF"}, right:{style:BorderStyle.NONE,size:0,color:"FFFFFF"} };
+
+    // Numeração hierárquica ABNT: Figura X.N onde X = seção atual, N = sequencial dentro da seção
+    let figCounter = 0;
+    let secaoCorrente = 0;
+    let figIdxNaSecao = 0;
+    const figMap = {};           // arquivo -> string "X.N"
+    const fotosEntries = [];     // {num, legenda, bookmarkId} - para construir índice manual depois
+    function setSecao(n) {
+      secaoCorrente = n;
+      figIdxNaSecao = 0;
+    }
+    function proxFigNum() {
+      figIdxNaSecao++;
+      figCounter++;
+      return `${secaoCorrente}.${figIdxNaSecao}`;
+    }
+
+    function makeP(text, opts={}) {
+      return new Paragraph({
+        alignment: opts.align || AlignmentType.LEFT,  // padrão LEFT
+        spacing: { after: 120, line: 280 },
+        indent: opts.indent === false ? undefined : { firstLine: 0 },  // sem indent por padrão
+        children: [new TextRun({ text: text||"", bold:!!opts.bold, italics:!!opts.italic, font:"Arial", size: opts.size||22 })]
+      });
+    }
+    // P() agora retorna ARRAY de paragrafos (1 por linha do texto)
+    // Isso garante que quebras de linha do textarea sejam preservadas no DOCX.
+    // Para usar com children.push, fazer: children.push(...P(text))
+    function P(text, opts={}) {
+      const linhas = (text||"").split(/\r?\n/);
+      if (linhas.length === 1) {
+        // Sem quebras - retorna 1 paragrafo simples (funciona com push() ou push(...P()))
+        return makeP(linhas[0], opts);
+      }
+      // Multiplas linhas - retorna array
+      return linhas.map(l => makeP(l, opts));
+    }
+    // Helper que aceita string OU array
+    function pushP(arr, x) {
+      if (Array.isArray(x)) arr.push(...x);
+      else arr.push(x);
+    }
+    function H1(text) {
+      return new Paragraph({
+        heading: HeadingLevel.HEADING_1,
+        spacing: { before: 280, after: 140 },
+        children: [new TextRun({ text, bold:true, font:"Arial", size: 28, color:"000000" })]
+      });
+    }
+    function H2(text) {
+      return new Paragraph({
+        heading: HeadingLevel.HEADING_2,
+        spacing: { before: 200, after: 100 },
+        children: [new TextRun({ text, bold:true, font:"Arial", size: 24, color:"000000" })]
+      });
+    }
+    function CaptionMaiuscula(text) {
+      return new Paragraph({
+        style: "Caption",
+        alignment: AlignmentType.CENTER,
+        spacing: { before: 240, after: 160 },
+        children: [new TextRun({ text: text.toUpperCase(), bold:true, font:"Arial", size: 24, color:"000000" })]
+      });
+    }
+    function bullet(text) {
+      return new Paragraph({ bullet:{level:0}, spacing:{after:60},
+        children:[new TextRun({ text, font:"Arial", size:22 })] });
+    }
+    function numItem(text) {
+      return new Paragraph({ numbering:{reference:"nums",level:0}, spacing:{after:60},
+        children:[new TextRun({ text, font:"Arial", size:22 })] });
+    }
+    function cell(text, opts={}) {
+      return new TableCell({
+        borders: opts.borders || bdAll,
+        width: opts.width ? { size: opts.width, type: WidthType.DXA } : undefined,
+        margins: { top: opts.mtop||60, bottom: opts.mbot||60, left:100, right:100 },
+        verticalAlign: opts.valign || VerticalAlign.CENTER,
+        rowSpan: opts.rowSpan,
+        columnSpan: opts.colSpan,
+        shading: opts.bg ? { fill: opts.bg, type: ShadingType.CLEAR, color: "auto" } : undefined,
+        children: opts.children || [new Paragraph({
+          alignment: opts.align || AlignmentType.LEFT,
+          spacing:{after:0,line:240},
+          indent:{firstLine:0},
+          children:[new TextRun({ text: text!=null?String(text):"", bold:!!opts.bold, italics:!!opts.italic, font:"Arial", size: opts.size||18 })]
+        })]
+      });
+    }
+    function legendaFigura(legenda, arquivo) {
+      // Numeração hierárquica ABNT: "X.N"
+      const num = proxFigNum();
+      if (arquivo) figMap[arquivo] = num;
+      const legendaTxt = legenda||'Registro fotográfico.';
+      const bookmarkId = `fig_${num.replace(/\./g,'_')}_${figCounter}`;
+      // Registra entrada para construir o índice manual depois
+      fotosEntries.push({ num, legenda: legendaTxt, bookmarkId });
+      const textoCompleto = `Figura ${num} – ${legendaTxt}`;
+      return new Paragraph({
+        style: "Caption",
+        alignment: AlignmentType.CENTER,
+        spacing: { before: 80, after: 200 },
+        indent: { firstLine: 0 },
+        children: [
+          new Bookmark({
+            id: bookmarkId,
+            children: [
+              new TextRun({ text: textoCompleto, font:"Arial", size:20, italics:true })
+            ]
+          })
+        ]
+      });
+    }
+    async function fotoBlock(foto, w_cm, h_cm) {
+      if (!foto.data) {
+        return [new Paragraph({ alignment: AlignmentType.CENTER,
+          children:[new TextRun({ text:`[Foto não encontrada: ${foto.arquivo}]`, italics:true })] })];
+      }
+      const buf = await dataURLToBuffer(foto.data);
+      const w_emu = Math.round(w_cm * 360000 / 2.54 * 2.54);  // cm para EMU (1cm = 360000 EMU)
+      // docx-js usa pixels: w_cm * 37.795 ≈ pixels at 96dpi
+      const w_px = Math.round(w_cm * 37.8);
+      const h_px = Math.round(h_cm * 37.8);
+      return [new Paragraph({ alignment: AlignmentType.CENTER, indent:{firstLine:0}, spacing:{after:80},
+        children:[new ImageRun({
+          data: buf,
+          transformation:{ width: w_px, height: h_px },
+          type: foto.data.includes('png')?'png':'jpg',
+          altText:{title:foto.arquivo, description:foto.arquivo, name:foto.arquivo}
+        })] })];
+    }
+
+    // =====================================================
+    // CABECALHO N2 - tabela 1 (topo) + tabela 2 (descrição)
+    // =====================================================
+    // Célula do logo (primeira coluna)
+    let logoCell;
+    if (state.logo) {
+      const logoBuf = await dataURLToBuffer(state.logo);
+      const logoIsPng = state.logo.includes('png');
+      logoCell = new TableCell({
+        borders: bdAll,
+        width: { size: 1700, type: WidthType.DXA },
+        margins: { top: 40, bottom: 40, left: 60, right: 60 },
+        verticalAlign: VerticalAlign.CENTER,
+        children: [new Paragraph({
+          alignment: AlignmentType.CENTER, indent:{firstLine:0}, spacing:{after:0},
+          children: [new ImageRun({
+            data: logoBuf,
+            transformation: { width: 90, height: 36 },
+            type: logoIsPng ? 'png' : 'jpg',
+            altText: {title:'Logo', description:'Logo', name:'Logo'}
+          })]
+        })]
+      });
+    } else {
+      logoCell = cell("", { width:1700 });
+    }
+
+    const headerT1 = new Table({
+      width: { size: 9639, type: WidthType.DXA },
+      columnWidths: [1700, 5950, 1989],
+      rows: [new TableRow({
+        height: { value: 720, rule: HeightRule.ATLEAST },
+        children: [
+          logoCell,
+          cell("", { width:5950, children: [
+            new Paragraph({ alignment: AlignmentType.CENTER, indent:{firstLine:0}, spacing:{after:0},
+              children:[new TextRun({ text: state.cabec_central, bold:true, font:"Arial", size:20 })] }),
+            new Paragraph({ alignment: AlignmentType.CENTER, indent:{firstLine:0}, spacing:{after:0},
+              children:[new TextRun({ text: state.classificacao, bold:true, font:"Arial", size:20 })] })
+          ]}),
+          cell(state.projeto_top, { width:1989, bold:true, size:20, align:AlignmentType.CENTER })
+        ]
+      })]
+    });
+
+    const descParas = [
+      state.tipo_relatorio,
+      state.patio,
+      state.circuito,
+      state.descricao_inspecao,
+      state.relatorio_subtipo
+    ].map(t => new Paragraph({ alignment: AlignmentType.LEFT, indent:{firstLine:0}, spacing:{after:0,line:200},
+      children:[new TextRun({ text:t||" ", bold:true, font:"Arial", size:16 })] }));
+
+    const pageRefRun = new Paragraph({ alignment: AlignmentType.CENTER, indent:{firstLine:0}, spacing:{after:0},
+      children: [
+        new TextRun({ children:[PageNumber.CURRENT], font:"Arial", size:18, bold:true }),
+        new TextRun({ text:"/", font:"Arial", size:18 }),
+        new TextRun({ children:[PageNumber.TOTAL_PAGES], font:"Arial", size:18, bold:true })
+      ]});
+
+    const headerT2 = new Table({
+      width:{ size:9639, type: WidthType.DXA },
+      columnWidths: [5950, 1417, 2272],
+      rows: [
+        new TableRow({ children: [
+          cell("", { width:5950, rowSpan:2, valign:VerticalAlign.TOP, mtop:80,
+                     children: descParas }),
+          cell("", { width:1417, valign:VerticalAlign.TOP, mtop:60, children: [
+            new Paragraph({ alignment: AlignmentType.LEFT, indent:{firstLine:0}, spacing:{after:0},
+              children:[new TextRun({ text:"Nº VALE", font:"Arial", size:16 })] }),
+            new Paragraph({ alignment: AlignmentType.CENTER, indent:{firstLine:0}, spacing:{after:0},
+              children:[new TextRun({ text: state.n_vale||" ", bold:true, font:"Arial", size:18 })] })
+          ]}),
+          cell("", { width:2272, valign:VerticalAlign.TOP, mtop:60, children: [
+            new Paragraph({ alignment: AlignmentType.CENTER, indent:{firstLine:0}, spacing:{after:0},
+              children:[new TextRun({ text:"PÁGINA", font:"Arial", size:16 })] }),
+            pageRefRun
+          ]})
+        ]}),
+        new TableRow({ children: [
+          cell("", { width:1417, valign:VerticalAlign.TOP, mtop:60, children: [
+            new Paragraph({ alignment: AlignmentType.LEFT, indent:{firstLine:0}, spacing:{after:0},
+              children:[new TextRun({ text:"Nº ", font:"Arial", size:16 })] }),
+            new Paragraph({ alignment: AlignmentType.CENTER, indent:{firstLine:0}, spacing:{after:0},
+              children:[new TextRun({ text: state.n_doc||" ", bold:true, font:"Arial", size:16 })] })
+          ]}),
+          cell("", { width:2272, valign:VerticalAlign.TOP, mtop:60, children: [
+            new Paragraph({ alignment: AlignmentType.CENTER, indent:{firstLine:0}, spacing:{after:0},
+              children:[new TextRun({ text:"REV.", font:"Arial", size:16 })] }),
+            new Paragraph({ alignment: AlignmentType.CENTER, indent:{firstLine:0}, spacing:{after:0},
+              children:[new TextRun({ text: state.revisao||"A", bold:true, font:"Arial", size:20 })] })
+          ]})
+        ]})
+      ]
+    });
+
+    // FOOTER
+    const footerT = new Table({
+      width:{ size:9639, type:WidthType.DXA },
+      columnWidths:[3213,3213,3213],
+      rows: [new TableRow({ children: [
+        cell(state.codigo_template, { width:3213, borders: bdNoneAll, italic:true, size:16, align:AlignmentType.LEFT }),
+        cell("", { width:3213, borders: bdNoneAll, children: [
+          new Paragraph({ alignment: AlignmentType.CENTER, indent:{firstLine:0}, spacing:{after:0},
+            children:[new TextRun({ children:[PageNumber.CURRENT], font:"Arial", size:18 })] })
+        ]}),
+        cell("", { width:3213, borders: bdNoneAll })
+      ]})]
+    });
+
+    // =====================================================
+    // CORPO
+    // =====================================================
+    const children = [];
+
+    // === Pag 1: Tabela de Revisoes ===
+    children.push(new Paragraph({ alignment: AlignmentType.CENTER, indent:{firstLine:0},
+      children:[new TextRun({ text:"REVISÕES", bold:true, italics:true, font:"Arial", size:24 })] }));
+    children.push(new Paragraph({ indent:{firstLine:0}, spacing:{after:40},
+      children:[
+        new TextRun({ text:"TE: TIPO    ", bold:true, font:"Arial", size:16 }),
+        new TextRun({ text:"A - PRELIMINAR    C - PARA CONHECIMENTO    E - PARA CONSTRUÇÃO    G - CONFORME CONSTRUÍDO", font:"Arial", size:16 })
+      ]}));
+    children.push(new Paragraph({ indent:{firstLine:0}, spacing:{after:120},
+      children:[
+        new TextRun({ text:"EMISSÃO    ", bold:true, font:"Arial", size:16 }),
+        new TextRun({ text:"B - PARA APROVAÇÃO    D - PARA COTAÇÃO    F - CONFORME COMPRADO    H - CANCELADO", font:"Arial", size:16 })
+      ]}));
+
+    const revW = [737, 567, 3969, 850, 737, 737, 737, 1020];
+    const revRows = [
+      new TableRow({ tableHeader:true, children: ["Rev.","TE","Descrição","Por","Ver.","AP.","Aut.","Data"].map((h,i)=>
+        cell(h, { width:revW[i], bold:true, align:AlignmentType.CENTER, size:20 })) })
+    ];
+    for (let i=0;i<17;i++) {
+      const r = state.revisoes[i] || {};
+      revRows.push(new TableRow({ height:{value:380, rule:HeightRule.ATLEAST}, children: [
+        cell(r.rev||"", { width:revW[0], align:AlignmentType.CENTER }),
+        cell(r.te||"", { width:revW[1], align:AlignmentType.CENTER }),
+        cell(r.descricao||"", { width:revW[2] }),
+        cell(r.por||"", { width:revW[3], align:AlignmentType.CENTER }),
+        cell(r.ver||"", { width:revW[4], align:AlignmentType.CENTER }),
+        cell(r.ap||"", { width:revW[5], align:AlignmentType.CENTER }),
+        cell(r.aut||"", { width:revW[6], align:AlignmentType.CENTER }),
+        cell(r.data||"", { width:revW[7], align:AlignmentType.CENTER })
+      ]}));
+    }
+    children.push(new Table({ width:{size:9354, type:WidthType.DXA}, columnWidths:revW, rows:revRows }));
+    children.push(new Paragraph({ children:[new PageBreak()] }));
+
+    // === Indice ===
+    children.push(new Paragraph({ alignment: AlignmentType.CENTER, indent:{firstLine:0},
+      children:[new TextRun({ text:"ÍNDICE", bold:true, font:"Arial", size:30 })] }));
+    children.push(new Paragraph({ indent:{firstLine:0}, spacing:{before:240,after:120},
+      tabStops:[{type:TabStopType.RIGHT, position:9000}],
+      children:[
+        new TextRun({ text:"DESCRIÇÃO", bold:true, font:"Arial", size:20 }),
+        new TextRun({ text:"\tPÁGINA", bold:true, font:"Arial", size:20 })
+      ]}));
+    children.push(new TableOfContents("Sumário", { hyperlink:true, headingStyleRange:"1-2" }));
+    children.push(new Paragraph({ indent:{firstLine:0}, spacing:{before:120},
+      children:[new TextRun({ text:"(Atualize com F9 no Word)", italics:true, font:"Arial", size:16, color:"888888" })] }));
+    children.push(new Paragraph({ children:[new PageBreak()] }));
+
+    // === Indice Figuras (placeholder - construído manualmente após o corpo) ===
+    const figIndexTitle = new Paragraph({ alignment: AlignmentType.CENTER, indent:{firstLine:0},
+      children:[new TextRun({ text:"ÍNDICE DE FIGURAS", bold:true, font:"Arial", size:30 })] });
+    children.push(figIndexTitle);
+    // Marca a posição onde os itens do índice serão inseridos
+    const figIndexInsertPos = children.length;
+    children.push(new Paragraph({ children:[new PageBreak()] }));
+
+    // ============================================
+    // ESTRUTURA ABNT - 8 SEÇÕES com hierarquia 1.1, 1.1.1
+    // ============================================
+
+    // helper: H3 (sub-sub-seção 6.X.Y)
+    function H3(text) {
+      return new Paragraph({
+        heading: HeadingLevel.HEADING_3,
+        spacing: { before: 200, after: 80 },
+        indent: { firstLine: 0 },
+        children: [new TextRun({ text, bold:true, font:"Arial", size: 22, color:"000000" })]
+      });
+    }
+    function tituloEvidencia(foto) {
+      if (foto.legenda) {
+        const t = foto.legenda.trim();
+        return t.length > 80 ? t.slice(0,80) + '...' : t;
+      }
+      if (foto.arquivo) {
+        return foto.arquivo.replace(/_/g,' ').replace(/\.[^.]+$/,'');
+      }
+      return "Evidência";
+    }
+
+    // === 1. OBJETIVO ===
+    setSecao(1); children.push(H1("1. OBJETIVO"));
+    children.push(H2("1.1 ESCOPO DA INSPEÇÃO"));
+    pushP(children, P(state.objetivo || "[Objetivo a ser definido]"));
+
+    // === 2. REFERÊNCIAS E NORMAS ===
+    setSecao(2); children.push(H1("2. REFERÊNCIAS E NORMAS"));
+    children.push(H2("2.1 NORMAS E PROCEDIMENTOS APLICÁVEIS"));
+    state.normas.filter(n=>n.trim()).forEach(n => children.push(bullet(n)));
+
+    // === 3. METODOLOGIA ===
+    setSecao(3); children.push(H1("3. METODOLOGIA"));
+    children.push(H2("3.1 CRITÉRIOS DE INSPEÇÃO VISUAL"));
+    pushP(children, P(state.metodologia || "[Metodologia a ser definida]"));
+    children.push(H2("3.2 MATERIAIS E EQUIPAMENTOS UTILIZADOS"));
+    state.materiais.filter(m=>m.trim()).forEach(m => children.push(bullet(m)));
+
+    // === 4. PLANOS ===
+    setSecao(4); children.push(H1("4. LISTA DOS PLANOS DE MANUTENÇÃO E LOCAL DE INSTALAÇÃO"));
+    children.push(H2("4.1 PLANOS E LOCAIS CADASTRADOS"));
+    if (state.planos_texto_contexto) pushP(children, P(state.planos_texto_contexto));
+    if (state.planos && state.planos.length) {
+      const pW = [1700,1700,3300,2660];
+      const pRows = [ new TableRow({ tableHeader:true, children:["Centro trab. respons.","Plano de manutenção","Local de instalação","Denominação"].map((h,i)=>
+        cell(h, { width:pW[i], bold:true, align:AlignmentType.CENTER, bg:"D9E1F2", size:18 })) }) ];
+      state.planos.forEach(p => pRows.push(new TableRow({ children:[
+        cell(p.centro||"INSES", { width:pW[0], align:AlignmentType.CENTER, size:18 }),
+        cell(p.plano||"", { width:pW[1], align:AlignmentType.CENTER, size:18 }),
+        cell(p.local||"", { width:pW[2], size:18 }),
+        cell(p.denominacao||"", { width:pW[3], size:18 })
+      ]})));
+      children.push(new Table({ width:{size:9360,type:WidthType.DXA}, columnWidths:pW, rows:pRows }));
+    } else {
+      pushP(children, P("[Lista de planos a ser inserida]", { italic:true }));
+    }
+
+    // === 5. DESENHOS DE REFERÊNCIA ===
+    setSecao(5); children.push(H1("5. DESENHOS DE REFERÊNCIA"));
+    children.push(H2("5.1 LISTA DE DESENHOS"));
+    if (state.desenhos.filter(d=>d.trim()).length) {
+      const ds = state.desenhos.filter(d=>d.trim());
+      const nCols = 3;
+      const colW = Math.floor(9360 / nCols);
+      // Distribuição COLUMN-MAJOR: preenche coluna 1 de cima a baixo,
+      // depois coluna 2, depois coluna 3. Mais natural para listas longas.
+      // Quantidade de itens por página (50 linhas seguras em A4)
+      const linhasPorPagina = 50;
+      const bdDes = { style: BorderStyle.SINGLE, size: 4, color: "B0B0B0" };
+      const bdDesAll = { top: bdDes, bottom: bdDes, left: bdDes, right: bdDes };
+      const itensPorPagina = nCols * linhasPorPagina;
+      // Quebra a lista em "páginas" lógicas — cada página é uma tabela 3 colunas x N linhas
+      for (let pg = 0; pg < ds.length; pg += itensPorPagina) {
+        const dsPag = ds.slice(pg, pg + itensPorPagina);
+        const rowsPg = Math.ceil(dsPag.length / nCols);
+        const dsRows = [];
+        for (let r = 0; r < rowsPg; r++) {
+          const rowCells = [];
+          for (let c = 0; c < nCols; c++) {
+            // Column-major: items 0..rowsPg-1 vão para coluna 0, rowsPg..2*rowsPg-1 para coluna 1, etc.
+            const idx = c * rowsPg + r;
+            const val = dsPag[idx] || "";
+            rowCells.push(cell(val, {
+              width: colW, borders: bdDesAll, size: 16,
+              align: AlignmentType.LEFT, mtop: 30, mbot: 30
+            }));
+          }
+          dsRows.push(new TableRow({ children: rowCells, cantSplit: true }));
+        }
+        children.push(new Table({
+          width: { size:9360, type:WidthType.DXA },
+          columnWidths: [colW, colW, colW],
+          rows: dsRows
+        }));
+        // pequeno espaço entre páginas/lotes
+        if (pg + itensPorPagina < ds.length) {
+          children.push(new Paragraph({ children:[new TextRun({text:"", size:4})], spacing:{after:0} }));
+        }
+      }
+    } else {
+      pushP(children, P("[Lista de desenhos a ser inserida]", { italic:true }));
+    }
+    children.push(H2("5.2 REGISTROS DOS DESENHOS"));
+    if (state.nota_descritiva) pushP(children, P(state.nota_descritiva));
+    for (const f of state.fotos_panoramicas) {
+      const blocks = await fotoBlock(f, 15, 10);
+      blocks.forEach(b => children.push(b));
+      children.push(legendaFigura(f.legenda || "Vista panorâmica.", f.arquivo));
+    }
+
+    // === 6. CIRCUITOS E EVIDÊNCIAS ===
+    setSecao(6); children.push(H1("6. CIRCUITOS E EVIDÊNCIAS"));
+    let compIdx = 0;
+    for (const comp of state.componentes) {
+      if (!comp.fotos.length && !comp.introducao) continue;
+      compIdx++;
+      const secNum = `6.${compIdx}`;
+      children.push(H2(`${secNum} ${comp.titulo}`));
+      if (comp.introducao) pushP(children, P(comp.introducao));
+      const layout = comp.layout || "6";
+      if (layout === "1") {
+        for (const f of comp.fotos) {
+          const blocks = await fotoBlock(f, 16, 11);
+          blocks.forEach(b => children.push(b));
+          children.push(legendaFigura(f.legenda || "Registro fotográfico.", f.arquivo));
+        }
+      } else {
+        const cfg = {"2":{r:1,c:2,w:7.5,h:10},"4":{r:2,c:2,w:7.5,h:9},"6":{r:3,c:2,w:7.8,h:6.5}}[layout];
+        const perPage = cfg.r * cfg.c;
+        for (let start = 0; start < comp.fotos.length; start += perPage) {
+          const chunk = comp.fotos.slice(start, start + perPage);
+          const tableRows = [];
+          for (let r = 0; r < cfg.r; r++) {
+            const rowCells = [];
+            for (let cc = 0; cc < cfg.c; cc++) {
+              const idx = r * cfg.c + cc;
+              const f = chunk[idx];
+              const cellChildren = [];
+              if (f && f.data) {
+                const buf = await dataURLToBuffer(f.data);
+                cellChildren.push(new Paragraph({ alignment:AlignmentType.CENTER, indent:{firstLine:0}, spacing:{after:0},
+                  children:[new ImageRun({
+                    data: buf,
+                    transformation:{ width: Math.round(cfg.w*37.8), height: Math.round(cfg.h*37.8) },
+                    type: f.data.includes('png')?'png':'jpg',
+                    altText:{title:f.arquivo, description:f.arquivo, name:f.arquivo}
+                  })] }));
+              } else {
+                cellChildren.push(new Paragraph({ children:[new TextRun({text:"", size:16})] }));
+              }
+              rowCells.push(new TableCell({
+                borders: { top:bdLight, bottom:bdLight, left:bdLight, right:bdLight },
+                width:{size: Math.round(9360/cfg.c), type:WidthType.DXA},
+                verticalAlign: VerticalAlign.CENTER,
+                margins:{top:80,bottom:80,left:80,right:80},
+                children: cellChildren
+              }));
+            }
+            tableRows.push(new TableRow({ children: rowCells }));
+          }
+          const colW = Array(cfg.c).fill(Math.round(9360/cfg.c));
+          children.push(new Table({ width:{size:9360,type:WidthType.DXA}, columnWidths:colW, rows:tableRows }));
+          if (chunk[0]) {
+            const legendaPrancha = chunk.find(f => f.legenda && f.legenda.trim())?.legenda || "Registro fotográfico.";
+            children.push(legendaFigura(legendaPrancha, chunk[0].arquivo));
+            const numPrancha = figMap[chunk[0].arquivo];
+            for (let k=1; k<chunk.length; k++) {
+              if (chunk[k].arquivo) figMap[chunk[k].arquivo] = numPrancha;
+            }
+          }
+        }
+      }
+    }
+
+    // === 7. CONCLUSÃO ===
+    setSecao(7); children.push(new Paragraph({ children:[new PageBreak()] }));
+    children.push(H1("7. CONCLUSÃO"));
+    children.push(H2("7.1 RESULTADO CONSOLIDADO"));
+    pushP(children, P(state.conclusao || "[Conclusão a ser elaborada]"));
+
+    // === 8. RECOMENDAÇÕES ===
+    setSecao(8); children.push(H1("8. RECOMENDAÇÕES"));
+    children.push(H2("8.1 AÇÕES RECOMENDADAS"));
+    if (state.recomendacoes.filter(r=>r.trim()).length) {
+      pushP(children, P("Com base nas inspeções realizadas, recomenda-se:"));
+      state.recomendacoes.filter(r=>r.trim()).forEach(r => children.push(numItem(r)));
+    }
+    const recsPorFigura = [];
+    state.componentes.forEach(comp => {
+      comp.fotos.forEach(f => {
+        if (f.recomendacao && figMap[f.arquivo]) {
+          recsPorFigura.push({fig: figMap[f.arquivo], legenda: f.legenda, rec: f.recomendacao, comp: comp.titulo});
+        }
+      });
+    });
+    if (recsPorFigura.length) {
+      pushP(children, P(""));
+      children.push(new Paragraph({ indent:{firstLine:0}, spacing:{before:160, after:80},
+        children:[new TextRun({ text:"Recomendações vinculadas a evidências fotográficas específicas:", bold:true, font:"Arial", size:22 })] }));
+      for (const r of recsPorFigura) {
+        children.push(new Paragraph({ indent:{firstLine:0}, spacing:{before:160, after:60},
+          children:[new TextRun({ text:"Recomendação para Figura " + r.fig + ":", bold:true, font:"Arial", size:22 })] }));
+        if (r.legenda) {
+          children.push(new Paragraph({ indent:{firstLine:0}, spacing:{after:60},
+            children:[new TextRun({ text:"(" + r.legenda + ")", italics:true, font:"Arial", size:20, color:"606060" })] }));
+        }
+        pushP(children, P(r.rec));
+      }
+    }
+
+    // === Constrói índice de figuras manual ===
+    if (fotosEntries.length > 0) {
+      const indexParagraphs = fotosEntries.map(ent => {
+        return new Paragraph({
+          spacing: { after: 60 },
+          indent: { firstLine: 0, left: 0 },
+          tabStops: [{ type: TabStopType.RIGHT, position: 9000 }],
+          children: [
+            new InternalHyperlink({
+              anchor: ent.bookmarkId,
+              children: [
+                new TextRun({ text: `Figura ${ent.num} – ${ent.legenda}`, font: "Arial", size: 20, color: "1F4E79" })
+              ]
+            }),
+            new TextRun({ text: "\t", font: "Arial", size: 20 }),
+            new TextRun({ text: ent.num, font: "Arial", size: 20, color: "1F4E79" })
+          ]
+        });
+      });
+      children.splice(figIndexInsertPos, 0, ...indexParagraphs);
+    } else {
+      children.splice(figIndexInsertPos, 0, new Paragraph({
+        spacing:{after:60}, indent:{firstLine:0},
+        children:[new TextRun({ text:"Nenhuma figura cadastrada.", italics:true, font:"Arial", size:20, color:"808080" })]
+      }));
+    }
+
+    // ============================================
+    // DOCUMENTO
+    // ============================================
+    const doc = new Document({
+      creator: "Gerador N2 Vale ABNT",
+      styles: {
+        default: { document: { run: { font: "Arial", size: 22 } } },
+        paragraphStyles: [
+          { id:"Heading1", name:"Heading 1", basedOn:"Normal", quickFormat:true,
+            run:{ size:28, bold:true, font:"Arial", color:"000000" },
+            paragraph:{ spacing:{before:280,after:140}, outlineLevel:0 } },
+          { id:"Heading2", name:"Heading 2", basedOn:"Normal", quickFormat:true,
+            run:{ size:24, bold:true, font:"Arial", color:"000000" },
+            paragraph:{ spacing:{before:200,after:100}, outlineLevel:1 } },
+          { id:"Heading3", name:"Heading 3", basedOn:"Normal", quickFormat:true,
+            run:{ size:22, bold:true, font:"Arial", color:"000000" },
+            paragraph:{ spacing:{before:200,after:80}, outlineLevel:2 } },
+          { id:"Caption", name:"Caption", basedOn:"Normal", next:"Normal", quickFormat:true,
+            run:{ size:20, font:"Arial", italics:true, color:"1F4E79" },
+            paragraph:{ spacing:{before:80, after:200}, outlineLevel:8 } }
+        ]
+      },
+      numbering: {
+        config: [{
+          reference:"nums",
+          levels:[{ level:0, format:LevelFormat.DECIMAL, text:"%1.", alignment:AlignmentType.LEFT,
+            style:{ paragraph:{ indent:{left:720, hanging:360} } } }]
+        }]
+      },
+      sections: [{
+        properties: {
+          page: { size: { width: 11906, height: 16838 }, margin: { top: 2380, right: 1134, bottom: 1020, left: 1134 } }
+        },
+        headers: { default: new Header({ children: [headerT1, headerT2] }) },
+        footers: { default: new Footer({ children: [footerT] }) },
+        children
+      }]
+    });
+
+    const blob = await Packer.toBlob(doc);
+    const nome = (state.descricao_inspecao || state.circuito || 'Relatorio_N2').replace(/[^a-zA-Z0-9]/g,'_');
+    saveAs(blob, nome + '_' + state.revisao + '.docx');
+    setStatus('DOCX gerado: ' + nome + '_' + state.revisao + '.docx - abra no Word e pressione F9.', 'ok');
+  } catch(e) {
+    console.error(e);
+    setStatus('Erro ao gerar DOCX: ' + e.message, 'err');
+  }
+}
+
+// init
+(async () => {
+  await load();
+  bindFields();
+  render();
+  updateStorageIndicator();
+})();
+</script>
+</body>
+</html>
