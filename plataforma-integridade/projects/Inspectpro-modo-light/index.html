@@ -5985,49 +5985,61 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
         
         // ── DIÁLOGO DE RENOMEAÇÃO DE PDF ──
         function pedirNomeArquivo(nomeDefault) {
+            // Nome fixo gerado automaticamente — sem diálogo de renomeação
             return new Promise(function(resolve) {
-                var semExt = (nomeDefault || '').replace(/\.pdf$/i, '');
-                var overlay = document.createElement('div');
-                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:99999;display:flex;align-items:center;justify-content:center;';
-                var dialog = document.createElement('div');
-                dialog.style.cssText = 'background:#1a1a1a;border:1px solid #2a2a2a;border-top:3px solid #00cc7a;border-radius:12px;padding:28px 30px;width:92%;max-width:640px;box-shadow:0 0 60px rgba(0,0,0,0.95);';
-                dialog.innerHTML =
-                    '<div style="font-size:15px;font-weight:700;color:#00cc7a;margin-bottom:5px;">📄 Renomear arquivo PDF</div>' +
-                    '<div style="font-size:11px;color:#888;margin-bottom:18px;">Formato: Nº NOTA _ ATIVO _ RISCO/Ri</div>' +
-                    '<input id="pdf-rename-input" type="text" ' +
-                        'style="width:100%;padding:10px 12px;border:2px solid #005a45;border-radius:6px;' +
-                               'font-size:12px;background:#111;color:#fff;box-sizing:border-box;font-family:monospace;letter-spacing:0.3px;">' +
-                    '<div style="font-size:10px;color:#666;margin-top:6px;">A extensão <code style="color:#aaa;">.pdf</code> é adicionada automaticamente</div>' +
-                    '<div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;">' +
-                        '<button id="pdf-rename-cancel" style="padding:9px 20px;background:#333;color:#ccc;border:1px solid #444;border-radius:6px;cursor:pointer;font-size:12px;">✖ Cancelar</button>' +
-                        '<button id="pdf-rename-ok" style="padding:9px 26px;background:#005a45;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700;">💾 Salvar PDF</button>' +
-                    '</div>';
-                overlay.appendChild(dialog);
-                document.body.appendChild(overlay);
-
-                var input = dialog.querySelector('#pdf-rename-input');
-                input.value = semExt;
-                input.focus();
-                input.select();
-
-                function confirmar() {
-                    var nome = input.value.trim() || semExt;
-                    if (!nome.toLowerCase().endsWith('.pdf')) nome += '.pdf';
-                    overlay.remove();
-                    resolve(nome);
-                }
-                function cancelar() { overlay.remove(); resolve(null); }
-
-                dialog.querySelector('#pdf-rename-ok').addEventListener('click', confirmar);
-                dialog.querySelector('#pdf-rename-cancel').addEventListener('click', cancelar);
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') confirmar();
-                    if (e.key === 'Escape') cancelar();
-                });
+                var nome = (nomeDefault || 'laudo').replace(/\.pdf$/i, '') + '.pdf';
+                resolve(nome);
             });
         }
 
+        // ── VALIDAÇÃO COMPARTILHADA PARA LAUDOS ──────────────────────────────
+        function _validarCamposLaudo(campos, corDestaque) {
+            const faltando = campos.filter(function(c) {
+                const el = document.getElementById(c.id);
+                return !el || !el.value || el.value.trim() === '';
+            });
+            if (!faltando.length) return true;
+            // Overlay de erro
+            const ov = document.createElement('div');
+            ov.id = '_validacaoLaudoOv';
+            ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;';
+            ov.innerHTML =
+                '<div style="background:#1a1a1a;border:2px solid #dc3545;border-top:4px solid #dc3545;border-radius:14px;padding:32px 36px;max-width:520px;width:90%;box-shadow:0 0 60px rgba(220,53,69,0.4);">' +
+                '<div style="font-size:20px;font-weight:800;color:#dc3545;margin-bottom:6px;">⛔ Campos obrigatórios não preenchidos</div>' +
+                '<div style="font-size:13px;color:#aaa;margin-bottom:18px;">Preencha os campos abaixo antes de gerar o PDF:</div>' +
+                '<ul style="margin:0 0 22px 0;padding-left:20px;color:#fff;font-size:14px;line-height:2.2;">' +
+                faltando.map(function(c){ return '<li>' + c.label + '</li>'; }).join('') +
+                '</ul>' +
+                '<button onclick="document.getElementById(\'_validacaoLaudoOv\').remove()" style="width:100%;padding:13px;background:#dc3545;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;">✖ Fechar e corrigir</button>' +
+                '</div>';
+            document.body.appendChild(ov);
+            // Destacar campos
+            faltando.forEach(function(c) {
+                const el = document.getElementById(c.id);
+                if (!el) return;
+                const bordaOriginal = el.style.border;
+                el.style.border = '2px solid #dc3545';
+                el.style.boxShadow = '0 0 0 3px rgba(220,53,69,0.3)';
+                function resetar() { el.style.border = bordaOriginal; el.style.boxShadow = ''; }
+                el.addEventListener('input', resetar, {once:true});
+                el.addEventListener('change', resetar, {once:true});
+            });
+            // Rolar até o primeiro campo faltando
+            const primeiro = document.getElementById(faltando[0].id);
+            if (primeiro) primeiro.scrollIntoView({ behavior:'smooth', block:'center' });
+            return false;
+        }
+        // ──────────────────────────────────────────────────────────────────────
+
         async function gerarPDFLaudoReal() {
+            // Validação obrigatória
+            if (!_validarCamposLaudo([
+                { id: 'laudo_ativo',          label: '📍 Local de Instalação' },
+                { id: 'laudo_numero_nota',    label: '🔖 Nº NOTA' },
+                { id: 'laudo_numero_ordem',   label: '📋 Nº ORDEM' },
+                { id: 'laudo_data_inspecao',  label: '📅 Data da Inspeção' },
+                { id: 'laudo_inspetor',       label: '👤 Inspetor Responsável' },
+            ], '#005a45')) return;
             const { jsPDF } = window.jspdf;
             if (!jsPDF) { alert('❌ Biblioteca jsPDF não carregada. Verifique sua conexão com a internet.'); return; }
             const elemento = document.getElementById('laudo_documento');
@@ -6939,6 +6951,13 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
         }
 
         async function gerarPDFLaudoPACReal() {
+            if (!_validarCamposLaudo([
+                { id: 'laudoPAC_ativo',         label: '📍 Local de Instalação' },
+                { id: 'laudoPAC_numero_nota',   label: '🔖 Nº NOTA' },
+                { id: 'laudoPAC_om_inspecao',   label: '📋 Nº ORDEM (O.M Inspeção)' },
+                { id: 'laudoPAC_data_inspecao', label: '📅 Data da Inspeção' },
+                { id: 'laudoPAC_inspetor',      label: '👤 Inspetor Responsável' },
+            ], '#0f3460')) return;
             const { jsPDF } = window.jspdf;
             if (!jsPDF) { alert('❌ Biblioteca jsPDF não carregada.'); return; }
             const elemento = document.getElementById('laudoPAC_documento');
@@ -8512,6 +8531,13 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
         }
         
         async function gerarPDFRiscoAlto() {
+            if (!_validarCamposLaudo([
+                { id: 'ra_ativo',     label: '📍 Local de Instalação' },
+                { id: 'ra_nota',      label: '🔖 Nº NOTA' },
+                { id: 'ra_ordem',     label: '📋 Nº ORDEM' },
+                { id: 'ra_data',      label: '📅 Data da Inspeção' },
+                { id: 'ra_inspetor',  label: '👤 Inspetor Responsável' },
+            ], '#8B0000')) return;
             const { jsPDF } = window.jspdf;
             if (!jsPDF) { alert('❌ Biblioteca jsPDF não carregada.'); return; }
             const elemento = document.getElementById('riscoAlto_documento');
@@ -9085,6 +9111,13 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
         }
 
         async function gerarPDFSujidade() {
+            if (!_validarCamposLaudo([
+                { id: 'suj_ativo',     label: '📍 Local de Instalação / Ativo' },
+                { id: 'suj_nota',      label: '🔖 Nº NOTA' },
+                { id: 'suj_ordem',     label: '📋 Nº ORDEM' },
+                { id: 'suj_data',      label: '📅 Data da Inspeção' },
+                { id: 'suj_inspetor',  label: '👤 Inspetor Responsável' },
+            ], '#5D4037')) return;
             const { jsPDF } = window.jspdf;
             if (!jsPDF) { alert('❌ Biblioteca jsPDF não carregada.'); return; }
             const elemento = document.getElementById('sujidade_documento');
