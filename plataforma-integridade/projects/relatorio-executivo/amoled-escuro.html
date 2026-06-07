@@ -737,6 +737,158 @@
 <body>
     <div class="container">
         <!-- Botões de ação -->
+        <!-- ════════ WIDGET DE USO DE MEMORIA (no-print) ════════ -->
+        <div id="memWidget" class="no-print" style="position:sticky;top:0;z-index:9000;background:#0f172a;color:#e2e8f0;border:1px solid #334155;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-family:'Courier New',Consolas,monospace;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,0.25);">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:8px;font-weight:700;">
+              <span id="memIcon" style="font-size:16px;">💾</span>
+              <span>Uso de memória do navegador</span>
+            </div>
+            <div style="font-size:12px;color:#94a3b8;" id="memStats">0 fotos | 0 MB de ~500 MB</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+            <div style="flex:1;height:14px;background:#1e293b;border-radius:7px;overflow:hidden;border:1px solid #334155;">
+              <div id="memBar" style="height:100%;width:0%;background:#22c55e;transition:width .5s ease, background .3s ease;border-radius:7px;"></div>
+            </div>
+            <div id="memPct" style="font-weight:800;min-width:55px;text-align:right;font-size:13px;">0.0%</div>
+          </div>
+          <div id="memMsg" style="margin-top:6px;font-size:12px;color:#86efac;">✓ Tranquilo. Continue adicionando fotos normalmente.</div>
+        </div>
+        <style>
+          @keyframes memPulseBtn { 0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0);} 50%{box-shadow:0 0 0 8px rgba(245,158,11,0.55);} }
+          @keyframes memPulseBtnFast { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0);transform:scale(1);} 50%{box-shadow:0 0 0 10px rgba(239,68,68,0.65);transform:scale(1.04);} }
+          .memBlink { animation: memPulseBtn 1.6s ease-in-out infinite; }
+          .memBlinkFast { animation: memPulseBtnFast 0.7s ease-in-out infinite; }
+          #memWidget.crit { border-color:#ef4444; background:linear-gradient(135deg,#1f0a0a,#2a0f0f); }
+          @media print { #memWidget { display:none !important; } }
+        </style>
+        <script>
+        (function(){
+          const CAP_MB = 500;                  // limite estimado (~500 MB)
+          let lastLevel = -1;
+          let lastWarnAt = 0;                  // controle de cadência de avisos
+          let audioCtx = null;
+          function beep(freq, dur, vol){
+            try{
+              if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+              const o = audioCtx.createOscillator();
+              const g = audioCtx.createGain();
+              o.type='sine'; o.frequency.value=freq;
+              g.gain.value=vol||0.08;
+              o.connect(g); g.connect(audioCtx.destination);
+              o.start(); o.stop(audioCtx.currentTime + (dur||0.18));
+            }catch(e){}
+          }
+          function calcMem(){
+            // Estima tamanho de todas as imagens base64 no DOM (+ localStorage do relatorio)
+            const imgs = document.querySelectorAll('img[src^="data:image"]');
+            let totalBytes = 0, nFotos = 0;
+            imgs.forEach(img => {
+              const s = img.getAttribute('src') || '';
+              const comma = s.indexOf(',');
+              const b64 = comma >= 0 ? s.slice(comma + 1) : s;
+              totalBytes += Math.floor(b64.length * 0.75);
+              // conta apenas fotos "reais" (ignora SVG do logo)
+              if (s.startsWith('data:image/jpeg') || s.startsWith('data:image/png') || s.startsWith('data:image/webp')) {
+                nFotos++;
+              }
+            });
+            // Soma o que ja esta salvo em localStorage (mesmo relatorio salvo conta o dobro, mas serve de proxy)
+            try {
+              const raw = localStorage.getItem('valeReports');
+              if (raw) totalBytes += raw.length; // 1 byte por char (UTF-16 conta 2, simplificacao)
+            } catch(e){}
+            return { mb: totalBytes / (1024*1024), nFotos };
+          }
+          function getBackupBtn(){
+            return Array.from(document.querySelectorAll('button')).find(b => /Salvar Relat/i.test(b.textContent));
+          }
+          function update(){
+            const w   = document.getElementById('memWidget'); if (!w) return;
+            const bar = document.getElementById('memBar');
+            const pct = document.getElementById('memPct');
+            const sts = document.getElementById('memStats');
+            const msg = document.getElementById('memMsg');
+            const ico = document.getElementById('memIcon');
+            const btn = getBackupBtn();
+
+            const { mb, nFotos } = calcMem();
+            const p = Math.min(100, (mb / CAP_MB) * 100);
+
+            bar.style.width = p.toFixed(1) + '%';
+            pct.textContent  = p.toFixed(1) + '%';
+            sts.textContent  = nFotos + ' fotos | ' + mb.toFixed(1) + ' MB de ~' + CAP_MB + ' MB';
+
+            let level;
+            if (p < 50)        level = 0;
+            else if (p < 75)   level = 1;
+            else if (p < 90)   level = 2;
+            else               level = 3;
+
+            // Cor da barra + mensagem + icone + acoes
+            if (level === 0) {
+              bar.style.background = '#22c55e';
+              ico.textContent = '💾';
+              msg.style.color = '#86efac';
+              msg.textContent = '✓ Tranquilo. Continue adicionando fotos normalmente.';
+              w.classList.remove('crit');
+              if (btn) btn.classList.remove('memBlink','memBlinkFast');
+            } else if (level === 1) {
+              bar.style.background = '#eab308';
+              ico.textContent = '⚠️';
+              msg.style.color = '#fde68a';
+              msg.textContent = '⚠ Considere fazer "Salvar Relatório" em breve. (' + p.toFixed(1) + '%)';
+              w.classList.remove('crit');
+              if (btn) btn.classList.remove('memBlink','memBlinkFast');
+            } else if (level === 2) {
+              bar.style.background = '#f97316';
+              ico.textContent = '⚠️⚠️';
+              msg.style.color = '#fdba74';
+              msg.innerHTML = '⚠⚠ <strong style="color:#fca5a5;">FAÇA O BACKUP AGORA!</strong> Use o botão "💾 Salvar Relatório" (' + p.toFixed(1) + '%).';
+              w.classList.remove('crit');
+              if (btn) { btn.classList.add('memBlink'); btn.classList.remove('memBlinkFast'); }
+            } else {
+              bar.style.background = '#ef4444';
+              ico.textContent = '🚨';
+              msg.style.color = '#fecaca';
+              msg.innerHTML = '🚨 <strong>ALERTA CRÍTICO!</strong> Salve o relatório AGORA e reinicie a sessão depois do backup (' + p.toFixed(1) + '%).';
+              w.classList.add('crit');
+              if (btn) { btn.classList.add('memBlinkFast'); btn.classList.remove('memBlink'); }
+            }
+
+            // Cadencia de alertas sonoros e flash conforme nivel
+            const now = Date.now();
+            let intervalo = 0;
+            if (level === 1) intervalo = 5*60*1000;   // 5 min
+            else if (level === 2) intervalo = 60*1000;// 1 min
+            else if (level === 3) intervalo = 15*1000;// 15s (continuo)
+
+            const subiu = level > lastLevel;
+            const cadencia = intervalo > 0 && (now - lastWarnAt) >= intervalo;
+
+            if (subiu || cadencia) {
+              if (level >= 2) { beep(880,0.18,0.10); setTimeout(()=>beep(660,0.18,0.10),220); }
+              else if (level === 1) beep(660,0.15,0.07);
+              lastWarnAt = now;
+            }
+            lastLevel = level;
+          }
+
+          // Hooks: roda em mudancas comuns
+          const tick = () => update();
+          document.addEventListener('DOMContentLoaded', tick);
+          window.addEventListener('load', tick);
+          // observa mudancas no DOM (fotos adicionadas/removidas)
+          const mo = new MutationObserver(() => { clearTimeout(window.__memT); window.__memT = setTimeout(tick, 250); });
+          try { mo.observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['src'] }); } catch(e){}
+          // fallback periodico
+          setInterval(tick, 8000);
+          // primeira atualizacao
+          setTimeout(tick, 400);
+        })();
+        </script>
+        <!-- ════════ FIM WIDGET DE MEMORIA ════════ -->
+
         <div class="action-buttons">
             <button class="btn btn-primary" onclick="salvarRelatorio()">💾 Salvar Relatório</button>
             <button class="btn btn-info" onclick="carregarRelatorio()">📂 Carregar Relatório</button>
@@ -1558,20 +1710,142 @@
             }
         }
 
-        // Gerar PDF
+        // Gerar PDF - abre modal para renomear no padrao obrigatorio
+        // Padrao: RL_<LOCAL-DE-INSTALACAO>_<INICIAIS>_<ANO>
+        // Ex.:    RL_FEKS-BFE-PRG-TR_2020-TR02-ST1_MC_2026
         function gerarPDF() {
-            // Mostrar instruções para remover cabeçalho e rodapé
-            const instrucoes =
-                'IMPORTANTE - Para remover a URL e data/hora do PDF:\n\n' +
-                '📌 Google Chrome/Edge:\n' +
-                '   Na janela de impressão, desmarque "Cabeçalhos e rodapés"\n\n' +
-                '📌 Firefox:\n' +
-                '   Na janela de impressão, em "Mais configurações", desmarque "Imprimir cabeçalhos e rodapés"\n\n' +
-                'Clique OK para abrir a janela de impressão.';
+            const antigo = document.getElementById('modalNomePDF');
+            if (antigo) antigo.remove();
 
-            if (confirm(instrucoes)) {
-                window.print();
+            const modal = document.createElement('div');
+            modal.id = 'modalNomePDF';
+            modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;font-family:Arial,Helvetica,sans-serif;';
+
+            modal.innerHTML = `
+              <div style="background:#fff;color:#1f2937;border-radius:14px;max-width:580px;width:100%;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,0.55);max-height:92vh;overflow-y:auto;">
+                <h2 style="margin:0 0 6px;font-size:19px;color:#1d4ed8;font-weight:800;">Renomear Relatorio (PDF)</h2>
+                <p style="margin:0 0 14px;font-size:13px;color:#475569;line-height:1.55;">
+                  Preencha os campos. O nome do arquivo seguira <strong>obrigatoriamente</strong> o padrao:<br>
+                  <code style="background:#eff6ff;color:#1d4ed8;padding:3px 8px;border-radius:5px;display:inline-block;margin-top:6px;font-size:12px;">RL_&lt;LOCAL-DE-INSTALACAO&gt;_&lt;INICIAIS&gt;_&lt;ANO&gt;</code><br>
+                  <span style="font-size:11px;color:#64748b;">Exemplo: RL_FEKS-BFE-PRG-TR_2020-TR02-ST1_MC_2026</span>
+                </p>
+
+                <div style="display:grid;grid-template-columns:1fr;gap:11px;">
+                  <div>
+                    <label style="font-size:12px;font-weight:700;color:#334155;display:block;margin-bottom:4px;">Local de Instalacao <span style="color:#dc2626;">*</span></label>
+                    <input id="pdfLocal" type="text" placeholder="Ex.: FEKS-BFE-PRG-TR_2020-TR02-ST1" autocomplete="off" style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:7px;font-size:14px;font-family:monospace;text-transform:uppercase;color:#1f2937;background:#fff;" />
+                    <div style="font-size:11px;color:#64748b;margin-top:3px;">Letras, numeros, hifen (-) e underscore (_) sao aceitos.</div>
+                  </div>
+                  <div>
+                    <label style="font-size:12px;font-weight:700;color:#334155;display:block;margin-bottom:4px;">Abreviaturas do Nome (iniciais) <span style="color:#dc2626;">*</span></label>
+                    <input id="pdfIniciais" type="text" maxlength="6" placeholder="Ex.: MC" autocomplete="off" style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:7px;font-size:14px;font-family:monospace;text-transform:uppercase;color:#1f2937;background:#fff;" />
+                  </div>
+                  <div>
+                    <label style="font-size:12px;font-weight:700;color:#334155;display:block;margin-bottom:4px;">Ano <span style="color:#dc2626;">*</span></label>
+                    <input id="pdfAno" type="text" maxlength="4" placeholder="Ex.: 2026" autocomplete="off" value="${new Date().getFullYear()}" style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:7px;font-size:14px;font-family:monospace;color:#1f2937;background:#fff;" />
+                  </div>
+                </div>
+
+                <div style="margin-top:14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:11px 13px;">
+                  <div style="font-size:10px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Pre-visualizacao do nome do arquivo</div>
+                  <div id="pdfPreview" style="font-family:monospace;font-size:14px;color:#1d4ed8;font-weight:800;word-break:break-all;">RL_..._..._....</div>
+                </div>
+
+                <div id="pdfErro" style="margin-top:10px;font-size:12px;color:#dc2626;display:none;font-weight:700;background:#fef2f2;border:1px solid #fecaca;padding:8px 10px;border-radius:6px;line-height:1.5;"></div>
+
+                <div style="margin-top:18px;display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;">
+                  <button id="pdfCancelar" type="button" style="padding:10px 18px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;color:#374151;font-weight:600;font-size:13px;cursor:pointer;">Cancelar</button>
+                  <button id="pdfConfirmar" type="button" style="padding:10px 20px;border-radius:8px;border:none;background:linear-gradient(135deg,#1d4ed8,#0ea5e9);color:#fff;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 4px 12px rgba(29,78,216,0.35);">Gerar PDF</button>
+                </div>
+              </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            const loc  = document.getElementById('pdfLocal');
+            const ini  = document.getElementById('pdfIniciais');
+            const ano  = document.getElementById('pdfAno');
+            const prev = document.getElementById('pdfPreview');
+            const erro = document.getElementById('pdfErro');
+
+            const limpaLoc = v => v.toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+            const limpaIni = v => v.toUpperCase().replace(/[^A-Z]/g, '');
+            const limpaNum = v => v.replace(/[^0-9]/g, '');
+
+            function atualizarPreview() {
+                const vl = limpaLoc(loc.value);
+                const vi = limpaIni(ini.value);
+                const va = limpaNum(ano.value);
+                prev.textContent = `RL_${vl || '...'}_${vi || '...'}_${va || '....'}`;
             }
+
+            loc.addEventListener('input', e => { e.target.value = limpaLoc(e.target.value); atualizarPreview(); });
+            ini.addEventListener('input', e => { e.target.value = limpaIni(e.target.value); atualizarPreview(); });
+            ano.addEventListener('input', e => { e.target.value = limpaNum(e.target.value); atualizarPreview(); });
+            atualizarPreview();
+
+            // Padrao final obrigatorio:
+            //   RL_ + local (letras/numeros/hifen/underscore, contendo ao menos um hifen) + _ + iniciais (2-6 letras) + _ + ano (4 digitos)
+            const padrao = /^RL_[A-Z0-9_-]*[A-Z0-9]+-[A-Z0-9][A-Z0-9_-]*_[A-Z]{2,6}_\d{4}$/;
+
+            function mostrarErro(msg) {
+                erro.textContent = 'ERRO: ' + msg;
+                erro.style.display = 'block';
+            }
+
+            document.getElementById('pdfCancelar').onclick = () => modal.remove();
+
+            document.getElementById('pdfConfirmar').onclick = () => {
+                erro.style.display = 'none';
+                const vl = limpaLoc(loc.value);
+                const vi = limpaIni(ini.value);
+                const va = limpaNum(ano.value);
+
+                if (!vl || !vi || !va) {
+                    return mostrarErro('Todos os campos sao obrigatorios.');
+                }
+                if (!/-/.test(vl)) {
+                    return mostrarErro('Local de Instalacao deve conter ao menos um hifen. Ex.: FEKS-BFE-PRG-TR_2020-TR02-ST1');
+                }
+                if (/^[-_]|[-_]$/.test(vl)) {
+                    return mostrarErro('Local de Instalacao nao pode comecar nem terminar com hifen ou underscore.');
+                }
+                if (!/^[A-Z0-9]+(?:[-_][A-Z0-9]+)+$/.test(vl)) {
+                    return mostrarErro('Local de Instalacao invalido. Use grupos alfanumericos separados por hifen ou underscore.');
+                }
+                if (!/^[A-Z]{2,6}$/.test(vi)) {
+                    return mostrarErro('Iniciais devem ter de 2 a 6 letras maiusculas. Ex.: MC');
+                }
+                if (!/^\d{4}$/.test(va)) {
+                    return mostrarErro('Ano deve ter exatamente 4 digitos. Ex.: 2026');
+                }
+
+                const nomeArquivo = `RL_${vl}_${vi}_${va}`;
+                if (!padrao.test(nomeArquivo)) {
+                    return mostrarErro('Nome final nao corresponde ao padrao exigido. Verifique os campos.');
+                }
+
+                const ok = confirm(
+                    'Nome do PDF:\n\n' + nomeArquivo + '\n\n' +
+                    'IMPORTANTE - Para remover URL e data/hora do PDF:\n' +
+                    '- Chrome/Edge: desmarque "Cabecalhos e rodapes"\n' +
+                    '- Firefox: em "Mais configuracoes", desmarque "Imprimir cabecalhos e rodapes"\n\n' +
+                    'Prosseguir com a impressao/salvar PDF?'
+                );
+                if (!ok) return;
+
+                const tituloOriginal = document.title;
+                document.title = nomeArquivo;
+                modal.remove();
+
+                setTimeout(() => {
+                    window.print();
+                    setTimeout(() => { document.title = tituloOriginal; }, 1500);
+                }, 120);
+            };
+
+            modal.addEventListener('keydown', e => { if (e.key === 'Escape') modal.remove(); });
+            setTimeout(() => loc.focus(), 80);
         }
     </script>
 </body>
