@@ -3371,9 +3371,11 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
                                 const tk = dados.templateAtual || dados.template || null;
                                 const sk = dados.subtipoAtual || dados.subtipo || null;
                                 if (tk) {
+                                    if (typeof selecionarTemplate === 'function') selecionarTemplate(tk);
+                                    await new Promise(r => setTimeout(r, 500));
                                     if (sk && typeof selecionarSubtipo === 'function') selecionarSubtipo(tk, sk);
-                                    else if (typeof selecionarTemplate === 'function') selecionarTemplate(tk);
-                                    await new Promise(r => setTimeout(r, 800));
+                                    await new Promise(r => setTimeout(r, 500));
+                                    templateAtual = tk; if (sk) subtipoAtual = sk;
                                 }
                                 await restaurarDadosBackup(dados);
                             }
@@ -3391,13 +3393,12 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
                         const subtipoKey = dados.subtipoAtual || dados.subtipo || null;
                         
                         if (templateKey) {
-                            if (subtipoKey && typeof selecionarSubtipo === 'function') {
-                                selecionarSubtipo(templateKey, subtipoKey);
-                            } else if (typeof selecionarTemplate === 'function') {
-                                selecionarTemplate(templateKey);
-                            }
-                            // Esperar template carregar
-                            await new Promise(r => setTimeout(r, 800));
+                            if (typeof selecionarTemplate === 'function') selecionarTemplate(templateKey);
+                            await new Promise(r => setTimeout(r, 500));
+                            if (subtipoKey && typeof selecionarSubtipo === 'function') selecionarSubtipo(templateKey, subtipoKey);
+                            await new Promise(r => setTimeout(r, 500));
+                            templateAtual = templateKey;
+                            if (subtipoKey) subtipoAtual = subtipoKey;
                         }
                         
                         // Restaurar dados
@@ -3457,6 +3458,7 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
                     } catch(e) {}
                     // Restaurar textos editados nas tarefas
                     if (typeof restaurarTextosEditados === 'function') restaurarTextosEditados();
+                    aplicarTaskStatesNaUI();
                     
                     // Restaurar fotos — PRIORIDADE: IndexedDB > localStorage
                     arquivosAnexados = [];
@@ -3485,7 +3487,7 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
                         const fotosFormJSON = await buscarPDFnoDB('autosave_fotos_formulario');
                         if (fotosFormJSON) _restaurarFormPendente.fotos = JSON.parse(fotosFormJSON);
                         const camposFormJSON = await buscarPDFnoDB('autosave_campos_formulario');
-                        if (camposFormJSON) _restaurarFormPendente.campos = JSON.parse(camposFormJSON);
+                        if (camposFormJSON) _restaurarFormPendente.campos = JSON.parse(camposFormJSON); restaurarSecoesExtras(_restaurarFormPendente.campos);
                         if (Object.keys(_restaurarFormPendente.fotos).length > 0 || Object.keys(_restaurarFormPendente.campos).length > 0) {
                             _iniciarWatcherRestauracao();
                         }
@@ -4535,6 +4537,76 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
                 `;
                 taskList.appendChild(taskItem);
             });
+        }
+
+        // Aplica os taskStates restaurados aos cartoes ja renderizados
+        // (status Conforme/NC, descricao da NC e texto customizado da tarefa).
+        function aplicarTaskStatesNaUI(){
+            try {
+                Object.keys(taskStates || {}).forEach(function(numero){
+                    var st = taskStates[numero]; if(!st) return;
+                    var content = document.getElementById('task-content-' + numero);
+                    if(st.status && content){
+                        var cls = st.status === 'CONFORME' ? 'conforme' : (st.status === 'N/A' ? 'na' : 'nao-conforme');
+                        var btn = content.querySelector('.task-status-btn.' + cls);
+                        if(btn){ content.querySelectorAll('.task-status-btn').forEach(function(b){ b.classList.remove('selected'); }); btn.classList.add('selected'); }
+                        var nc = document.getElementById('nc-field-' + numero);
+                        if(st.status === 'NÃO CONFORME'){ if(nc) nc.classList.add('show'); var ta = document.getElementById('nc-desc-' + numero); if(ta) ta.value = st.descricao || ''; }
+                        else if(nc){ nc.classList.remove('show'); }
+                    }
+                    if(st.textoCustom){ var d = document.getElementById('task-desc-' + numero); if(d) d.textContent = st.textoCustom; }
+                });
+            } catch(e){ console.warn('aplicarTaskStatesNaUI:', e); }
+        }
+
+        // Restaura seções que não voltam só por id: Ferramentas (widget de checkboxes),
+        // Demandas (YE/YN/Outros + toggles) e Recomendações/Classificação de Risco (linhas dinâmicas).
+        function restaurarSecoesExtras(campos){
+            if(!campos) return;
+            try {
+                // ----- FERRAMENTAS UTILIZADAS -----
+                if(campos.ferramentas){
+                    var alvo = String(campos.ferramentas).split(',').map(function(x){ return x.trim().toUpperCase(); }).filter(Boolean);
+                    document.querySelectorAll('.ferramenta-checkbox').forEach(function(cb){
+                        cb.checked = alvo.indexOf(String(cb.value).trim().toUpperCase()) >= 0;
+                    });
+                    if(typeof atualizarFerramentas === 'function') atualizarFerramentas();
+                }
+                // ----- DEMANDAS TÉCNICAS E OPERACIONAIS -----
+                function _isTrue(v){ return v===true || v==='true' || v==='True' || v===1 || v==='1'; }
+                [['notaYE','toggleCampoYE','textoYE'],
+                 ['notaYN','toggleCampoYN','textoYN'],
+                 ['notaOutros','toggleOutrosNotas','outrosNotasTexto']].forEach(function(d){
+                    if(d[0] in campos){
+                        var cb=document.getElementById(d[0]);
+                        if(cb){ cb.checked=_isTrue(campos[d[0]]); if(typeof window[d[1]]==='function'){ try{ window[d[1]](); }catch(e){} } }
+                    }
+                    if(d[2] in campos){ var t=document.getElementById(d[2]); if(t) t.value=campos[d[2]]; }
+                });
+                // ----- RECOMENDAÇÕES + CLASSIFICAÇÃO DE RISCO -----
+                var idxs=[];
+                Object.keys(campos).forEach(function(k){
+                    var m=/^rec_(?:descricao|cd|af|fe|sc)_(\d+)$/.exec(k);
+                    if(m){ var n=parseInt(m[1],10); if(idxs.indexOf(n)<0) idxs.push(n); }
+                });
+                idxs.sort(function(a,b){ return a-b; });
+                if(idxs.length && typeof adicionarRecomendacao==='function'){
+                    var cont=document.getElementById('recomendacoesContainer');
+                    if(cont) cont.innerHTML='';
+                    try{ recomendacaoCount=0; }catch(e){}
+                    idxs.forEach(function(orig, pos){
+                        adicionarRecomendacao();
+                        var novo=pos+1;
+                        ['descricao','cd','af','fe','sc'].forEach(function(p){
+                            var el=document.getElementById('rec_'+p+'_'+novo);
+                            var v=campos['rec_'+p+'_'+orig];
+                            if(el!=null && v!=null && v!=='') el.value=v;
+                        });
+                        if(typeof calcularRisco==='function'){ try{ calcularRisco(novo); }catch(e){} }
+                        ['CD','AF','FE','SC'].forEach(function(sfx){ var fn=window['atualizarDescricao'+sfx]; if(typeof fn==='function'){ try{ fn(novo); }catch(e){} } });
+                    });
+                }
+            } catch(e){ console.warn('restaurarSecoesExtras:', e); }
         }
 
         // Função para expandir/recolher tarefa
@@ -7320,6 +7392,8 @@ function _normalizarAnexo(f) {
                         await salvarPDFnoDB('autosave_campos_formulario', JSON.stringify(dados.camposFormulario));
                     }
 
+                    // Evita conflito com a auto-restauração de rascunho
+                    localStorage.removeItem('relatorio_vale_backup');
                     // Apenas flag no localStorage (leve)
                     localStorage.setItem('backup_importado', 'true');
                     
@@ -11482,11 +11556,8 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                     window._backupPendente = false;
                     const bd = window._backupDados;
 
-                    if (bd.subtipoAtual && typeof selecionarSubtipo === 'function') {
-                        selecionarSubtipo(bd.templateAtual, bd.subtipoAtual);
-                    } else if (bd.templateAtual && typeof selecionarTemplate === 'function') {
-                        selecionarTemplate(bd.templateAtual);
-                    }
+                    if (bd.templateAtual && typeof selecionarTemplate === 'function') selecionarTemplate(bd.templateAtual);
+                    if (bd.subtipoAtual && typeof selecionarSubtipo === 'function') selecionarSubtipo(bd.templateAtual, bd.subtipoAtual);
 
                     setTimeout(async () => {
                         dadosFormulario = bd;
@@ -11503,7 +11574,7 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                             const fotosFormJSON = await buscarPDFnoDB('autosave_fotos_formulario');
                             if (fotosFormJSON) _restaurarFormPendente.fotos = JSON.parse(fotosFormJSON);
                             const camposFormJSON = await buscarPDFnoDB('autosave_campos_formulario');
-                            if (camposFormJSON) _restaurarFormPendente.campos = JSON.parse(camposFormJSON);
+                            if (camposFormJSON) _restaurarFormPendente.campos = JSON.parse(camposFormJSON); restaurarSecoesExtras(_restaurarFormPendente.campos);
                             if (Object.keys(_restaurarFormPendente.fotos).length > 0 || Object.keys(_restaurarFormPendente.campos).length > 0) {
                                 _iniciarWatcherRestauracao();
                             }
@@ -11516,6 +11587,7 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                             const tsJSON = await buscarPDFnoDB('autosave_taskStates');
                             if (tsJSON) taskStates = JSON.parse(tsJSON);
                         } catch(e) {}
+                        aplicarTaskStatesNaUI();
 
                         // Toast de confirmação
                         const toast = document.createElement('div');
@@ -11639,6 +11711,7 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                         if (obs && t.observacao) obs.value = t.observacao;
                     });
                     console.log('✅ ' + dadosFormulario.tarefasState.length + ' tarefas restauradas');
+                    aplicarTaskStatesNaUI();
                 }
                 
                 // (recurso de anexos removido)
@@ -11660,7 +11733,7 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                     const fotosFormJSON = await buscarPDFnoDB('autosave_fotos_formulario');
                     if (fotosFormJSON) _restaurarFormPendente.fotos = JSON.parse(fotosFormJSON);
                     const camposFormJSON = await buscarPDFnoDB('autosave_campos_formulario');
-                    if (camposFormJSON) _restaurarFormPendente.campos = JSON.parse(camposFormJSON);
+                    if (camposFormJSON) _restaurarFormPendente.campos = JSON.parse(camposFormJSON); restaurarSecoesExtras(_restaurarFormPendente.campos);
                     if (Object.keys(_restaurarFormPendente.fotos).length > 0 || Object.keys(_restaurarFormPendente.campos).length > 0) {
                         _iniciarWatcherRestauracao();
                     }
