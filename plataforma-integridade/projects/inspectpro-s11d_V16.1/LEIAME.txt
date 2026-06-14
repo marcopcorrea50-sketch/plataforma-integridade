@@ -1,6 +1,6 @@
 ============================================================
   InspectPro S11D - Vale | Integridade Estrutural
-  Pacote de Entrega - versao 16.1
+  Pacote de Entrega - versao 16.1 (revisada)
   Atualizado em: 14/06/2026
 ============================================================
 
@@ -18,28 +18,25 @@ ARQUIVOS INCLUIDOS
 NAVEGADOR
 ------------------------------------------------------------
 - Use Google Chrome ou Microsoft Edge (atualizados).
-- O salvamento automatico em pasta de rede (I:) e a
-  importacao/exportacao de backup funcionam melhor nesses
-  navegadores.
 - Apos atualizar o arquivo, recarregue com Ctrl + F5 para
   limpar o cache da versao antiga.
 
-NOVIDADES DESTA VERSAO (16.1)
+NOVIDADES DESTA VERSAO (16.1 revisada)
 ------------------------------------------------------------
 - PDFs em texto pesquisavel (Relatorio + 4 laudos).
-- Importar backup agora restaura 100% do formulario:
-  lista de tarefas, conclusao, descricao, FERRAMENTAS
-  UTILIZADAS, DEMANDAS TECNICAS E OPERACIONAIS e
-  RECOMENDACOES E CLASSIFICACAO DE RISCO (PRO-024969).
-- Bloco de assinatura, numeracao de paginas e fontes
-  maiores.
+- Importar backup restaura 100% do formulario: lista de
+  tarefas, conclusao, descricao, FERRAMENTAS UTILIZADAS,
+  DEMANDAS TECNICAS E OPERACIONAIS e RECOMENDACOES E
+  CLASSIFICACAO DE RISCO (PRO-024969).
+  (Correcao: campos lidos direto do backip importado,
+   sem depender do armazenamento autosave.)
+- Bloco de assinatura, numeracao de paginas, fontes maiores.
 - Botao "Limpar memoria (inspecao)".
 - Salvamento automatico na pasta de rede.
 
 DICA DE VERIFICACAO
 ------------------------------------------------------------
-Para confirmar que esta na versao corrigida:
-abra o arquivo, tecle F12 (Console) e digite:
-   typeof restaurarSecoesExtras
+Para confirmar a versao corrigida: abra o arquivo, tecle
+F12 (Console) e digite:  typeof restaurarSecoesExtras
 Se responder "function", e a versao certa.
 ============================================================

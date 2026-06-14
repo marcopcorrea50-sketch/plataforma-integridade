@@ -976,7 +976,7 @@
             <button class="btn-historico" onclick="verHistoricoRelatorios()">📊 Histórico de Relatórios</button>
             <button class="btn-historico" onclick="limparMemoriaRelatoriosInspecao()" style="background:#b45309;" title="Remove do navegador apenas os relatórios de inspeção armazenados (não afeta Laudos/PAC/Risco/Sujidade)">🧹 Limpar memória (inspeção)</button>
             <button id="statusPastaRede" class="btn-historico" onclick="gerenciarPastaRede()" style="background:#0d6efd;">🔗 Conectar pasta de rede</button>
-            <span class="header-badge">Versão 16.0</span>
+            <span class="header-badge">Versão 16.1</span>
         </div>
     </div>
 
@@ -1042,7 +1042,7 @@
                 onmouseover="this.style.background='rgba(255,255,255,0.12)';this.style.color='#fff'"
                 onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.7)'">📋 Novo Laudo</button>
         </div>
-        <p style="position:absolute;bottom:28px;color:rgba(0,230,138,0.5);font-size:12px;z-index:2;letter-spacing:1px;">Sistema de Relatórios V16.0 &nbsp;|&nbsp; © 2026 Vale</p>
+        <p style="position:absolute;bottom:28px;color:rgba(0,230,138,0.5);font-size:12px;z-index:2;letter-spacing:1px;">Sistema de Relatórios V16.1 &nbsp;|&nbsp; © 2026 Vale</p>
     </div>
 
     <!-- ===== TEMPLATE SELECTOR ===== -->
@@ -3041,8 +3041,18 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
                     try {
                         const fotosFormJSON = await buscarPDFnoDB('autosave_fotos_formulario');
                         if (fotosFormJSON) _restaurarFormPendente.fotos = JSON.parse(fotosFormJSON);
+                        if ((!_restaurarFormPendente.fotos || Object.keys(_restaurarFormPendente.fotos).length === 0) && dados && dados.fotosFormulario) {
+                            _restaurarFormPendente.fotos = dados.fotosFormulario;
+                        }
                         const camposFormJSON = await buscarPDFnoDB('autosave_campos_formulario');
-                        if (camposFormJSON) _restaurarFormPendente.campos = JSON.parse(camposFormJSON); restaurarSecoesExtras(_restaurarFormPendente.campos);
+                        if (camposFormJSON) _restaurarFormPendente.campos = JSON.parse(camposFormJSON);
+                        // Fonte autoritativa no import: usa os campos do proprio backup (dados),
+                        // independente do IndexedDB autosave (que pode falhar em origem file://)
+                        if (dados && dados.camposFormulario && Object.keys(dados.camposFormulario).length > 0) {
+                            _restaurarFormPendente.campos = dados.camposFormulario;
+                        }
+                        console.log('\u{1F527} Secoes extras: ' + Object.keys(_restaurarFormPendente.campos || {}).length + ' campos para restaurar');
+                        restaurarSecoesExtras(_restaurarFormPendente.campos);
                         if (Object.keys(_restaurarFormPendente.fotos).length > 0 || Object.keys(_restaurarFormPendente.campos).length > 0) {
                             _iniciarWatcherRestauracao();
                         }
