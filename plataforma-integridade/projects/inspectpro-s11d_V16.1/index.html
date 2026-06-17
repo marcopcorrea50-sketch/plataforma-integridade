@@ -1354,6 +1354,7 @@
             <div class="section">
                 <div class="section-title">LISTA DE TAREFAS PASSO A PASSO OP.0070</div>
                 <div class="task-list" id="taskList"></div>
+                <button type="button" id="btnInserirTarefa" onclick="inserirTarefa()" style="margin-top:14px; background:#0d6e3a; color:#fff; border:none; border-radius:8px; padding:10px 20px; font-weight:600; font-size:14px; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.15);">➕ Inserir nova tarefa</button>
             </div>
 
             <!-- ═══ SEÇÃO 3: CONCLUSÃO ═══ -->
@@ -4270,6 +4271,50 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
             // Atualizar galeria de fotos
             renderFotos();
         }
+
+        // Insere uma nova tarefa no fim da lista (mantem as demais e seus status).
+        // A tarefa entra no array "tarefas" para aparecer tambem no PDF.
+        function inserirTarefa() {
+            if (typeof tarefas === 'undefined' || !Array.isArray(tarefas)) { window.tarefas = []; }
+            const taskList = document.getElementById('taskList');
+            if (!taskList) return;
+            const texto = (prompt('Descricao da nova tarefa de inspecao:', '') || '').trim();
+            if (!texto) return;
+            tarefas.push(texto);
+            const numero = String(tarefas.length).padStart(2, '0');
+            taskStates[numero] = { status: null, descricao: '', fotos: [], textoOriginal: texto, textoCustom: null };
+            const descEsc = texto.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const taskItem = document.createElement('div');
+            taskItem.className = 'task-item';
+            taskItem.innerHTML = `
+                    <div class="task-header" onclick="toggleTask('${numero}')">
+                        <span class="task-toggle-icon">▶</span>
+                        <div class="task-number">${numero}</div>
+                        <div class="task-description" id="task-desc-${numero}">${descEsc}</div>
+                        <button type="button" onclick="event.stopPropagation(); iniciarEdicaoTarefa('${numero}')" title="Editar descricao desta tarefa" style="margin-left:auto; flex-shrink:0; background:transparent; border:1px solid rgba(255,255,255,0.25); border-radius:5px; color:rgba(255,255,255,0.7); font-size:11px; padding:2px 7px; cursor:pointer; line-height:1.4;">✏️</button>
+                        <button type="button" onclick="event.stopPropagation(); excluirTarefa('${numero}')" title="Excluir esta tarefa" style="flex-shrink:0; background:transparent; border:1px solid rgba(255,100,100,0.4); border-radius:5px; color:rgba(255,140,140,0.95); font-size:12px; padding:2px 8px; cursor:pointer; line-height:1.4; margin-left:4px;">✕</button>
+                    </div>
+                    <div class="task-content" id="task-content-${numero}">
+                        <div class="task-status-buttons">
+                            <button type="button" class="task-status-btn conforme" onclick="selectTaskStatus('${numero}', 'CONFORME')">Conforme</button>
+                            <button type="button" class="task-status-btn nao-conforme" onclick="selectTaskStatus('${numero}', 'NÃO CONFORME')">Não Conforme</button>
+                            <button type="button" class="task-status-btn na" onclick="selectTaskStatus('${numero}', 'N/A')">N/A</button>
+                        </div>
+                        <div class="nao-conformidade-field" id="nc-field-${numero}">
+                            <label>⚠️ Descreva a Não Conformidade:</label>
+                            <textarea id="nc-desc-${numero}" placeholder="Descreva detalhadamente a nao conformidade encontrada..." onchange="updateNaoConformidadeDesc('${numero}', this.value)"></textarea>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <button type="button" class="add-btn" onclick="adicionarFotoNaOP('${numero}')" style="width: 100%; font-size: 12px; padding: 8px;">📷 Adicionar Foto para ${numero}</button>
+                            <div id="fotos-op-${numero}" style="margin-top: 8px; font-size: 11px; color: #a0a0a0;"></div>
+                        </div>
+                    </div>
+                `;
+            taskList.appendChild(taskItem);
+            try { taskItem.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e){}
+            if (typeof salvarAutomaticamente === 'function') salvarAutomaticamente();
+        }
+
 
         function _renderDescricaoTarefa(numero) {
             const descDiv = document.getElementById('task-desc-' + numero);

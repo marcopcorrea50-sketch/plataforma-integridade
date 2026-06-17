@@ -1,42 +1,36 @@
 ============================================================
   InspectPro S11D - Vale | Integridade Estrutural
   Pacote de Entrega - versao 16.1 (revisada)
-  Atualizado em: 14/06/2026
+  Atualizado em: 16/06/2026
 ============================================================
 
-ARQUIVOS INCLUIDOS
+ARQUIVOS
 ------------------------------------------------------------
-1) InspectPro_S11D_v16.1.html
-   - Versao ONLINE (bibliotecas via internet/CDN).
-   - Use abrindo direto no navegador com internet.
+1) InspectPro_S11D_v16.1.html ............ versao ONLINE
+2) InspectPro_S11D_v16.1_OFFLINE.html .... versao OFFLINE
+   (recomendada para PWA/portal e uso em campo sem internet)
 
-2) InspectPro_S11D_v16.1_OFFLINE.html
-   - Versao OFFLINE (bibliotecas embutidas no arquivo).
-   - Funciona SEM internet. Recomendada para PWA / portal
-     e para uso em campo (celular/tablet sem sinal).
+NAVEGADOR: Chrome ou Edge atualizados. Apos atualizar o
+arquivo, recarregue com Ctrl + F5.
 
-NAVEGADOR
+COMO O PDF E SALVO (2 copias)
 ------------------------------------------------------------
-- Use Google Chrome ou Microsoft Edge (atualizados).
-- Apos atualizar o arquivo, recarregue com Ctrl + F5 para
-  limpar o cache da versao antiga.
+- DOWNLOAD: sempre, na pasta de Downloads do computador.
+- PASTA DE REDE (I:): se conectada, grava uma copia em
+  subpastas por <Local/Ativo>/<Ordem>/<Tipo>.
+  Obs.: caminhos muito longos podem passar do limite de 260
+  caracteres do Windows; nesse caso conecte uma pasta mais
+  curta (o download local nunca se perde).
 
-NOVIDADES DESTA VERSAO (16.1 revisada)
+NOVIDADES (16.1 revisada)
 ------------------------------------------------------------
+- LISTA DE TAREFAS: novo botao "Inserir nova tarefa" para
+  acrescentar tarefas alem das padrao (aparecem tambem no PDF).
+- Importar backup restaura 100% do formulario (Ferramentas,
+  Demandas e Recomendacoes/Classificacao de Risco).
 - PDFs em texto pesquisavel (Relatorio + 4 laudos).
-- Importar backup restaura 100% do formulario: lista de
-  tarefas, conclusao, descricao, FERRAMENTAS UTILIZADAS,
-  DEMANDAS TECNICAS E OPERACIONAIS e RECOMENDACOES E
-  CLASSIFICACAO DE RISCO (PRO-024969).
-  (Correcao: campos lidos direto do backip importado,
-   sem depender do armazenamento autosave.)
 - Bloco de assinatura, numeracao de paginas, fontes maiores.
-- Botao "Limpar memoria (inspecao)".
-- Salvamento automatico na pasta de rede.
 
-DICA DE VERIFICACAO
-------------------------------------------------------------
-Para confirmar a versao corrigida: abra o arquivo, tecle
-F12 (Console) e digite:  typeof restaurarSecoesExtras
+VERIFICACAO: F12 (Console) -> digite  typeof inserirTarefa
 Se responder "function", e a versao certa.
 ============================================================
