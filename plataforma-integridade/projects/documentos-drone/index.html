@@ -1,0 +1,1692 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Avaliação de Risco Operacional - Drone</title>
+  <style>
+    :root {
+      --bg: #f4f7f6;
+      --paper: #ffffff;
+      --ink: #17201c;
+      --muted: #64716b;
+      --line: #d9e2de;
+      --soft: #edf4f1;
+      --accent: #0f766e;
+      --accent-dark: #0b5953;
+      --field: #fbfdfc;
+      --very-low: #d9f5e7;
+      --low: #e9f7cf;
+      --moderate: #fff2bd;
+      --high: #ffd7a8;
+      --extreme: #ffd1d1;
+      --shadow: 0 20px 55px rgba(18, 35, 30, 0.12);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.45;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: 6px;
+      padding: 10px 13px;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    button:hover {
+      background: var(--accent-dark);
+    }
+
+    button.secondary {
+      background: #e7efeb;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    button.secondary:hover {
+      background: #dbe8e2;
+    }
+
+    button.danger {
+      background: #b42318;
+    }
+
+    button.ghost {
+      background: transparent;
+      color: var(--accent-dark);
+      border: 1px solid var(--line);
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: minmax(340px, 410px) minmax(0, 1fr);
+      gap: 22px;
+      padding: 22px;
+      align-items: start;
+    }
+
+    .sidebar {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: sticky;
+      top: 18px;
+      max-height: calc(100vh - 36px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff, #eef6f2);
+    }
+
+    .eyebrow {
+      color: var(--accent-dark);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin: 7px 0 8px;
+      font-size: 24px;
+      line-height: 1.12;
+    }
+
+    h2 {
+      font-size: 17px;
+      margin: 0 0 12px;
+    }
+
+    h3 {
+      font-size: 14px;
+      margin: 0 0 8px;
+      color: #26342f;
+    }
+
+    .brand p,
+    .small {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 0;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .toolbar button:first-child {
+      grid-column: 1 / -1;
+      font-size: 15px;
+    }
+
+    .form-scroll {
+      overflow: auto;
+      padding: 16px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+      background: #fff;
+    }
+
+    details[open] {
+      background: #fff;
+    }
+
+    summary {
+      cursor: pointer;
+      padding: 13px 14px;
+      font-weight: 800;
+      color: #26342f;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    summary::after {
+      content: "+";
+      color: var(--accent-dark);
+      font-weight: 900;
+    }
+
+    details[open] summary::after {
+      content: "-";
+    }
+
+    .section-body {
+      padding: 0 14px 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .field {
+      margin-bottom: 10px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 800;
+      color: #34433d;
+      margin-bottom: 5px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid #cdd9d4;
+      background: var(--field);
+      border-radius: 6px;
+      padding: 9px 10px;
+      color: var(--ink);
+      min-height: 40px;
+    }
+
+    textarea {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    .inline-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 8px 0 2px;
+    }
+
+    .aircraft-item,
+    .risk-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      margin-bottom: 10px;
+      background: #fbfdfc;
+    }
+
+    .risk-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+
+    .risk-badge {
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+      border: 1px solid rgba(0,0,0,.08);
+    }
+
+    .workspace {
+      min-width: 0;
+    }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .metric {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 13px 14px;
+      box-shadow: 0 10px 28px rgba(18, 35, 30, 0.08);
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .metric strong {
+      font-size: 20px;
+      line-height: 1.15;
+    }
+
+    .report-panel {
+      background: #dfe8e4;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .report-document {
+      max-width: 980px;
+      margin: 0 auto;
+      background: #fff;
+      color: #121a17;
+      box-shadow: var(--shadow);
+      border-radius: 4px;
+      padding: 42px 46px;
+      min-height: 1120px;
+    }
+
+    .doc-cover {
+      border-bottom: 4px solid var(--accent);
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+    }
+
+    .doc-title {
+      font-size: 31px;
+      line-height: 1.1;
+      margin: 8px 0 8px;
+      color: #10201b;
+    }
+
+    .doc-subtitle {
+      color: #52615b;
+      font-size: 14px;
+      max-width: 780px;
+      margin: 0;
+    }
+
+    .doc-meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .doc-meta div,
+    .callout {
+      border: 1px solid var(--line);
+      background: #f8fbfa;
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+
+    .doc-meta span,
+    .label {
+      display: block;
+      font-size: 10px;
+      color: #62716b;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-weight: 900;
+      margin-bottom: 3px;
+    }
+
+    .doc-section {
+      margin: 24px 0;
+    }
+
+    .doc-section h2 {
+      color: #12251f;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 7px;
+      margin-bottom: 12px;
+      font-size: 18px;
+    }
+
+    .doc-section h3 {
+      font-size: 14px;
+      margin-top: 16px;
+      color: #22352f;
+    }
+
+    .kv-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .kv {
+      border-bottom: 1px solid #e6eeea;
+      padding: 6px 0;
+    }
+
+    .kv strong {
+      display: block;
+      font-size: 11px;
+      color: #68776f;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .kv span {
+      display: block;
+      margin-top: 3px;
+      min-height: 20px;
+    }
+
+    .doc-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 14px;
+      font-size: 12px;
+    }
+
+    .doc-table th {
+      background: #ecf4f1;
+      color: #162a24;
+      text-align: left;
+      font-weight: 900;
+    }
+
+    .doc-table th,
+    .doc-table td {
+      border: 1px solid #d4dfda;
+      padding: 8px;
+      vertical-align: top;
+    }
+
+    .doc-table.compact th,
+    .doc-table.compact td {
+      text-align: center;
+      padding: 7px;
+    }
+
+    .doc-table.compact th:first-child,
+    .doc-table.compact td:first-child {
+      text-align: left;
+      font-weight: 800;
+    }
+
+    .matrix-cell {
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .matrix-used {
+      outline: 3px solid var(--accent);
+      outline-offset: -3px;
+      position: relative;
+    }
+
+    .used-count {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      color: #0a4d47;
+      font-size: 10px;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .class-extremo,
+    .class-extreme {
+      background: var(--extreme);
+      color: #7a1414;
+    }
+
+    .class-alto,
+    .class-high {
+      background: var(--high);
+      color: #7a3d00;
+    }
+
+    .class-moderado,
+    .class-moderate {
+      background: var(--moderate);
+      color: #5b4800;
+    }
+
+    .class-baixo,
+    .class-low {
+      background: var(--low);
+      color: #315800;
+    }
+
+    .class-muito-baixo,
+    .class-very-low {
+      background: var(--very-low);
+      color: #0e5f36;
+    }
+
+    .risk-summary {
+      display: grid;
+      grid-template-columns: minmax(190px, .75fr) 1fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .risk-summary .callout {
+      border-left: 6px solid var(--accent);
+    }
+
+    .auto-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .auto-tag {
+      display: inline-block;
+      border: 1px solid #c8d7d1;
+      border-radius: 999px;
+      padding: 3px 7px;
+      background: #fff;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .signature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      margin-top: 34px;
+    }
+
+    .signature {
+      padding-top: 34px;
+      border-top: 1px solid #28342f;
+      min-height: 78px;
+      font-size: 12px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .empty-note {
+      border: 1px dashed #b8c7c1;
+      border-radius: 6px;
+      padding: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .hidden-input {
+      display: none;
+    }
+
+    @media (max-width: 1180px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        max-height: none;
+      }
+
+      .status-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .app-shell {
+        padding: 10px;
+      }
+
+      .grid,
+      .kv-grid,
+      .doc-meta,
+      .risk-summary,
+      .signature-grid,
+      .status-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .report-panel {
+        padding: 8px;
+      }
+
+      .report-document {
+        padding: 24px 18px;
+      }
+
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .sidebar,
+      .status-strip,
+      .no-print {
+        display: none !important;
+      }
+
+      .app-shell,
+      .workspace,
+      .report-panel {
+        display: block;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        background: #fff;
+      }
+
+      .report-document {
+        max-width: none;
+        min-height: 0;
+        box-shadow: none;
+        border-radius: 0;
+        padding: 0;
+      }
+
+      .callout,
+      .metric,
+      .aircraft-item,
+      .risk-item,
+      .exec-summary,
+      .dist-bars,
+      .risk-legend {
+        break-inside: avoid;
+      }
+
+      .doc-table {
+        page-break-inside: auto;
+      }
+
+      .doc-table tr {
+        break-inside: avoid;
+      }
+
+      .doc-cover {
+        margin-top: 0;
+      }
+    }
+
+    /* ---- aprimoramentos automáticos ---- */
+    .exec-summary{border:1px solid var(--line);border-left:6px solid var(--accent);background:#f4faf8;border-radius:8px;padding:12px 14px;margin-bottom:14px}
+    .exec-summary p{margin:5px 0 0;font-size:13.5px;line-height:1.5}
+    .dist-bars{display:flex;flex-direction:column;gap:7px;margin:8px 0 14px}
+    .dist-row{display:grid;grid-template-columns:160px 1fr 30px;align-items:center;gap:10px}
+    .dist-label{font-size:11px;font-weight:800;color:#46554e}
+    .dist-track{height:16px;background:#eef4f1;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+    .dist-fill{display:block;height:14px;border-radius:999px}
+    .dist-count{font-weight:900;font-size:13px;text-align:right}
+    .dist-fill.class-extremo{background:#e8635a}
+    .dist-fill.class-alto{background:#e9962f}
+    .dist-fill.class-moderado{background:#e6c34a}
+    .dist-fill.class-baixo{background:#7fc04a}
+    .dist-fill.class-muito-baixo{background:#46b98a}
+    .risk-legend{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}
+    .legend-item{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;border:1px solid var(--line);border-radius:999px;padding:4px 9px;background:#fff}
+    .legend-swatch{width:13px;height:13px;border-radius:3px;border:1px solid rgba(0,0,0,.12)}
+    .metric-risk{border-left:6px solid var(--accent)}
+    .metric-sub{display:block;margin-top:4px;color:var(--muted);font-size:11px;font-style:normal;font-weight:700}
+    .metric-risk.class-extremo{border-left-color:#b42318}
+    .metric-risk.class-alto{border-left-color:#c2660a}
+    .metric-risk.class-moderado{border-left-color:#b9911a}
+    .metric-risk.class-baixo{border-left-color:#4f8a1a}
+    .metric-risk.class-muito-baixo{border-left-color:#0f766e}
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="eyebrow">Modelo automatizado</div>
+        <h1>Avaliação de Risco Operacional</h1>
+        <p>Operações com drone/RPA com matriz de risco baseada na IS nº E94-003A e no modelo anexado.</p>
+      </div>
+
+      <div class="toolbar">
+        <button type="button" id="printButton">Gerar relatório em PDF</button>
+        <button type="button" class="secondary" id="saveButton">Salvar dados</button>
+        <button type="button" class="secondary" id="exportButton">Exportar JSON</button>
+        <button type="button" class="ghost" id="importButton">Importar JSON</button>
+        <button type="button" class="ghost" id="resetButton">Restaurar modelo</button>
+        <input type="file" id="importFile" class="hidden-input" accept="application/json">
+      </div>
+
+      <div class="form-scroll">
+        <details open>
+          <summary>1. Identificação</summary>
+          <div class="section-body grid">
+            <div class="field full">
+              <label for="operatorName">Operador / empresa</label>
+              <input id="operatorName" data-field="operatorName" placeholder="Nome do operador ou empresa">
+            </div>
+            <div class="field">
+              <label for="documentRef">Referência RBAC-E 94</label>
+              <select id="documentRef" data-field="documentRef">
+                <option value="E94.103(f)(2) e E94.103(g)(2)">E94.103(f)(2) e E94.103(g)(2)</option>
+                <option value="E94.103(f)(2)">E94.103(f)(2)</option>
+                <option value="E94.103(g)(2)">E94.103(g)(2)</option>
+                <option value="E94.103(h)(2)">E94.103(h)(2)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="taxId">CPF / CNPJ</label>
+              <input id="taxId" data-field="taxId" placeholder="00.000.000/0000-00">
+            </div>
+            <div class="field full">
+              <label for="scenario">Cenário operacional</label>
+              <input id="scenario" data-field="scenario" placeholder="Ex.: aerofotografia, inspeção, mapeamento">
+            </div>
+            <div class="field full">
+              <label for="location">Localização da operação</label>
+              <input id="location" data-field="location" placeholder="Endereço, unidade, área ou coordenadas">
+            </div>
+            <div class="field">
+              <label for="issueDate">Data de emissão</label>
+              <input type="date" id="issueDate" data-field="issueDate">
+            </div>
+            <div class="field">
+              <label for="city">Cidade/UF</label>
+              <input id="city" data-field="city" placeholder="Ex.: Vitória/ES">
+            </div>
+            <div class="field full">
+              <label for="responsibleName">Responsável pela avaliação</label>
+              <input id="responsibleName" data-field="responsibleName" placeholder="Nome completo">
+            </div>
+            <div class="field full">
+              <label for="responsibleCpf">CPF / matrícula do responsável</label>
+              <input id="responsibleCpf" data-field="responsibleCpf" placeholder="CPF, matrícula ou identificação interna">
+            </div>
+          </div>
+        </details>
+
+        <details>
+          <summary>2. Equipe e emergência</summary>
+          <div class="section-body grid">
+            <div class="field full">
+              <label for="pilotName">Operador em comando</label>
+              <input id="pilotName" data-field="pilotName" placeholder="Nome do piloto remoto">
+            </div>
+            <div class="field">
+              <label for="pilotCpf">CPF</label>
+              <input id="pilotCpf" data-field="pilotCpf">
+            </div>
+            <div class="field">
+              <label for="pilotSarpas">ID SARPAS / SISANT</label>
+              <input id="pilotSarpas" data-field="pilotSarpas">
+            </div>
+            <div class="field">
+              <label for="pilotContact">Contato</label>
+              <input id="pilotContact" data-field="pilotContact">
+            </div>
+            <div class="field full">
+              <label for="secondPilotName">Segundo operador em comando</label>
+              <input id="secondPilotName" data-field="secondPilotName" placeholder="Nome do segundo piloto remoto">
+            </div>
+            <div class="field">
+              <label for="secondPilotCpf">CPF do segundo operador</label>
+              <input id="secondPilotCpf" data-field="secondPilotCpf">
+            </div>
+            <div class="field">
+              <label for="secondPilotSarpas">ID SARPAS do segundo operador</label>
+              <input id="secondPilotSarpas" data-field="secondPilotSarpas">
+            </div>
+            <div class="field">
+              <label for="secondPilotContact">Contato do segundo operador</label>
+              <input id="secondPilotContact" data-field="secondPilotContact">
+            </div>
+            <div class="field">
+              <label for="observerName">Observador</label>
+              <input id="observerName" data-field="observerName" placeholder="Se aplicável">
+            </div>
+            <div class="field">
+              <label for="distantThirdParties">Área distante de terceiros?</label>
+              <select id="distantThirdParties" data-field="distantThirdParties">
+                <option>Sim / Não</option>
+                <option>Sim</option>
+                <option>Não</option>
+                <option>Não aplicável</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="trainingRequired">Treinamento específico?</label>
+              <select id="trainingRequired" data-field="trainingRequired">
+                <option>Sim</option>
+                <option>Não</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="trainingDescription">Treinamentos / reciclagens</label>
+              <textarea id="trainingDescription" data-field="trainingDescription"></textarea>
+            </div>
+            <div class="field full">
+              <label for="accidentContacts">Acidente com lesão a pessoas: quem acionar e como proceder</label>
+              <textarea id="accidentContacts" data-field="accidentContacts"></textarea>
+            </div>
+            <div class="field full">
+              <label for="lostLinkContacts">Perda de contato/enlace: quem acionar</label>
+              <textarea id="lostLinkContacts" data-field="lostLinkContacts"></textarea>
+            </div>
+          </div>
+        </details>
+
+        <details>
+          <summary>3. Aeronaves</summary>
+          <div class="section-body">
+            <div id="aircraftEditor"></div>
+            <div class="inline-actions">
+              <button type="button" class="secondary" id="addAircraftButton">Adicionar aeronave</button>
+            </div>
+          </div>
+        </details>
+
+        <details>
+          <summary>4. Introdução, legislação e declaração</summary>
+          <div class="section-body">
+            <div class="field">
+              <label for="introduction">Introdução</label>
+              <textarea id="introduction" data-field="introduction"></textarea>
+            </div>
+            <div class="field">
+              <label for="legislation">Legislação aplicável</label>
+              <textarea id="legislation" data-field="legislation"></textarea>
+            </div>
+            <div class="field">
+              <label for="finalDeclaration">Declaração final</label>
+              <textarea id="finalDeclaration" data-field="finalDeclaration"></textarea>
+            </div>
+          </div>
+        </details>
+
+        <details open>
+          <summary>5. Avaliação de riscos</summary>
+          <div class="section-body">
+            <p class="small">Selecione probabilidade e severidade. O código, a tolerabilidade e a autorização são calculados automaticamente.</p>
+            <div id="riskEditor"></div>
+            <div class="inline-actions">
+              <button type="button" class="secondary" id="addRiskButton">Adicionar situação</button>
+              <button type="button" class="ghost" id="defaultRisksButton">Gerar avaliação automática</button>
+            </div>
+          </div>
+        </details>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <section class="status-strip no-print" id="statusStrip"></section>
+      <section class="report-panel">
+        <article class="report-document" id="report"></article>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "avaliacaoRiscoDrone.v3";
+
+    const probabilityLevels = {
+      "5": { label: "5 (frequente)", short: "Frequente", description: "É provável que ocorra muitas vezes, ou historicamente tem ocorrido frequentemente." },
+      "4": { label: "4 (ocasional)", short: "Ocasional", description: "É provável que ocorra algumas vezes, ou historicamente tem ocorrido com pouca frequência." },
+      "3": { label: "3 (remoto)", short: "Remoto", description: "É improvável, mas é possível que venha a ocorrer, ou ocorre raramente." },
+      "2": { label: "2 (improvável)", short: "Improvável", description: "É bastante improvável que ocorra e não se tem notícia de que tenha alguma vez ocorrido." },
+      "1": { label: "1 (muito improvável)", short: "Muito improvável", description: "É quase impossível que o evento ocorra." }
+    };
+
+    const severityLevels = {
+      A: { label: "A (catastrófico)", short: "Catastrófico", description: "Morte de múltiplas pessoas." },
+      B: { label: "B (crítico)", short: "Crítico", description: "Morte de pessoa, lesões gravíssimas, capazes de deixar sequelas significativas e/ou incapacitantes (cegueira, paralisia, amputações etc.)." },
+      C: { label: "C (significativo)", short: "Significativo", description: "Lesões sérias a pessoas, mas não incapacitantes nem com sequelas significativas." },
+      D: { label: "D (pequeno)", short: "Pequeno", description: "Incidentes menores, danos a objetos, animais ou vegetação no solo, lesões leves." },
+      E: { label: "E (insignificante)", short: "Insignificante", description: "Somente danos ao equipamento." }
+    };
+
+    const riskClassMap = {
+      "4A": "extremo", "5A": "extremo", "5B": "extremo",
+      "3A": "alto", "4B": "alto", "5C": "alto",
+      "1A": "moderado", "2A": "moderado", "2B": "moderado", "3B": "moderado", "3C": "moderado", "4C": "moderado", "4D": "moderado", "5D": "moderado", "5E": "moderado",
+      "1B": "baixo", "1C": "baixo", "2C": "baixo", "2D": "baixo", "3D": "baixo", "3E": "baixo", "4E": "baixo",
+      "1D": "muito-baixo", "1E": "muito-baixo", "2E": "muito-baixo"
+    };
+
+    const riskMeta = {
+      "muito-baixo": {
+        label: "Risco muito baixo",
+        rank: 1,
+        approval: "Sem aprovação adicional requerida",
+        recommendation: "A operação é aceitável como concebida; controles preventivos e autorização superior não são requeridos.",
+        css: "class-muito-baixo"
+      },
+      baixo: {
+        label: "Baixo risco",
+        rank: 2,
+        approval: "Chefia imediata (opcional)",
+        recommendation: "A operação pode ocorrer; controles preventivos e aprovação por chefia imediata são opcionais.",
+        css: "class-baixo"
+      },
+      moderado: {
+        label: "Risco moderado",
+        rank: 3,
+        approval: "Chefia imediata",
+        recommendation: "A operação pode ocorrer com controles preventivos estabelecidos e em vigor, conforme necessários.",
+        css: "class-moderado"
+      },
+      alto: {
+        label: "Alto risco",
+        rank: 4,
+        approval: "Gerência ou Diretoria",
+        recommendation: "A operação não deveria ocorrer enquanto persistir a condição, salvo com mitigação suficiente e autorização da gestão.",
+        css: "class-alto"
+      },
+      extremo: {
+        label: "Risco extremo",
+        rank: 5,
+        approval: "Alta direção / Presidência",
+        recommendation: "A operação não deve ocorrer e, se estiver em curso, deve cessar imediatamente até redução do risco.",
+        css: "class-extremo"
+      }
+    };
+
+    const defaultRisks = [
+      {
+        title: "Perda do enlace com aeronave (link)",
+        probability: "3",
+        probabilityJustification: "Existem notícias de perda do enlace com o modelo em operação.",
+        severity: "D",
+        severityJustification: "Em caso de perda de link, a aeronave deverá retornar ao home point (ponto de decolagem).",
+        mitigation: "Analisar o local de operação, evitando sombra de sinal por obstáculos entre a aeronave e o operador; garantir que o home point foi registrado; configurar altura adequada de retorno ao home point."
+      },
+      {
+        title: "Existência de tráfego aéreo no local",
+        probability: "1",
+        probabilityJustification: "As operações ocorrem a baixa altitude, longe de rotas de aeronaves e em locais protegidos por edificações.",
+        severity: "A",
+        severityJustification: "Se ocorrer encontro com aeronave tripulada, pode ocorrer queda da aeronave e morte de pessoas.",
+        mitigation: "Operador deve manter atenção ao tráfego aéreo local; em caso de aproximação de aeronave tripulada, suspender o voo tão rápido quanto possível e seguro."
+      },
+      {
+        title: "Presença de pessoas não anuentes",
+        probability: "1",
+        probabilityJustification: "É bastante rara a ocorrência de pessoas não anuentes a menos de 30 metros do local da operação.",
+        severity: "B",
+        severityJustification: "Em caso de falha catastrófica do equipamento, a severidade provável são lesões sérias à pessoa atingida ou morte.",
+        mitigation: "Verificar presença de pessoas no local; caso pessoas estejam a menos de 30 metros, não iniciar a operação antes da remoção. Se alguém acessar a área durante a operação, suspender o voo tão rápido quanto praticável e seguro."
+      },
+      {
+        title: "Incidência de ventos fortes e rajadas de vento",
+        probability: "4",
+        probabilityJustification: "Condição ocasional, dependente da meteorologia local e da época da operação.",
+        severity: "D",
+        severityJustification: "Condições de ventos fortes ou rajadas podem desestabilizar a aeronave e provocar sua queda.",
+        mitigation: "Verificar previamente as condições climáticas e no momento da operação; não realizar a operação em condições adversas; suspender o voo se houver mudança climática relevante."
+      },
+      {
+        title: "Mudança climática e incidência de chuvas",
+        probability: "3",
+        probabilityJustification: "Na época e locais da operação, mudanças climáticas rápidas com chuva não são frequentes.",
+        severity: "D",
+        severityJustification: "Operar a aeronave sob chuva pode acarretar instabilidade, perda de controle e queda.",
+        mitigation: "Verificar previamente as condições climáticas; não realizar a operação sob chuva; suspender o voo se a condição meteorológica mudar durante a operação."
+      },
+      {
+        title: "Colisão do drone com estruturas",
+        probability: "2",
+        probabilityJustification: "A operação ocorrerá a distância segura de estruturas e edificações.",
+        severity: "D",
+        severityJustification: "Colisão com obstáculo pode acarretar instabilidade, danos e queda da aeronave.",
+        mitigation: "Realizar inspeção pré-voo da área; identificar obstáculos; habilitar sensores de visão quando disponíveis; manter distância segura das estruturas."
+      },
+      {
+        title: "Ataque ou aproximação de aves",
+        probability: "2",
+        probabilityJustification: "Não há histórico relevante de ataques de aves na região informada.",
+        severity: "D",
+        severityJustification: "Interação com aves pode acarretar instabilidade, colisão e queda do equipamento.",
+        mitigation: "Verificar presença de aves antes da decolagem; não iniciar o voo até que se dispersem; em caso de aproximação durante a operação, suspender o voo tão rápido quanto possível e seguro."
+      }
+    ];
+
+    const defaultState = {
+      operatorName: "Vale S.A.",
+      documentRef: "E94.103(f)(2) e E94.103(g)(2)",
+      taxId: "33.592.510/0089-96",
+      scenario: "Aeroinspeção",
+      location: "Unidades Operacionais da Vale",
+      issueDate: todayISO(),
+      city: "",
+      responsibleName: "Vale S.A.",
+      responsibleCpf: "33.592.510/0089-96",
+      pilotName: "Marco Correa",
+      pilotCpf: "37910736215",
+      pilotSarpas: "ZPHG",
+      pilotContact: "94 981587005",
+      secondPilotName: "Balbino Frazão",
+      secondPilotCpf: "00574267328",
+      secondPilotSarpas: "KCCXES",
+      secondPilotContact: "94 992881207",
+      observerName: "",
+      distantThirdParties: "Sim / Não",
+      trainingRequired: "Sim",
+      trainingDescription: "Operação de Drone - Formação / Reciclagem",
+      accidentContacts: "CECOM / Bombeiro",
+      lostLinkContacts: "Órgão ATS:\nPatrimonial",
+      introduction: "Este documento de avaliação de risco operacional tem o objetivo de cumprir o estabelecido nos parágrafos E94.103(f)(2) e E94.103(g)(2) do RBAC-E nº 94, tendo sido elaborado conforme critérios estabelecidos na Instrução Suplementar E-94-003, denominada Procedimentos para elaboração e utilização de avaliação de risco operacional para operadores de aeronaves não tripuladas da ANAC - Agência Nacional de Aviação Civil.",
+      legislation: [
+        "Código Brasileiro de Aeronáutica (Lei nº 7.565/1986)",
+        "RBAC-E nº 94, da ANAC;",
+        "IS nº E94-003 - Revisão A, da ANAC;",
+        "Resolução nº 25/2008, da ANAC;",
+        "ICA 100-40, reeditada em 03/01/2019, do DECEA;",
+        "ICA 100-12, reeditada em 10/11/2016, do DECEA;",
+        "ICA 100-37, reeditada em 10/11/2016, do DECEA;",
+        "MCA 100-16, reeditada em 17/10/2016, do DECEA;",
+        "Resolução Anatel nº 242, de 30 de novembro de 2000;"
+      ].join("\n"),
+      finalDeclaration: "Declaro, para os devidos fins, que os pilotos remotos e observadores conhecem e cumprem a legislação e regulamentação aplicáveis, assim como conhecem as consequências do descumprimento.",
+      aircraft: [
+        {
+          model: "DJI Matrice 300 RTK (M300)",
+          serial: "1ZNBL1900C00M9",
+          anac: "PP-120198650",
+          anatel: "00809-21-07248",
+          insurance: "15414.900644/2018-42"
+        }
+      ],
+      risks: clone(defaultRisks)
+    };
+
+    let state = loadInitialState();
+
+    function todayISO() {
+      const now = new Date();
+      const offset = now.getTimezoneOffset();
+      return new Date(now.getTime() - offset * 60000).toISOString().slice(0, 10);
+    }
+
+    function structuredCloneFallback(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function clone(obj) {
+      if (typeof structuredClone === "function") return structuredClone(obj);
+      return structuredCloneFallback(obj);
+    }
+
+    function loadInitialState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) return normalizeState(JSON.parse(saved));
+      } catch (error) {
+        console.warn("Não foi possível carregar dados salvos.", error);
+      }
+      return normalizeState(clone(defaultState));
+    }
+
+    function normalizeState(input) {
+      const merged = { ...clone(defaultState), ...input };
+      merged.aircraft = Array.isArray(input.aircraft) && input.aircraft.length ? input.aircraft : clone(defaultState.aircraft);
+      merged.risks = Array.isArray(input.risks) && input.risks.length ? input.risks : clone(defaultRisks);
+      return merged;
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function nl2br(value) {
+      return escapeHTML(value).replace(/\n/g, "<br>");
+    }
+
+    function formatDate(value) {
+      if (!value) return "";
+      const parts = value.split("-").map(Number);
+      if (parts.length !== 3) return value;
+      const date = new Date(parts[0], parts[1] - 1, parts[2]);
+      return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+    }
+
+    function validUntil(value) {
+      if (!value) return "";
+      const parts = value.split("-").map(Number);
+      const date = new Date(parts[0], parts[1] - 1, parts[2]);
+      date.setFullYear(date.getFullYear() + 1);
+      date.setDate(date.getDate() - 1);
+      return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+    }
+
+    function riskCode(risk) {
+      return `${risk.probability || ""}${risk.severity || ""}`;
+    }
+
+    function classify(code) {
+      return riskClassMap[code] || "baixo";
+    }
+
+    function metaForRisk(risk) {
+      return riskMeta[classify(riskCode(risk))];
+    }
+
+    function riskUsageCounts() {
+      return state.risks.reduce((counts, risk) => {
+        const code = riskCode(risk);
+        if (!risk.probability || !risk.severity) return counts;
+        counts[code] = (counts[code] || 0) + 1;
+        return counts;
+      }, {});
+    }
+
+    function riskClassCounts() {
+      return state.risks.reduce((counts, risk) => {
+        const key = classify(riskCode(risk));
+        counts[key] = (counts[key] || 0) + 1;
+        return counts;
+      }, {});
+    }
+
+    function sortRiskCodes(codes) {
+      return codes.sort((a, b) => {
+        const rankDelta = riskMeta[classify(b)].rank - riskMeta[classify(a)].rank;
+        if (rankDelta) return rankDelta;
+        const probabilityDelta = Number(b.slice(0, 1)) - Number(a.slice(0, 1));
+        if (probabilityDelta) return probabilityDelta;
+        return a.slice(1).localeCompare(b.slice(1));
+      });
+    }
+
+    function highestRisk() {
+      if (!state.risks.length) return riskMeta["muito-baixo"];
+      return state.risks
+        .map(metaForRisk)
+        .sort((a, b) => b.rank - a.rank)[0];
+    }
+
+    function bindFormFields() {
+      document.querySelectorAll("[data-field]").forEach((field) => {
+        field.value = state[field.dataset.field] ?? "";
+        field.addEventListener("input", () => {
+          state[field.dataset.field] = field.value;
+          renderAll(false);
+        });
+        field.addEventListener("change", () => {
+          state[field.dataset.field] = field.value;
+          renderAll(false);
+        });
+      });
+    }
+
+    function renderAircraftEditor() {
+      const container = document.getElementById("aircraftEditor");
+      container.innerHTML = state.aircraft.map((aircraft, index) => `
+        <div class="aircraft-item">
+          <div class="risk-head">
+            <h3>Aeronave ${index + 1}</h3>
+            ${state.aircraft.length > 1 ? `<button type="button" class="danger" data-remove-aircraft="${index}">Remover</button>` : ""}
+          </div>
+          <div class="grid">
+            <div class="field full">
+              <label>Fabricante e modelo</label>
+              <input data-aircraft="${index}" data-aircraft-field="model" value="${escapeHTML(aircraft.model)}">
+            </div>
+            <div class="field">
+              <label>Número de série</label>
+              <input data-aircraft="${index}" data-aircraft-field="serial" value="${escapeHTML(aircraft.serial)}">
+            </div>
+            <div class="field">
+              <label>Cadastro/registro ANAC</label>
+              <input data-aircraft="${index}" data-aircraft-field="anac" value="${escapeHTML(aircraft.anac)}">
+            </div>
+            <div class="field">
+              <label>Homologação ANATEL</label>
+              <input data-aircraft="${index}" data-aircraft-field="anatel" value="${escapeHTML(aircraft.anatel)}">
+            </div>
+            <div class="field">
+              <label>Seguro RETA</label>
+              <input data-aircraft="${index}" data-aircraft-field="insurance" value="${escapeHTML(aircraft.insurance)}">
+            </div>
+          </div>
+        </div>
+      `).join("");
+
+      container.querySelectorAll("[data-aircraft]").forEach((input) => {
+        input.addEventListener("input", () => {
+          const index = Number(input.dataset.aircraft);
+          state.aircraft[index][input.dataset.aircraftField] = input.value;
+          renderAll(false);
+        });
+      });
+
+      container.querySelectorAll("[data-remove-aircraft]").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.aircraft.splice(Number(button.dataset.removeAircraft), 1);
+          renderAll();
+        });
+      });
+    }
+
+    function optionsFor(source, selected) {
+      return Object.entries(source).map(([value, item]) => (
+        `<option value="${value}" ${value === selected ? "selected" : ""}>${escapeHTML(item.label)}</option>`
+      )).join("");
+    }
+
+    function renderRiskEditor() {
+      const container = document.getElementById("riskEditor");
+      container.innerHTML = state.risks.map((risk, index) => {
+        const code = riskCode(risk);
+        const meta = metaForRisk(risk);
+        return `
+          <div class="risk-item">
+            <div class="risk-head">
+              <h3>Situação ${index + 1}</h3>
+              <span class="risk-badge ${meta.css}">${escapeHTML(code)} - ${escapeHTML(meta.label)}</span>
+            </div>
+            <div class="field">
+              <label>Perigo / situação operacional</label>
+              <input data-risk="${index}" data-risk-field="title" value="${escapeHTML(risk.title)}">
+            </div>
+            <div class="grid">
+              <div class="field">
+                <label>Probabilidade</label>
+                <select data-risk="${index}" data-risk-field="probability">${optionsFor(probabilityLevels, risk.probability)}</select>
+              </div>
+              <div class="field">
+                <label>Severidade</label>
+                <select data-risk="${index}" data-risk-field="severity">${optionsFor(severityLevels, risk.severity)}</select>
+              </div>
+              <div class="field full">
+                <label>Justificativa da probabilidade</label>
+                <textarea data-risk="${index}" data-risk-field="probabilityJustification">${escapeHTML(risk.probabilityJustification)}</textarea>
+              </div>
+              <div class="field full">
+                <label>Justificativa da severidade</label>
+                <textarea data-risk="${index}" data-risk-field="severityJustification">${escapeHTML(risk.severityJustification)}</textarea>
+              </div>
+              <div class="field full">
+                <label>Medidas de mitigação do risco</label>
+                <textarea data-risk="${index}" data-risk-field="mitigation">${escapeHTML(risk.mitigation)}</textarea>
+              </div>
+            </div>
+            <div class="inline-actions">
+              <button type="button" class="danger" data-remove-risk="${index}">Remover situação</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      container.querySelectorAll("[data-risk]").forEach((field) => {
+        field.addEventListener("input", () => {
+          const index = Number(field.dataset.risk);
+          state.risks[index][field.dataset.riskField] = field.value;
+          renderAll(false);
+        });
+        field.addEventListener("change", () => {
+          const index = Number(field.dataset.risk);
+          state.risks[index][field.dataset.riskField] = field.value;
+          renderAll();
+        });
+      });
+
+      container.querySelectorAll("[data-remove-risk]").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.risks.splice(Number(button.dataset.removeRisk), 1);
+          renderAll();
+        });
+      });
+    }
+
+    function renderStatusStrip() {
+      const highest = highestRisk();
+      const pendingCore = [
+        state.operatorName,
+        state.scenario,
+        state.location,
+        state.responsibleName,
+        state.pilotName
+      ].filter(Boolean).length;
+
+      document.getElementById("statusStrip").innerHTML = `
+        <div class="metric metric-risk ${highest.css}">
+          <span>Maior tolerabilidade</span>
+          <strong>${escapeHTML(highest.label)}</strong>
+          <em class="metric-sub">Aprovação: ${escapeHTML(highest.approval)}</em>
+        </div>
+        <div class="metric">
+          <span>Situações avaliadas</span>
+          <strong>${state.risks.length}</strong>
+        </div>
+        <div class="metric">
+          <span>Validade automática</span>
+          <strong>${escapeHTML(validUntil(state.issueDate) || "Definir data")}</strong>
+        </div>
+        <div class="metric">
+          <span>Campos principais</span>
+          <strong>${pendingCore}/5</strong>
+        </div>
+      `;
+    }
+
+    function riskMatrixHTML() {
+      const severities = ["A", "B", "C", "D", "E"];
+      const probabilities = ["5", "4", "3", "2", "1"];
+      const usage = riskUsageCounts();
+      return `
+        <table class="doc-table compact">
+          <thead>
+            <tr>
+              <th>Probabilidade / Severidade</th>
+              ${severities.map((severity) => `<th>${severity}<br><span class="muted">${escapeHTML(severityLevels[severity].short)}</span></th>`).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${probabilities.map((probability) => `
+              <tr>
+                <td>${probability} - ${escapeHTML(probabilityLevels[probability].short)}</td>
+                ${severities.map((severity) => {
+                  const code = `${probability}${severity}`;
+                  const meta = riskMeta[classify(code)];
+                  const used = usage[code] || 0;
+                  return `<td class="matrix-cell ${meta.css} ${used ? "matrix-used" : ""}">${code}<br><span>${escapeHTML(meta.label.replace("Risco ", ""))}</span>${used ? `<br><span class="used-count">usado ${used}x</span>` : ""}</td>`;
+                }).join("")}
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function automaticRiskSummaryHTML() {
+      const highest = highestRisk();
+      const usage = riskUsageCounts();
+      const classCounts = riskClassCounts();
+      const codes = sortRiskCodes(Object.keys(usage));
+      const distribution = Object.entries(riskMeta)
+        .sort((a, b) => b[1].rank - a[1].rank)
+        .filter(([key]) => classCounts[key])
+        .map(([key, meta]) => `${meta.label}: ${classCounts[key]}`)
+        .join(" | ");
+      const codeTags = codes.length
+        ? codes.map((code) => `<span class="auto-tag">${escapeHTML(code)} (${usage[code]})</span>`).join("")
+        : `<span class="auto-tag">Sem riscos cadastrados</span>`;
+
+      return `
+        <div class="risk-summary">
+          <div class="callout ${highest.css}">
+            <span class="label">Resultado automático</span>
+            <strong>${escapeHTML(highest.label)}</strong><br>
+            Aprovação: ${escapeHTML(highest.approval)}
+          </div>
+          <div class="callout">
+            <span class="label">Decisão automática</span>
+            ${escapeHTML(highest.recommendation)}
+          </div>
+        </div>
+        <div class="callout">
+          <span class="label">Códigos calculados na avaliação</span>
+          <div class="auto-tags">${codeTags}</div>
+          <p class="small" style="margin-top: 8px;">${escapeHTML(distribution || "Sem distribuição de tolerabilidade.")}</p>
+        </div>
+      `;
+    }
+
+    function riskLegendHTML() {
+      const order = ["extremo", "alto", "moderado", "baixo", "muito-baixo"];
+      return `<div class="risk-legend">` + order.map((k) => {
+        const m = riskMeta[k];
+        return `<span class="legend-item"><span class="legend-swatch ${m.css}"></span>${escapeHTML(m.label)} &middot; ${escapeHTML(m.approval)}</span>`;
+      }).join("") + `</div>`;
+    }
+
+    function riskDistributionHTML() {
+      const order = ["extremo", "alto", "moderado", "baixo", "muito-baixo"];
+      const classCounts = riskClassCounts();
+      const total = state.risks.length || 1;
+      const rows = order.map((k) => {
+        const m = riskMeta[k];
+        const c = classCounts[k] || 0;
+        const pct = Math.round((c / total) * 100);
+        const width = c ? Math.max(pct, 6) : 0;
+        return `<div class="dist-row">
+          <span class="dist-label">${escapeHTML(m.label)}</span>
+          <div class="dist-track"><div class="dist-fill ${m.css}" style="width:${width}%"></div></div>
+          <span class="dist-count">${c}</span>
+        </div>`;
+      }).join("");
+      return `<div class="dist-bars">${rows}</div>`;
+    }
+
+    function executiveSummaryText() {
+      const highest = highestRisk();
+      const n = state.risks.length;
+      const classCounts = riskClassCounts();
+      const altos = (classCounts["alto"] || 0) + (classCounts["extremo"] || 0);
+      const scenario = state.scenario || "operação com drone";
+      const operator = state.operatorName || "o operador";
+      let verdict;
+      if (highest.rank >= 5) {
+        verdict = "A operação NÃO deve ocorrer enquanto persistir a condição; se estiver em curso, deve cessar imediatamente até a redução do risco.";
+      } else if (highest.rank === 4) {
+        verdict = "A operação não deveria ocorrer sem mitigação suficiente e autorização da gestão (" + highest.approval + ").";
+      } else if (highest.rank === 3) {
+        verdict = "A operação pode ocorrer desde que os controles preventivos estejam estabelecidos e em vigor.";
+      } else {
+        verdict = "A operação é aceitável como concebida, observados os controles preventivos.";
+      }
+      return "Foram avaliadas " + n + " situacao(oes) de risco para o cenario de " + scenario +
+        " conduzido por " + operator + ". O maior nivel de tolerabilidade calculado automaticamente e \"" +
+        highest.label + "\"" + (altos ? ", com " + altos + " situacao(oes) classificada(s) como alto ou extremo risco. " : ". ") +
+        "Nivel de aprovacao requerido: " + highest.approval + ". " + verdict;
+    }
+
+    function aircraftRowsHTML() {
+      const rows = state.aircraft.filter((aircraft) => Object.values(aircraft).some(Boolean));
+      if (!rows.length) return `<p class="empty-note">Nenhuma aeronave preenchida.</p>`;
+      return `
+        <table class="doc-table">
+          <thead>
+            <tr>
+              <th>Fabricante/modelo</th>
+              <th>Nº de série</th>
+              <th>Cadastro ANAC</th>
+              <th>Homologação ANATEL</th>
+              <th>Seguro RETA</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map((aircraft) => `
+              <tr>
+                <td>${escapeHTML(aircraft.model)}</td>
+                <td>${escapeHTML(aircraft.serial)}</td>
+                <td>${escapeHTML(aircraft.anac)}</td>
+                <td>${escapeHTML(aircraft.anatel)}</td>
+                <td>${escapeHTML(aircraft.insurance)}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function riskRowsHTML() {
+      if (!state.risks.length) return `<p class="empty-note">Nenhuma situação de risco cadastrada.</p>`;
+      return `
+        <table class="doc-table">
+          <thead>
+            <tr>
+              <th style="width: 18%">Situação</th>
+              <th style="width: 16%">Probabilidade</th>
+              <th style="width: 16%">Severidade</th>
+              <th style="width: 9%">Risco</th>
+              <th style="width: 14%">Tolerabilidade</th>
+              <th>Mitigação / decisão operacional</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${state.risks.map((risk, index) => {
+              const code = riskCode(risk);
+              const meta = metaForRisk(risk);
+              return `
+                <tr>
+                  <td><strong>Situação ${index + 1}</strong><br>${escapeHTML(risk.title)}</td>
+                  <td><strong>${escapeHTML(probabilityLevels[risk.probability]?.label || risk.probability)}</strong><br>${escapeHTML(risk.probabilityJustification)}</td>
+                  <td><strong>${escapeHTML(severityLevels[risk.severity]?.label || risk.severity)}</strong><br>${escapeHTML(risk.severityJustification)}</td>
+                  <td class="matrix-cell ${meta.css}">${escapeHTML(code)}</td>
+                  <td><strong>${escapeHTML(meta.label)}</strong><br>${escapeHTML(meta.approval)}</td>
+                  <td>${escapeHTML(risk.mitigation)}<br><br><strong>Orientação:</strong> ${escapeHTML(meta.recommendation)}</td>
+                </tr>
+              `;
+            }).join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function renderReport() {
+      const highest = highestRisk();
+      const operator = state.operatorName || "[Operador]";
+      document.getElementById("report").innerHTML = `
+        <header class="doc-cover">
+          <div class="eyebrow">Avaliação de Risco Operacional</div>
+          <h1 class="doc-title">Operações com Drone / RPA</h1>
+          <p class="doc-subtitle">Documento elaborado conforme os parágrafos ${escapeHTML(state.documentRef)} do RBAC-E nº 94 da ANAC, com critérios de matriz e tolerabilidade baseados na IS nº E94-003 - Revisão A.</p>
+          <div class="doc-meta">
+            <div><span>Operador</span>${escapeHTML(operator)}</div>
+            <div><span>Cenário</span>${escapeHTML(state.scenario || "[cenário operacional]")}</div>
+            <div><span>Emissão</span>${escapeHTML(formatDate(state.issueDate) || "[data]")}</div>
+            <div><span>Validade</span>${escapeHTML(validUntil(state.issueDate) || "[validade]")}</div>
+          </div>
+        </header>
+
+        <section class="doc-section">
+          <h2>1. Introdução</h2>
+          <p>${nl2br(state.introduction || "Este documento estabelece a avaliação de risco operacional para operações com aeronave não tripulada, considerando o cenário declarado, as aeronaves envolvidas, a equipe operacional, a legislação aplicável, os perigos identificados e as medidas mitigadoras necessárias.")}</p>
+        </section>
+
+        <section class="doc-section">
+          <h2>2. Identificação da Operação</h2>
+          <div class="kv-grid">
+            <div class="kv"><strong>Operador</strong><span>${escapeHTML(state.operatorName || "[preencher]")}</span></div>
+            <div class="kv"><strong>CPF/CNPJ</strong><span>${escapeHTML(state.taxId || "[preencher]")}</span></div>
+            <div class="kv"><strong>Cenário operacional</strong><span>${escapeHTML(state.scenario || "[preencher]")}</span></div>
+            <div class="kv"><strong>Localização</strong><span>${escapeHTML(state.location || "[preencher]")}</span></div>
+            <div class="kv"><strong>Operador em Comando 1</strong><span>${escapeHTML(state.pilotName || "[preencher]")}</span></div>
+            <div class="kv"><strong>Contato do operador 1</strong><span>${escapeHTML(state.pilotContact || "[preencher]")}</span></div>
+            <div class="kv"><strong>CPF do operador 1</strong><span>${escapeHTML(state.pilotCpf || "[preencher]")}</span></div>
+            <div class="kv"><strong>ID SARPAS do operador 1</strong><span>${escapeHTML(state.pilotSarpas || "[preencher]")}</span></div>
+            <div class="kv"><strong>Operador em Comando 2</strong><span>${escapeHTML(state.secondPilotName || "[preencher]")}</span></div>
+            <div class="kv"><strong>Contato do operador 2</strong><span>${escapeHTML(state.secondPilotContact || "[preencher]")}</span></div>
+            <div class="kv"><strong>CPF do operador 2</strong><span>${escapeHTML(state.secondPilotCpf || "[preencher]")}</span></div>
+            <div class="kv"><strong>ID SARPAS do operador 2</strong><span>${escapeHTML(state.secondPilotSarpas || "[preencher]")}</span></div>
+            <div class="kv"><strong>Observador</strong><span>${escapeHTML(state.observerName || "Não informado / não aplicável")}</span></div>
+            <div class="kv"><strong>Cidade/UF</strong><span>${escapeHTML(state.city || "[preencher]")}</span></div>
+          </div>
+        </section>
+
+        <section class="doc-section">
+          <h2>3. Aeronave(s) em Operação</h2>
+          ${aircraftRowsHTML()}
+        </section>
+
+        <section class="doc-section">
+          <h2>4. Aspectos Gerais e Emergência</h2>
+          <div class="kv-grid">
+            <div class="kv"><strong>Obrigação de manter área distante de terceiros</strong><span>${escapeHTML(state.distantThirdParties)}</span></div>
+            <div class="kv"><strong>Treinamento inicial ou periódico específico</strong><span>${escapeHTML(state.trainingRequired)}</span></div>
+          </div>
+          <h3>Treinamento</h3>
+          <p>${nl2br(state.trainingDescription || "[preencher]")}</p>
+          <h3>Acidente com lesão a pessoas</h3>
+          <p>${nl2br(state.accidentContacts || "[preencher]")}</p>
+          <h3>Perda de contato/enlace com a aeronave</h3>
+          <p>${nl2br(state.lostLinkContacts || "[preencher]")}</p>
+        </section>
+
+        <section class="doc-section">
+          <h2>5. Legislação Aplicável</h2>
+          <p>${nl2br(state.legislation || "[preencher]")}</p>
+        </section>
+
+        <section class="doc-section">
+          <h2>6. Avaliação de Riscos</h2>
+          <div class="exec-summary">
+            <span class="label">Resumo executivo automático</span>
+            <p>${escapeHTML(executiveSummaryText())}</p>
+          </div>
+          ${automaticRiskSummaryHTML()}
+          <h3>Distribuição automática por tolerabilidade</h3>
+          ${riskDistributionHTML()}
+          ${riskRowsHTML()}
+        </section>
+
+        <section class="doc-section">
+          <h2>7. Matriz de Risco Utilizada</h2>
+          <p>A classificação do risco é expressa pelo par probabilidade + severidade. Exemplo: 4D significa probabilidade ocasional e severidade pequena. As células destacadas como "usado" são marcadas automaticamente conforme as situações cadastradas na avaliação.</p>
+          ${riskMatrixHTML()}
+          <h3>Legenda de tolerabilidade e nível de aprovação</h3>
+          ${riskLegendHTML()}
+          <h3>Escala de probabilidade</h3>
+          <table class="doc-table">
+            <tbody>
+              ${Object.entries(probabilityLevels).reverse().map(([key, item]) => `<tr><th style="width: 150px">${escapeHTML(item.label)}</th><td>${escapeHTML(item.description)}</td></tr>`).join("")}
+            </tbody>
+          </table>
+          <h3>Escala de severidade</h3>
+          <table class="doc-table">
+            <tbody>
+              ${Object.entries(severityLevels).map(([key, item]) => `<tr><th style="width: 150px">${escapeHTML(item.label)}</th><td>${escapeHTML(item.description)}</td></tr>`).join("")}
+            </tbody>
+          </table>
+        </section>
+
+        <section class="doc-section">
+          <h2>8. Disposições Finais</h2>
+          <p>${nl2br(state.finalDeclaration || "[preencher]")}</p>
+          <p>Esta Avaliação de Risco Operacional é válida até ${escapeHTML(validUntil(state.issueDate) || "[preencher]")}, devendo ser revisada sempre que houver mudança relevante no cenário operacional, aeronave, equipe, local, legislação aplicável ou medidas mitigadoras.</p>
+          <div class="signature-grid">
+            <div class="signature">
+              ${escapeHTML(state.responsibleName || "Responsável pela Avaliação de Risco Operacional")}<br>
+              ${escapeHTML(state.responsibleCpf || "CPF / identificação")}
+            </div>
+            <div class="signature">
+              ${escapeHTML(state.city || "[Cidade/UF]")}, ${escapeHTML(formatDate(state.issueDate) || "[data]")}<br>
+              Assinatura / rubrica
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderAll(rebuildEditors = true) {
+      if (rebuildEditors) {
+        renderAircraftEditor();
+        renderRiskEditor();
+      }
+      renderStatusStrip();
+      renderReport();
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      alert("Dados salvos neste navegador.");
+    }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "avaliacao-risco-operacional-drone.json";
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importData(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          state = normalizeState(JSON.parse(reader.result));
+          syncInputs();
+          renderAll();
+        } catch (error) {
+          alert("Não foi possível importar o arquivo JSON.");
+        }
+      };
+      reader.readAsText(file, "utf-8");
+    }
+
+    function syncInputs() {
+      document.querySelectorAll("[data-field]").forEach((field) => {
+        field.value = state[field.dataset.field] ?? "";
+      });
+    }
+
+    function setupActions() {
+      document.getElementById("printButton").addEventListener("click", () => {
+        renderAll(false);
+        window.print();
+      });
+      document.getElementById("saveButton").addEventListener("click", saveData);
+      document.getElementById("exportButton").addEventListener("click", exportData);
+      document.getElementById("importButton").addEventListener("click", () => document.getElementById("importFile").click());
+      document.getElementById("importFile").addEventListener("change", (event) => importData(event.target.files[0]));
+      document.getElementById("resetButton").addEventListener("click", () => {
+        if (!confirm("Restaurar o modelo padrão? Os dados não salvos serão perdidos.")) return;
+        state = normalizeState(clone(defaultState));
+        syncInputs();
+        renderAll();
+      });
+      document.getElementById("addAircraftButton").addEventListener("click", () => {
+        state.aircraft.push({ model: "", serial: "", anac: "", anatel: "", insurance: "" });
+        renderAll();
+      });
+      document.getElementById("addRiskButton").addEventListener("click", () => {
+        state.risks.push({
+          title: "Nova situação operacional",
+          probability: "2",
+          probabilityJustification: "",
+          severity: "D",
+          severityJustification: "",
+          mitigation: ""
+        });
+        renderAll();
+      });
+      document.getElementById("defaultRisksButton").addEventListener("click", () => {
+        if (!confirm("Gerar automaticamente a avaliação de riscos padrão para esta operação? As situações atuais serão substituídas.")) return;
+        state.risks = clone(defaultRisks);
+        renderAll();
+      });
+    }
+
+    bindFormFields();
+    setupActions();
+    renderAll();
+  </script>
+</body>
+</html>
