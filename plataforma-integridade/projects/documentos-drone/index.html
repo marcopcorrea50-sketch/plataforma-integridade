@@ -26,8 +26,6 @@
 
     * {
       box-sizing: border-box;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
     }
 
     body {
@@ -603,14 +601,8 @@
     }
 
     @media print {
-      * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-      }
       body {
         background: #fff;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
       }
 
       .sidebar,
@@ -640,10 +632,7 @@
       .callout,
       .metric,
       .aircraft-item,
-      .risk-item,
-      .exec-summary,
-      .dist-bars,
-      .risk-legend {
+      .risk-item {
         break-inside: avoid;
       }
 
@@ -659,31 +648,6 @@
         margin-top: 0;
       }
     }
-
-    /* ---- aprimoramentos automáticos ---- */
-    .exec-summary{border:1px solid var(--line);border-left:6px solid var(--accent);background:#f4faf8;border-radius:8px;padding:12px 14px;margin-bottom:14px}
-    .exec-summary p{margin:5px 0 0;font-size:13.5px;line-height:1.5}
-    .dist-bars{display:flex;flex-direction:column;gap:7px;margin:8px 0 14px}
-    .dist-row{display:grid;grid-template-columns:160px 1fr 30px;align-items:center;gap:10px}
-    .dist-label{font-size:11px;font-weight:800;color:#46554e}
-    .dist-track{height:16px;background:#eef4f1;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
-    .dist-fill{display:block;height:14px;border-radius:999px}
-    .dist-count{font-weight:900;font-size:13px;text-align:right}
-    .dist-fill.class-extremo{background:#e8635a}
-    .dist-fill.class-alto{background:#e9962f}
-    .dist-fill.class-moderado{background:#e6c34a}
-    .dist-fill.class-baixo{background:#7fc04a}
-    .dist-fill.class-muito-baixo{background:#46b98a}
-    .risk-legend{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}
-    .legend-item{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;border:1px solid var(--line);border-radius:999px;padding:4px 9px;background:#fff}
-    .legend-swatch{width:13px;height:13px;border-radius:3px;border:1px solid rgba(0,0,0,.12)}
-    .metric-risk{border-left:6px solid var(--accent)}
-    .metric-sub{display:block;margin-top:4px;color:var(--muted);font-size:11px;font-style:normal;font-weight:700}
-    .metric-risk.class-extremo{border-left-color:#b42318}
-    .metric-risk.class-alto{border-left-color:#c2660a}
-    .metric-risk.class-moderado{border-left-color:#b9911a}
-    .metric-risk.class-baixo{border-left-color:#4f8a1a}
-    .metric-risk.class-muito-baixo{border-left-color:#0f766e}
   </style>
 </head>
 <body>
@@ -791,6 +755,13 @@
               <label for="observerName">Observador</label>
               <input id="observerName" data-field="observerName" placeholder="Se aplicável">
             </div>
+            <div class="field full">
+              <div id="extraOperatorsEditor"></div>
+              <div class="inline-actions">
+                <button type="button" class="secondary" id="addOperatorButton">Adicionar Operador</button>
+                <button type="button" class="danger" id="removeOperatorButton">Remover Operador</button>
+              </div>
+            </div>
             <div class="field">
               <label for="distantThirdParties">Área distante de terceiros?</label>
               <select id="distantThirdParties" data-field="distantThirdParties">
@@ -873,7 +844,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "avaliacaoRiscoDrone.v3";
+    const STORAGE_KEY = "avaliacaoRiscoDrone.v2";
 
     const probabilityLevels = {
       "5": { label: "5 (frequente)", short: "Frequente", description: "É provável que ocorra muitas vezes, ou historicamente tem ocorrido frequentemente." },
@@ -885,8 +856,8 @@
 
     const severityLevels = {
       A: { label: "A (catastrófico)", short: "Catastrófico", description: "Morte de múltiplas pessoas." },
-      B: { label: "B (crítico)", short: "Crítico", description: "Morte de pessoa, lesões gravíssimas, capazes de deixar sequelas significativas e/ou incapacitantes (cegueira, paralisia, amputações etc.)." },
-      C: { label: "C (significativo)", short: "Significativo", description: "Lesões sérias a pessoas, mas não incapacitantes nem com sequelas significativas." },
+      B: { label: "B (crítico)", short: "Crítico", description: "Morte de pessoa, lesões gravíssimas ou sequelas significativas/incapacitantes." },
+      C: { label: "C (significativo)", short: "Significativo", description: "Lesões sérias a pessoas, sem incapacidade ou sequelas significativas." },
       D: { label: "D (pequeno)", short: "Pequeno", description: "Incidentes menores, danos a objetos, animais ou vegetação no solo, lesões leves." },
       E: { label: "E (insignificante)", short: "Insignificante", description: "Somente danos ao equipamento." }
     };
@@ -910,7 +881,7 @@
       baixo: {
         label: "Baixo risco",
         rank: 2,
-        approval: "Chefia imediata (opcional)",
+        approval: "Operador em Comando",
         recommendation: "A operação pode ocorrer; controles preventivos e aprovação por chefia imediata são opcionais.",
         css: "class-baixo"
       },
@@ -1015,6 +986,7 @@
       secondPilotSarpas: "KCCXES",
       secondPilotContact: "94 992881207",
       observerName: "",
+      extraOperators: [],
       distantThirdParties: "Sim / Não",
       trainingRequired: "Sim",
       trainingDescription: "Operação de Drone - Formação / Reciclagem",
@@ -1075,6 +1047,7 @@
     function normalizeState(input) {
       const merged = { ...clone(defaultState), ...input };
       merged.aircraft = Array.isArray(input.aircraft) && input.aircraft.length ? input.aircraft : clone(defaultState.aircraft);
+      merged.extraOperators = Array.isArray(input.extraOperators) ? input.extraOperators : [];
       merged.risks = Array.isArray(input.risks) && input.risks.length ? input.risks : clone(defaultRisks);
       return merged;
     }
@@ -1218,6 +1191,56 @@
       });
     }
 
+    function renderExtraOperatorsEditor() {
+      const container = document.getElementById("extraOperatorsEditor");
+      if (!container) return;
+
+      container.innerHTML = (state.extraOperators || []).map((operator, index) => {
+        const number = index + 3;
+        return `
+          <div class="aircraft-item">
+            <div class="risk-head">
+              <h3>Operador em Comando ${number}</h3>
+              <button type="button" class="danger" data-remove-operator="${index}">Remover Operador</button>
+            </div>
+            <div class="grid">
+              <div class="field full">
+                <label>Nome do operador</label>
+                <input data-extra-operator="${index}" data-operator-field="name" value="${escapeHTML(operator.name)}">
+              </div>
+              <div class="field">
+                <label>CPF</label>
+                <input data-extra-operator="${index}" data-operator-field="cpf" value="${escapeHTML(operator.cpf)}">
+              </div>
+              <div class="field">
+                <label>ID SARPAS</label>
+                <input data-extra-operator="${index}" data-operator-field="sarpas" value="${escapeHTML(operator.sarpas)}">
+              </div>
+              <div class="field">
+                <label>Contato</label>
+                <input data-extra-operator="${index}" data-operator-field="contact" value="${escapeHTML(operator.contact)}">
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      container.querySelectorAll("[data-extra-operator]").forEach((input) => {
+        input.addEventListener("input", () => {
+          const index = Number(input.dataset.extraOperator);
+          state.extraOperators[index][input.dataset.operatorField] = input.value;
+          renderAll(false);
+        });
+      });
+
+      container.querySelectorAll("[data-remove-operator]").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.extraOperators.splice(Number(button.dataset.removeOperator), 1);
+          renderAll();
+        });
+      });
+    }
+
     function optionsFor(source, selected) {
       return Object.entries(source).map(([value, item]) => (
         `<option value="${value}" ${value === selected ? "selected" : ""}>${escapeHTML(item.label)}</option>`
@@ -1300,10 +1323,9 @@
       ].filter(Boolean).length;
 
       document.getElementById("statusStrip").innerHTML = `
-        <div class="metric metric-risk ${highest.css}">
+        <div class="metric">
           <span>Maior tolerabilidade</span>
           <strong>${escapeHTML(highest.label)}</strong>
-          <em class="metric-sub">Aprovação: ${escapeHTML(highest.approval)}</em>
         </div>
         <div class="metric">
           <span>Situações avaliadas</span>
@@ -1383,55 +1405,6 @@
       `;
     }
 
-    function riskLegendHTML() {
-      const order = ["extremo", "alto", "moderado", "baixo", "muito-baixo"];
-      return `<div class="risk-legend">` + order.map((k) => {
-        const m = riskMeta[k];
-        return `<span class="legend-item"><span class="legend-swatch ${m.css}"></span>${escapeHTML(m.label)} &middot; ${escapeHTML(m.approval)}</span>`;
-      }).join("") + `</div>`;
-    }
-
-    function riskDistributionHTML() {
-      const order = ["extremo", "alto", "moderado", "baixo", "muito-baixo"];
-      const classCounts = riskClassCounts();
-      const total = state.risks.length || 1;
-      const rows = order.map((k) => {
-        const m = riskMeta[k];
-        const c = classCounts[k] || 0;
-        const pct = Math.round((c / total) * 100);
-        const width = c ? Math.max(pct, 6) : 0;
-        return `<div class="dist-row">
-          <span class="dist-label">${escapeHTML(m.label)}</span>
-          <div class="dist-track"><div class="dist-fill ${m.css}" style="width:${width}%"></div></div>
-          <span class="dist-count">${c}</span>
-        </div>`;
-      }).join("");
-      return `<div class="dist-bars">${rows}</div>`;
-    }
-
-    function executiveSummaryText() {
-      const highest = highestRisk();
-      const n = state.risks.length;
-      const classCounts = riskClassCounts();
-      const altos = (classCounts["alto"] || 0) + (classCounts["extremo"] || 0);
-      const scenario = state.scenario || "operação com drone";
-      const operator = state.operatorName || "o operador";
-      let verdict;
-      if (highest.rank >= 5) {
-        verdict = "A operação NÃO deve ocorrer enquanto persistir a condição; se estiver em curso, deve cessar imediatamente até a redução do risco.";
-      } else if (highest.rank === 4) {
-        verdict = "A operação não deveria ocorrer sem mitigação suficiente e autorização da gestão (" + highest.approval + ").";
-      } else if (highest.rank === 3) {
-        verdict = "A operação pode ocorrer desde que os controles preventivos estejam estabelecidos e em vigor.";
-      } else {
-        verdict = "A operação é aceitável como concebida, observados os controles preventivos.";
-      }
-      return "Foram avaliadas " + n + " situacao(oes) de risco para o cenario de " + scenario +
-        " conduzido por " + operator + ". O maior nivel de tolerabilidade calculado automaticamente e \"" +
-        highest.label + "\"" + (altos ? ", com " + altos + " situacao(oes) classificada(s) como alto ou extremo risco. " : ". ") +
-        "Nivel de aprovacao requerido: " + highest.approval + ". " + verdict;
-    }
-
     function aircraftRowsHTML() {
       const rows = state.aircraft.filter((aircraft) => Object.values(aircraft).some(Boolean));
       if (!rows.length) return `<p class="empty-note">Nenhuma aeronave preenchida.</p>`;
@@ -1495,6 +1468,21 @@
       `;
     }
 
+    function extraOperatorKVsHTML() {
+      return (state.extraOperators || [])
+        .filter((operator) => Object.values(operator).some(Boolean))
+        .map((operator, index) => {
+          const number = index + 3;
+          return `
+            <div class="kv"><strong>Operador em Comando ${number}</strong><span>${escapeHTML(operator.name || "[preencher]")}</span></div>
+            <div class="kv"><strong>Contato do operador ${number}</strong><span>${escapeHTML(operator.contact || "[preencher]")}</span></div>
+            <div class="kv"><strong>CPF do operador ${number}</strong><span>${escapeHTML(operator.cpf || "[preencher]")}</span></div>
+            <div class="kv"><strong>ID SARPAS do operador ${number}</strong><span>${escapeHTML(operator.sarpas || "[preencher]")}</span></div>
+          `;
+        })
+        .join("");
+    }
+
     function renderReport() {
       const highest = highestRisk();
       const operator = state.operatorName || "[Operador]";
@@ -1531,6 +1519,7 @@
             <div class="kv"><strong>Contato do operador 2</strong><span>${escapeHTML(state.secondPilotContact || "[preencher]")}</span></div>
             <div class="kv"><strong>CPF do operador 2</strong><span>${escapeHTML(state.secondPilotCpf || "[preencher]")}</span></div>
             <div class="kv"><strong>ID SARPAS do operador 2</strong><span>${escapeHTML(state.secondPilotSarpas || "[preencher]")}</span></div>
+            ${extraOperatorKVsHTML()}
             <div class="kv"><strong>Observador</strong><span>${escapeHTML(state.observerName || "Não informado / não aplicável")}</span></div>
             <div class="kv"><strong>Cidade/UF</strong><span>${escapeHTML(state.city || "[preencher]")}</span></div>
           </div>
@@ -1562,13 +1551,7 @@
 
         <section class="doc-section">
           <h2>6. Avaliação de Riscos</h2>
-          <div class="exec-summary">
-            <span class="label">Resumo executivo automático</span>
-            <p>${escapeHTML(executiveSummaryText())}</p>
-          </div>
           ${automaticRiskSummaryHTML()}
-          <h3>Distribuição automática por tolerabilidade</h3>
-          ${riskDistributionHTML()}
           ${riskRowsHTML()}
         </section>
 
@@ -1576,8 +1559,6 @@
           <h2>7. Matriz de Risco Utilizada</h2>
           <p>A classificação do risco é expressa pelo par probabilidade + severidade. Exemplo: 4D significa probabilidade ocasional e severidade pequena. As células destacadas como "usado" são marcadas automaticamente conforme as situações cadastradas na avaliação.</p>
           ${riskMatrixHTML()}
-          <h3>Legenda de tolerabilidade e nível de aprovação</h3>
-          ${riskLegendHTML()}
           <h3>Escala de probabilidade</h3>
           <table class="doc-table">
             <tbody>
@@ -1612,6 +1593,7 @@
 
     function renderAll(rebuildEditors = true) {
       if (rebuildEditors) {
+        renderExtraOperatorsEditor();
         renderAircraftEditor();
         renderRiskEditor();
       }
@@ -1672,6 +1654,18 @@
       });
       document.getElementById("addAircraftButton").addEventListener("click", () => {
         state.aircraft.push({ model: "", serial: "", anac: "", anatel: "", insurance: "" });
+        renderAll();
+      });
+      document.getElementById("addOperatorButton").addEventListener("click", () => {
+        state.extraOperators.push({ name: "", cpf: "", sarpas: "", contact: "" });
+        renderAll();
+      });
+      document.getElementById("removeOperatorButton").addEventListener("click", () => {
+        if (!state.extraOperators.length) {
+          alert("Não há operador adicional para remover.");
+          return;
+        }
+        state.extraOperators.pop();
         renderAll();
       });
       document.getElementById("addRiskButton").addEventListener("click", () => {
