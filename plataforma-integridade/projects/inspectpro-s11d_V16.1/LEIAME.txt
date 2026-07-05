@@ -1,36 +1,38 @@
-============================================================
-  InspectPro S11D - Vale | Integridade Estrutural
-  Pacote de Entrega - versao 16.1 (revisada)
-  Atualizado em: 16/06/2026
-============================================================
+InspectPro S11D — Integridade Estrutural
+=========================================
 
-ARQUIVOS
-------------------------------------------------------------
-1) InspectPro_S11D_v16.1.html ............ versao ONLINE
-2) InspectPro_S11D_v16.1_OFFLINE.html .... versao OFFLINE
-   (recomendada para PWA/portal e uso em campo sem internet)
+CONTEÚDO DESTA PASTA
+- InspectPro_S11D_v16.1.html ............ versão NORMAL (carrega as bibliotecas pela internet/CDN).
+- InspectPro_S11D_v16.1_OFFLINE.html .... versão OFFLINE (bibliotecas embutidas; NÃO precisa de internet).
 
-NAVEGADOR: Chrome ou Edge atualizados. Apos atualizar o
-arquivo, recarregue com Ctrl + F5.
+QUAL USAR NO PC DA EMPRESA?
+Use a versão OFFLINE. Ela funciona mesmo sem internet ou com o acesso a CDNs bloqueado.
+A versão normal só funciona 100% se o PC tiver internet liberada para cdnjs.cloudflare.com.
 
-COMO O PDF E SALVO (2 copias)
-------------------------------------------------------------
-- DOWNLOAD: sempre, na pasta de Downloads do computador.
-- PASTA DE REDE (I:): se conectada, grava uma copia em
-  subpastas por <Local/Ativo>/<Ordem>/<Tipo>.
-  Obs.: caminhos muito longos podem passar do limite de 260
-  caracteres do Windows; nesse caso conecte uma pasta mais
-  curta (o download local nunca se perde).
+COMO ABRIR
+1. Copie o arquivo para o computador (ou para a pasta do "I:").
+2. Dê duplo clique para abrir no navegador.
+3. Use GOOGLE CHROME ou MICROSOFT EDGE. (O salvamento automático na pasta de rede
+   só funciona nesses navegadores; no Firefox não funciona.)
 
-NOVIDADES (16.1 revisada)
-------------------------------------------------------------
-- LISTA DE TAREFAS: novo botao "Inserir nova tarefa" para
-  acrescentar tarefas alem das padrao (aparecem tambem no PDF).
-- Importar backup restaura 100% do formulario (Ferramentas,
-  Demandas e Recomendacoes/Classificacao de Risco).
-- PDFs em texto pesquisavel (Relatorio + 4 laudos).
-- Bloco de assinatura, numeracao de paginas, fontes maiores.
+SALVAMENTO AUTOMÁTICO NA PASTA DE REDE (I:)
+1. No topo, clique em "Conectar pasta de rede".
+2. Escolha a pasta da Integridade Estrutural no "I:" e autorize a gravação.
+3. O botão fica verde ("Rede: <nome da pasta>").
+4. A partir daí, todo PDF gerado é salvo automaticamente em:
+      <Local de Instalação> / <Nº da Ordem> / <Tipo do documento> / arquivo.pdf
+   Ex.:  FEKS-BFE-PRG-CT_2020-CT05-ST1 / 202362521524 / Relatorios_Inspecao / REL-...pdf
+   Tipos: Relatorios_Inspecao, Laudos_Condicao, Laudos_PAC,
+          Acompanhamento_Risco_Alto, Laudos_Sujidade.
+Observação: a autorização da pasta vale para a sessão; se fechar totalmente o navegador,
+pode ser preciso clicar de novo em "Conectar pasta de rede" (o Chrome geralmente lembra).
 
-VERIFICACAO: F12 (Console) -> digite  typeof inserirTarefa
-Se responder "function", e a versao certa.
-============================================================
+HISTÓRICO E MEMÓRIA DO NAVEGADOR
+- "Histórico de Relatórios": lista os documentos salvos localmente no navegador (Ver / Baixar / Excluir).
+- "Limpar memória (inspeção)": remove do navegador só os relatórios de inspeção (não afeta os laudos).
+- "Limpar Tudo": remove todo o histórico local do navegador.
+Esses botões mexem só na memória LOCAL do navegador; não apagam nada da pasta de rede.
+
+OBSERVAÇÕES
+- A "Prévia editável" (botão dentro dos laudos) ainda usa internet mesmo na versão offline.
+- Os PDFs são de TEXTO REAL (pesquisáveis) e com numeração de páginas.

@@ -374,6 +374,16 @@
 
         /* ---- TASK LIST ---- */
         .task-list { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; }
+        .baliza-controls { width:100%; display:flex; gap:8px; margin-bottom:4px; }
+        .baliza-controls button { flex:1; background:rgba(255,255,255,0.06); color:#cbd5e1; border:1px solid rgba(255,255,255,0.18); border-radius:6px; padding:7px 10px; font-size:12px; font-weight:600; cursor:pointer; }
+        .baliza-controls button:hover { background:rgba(255,255,255,0.12); }
+        .baliza-group { width:100%; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+        .baliza-header { display:flex; align-items:center; gap:10px; padding:12px 14px; background:rgba(0,135,90,0.10); cursor:pointer; user-select:none; }
+        .baliza-header:hover { background:rgba(0,135,90,0.16); }
+        .baliza-toggle { font-size:11px; color:var(--accent); width:12px; font-weight:bold; }
+        .baliza-title { font-weight:700; color:var(--text-primary); font-size:14px; letter-spacing:0.5px; }
+        .baliza-badge { margin-left:auto; font-size:11px; color:#9ca3af; background:rgba(255,255,255,0.06); padding:2px 8px; border-radius:10px; }
+        .baliza-body { display:flex; flex-wrap:wrap; gap:10px; padding:10px; background:rgba(0,0,0,0.12); }
         .task-item {
             background: var(--bg-card); border-radius: var(--radius); padding: 0;
             border-left: 4px solid var(--accent); display: flex; flex-direction: column;
@@ -652,6 +662,21 @@
         #riscoAlto_documento td[style*="background: #4CAF50"] {
             color: #ffffff !important;
             -webkit-text-fill-color: #ffffff !important;
+        }
+
+        /* PNR: card de prioridade totalmente preenchido + texto contrastante */
+        #laudo_documento #pnr_card div { background: transparent !important; }
+        #laudo_documento #pnr_card.pnrpri-baixa { background: #4CAF50 !important; }
+        #laudo_documento #pnr_card.pnrpri-media { background: #FFEB3B !important; }
+        #laudo_documento #pnr_card.pnrpri-alta { background: #FFA500 !important; }
+        #laudo_documento #pnr_card.pnrpri-muitoalta { background: #dc3545 !important; }
+        #laudo_documento #pnr_card.pnrpri-baixa, #laudo_documento #pnr_card.pnrpri-baixa *,
+        #laudo_documento #pnr_card.pnrpri-alta, #laudo_documento #pnr_card.pnrpri-alta *,
+        #laudo_documento #pnr_card.pnrpri-muitoalta, #laudo_documento #pnr_card.pnrpri-muitoalta * {
+            color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;
+        }
+        #laudo_documento #pnr_card.pnrpri-media, #laudo_documento #pnr_card.pnrpri-media * {
+            color: #333333 !important; -webkit-text-fill-color: #333333 !important;
         }
 
         /* Inputs, selects e textareas → fundo branco, texto escuro */
@@ -1069,7 +1094,7 @@
                 <div class="template-card" data-template="maquinas_lavra" onclick="selecionarTemplate('maquinas_lavra')">
                     <span class="template-icon">🚜</span>
                     <div class="template-title">Máquinas de Lavra</div>
-                    <div class="template-desc">Escavadeiras, perfuratrizes, carregadeiras</div>
+                    <div class="template-desc">Sistemas 01, 02, 03 e 04</div>
                 </div>
                 <div class="template-card" data-template="pontes_rolantes" onclick="selecionarTemplate('pontes_rolantes')">
                     <span class="template-icon">🏗️</span>
@@ -1084,12 +1109,27 @@
                 <div class="template-card" data-template="artes_especiais" onclick="selecionarTemplate('artes_especiais')">
                     <span class="template-icon">🌉</span>
                     <div class="template-title">Obras de Arte Especiais</div>
-                    <div class="template-desc">Equipamentos customizados, vias de rolamento</div>
+                    <div class="template-desc">Equipamentos customizados e estruturas especiais</div>
                 </div>
                 <div class="template-card" data-template="subestacao" onclick="selecionarTemplate('subestacao')">
                     <span class="template-icon">⚡</span>
                     <div class="template-title">Subestação</div>
                     <div class="template-desc">Eletrocentros, edificação de subestação</div>
+                </div>
+                <div class="template-card" data-template="torre_transmissao" onclick="selecionarTemplate('torre_transmissao')">
+                    <span class="template-icon">🗼</span>
+                    <div class="template-title">Torre de Transmissão</div>
+                    <div class="template-desc">Lista de tarefas em implementação</div>
+                </div>
+                <div class="template-card" data-template="fabrica_emulsao" onclick="selecionarTemplate('fabrica_emulsao')">
+                    <span class="template-icon">🏭</span>
+                    <div class="template-title">Fábrica de Emulsão</div>
+                    <div class="template-desc">Bases civis, prédios, bacia de contenção</div>
+                </div>
+                <div class="template-card" data-template="vias_rolamento_patio" onclick="selecionarTemplate('vias_rolamento_patio')">
+                    <span class="template-icon">🛤️</span>
+                    <div class="template-title">Vias de Rolamentos Máquinas de Pátio</div>
+                    <div class="template-desc">Vias de rolamento — áreas 2091/2092 e 2020</div>
                 </div>
             </div>
         </div>
@@ -1566,7 +1606,7 @@
                     pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8);
                     if (info.subtitulo) pdf.text(String(info.subtitulo).slice(0, 60), W - M, 16, { align: 'right' });
                     pdf.setFontSize(6); pdf.setTextColor(200, 225, 210);
-                    pdf.text('PRO-024969, Rev. 05 - 14/08/2024   |   Serra Sul - Carajás', W - M, 21.5, { align: 'right' });
+                    pdf.text('PRO-024969, Rev.: 06 - 23/03/2026 | PNR-000047, Rev.: 03-22/05/2026   |   Serra Sul - Carajás', W - M, 21.5, { align: 'right' });
                     y = 32;
                 }
                 function novaPaginaSe(alt) { if (y + alt > H - 13) { pdf.addPage(); cabecalho(); } }
@@ -3773,23 +3813,89 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
             },
             maquinas_lavra: {
                 nome: "🚜 Máquinas de Lavra",
-                tarefas: [
-                    "INSPECIONAR ESTRUTURA DO ALIMENTADOR",
-                    "INSPECIONAR ESTRUTURA PRINCIPAL",
-                    "INSPECIONAR ESTRUTURA PLATAFORMAS DE ACESSOS",
-                    "INSPECIONAR ESTRUTURA DE APOIO DO ROMPEDOR",
-                    "INSPECIONAR ESTRUTURA DO CRAWLER",
-                    "INSPECIONAR ESTRUTURAS DAS LONGARINAS DE CARGAS",
-                    "INSPECIONAR ESTRUTURA TREILIÇADAS DA LANÇA",
-                    "INSPECIONAR ESTRUTURA DO CARRO DEFLETORA",
-                    "INSPECIONAR OS APOIOS DA PLATAFORMA DA LANÇA",
-                    "INSPECIONAR ESTRUTURAS ARTICULADAS PINO/TRAVAS",
-                    "INSPECIONAR ESTRUTURAS DA LANÇA DE DESCARGAS",
-                    "INSPECIONAR ESTRUTURA DA LANÇA DE RECEBIMENTO",
-                    "INSPECIONAR PASSADIÇOS DE ACESSO",
-                    "INSPECIONAR CABOS DE AÇOS NA CONDIÇÃO ESTÁTICAS",
-                    "INSPECIONAR BASES DE APOIOS DOS ELETROCENTROS EMBARCADAS"
-                ]
+                temSubtipos: true,
+                subtipos: {
+                    'sistema_01': {
+                        nome: "Sistema 01",
+                        tarefas: [
+                            "INSPECIONAR ESTRUTURA DO ALIMENTADOR",
+                            "INSPECIONAR ESTRUTURA PRINCIPAL",
+                            "INSPECIONAR ESTRUTURA PLATAFORMAS DE ACESSOS",
+                            "INSPECIONAR ESTRUTURA DE APOIO DO ROMPEDOR",
+                            "INSPECIONAR ESTRUTURA DO CRAWLER",
+                            "INSPECIONAR ESTRUTURAS DAS LONGARINAS DE CARGAS",
+                            "INSPECIONAR ESTRUTURA TREILIÇADAS DA LANÇA",
+                            "INSPECIONAR ESTRUTURA DO CARRO DEFLETORA",
+                            "INSPECIONAR OS APOIOS DA PLATAFORMA DA LANÇA",
+                            "INSPECIONAR ESTRUTURAS ARTICULADAS PINO/TRAVAS",
+                            "INSPECIONAR ESTRUTURAS DA LANÇA DE DESCARGAS",
+                            "INSPECIONAR ESTRUTURA DA LANÇA DE RECEBIMENTO",
+                            "INSPECIONAR PASSADIÇOS DE ACESSO",
+                            "INSPECIONAR CABOS DE AÇOS NA CONDIÇÃO ESTÁTICAS",
+                            "INSPECIONAR BASES DE APOIOS DOS ELETROCENTROS EMBARCADAS"
+                        ]
+                    },
+                    'sistema_02': {
+                        nome: "Sistema 02",
+                        tarefas: [
+                            "INSPECIONAR ESTRUTURA DO ALIMENTADOR",
+                            "INSPECIONAR ESTRUTURA PRINCIPAL",
+                            "INSPECIONAR ESTRUTURA PLATAFORMAS DE ACESSOS",
+                            "INSPECIONAR ESTRUTURA DE APOIO DO ROMPEDOR",
+                            "INSPECIONAR ESTRUTURA DO CRAWLER",
+                            "INSPECIONAR ESTRUTURAS DAS LONGARINAS DE CARGAS",
+                            "INSPECIONAR ESTRUTURA TREILIÇADAS DA LANÇA",
+                            "INSPECIONAR ESTRUTURA DO CARRO DEFLETORA",
+                            "INSPECIONAR OS APOIOS DA PLATAFORMA DA LANÇA",
+                            "INSPECIONAR ESTRUTURAS ARTICULADAS PINO/TRAVAS",
+                            "INSPECIONAR ESTRUTURAS DA LANÇA DE DESCARGAS",
+                            "INSPECIONAR ESTRUTURA DA LANÇA DE RECEBIMENTO",
+                            "INSPECIONAR PASSADIÇOS DE ACESSO",
+                            "INSPECIONAR CABOS DE AÇOS NA CONDIÇÃO ESTÁTICAS",
+                            "INSPECIONAR BASES DE APOIOS DOS ELETROCENTROS EMBARCADAS"
+                        ]
+                    },
+                    'sistema_03': {
+                        nome: "Sistema 03",
+                        tarefas: [
+                            "INSPECIONAR ESTRUTURA DO ALIMENTADOR",
+                            "INSPECIONAR ESTRUTURA PRINCIPAL",
+                            "INSPECIONAR ESTRUTURA PLATAFORMAS DE ACESSOS",
+                            "INSPECIONAR ESTRUTURA DE APOIO DO ROMPEDOR",
+                            "INSPECIONAR ESTRUTURA DO CRAWLER",
+                            "INSPECIONAR ESTRUTURAS DAS LONGARINAS DE CARGAS",
+                            "INSPECIONAR ESTRUTURA TREILIÇADAS DA LANÇA",
+                            "INSPECIONAR ESTRUTURA DO CARRO DEFLETORA",
+                            "INSPECIONAR OS APOIOS DA PLATAFORMA DA LANÇA",
+                            "INSPECIONAR ESTRUTURAS ARTICULADAS PINO/TRAVAS",
+                            "INSPECIONAR ESTRUTURAS DA LANÇA DE DESCARGAS",
+                            "INSPECIONAR ESTRUTURA DA LANÇA DE RECEBIMENTO",
+                            "INSPECIONAR PASSADIÇOS DE ACESSO",
+                            "INSPECIONAR CABOS DE AÇOS NA CONDIÇÃO ESTÁTICAS",
+                            "INSPECIONAR BASES DE APOIOS DOS ELETROCENTROS EMBARCADAS"
+                        ]
+                    },
+                    'sistema_04': {
+                        nome: "Sistema 04",
+                        tarefas: [
+                            "INSPECIONAR ESTRUTURA DO ALIMENTADOR",
+                            "INSPECIONAR ESTRUTURA PRINCIPAL",
+                            "INSPECIONAR ESTRUTURA PLATAFORMAS DE ACESSOS",
+                            "INSPECIONAR ESTRUTURA DE APOIO DO ROMPEDOR",
+                            "INSPECIONAR ESTRUTURA DO CRAWLER",
+                            "INSPECIONAR ESTRUTURAS DAS LONGARINAS DE CARGAS",
+                            "INSPECIONAR ESTRUTURA TREILIÇADAS DA LANÇA",
+                            "INSPECIONAR ESTRUTURA DO CARRO DEFLETORA",
+                            "INSPECIONAR OS APOIOS DA PLATAFORMA DA LANÇA",
+                            "INSPECIONAR ESTRUTURAS ARTICULADAS PINO/TRAVAS",
+                            "INSPECIONAR ESTRUTURAS DA LANÇA DE DESCARGAS",
+                            "INSPECIONAR ESTRUTURA DA LANÇA DE RECEBIMENTO",
+                            "INSPECIONAR PASSADIÇOS DE ACESSO",
+                            "INSPECIONAR CABOS DE AÇOS NA CONDIÇÃO ESTÁTICAS",
+                            "INSPECIONAR BASES DE APOIOS DOS ELETROCENTROS EMBARCADAS"
+                        ]
+                    }
+                }
             },
             pontes_rolantes: {
                 nome: "🏗️ Pontes Rolantes",
@@ -3875,36 +3981,6 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
                             "ANALISAR PONTOS CRÍTICOS",
                             "ELABORAR RELATÓRIO TÉCNICO"
                         ]
-                    },
-                    'vias_rolamento': {
-                        nome: "Vias de Rolamentos de Máquinas de Pátio",
-                        tarefas: [
-                            "INSPECIONAR TRILHOS DE ROLAMENTO",
-                            "VERIFICAR ALINHAMENTO DOS TRILHOS",
-                            "INSPECIONAR FIXAÇÕES DOS TRILHOS",
-                            "VERIFICAR JUNTAS DE DILATAÇÃO",
-                            "INSPECIONAR SOLDAS DOS TRILHOS",
-                            "VERIFICAR NIVELAMENTO DA VIA",
-                            "INSPECIONAR VIGAS DE SUPORTE DOS TRILHOS",
-                            "VERIFICAR ESTADO DAS PLACAS DE APOIO",
-                            "INSPECIONAR PARAFUSOS E GRAMPOS",
-                            "VERIFICAR DESGASTE DOS TRILHOS",
-                            "INSPECIONAR SISTEMA DE DRENAGEM",
-                            "VERIFICAR PROTEÇÕES LATERAIS",
-                            "INSPECIONAR BATENTES DE FIM DE CURSO",
-                            "VERIFICAR SINALIZAÇÃO DA VIA",
-                            "INSPECIONAR BASES DE CONCRETO",
-                            "VERIFICAR TRINCAS NO CONCRETO",
-                            "INSPECIONAR JUNTAS DE DILATAÇÃO DA BASE",
-                            "VERIFICAR ANCORAGENS",
-                            "INSPECIONAR SISTEMAS ELÉTRICOS DA VIA",
-                            "VERIFICAR ATERRAMENTO",
-                            "ANALISAR DEFORMAÇÕES",
-                            "VERIFICAR HISTÓRICO DE MANUTENÇÃO",
-                            "AVALIAR VIDA ÚTIL REMANESCENTE",
-                            "IDENTIFICAR PONTOS CRÍTICOS",
-                            "ELABORAR RELATÓRIO TÉCNICO"
-                        ]
                     }
                 }
             },
@@ -3940,6 +4016,585 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
                             "INSPECIONAR PISO E ACESSOS ESTRUTURAIS — Verificar piso, escadas, plataformas, guarda-corpos e corrimãos.",
                             "VERIFICAR DRENAGEM E ENTORNO DA ESTRUTURA — Identificar acúmulo de água, erosão, umidade constante e lavagem de solo junto à base.",
                             "REGISTRAR ANOMALIAS E CLASSIFICAR A CONDIÇÃO — Fotografar, localizar, descrever a anomalia e classificar a prioridade de intervenção."
+                        ]
+                    }
+                }
+            },
+            torre_transmissao: {
+                nome: "🗼 Torre de Transmissão",
+                temSubtipos: false,
+                tarefas: [
+                    "🚧 LISTA DE TAREFAS EM IMPLEMENTAÇÃO — As tarefas específicas para inspeção de Torre de Transmissão serão disponibilizadas em breve. Os demais campos do relatório já podem ser preenchidos normalmente."
+                ]
+            },
+            fabrica_emulsao: {
+                nome: "🏭 Fábrica de Emulsão",
+                temSubtipos: true,
+                subtipos: {
+                    'bases_civis': {
+                        nome: "Bases Civis",
+                        tarefas: [
+                            "🚧 LISTA DE TAREFAS EM IMPLEMENTAÇÃO — As tarefas específicas para inspeção de BASES CIVIS (Fábrica de Emulsão) serão disponibilizadas em breve."
+                        ]
+                    },
+                    'predios': {
+                        nome: "Prédios",
+                        tarefas: [
+                            "🚧 LISTA DE TAREFAS EM IMPLEMENTAÇÃO — As tarefas específicas para inspeção de PRÉDIOS (Fábrica de Emulsão) serão disponibilizadas em breve."
+                        ]
+                    },
+                    'bacia_contencao': {
+                        nome: "Bacia de Contenção",
+                        tarefas: [
+                            "🚧 LISTA DE TAREFAS EM IMPLEMENTAÇÃO — As tarefas específicas para inspeção de BACIA DE CONTENÇÃO (Fábrica de Emulsão) serão disponibilizadas em breve."
+                        ]
+                    }
+                }
+            },
+            vias_rolamento_patio: {
+                nome: "🛤️ Vias de Rolamentos Máquinas de Pátio",
+                temSubtipos: true,
+                subtipos: {
+                    'area_2091_2092': {
+                        nome: "Vias de Rolamento — Área 2091 / 2092",
+                        tarefas: [
+                            "BALIZA 00 A 01 - OP.00140 - DORMENTES",
+                            "BALIZA 00 A 01 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 00 A 01 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 00 A 01 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 00 A 01 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 00 A 01 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 00 A 01 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 02 A 03 - OP.00140 - DORMENTES",
+                            "BALIZA 02 A 03 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 02 A 03 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 02 A 03 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 02 A 03 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 02 A 03 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 02 A 03 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 04 A 05 - OP.00140 - DORMENTES",
+                            "BALIZA 04 A 05 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 04 A 05 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 04 A 05 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 04 A 05 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 04 A 05 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 04 A 05 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 06 A 07 - OP.00140 - DORMENTES",
+                            "BALIZA 06 A 07 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 06 A 07 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 06 A 07 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 06 A 07 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 06 A 07 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 06 A 07 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 08 A 09 - OP.00140 - DORMENTES",
+                            "BALIZA 08 A 09 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 08 A 09 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 08 A 09 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 08 A 09 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 08 A 09 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 08 A 09 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 10 A 11 - OP.00140 - DORMENTES",
+                            "BALIZA 10 A 11 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 10 A 11 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 10 A 11 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 10 A 11 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 10 A 11 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 10 A 11 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 12 A 13 - OP.00140 - DORMENTES",
+                            "BALIZA 12 A 13 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 12 A 13 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 12 A 13 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 12 A 13 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 12 A 13 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 12 A 13 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 14 A 15 - OP.00140 - DORMENTES",
+                            "BALIZA 14 A 15 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 14 A 15 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 14 A 15 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 14 A 15 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 14 A 15 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 14 A 15 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 16 A 17 - OP.00140 - DORMENTES",
+                            "BALIZA 16 A 17 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 16 A 17 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 16 A 17 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 16 A 17 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 16 A 17 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 16 A 17 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 18 A 19 - OP.00140 - DORMENTES",
+                            "BALIZA 18 A 19 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 18 A 19 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 18 A 19 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 18 A 19 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 18 A 19 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 18 A 19 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 20 A 21 - OP.00140 - DORMENTES",
+                            "BALIZA 20 A 21 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 20 A 21 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 20 A 21 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 20 A 21 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 20 A 21 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 20 A 21 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 22 A 23 - OP.00140 - DORMENTES",
+                            "BALIZA 22 A 23 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 22 A 23 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 22 A 23 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 22 A 23 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 22 A 23 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 22 A 23 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 24 A 25 - OP.00140 - DORMENTES",
+                            "BALIZA 24 A 25 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 24 A 25 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 24 A 25 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 24 A 25 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 24 A 25 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 24 A 25 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 26 A 27 - OP.00140 - DORMENTES",
+                            "BALIZA 26 A 27 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 26 A 27 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 26 A 27 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 26 A 27 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 26 A 27 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 26 A 27 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 28 A 29 - OP.00140 - DORMENTES",
+                            "BALIZA 28 A 29 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 28 A 29 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 28 A 29 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 28 A 29 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 28 A 29 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 28 A 29 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 30 A 31 - OP.00140 - DORMENTES",
+                            "BALIZA 30 A 31 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 30 A 31 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 30 A 31 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 30 A 31 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 30 A 31 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 30 A 31 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 32 A 33 - OP.00140 - DORMENTES",
+                            "BALIZA 32 A 33 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 32 A 33 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 32 A 33 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 32 A 33 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 32 A 33 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 32 A 33 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 34 A 35 - OP.00140 - DORMENTES",
+                            "BALIZA 34 A 35 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 34 A 35 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 34 A 35 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 34 A 35 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 34 A 35 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 34 A 35 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 36 A 37 - OP.00140 - DORMENTES",
+                            "BALIZA 36 A 37 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 36 A 37 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 36 A 37 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 36 A 37 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 36 A 37 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 36 A 37 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 38 A 39 - OP.00140 - DORMENTES",
+                            "BALIZA 38 A 39 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 38 A 39 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 38 A 39 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 38 A 39 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 38 A 39 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 38 A 39 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 40 A 41 - OP.00140 - DORMENTES",
+                            "BALIZA 40 A 41 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 40 A 41 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 40 A 41 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 40 A 41 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 40 A 41 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 40 A 41 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 42 A 43 - OP.00140 - DORMENTES",
+                            "BALIZA 42 A 43 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 42 A 43 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 42 A 43 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 42 A 43 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 42 A 43 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 42 A 43 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 44 A 45 - OP.00140 - DORMENTES",
+                            "BALIZA 44 A 45 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 44 A 45 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 44 A 45 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 44 A 45 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 44 A 45 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 44 A 45 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 46 A 47 - OP.00140 - DORMENTES",
+                            "BALIZA 46 A 47 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 46 A 47 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 46 A 47 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 46 A 47 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 46 A 47 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 46 A 47 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 48 A 49 - OP.00140 - DORMENTES",
+                            "BALIZA 48 A 49 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 48 A 49 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 48 A 49 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 48 A 49 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 48 A 49 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 48 A 49 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 50 A 51 - OP.00140 - DORMENTES",
+                            "BALIZA 50 A 51 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 50 A 51 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 50 A 51 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 50 A 51 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 50 A 51 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 50 A 51 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 52 A 53 - OP.00140 - DORMENTES",
+                            "BALIZA 52 A 53 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 52 A 53 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 52 A 53 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 52 A 53 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 52 A 53 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 52 A 53 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 54 A 55 - OP.00140 - DORMENTES",
+                            "BALIZA 54 A 55 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 54 A 55 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 54 A 55 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 54 A 55 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 54 A 55 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 54 A 55 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 56 A 57 - OP.00140 - DORMENTES",
+                            "BALIZA 56 A 57 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 56 A 57 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 56 A 57 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 56 A 57 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 56 A 57 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 56 A 57 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 58 A 59 - OP.00140 - DORMENTES",
+                            "BALIZA 58 A 59 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 58 A 59 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 58 A 59 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 58 A 59 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 58 A 59 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 58 A 59 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 60 A 61 - OP.00140 - DORMENTES",
+                            "BALIZA 60 A 61 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 60 A 61 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 60 A 61 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 60 A 61 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 60 A 61 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 60 A 61 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 62 A 63 - OP.00140 - DORMENTES",
+                            "BALIZA 62 A 63 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 62 A 63 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 62 A 63 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 62 A 63 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 62 A 63 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 62 A 63 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 64 A 65 - OP.00140 - DORMENTES",
+                            "BALIZA 64 A 65 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 64 A 65 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 64 A 65 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 64 A 65 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 64 A 65 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 64 A 65 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 66 A 67 - OP.00140 - DORMENTES",
+                            "BALIZA 66 A 67 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 66 A 67 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 66 A 67 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 66 A 67 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 66 A 67 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 66 A 67 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 68 A 69 - OP.00140 - DORMENTES",
+                            "BALIZA 68 A 69 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 68 A 69 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 68 A 69 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 68 A 69 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 68 A 69 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 68 A 69 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 70 A 71 - OP.00140 - DORMENTES",
+                            "BALIZA 70 A 71 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 70 A 71 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 70 A 71 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 70 A 71 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 70 A 71 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 70 A 71 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 72 A 73 - OP.00140 - DORMENTES",
+                            "BALIZA 72 A 73 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 72 A 73 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 72 A 73 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 72 A 73 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 72 A 73 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 72 A 73 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 74 A 75 - OP.00140 - DORMENTES",
+                            "BALIZA 74 A 75 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 74 A 75 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 74 A 75 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 74 A 75 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 74 A 75 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 74 A 75 - OP.00220 - BATENTE FIM DE CURSO"
+                        ]
+                    },
+                    'area_2020': {
+                        nome: "Vias de Rolamento — Área 2020",
+                        tarefas: [
+                            "BALIZA 00 A 01 - OP.00140 - DORMENTES",
+                            "BALIZA 00 A 01 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 00 A 01 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 00 A 01 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 00 A 01 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 00 A 01 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 00 A 01 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 02 A 03 - OP.00140 - DORMENTES",
+                            "BALIZA 02 A 03 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 02 A 03 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 02 A 03 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 02 A 03 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 02 A 03 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 02 A 03 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 04 A 05 - OP.00140 - DORMENTES",
+                            "BALIZA 04 A 05 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 04 A 05 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 04 A 05 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 04 A 05 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 04 A 05 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 04 A 05 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 06 A 07 - OP.00140 - DORMENTES",
+                            "BALIZA 06 A 07 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 06 A 07 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 06 A 07 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 06 A 07 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 06 A 07 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 06 A 07 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 08 A 09 - OP.00140 - DORMENTES",
+                            "BALIZA 08 A 09 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 08 A 09 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 08 A 09 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 08 A 09 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 08 A 09 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 08 A 09 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 10 A 11 - OP.00140 - DORMENTES",
+                            "BALIZA 10 A 11 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 10 A 11 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 10 A 11 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 10 A 11 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 10 A 11 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 10 A 11 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 12 A 13 - OP.00140 - DORMENTES",
+                            "BALIZA 12 A 13 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 12 A 13 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 12 A 13 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 12 A 13 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 12 A 13 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 12 A 13 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 14 A 15 - OP.00140 - DORMENTES",
+                            "BALIZA 14 A 15 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 14 A 15 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 14 A 15 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 14 A 15 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 14 A 15 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 14 A 15 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 16 A 17 - OP.00140 - DORMENTES",
+                            "BALIZA 16 A 17 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 16 A 17 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 16 A 17 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 16 A 17 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 16 A 17 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 16 A 17 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 18 A 19 - OP.00140 - DORMENTES",
+                            "BALIZA 18 A 19 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 18 A 19 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 18 A 19 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 18 A 19 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 18 A 19 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 18 A 19 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 20 A 21 - OP.00140 - DORMENTES",
+                            "BALIZA 20 A 21 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 20 A 21 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 20 A 21 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 20 A 21 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 20 A 21 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 20 A 21 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 22 A 23 - OP.00140 - DORMENTES",
+                            "BALIZA 22 A 23 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 22 A 23 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 22 A 23 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 22 A 23 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 22 A 23 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 22 A 23 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 24 A 25 - OP.00140 - DORMENTES",
+                            "BALIZA 24 A 25 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 24 A 25 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 24 A 25 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 24 A 25 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 24 A 25 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 24 A 25 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 26 A 27 - OP.00140 - DORMENTES",
+                            "BALIZA 26 A 27 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 26 A 27 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 26 A 27 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 26 A 27 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 26 A 27 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 26 A 27 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 28 A 29 - OP.00140 - DORMENTES",
+                            "BALIZA 28 A 29 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 28 A 29 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 28 A 29 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 28 A 29 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 28 A 29 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 28 A 29 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 30 A 31 - OP.00140 - DORMENTES",
+                            "BALIZA 30 A 31 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 30 A 31 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 30 A 31 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 30 A 31 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 30 A 31 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 30 A 31 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 32 A 33 - OP.00140 - DORMENTES",
+                            "BALIZA 32 A 33 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 32 A 33 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 32 A 33 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 32 A 33 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 32 A 33 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 32 A 33 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 34 A 35 - OP.00140 - DORMENTES",
+                            "BALIZA 34 A 35 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 34 A 35 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 34 A 35 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 34 A 35 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 34 A 35 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 34 A 35 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 36 A 37 - OP.00140 - DORMENTES",
+                            "BALIZA 36 A 37 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 36 A 37 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 36 A 37 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 36 A 37 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 36 A 37 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 36 A 37 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 38 A 39 - OP.00140 - DORMENTES",
+                            "BALIZA 38 A 39 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 38 A 39 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 38 A 39 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 38 A 39 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 38 A 39 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 38 A 39 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 40 A 41 - OP.00140 - DORMENTES",
+                            "BALIZA 40 A 41 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 40 A 41 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 40 A 41 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 40 A 41 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 40 A 41 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 40 A 41 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 42 A 43 - OP.00140 - DORMENTES",
+                            "BALIZA 42 A 43 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 42 A 43 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 42 A 43 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 42 A 43 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 42 A 43 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 42 A 43 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 44 A 45 - OP.00140 - DORMENTES",
+                            "BALIZA 44 A 45 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 44 A 45 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 44 A 45 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 44 A 45 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 44 A 45 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 44 A 45 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 46 A 47 - OP.00140 - DORMENTES",
+                            "BALIZA 46 A 47 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 46 A 47 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 46 A 47 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 46 A 47 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 46 A 47 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 46 A 47 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 48 A 49 - OP.00140 - DORMENTES",
+                            "BALIZA 48 A 49 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 48 A 49 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 48 A 49 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 48 A 49 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 48 A 49 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 48 A 49 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 50 A 51 - OP.00140 - DORMENTES",
+                            "BALIZA 50 A 51 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 50 A 51 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 50 A 51 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 50 A 51 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 50 A 51 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 50 A 51 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 52 A 53 - OP.00140 - DORMENTES",
+                            "BALIZA 52 A 53 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 52 A 53 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 52 A 53 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 52 A 53 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 52 A 53 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 52 A 53 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 54 A 55 - OP.00140 - DORMENTES",
+                            "BALIZA 54 A 55 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 54 A 55 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 54 A 55 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 54 A 55 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 54 A 55 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 54 A 55 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 56 A 57 - OP.00140 - DORMENTES",
+                            "BALIZA 56 A 57 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 56 A 57 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 56 A 57 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 56 A 57 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 56 A 57 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 56 A 57 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 58 A 59 - OP.00140 - DORMENTES",
+                            "BALIZA 58 A 59 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 58 A 59 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 58 A 59 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 58 A 59 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 58 A 59 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 58 A 59 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 60 A 61 - OP.00140 - DORMENTES",
+                            "BALIZA 60 A 61 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 60 A 61 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 60 A 61 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 60 A 61 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 60 A 61 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 60 A 61 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 62 A 63 - OP.00140 - DORMENTES",
+                            "BALIZA 62 A 63 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 62 A 63 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 62 A 63 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 62 A 63 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 62 A 63 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 62 A 63 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 64 A 65 - OP.00140 - DORMENTES",
+                            "BALIZA 64 A 65 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 64 A 65 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 64 A 65 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 64 A 65 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 64 A 65 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 64 A 65 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 66 A 67 - OP.00140 - DORMENTES",
+                            "BALIZA 66 A 67 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 66 A 67 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 66 A 67 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 66 A 67 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 66 A 67 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 66 A 67 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 68 A 69 - OP.00140 - DORMENTES",
+                            "BALIZA 68 A 69 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 68 A 69 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 68 A 69 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 68 A 69 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 68 A 69 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 68 A 69 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 70 A 71 - OP.00140 - DORMENTES",
+                            "BALIZA 70 A 71 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 70 A 71 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 70 A 71 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 70 A 71 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 70 A 71 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 70 A 71 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 72 A 73 - OP.00140 - DORMENTES",
+                            "BALIZA 72 A 73 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 72 A 73 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 72 A 73 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 72 A 73 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 72 A 73 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 72 A 73 - OP.00220 - BATENTE FIM DE CURSO",
+                            "BALIZA 74 A 75 - OP.00140 - DORMENTES",
+                            "BALIZA 74 A 75 - OP.00150 - GRAMPOS DE FIXAÇÃO",
+                            "BALIZA 74 A 75 - OP.00160 - LASTRO DA VIA",
+                            "BALIZA 74 A 75 - OP.00180 - TRILHO (BOLETO)",
+                            "BALIZA 74 A 75 - OP.00190 - CORDÃO DE SOLDA",
+                            "BALIZA 74 A 75 - OP.00200 - FIXAÇÃO DAS PALMILHAS",
+                            "BALIZA 74 A 75 - OP.00220 - BATENTE FIM DE CURSO"
                         ]
                     }
                 }
@@ -4056,10 +4711,34 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
         function gerarListaTarefas() {
             const taskList = document.getElementById('taskList');
             taskList.innerHTML = '';
+            let __bzKey = null, __bzBody = null, __temBz = false;
 
             tarefas.forEach((tarefa, index) => {
-                const numero = String(index + 1).padStart(2, '0'); // 01, 02, 03...
-                taskStates[numero] = { status: null, descricao: '', fotos: [], textoOriginal: tarefa, textoCustom: null }; // Usar número como chave
+                const numero = String(index + 1).padStart(2, '0');
+                taskStates[numero] = { status: null, descricao: '', fotos: [], textoOriginal: tarefa, textoCustom: null };
+
+                const __mB = /^(BALIZA\s+\d+(?:\s+A\s+\d+)?)\s*-\s*([\s\S]+)$/.exec(tarefa);
+                let __label = tarefa, __container = taskList;
+                if (__mB) {
+                    __temBz = true;
+                    const __tit = __mB[1]; __label = __mB[2];
+                    const __key = 'bz' + __tit.replace(/[^0-9A-Za-z]/g,'');
+                    if (__key !== __bzKey) {
+                        __bzKey = __key;
+                        const __g = document.createElement('div');
+                        __g.className = 'baliza-group';
+                        __g.innerHTML = `
+                            <div class="baliza-header" onclick="toggleBaliza('${__key}')">
+                                <span class="baliza-toggle" id="baliza-toggle-${__key}">▶</span>
+                                <span class="baliza-title">${__tit}</span>
+                                <span class="baliza-badge" id="baliza-badge-${__key}" data-c="0"></span>
+                            </div>
+                            <div class="baliza-body" id="baliza-body-${__key}" style="display:none;"></div>`;
+                        taskList.appendChild(__g);
+                        __bzBody = __g.querySelector('.baliza-body');
+                    }
+                    __container = __bzBody;
+                } else { __bzKey = null; __bzBody = null; }
 
                 const taskItem = document.createElement('div');
                 taskItem.className = 'task-item';
@@ -4067,42 +4746,48 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
                     <div class="task-header" onclick="toggleTask('${numero}')">
                         <span class="task-toggle-icon">▶</span>
                         <div class="task-number">${numero}</div>
-                        <div class="task-description" id="task-desc-${numero}">${tarefa}</div>
+                        <div class="task-description" id="task-desc-${numero}">${__label}</div>
                         <button type="button" onclick="event.stopPropagation(); iniciarEdicaoTarefa('${numero}')" title="Editar descrição desta tarefa" style="margin-left:auto; flex-shrink:0; background:transparent; border:1px solid rgba(255,255,255,0.25); border-radius:5px; color:rgba(255,255,255,0.7); font-size:11px; padding:2px 7px; cursor:pointer; line-height:1.4;">✏️</button>
                         <button type="button" onclick="event.stopPropagation(); excluirTarefa('${numero}')" title="Excluir esta tarefa" style="flex-shrink:0; background:transparent; border:1px solid rgba(255,100,100,0.4); border-radius:5px; color:rgba(255,140,140,0.95); font-size:12px; padding:2px 8px; cursor:pointer; line-height:1.4; margin-left:4px;">✕</button>
                     </div>
                     <div class="task-content" id="task-content-${numero}">
                         <div class="task-status-buttons">
-                            <button type="button" class="task-status-btn conforme"
-                                    onclick="selectTaskStatus('${numero}', 'CONFORME')">
-                                Conforme
-                            </button>
-                            <button type="button" class="task-status-btn nao-conforme"
-                                    onclick="selectTaskStatus('${numero}', 'NÃO CONFORME')">
-                                Não Conforme
-                            </button>
-                            <button type="button" class="task-status-btn na"
-                                    onclick="selectTaskStatus('${numero}', 'N/A')">
-                                N/A
-                            </button>
+                            <button type="button" class="task-status-btn conforme" onclick="selectTaskStatus('${numero}', 'CONFORME')">Conforme</button>
+                            <button type="button" class="task-status-btn nao-conforme" onclick="selectTaskStatus('${numero}', 'NÃO CONFORME')">Não Conforme</button>
+                            <button type="button" class="task-status-btn na" onclick="selectTaskStatus('${numero}', 'N/A')">N/A</button>
                         </div>
                         <div class="nao-conformidade-field" id="nc-field-${numero}">
                             <label>⚠️ Descreva a Não Conformidade:</label>
-                            <textarea id="nc-desc-${numero}"
-                                      placeholder="Descreva detalhadamente a não conformidade encontrada..."
-                                      onchange="updateNaoConformidadeDesc('${numero}', this.value)"></textarea>
+                            <textarea id="nc-desc-${numero}" placeholder="Descreva detalhadamente a não conformidade encontrada..." onchange="updateNaoConformidadeDesc('${numero}', this.value)"></textarea>
                         </div>
                         <div style="margin-top: 10px;">
-                            <button type="button" class="add-btn" onclick="adicionarFotoNaOP('${numero}')"
-                                    style="width: 100%; font-size: 12px; padding: 8px;">
-                                📷 Adicionar Foto para ${numero}
-                            </button>
+                            <button type="button" class="add-btn" onclick="adicionarFotoNaOP('${numero}')" style="width: 100%; font-size: 12px; padding: 8px;">📷 Adicionar Foto para ${numero}</button>
                             <div id="fotos-op-${numero}" style="margin-top: 8px; font-size: 11px; color: #a0a0a0;"></div>
                         </div>
-                    </div>
-                `;
-                taskList.appendChild(taskItem);
+                    </div>`;
+                __container.appendChild(taskItem);
+                if (__mB) { const __b = document.getElementById('baliza-badge-' + __bzKey); if (__b) { const __c = parseInt(__b.getAttribute('data-c')||'0',10)+1; __b.setAttribute('data-c', __c); __b.textContent = __c + (__c===1?' item':' itens'); } }
             });
+
+            if (__temBz) {
+                const __bar = document.createElement('div');
+                __bar.className = 'baliza-controls';
+                __bar.innerHTML = `<button type="button" onclick="expandirTodasBalizas(true)">▼ Expandir todas</button><button type="button" onclick="expandirTodasBalizas(false)">▶ Recolher todas</button>`;
+                taskList.insertBefore(__bar, taskList.firstChild);
+            }
+        }
+
+        function toggleBaliza(key) {
+            const body = document.getElementById('baliza-body-' + key);
+            const tog = document.getElementById('baliza-toggle-' + key);
+            if (!body) return;
+            const aberto = body.style.display !== 'none';
+            body.style.display = aberto ? 'none' : 'block';
+            if (tog) tog.textContent = aberto ? '▶' : '▼';
+        }
+        function expandirTodasBalizas(abrir) {
+            document.querySelectorAll('#taskList .baliza-body').forEach(function(b){ b.style.display = abrir ? 'block' : 'none'; });
+            document.querySelectorAll('#taskList .baliza-toggle').forEach(function(t){ t.textContent = abrir ? '▼' : '▶'; });
         }
 
         // Aplica os taskStates restaurados aos cartoes ja renderizados
@@ -4152,7 +4837,7 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
                 // ----- RECOMENDAÇÕES + CLASSIFICAÇÃO DE RISCO -----
                 var idxs=[];
                 Object.keys(campos).forEach(function(k){
-                    var m=/^rec_(?:descricao|cd|af|fe|sc)_(\d+)$/.exec(k);
+                    var m=/^rec_(?:descricao|cd|af|fe|fa|oc|is|io|constr|pfb|pfa)_(\d+)$/.exec(k);
                     if(m){ var n=parseInt(m[1],10); if(idxs.indexOf(n)<0) idxs.push(n); }
                 });
                 idxs.sort(function(a,b){ return a-b; });
@@ -4163,13 +4848,12 @@ const novaBaseLocais = {"FEKS-BFE-OFI-OF_USIN-GD2070KS05": [{"ativo": "INSP ESTR
                     idxs.forEach(function(orig, pos){
                         adicionarRecomendacao();
                         var novo=pos+1;
-                        ['descricao','cd','af','fe','sc'].forEach(function(p){
+                        ['descricao','cd','af','fe','fa','oc','is','io','constr','pfb','pfa'].forEach(function(p){
                             var el=document.getElementById('rec_'+p+'_'+novo);
                             var v=campos['rec_'+p+'_'+orig];
                             if(el!=null && v!=null && v!=='') el.value=v;
                         });
                         if(typeof calcularRisco==='function'){ try{ calcularRisco(novo); }catch(e){} }
-                        ['CD','AF','FE','SC'].forEach(function(sfx){ var fn=window['atualizarDescricao'+sfx]; if(typeof fn==='function'){ try{ fn(novo); }catch(e){} } });
                     });
                 }
             } catch(e){ console.warn('restaurarSecoesExtras:', e); }
@@ -4576,78 +5260,33 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                         placeholder="Descreva a recomendação..." rows="3"></textarea>
                 </div>
                 
-                <div style="background: #f0f7f4; padding: 15px; border-radius: 8px; border: 2px solid #c3ddd4; margin-bottom: 15px;">
-                    <h4 style="margin: 0 0 15px 0; color: #00694d; font-size: 14px;">📊 CLASSIFICAÇÃO DE RISCO (PRO-024969)</h4>
-
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px;">
-                        <!-- CLASSE DE DEGRADAÇÃO -->
-                        <div class="form-group" style="margin: 0;">
-                            <label style="font-size: 12px; font-weight: 700; color: #374151;">Classe Degradação (CD)</label>
-                            <select id="rec_cd_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount}); atualizarDescricaoCD(${recomendacaoCount})" style="font-size: 12px; background:#ffffff; color:#111827; border:1.5px solid #d1d5db;">
-                                <option value="">Selecione...</option>
-                                <option value="1">CD 1 - Pontuação 1</option>
-                                <option value="2">CD 2 - Pontuação 2</option>
-                                <option value="3">CD 3 - Pontuação 3</option>
-                                <option value="4">CD 4 - Pontuação 4</option>
-                                <option value="5">CD 5 - Pontuação 5</option>
-                            </select>
-                            <div id="desc_cd_${recomendacaoCount}" style="font-size: 11px; color: #6b7280; margin-top: 5px; font-style: italic; min-height: 32px;"></div>
-                        </div>
-
-                        <!-- ASSOCIAÇÃO DE FATORES -->
-                        <div class="form-group" style="margin: 0;">
-                            <label style="font-size: 12px; font-weight: 700; color: #374151;">Associação de Fatores (AF)</label>
-                            <select id="rec_af_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount}); atualizarDescricaoAF(${recomendacaoCount})" style="font-size: 12px; background:#ffffff; color:#111827; border:1.5px solid #d1d5db;">
-                                <option value="">Selecione...</option>
-                                <option value="1.0">AF1 - Pontuação 1,0</option>
-                                <option value="1.5">AF2 - Pontuação 1,5</option>
-                                <option value="2.0">AF3 - Pontuação 2,0</option>
-                            </select>
-                            <div id="desc_af_${recomendacaoCount}" style="font-size: 11px; color: #6b7280; margin-top: 5px; font-style: italic; min-height: 32px;"></div>
-                        </div>
-
-                        <!-- FUNÇÃO ESTRUTURAL -->
-                        <div class="form-group" style="margin: 0;">
-                            <label style="font-size: 12px; font-weight: 700; color: #374151;">Função Estrutural (FE)</label>
-                            <select id="rec_fe_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount}); atualizarDescricaoFE(${recomendacaoCount})" style="font-size: 12px; background:#ffffff; color:#111827; border:1.5px solid #d1d5db;">
-                                <option value="">Selecione...</option>
-                                <option value="3.0">Primário - Pontuação 3,0</option>
-                                <option value="1.0">Secundária - Pontuação 1,0</option>
-                                <option value="0.5">Não estrutural - Pontuação 0,5</option>
-                            </select>
-                            <div id="desc_fe_${recomendacaoCount}" style="font-size: 11px; color: #6b7280; margin-top: 5px; font-style: italic; min-height: 32px;"></div>
-                        </div>
-
-                        <!-- SEVERIDADE COLAPSO -->
-                        <div class="form-group" style="margin: 0;">
-                            <label style="font-size: 12px; font-weight: 700; color: #374151;">Severidade do Colapso (SC)</label>
-                            <select id="rec_sc_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount}); atualizarDescricaoSC(${recomendacaoCount})" style="font-size: 12px; background:#ffffff; color:#111827; border:1.5px solid #d1d5db;">
-                                <option value="">Selecione...</option>
-                                <option value="5.0">Alta - Pontuação 5,0</option>
-                                <option value="3.0">Média - Pontuação 3,0</option>
-                                <option value="1.0">Baixa - Pontuação 1,0</option>
-                            </select>
-                            <div id="desc_sc_${recomendacaoCount}" style="font-size: 11px; color: #6b7280; margin-top: 5px; font-style: italic; min-height: 32px;"></div>
-                        </div>
+                <div style="background: #f0f7f4; padding: 14px; border-radius: 8px; border: 2px solid #c3ddd4; margin-bottom: 15px;">
+                    <h4 style="margin: 0 0 12px 0; color: #0d6efd; font-size: 13px;">📊 CLASSIFICAÇÃO DE RISCO - PNR (PNR-000047)</h4>
+                    <div style="font-size:11px;font-weight:700;color:#374151;margin:0 0 6px;">Condição de Falha (PFC) — Tab. 7 a 10</div>
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">
+                        <select id="rec_cd_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount})" style="font-size:11px;padding:7px 5px;background:#fff;color:#111827;border:1.5px solid #d1d5db;border-radius:5px;"><option value="">CD...</option><option value="1">CD 1</option><option value="2">CD 2</option><option value="3">CD 3</option><option value="4">CD 4</option><option value="5">CD 5</option></select>
+                        <select id="rec_af_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount})" style="font-size:11px;padding:7px 5px;background:#fff;color:#111827;border:1.5px solid #d1d5db;border-radius:5px;"><option value="">AF...</option><option value="1">AF1 = 1,0</option><option value="2">AF2 = 1,5</option><option value="3">AF3 = 1,8</option></select>
+                        <select id="rec_fe_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount})" style="font-size:11px;padding:7px 5px;background:#fff;color:#111827;border:1.5px solid #d1d5db;border-radius:5px;"><option value="">FE...</option><option value="1">Principal = 1,00</option><option value="0.36">Secundário = 0,36</option><option value="0.16">Não estrut. = 0,16</option></select>
+                        <select id="rec_fa_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount})" style="font-size:11px;padding:7px 5px;background:#fff;color:#111827;border:1.5px solid #d1d5db;border-radius:5px;"><option value="">FA...</option><option value="0">Inalterado = 0</option><option value="12">Agravante = 12</option></select>
                     </div>
-
-                    <!-- RESULTADO CALCULADO -->
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-                        <div style="background: #ffffff; border: 1.5px solid #d1d5db; padding: 10px; border-radius: 5px; text-align: center;">
-                            <label style="font-size: 11px; color: #6b7280; display: block; margin-bottom: 5px;">Pontuação Geral</label>
-                            <div id="rec_pontuacao_${recomendacaoCount}" style="font-size: 20px; font-weight: 700; color: #00694d;">-</div>
-                        </div>
-
-                        <div style="background: #ffffff; border: 1.5px solid #d1d5db; padding: 10px; border-radius: 5px; text-align: center;">
-                            <label style="font-size: 11px; color: #6b7280; display: block; margin-bottom: 5px;">Nível de Risco</label>
-                            <div id="rec_risco_${recomendacaoCount}" style="font-size: 16px; font-weight: 700; color: #374151;">-</div>
-                        </div>
-
-                        <div style="background: #ffffff; border: 1.5px solid #d1d5db; padding: 10px; border-radius: 5px; text-align: center;">
-                            <label style="font-size: 11px; color: #6b7280; display: block; margin-bottom: 5px;">Prazo</label>
-                            <div id="rec_prazo_${recomendacaoCount}" style="font-size: 16px; font-weight: 700; color: #374151;">-</div>
-                        </div>
+                    <div style="font-size:11px;font-weight:700;color:#374151;margin:0 0 6px;">Consequência (CC) — Tab. 2/3</div>
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">
+                        <select id="rec_oc_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount})" style="font-size:11px;padding:7px 5px;background:#fff;color:#111827;border:1.5px solid #d1d5db;border-radius:5px;"><option value="0" selected>Ocup. Baixa (0)</option><option value="3">Ocup. Média (3)</option><option value="12">Ocup. Alta (12)</option><option value="40">Ocup. Extrema (40)</option></select>
+                        <select id="rec_is_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount})" style="font-size:11px;padding:7px 5px;background:#fff;color:#111827;border:1.5px solid #d1d5db;border-radius:5px;"><option value="0" selected>Imp.SE Baixo (0)</option><option value="3">Imp.SE Médio (3)</option><option value="12">Imp.SE Alto (12)</option><option value="40">Imp.SE Extremo (40)</option></select>
+                        <select id="rec_io_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount})" style="font-size:11px;padding:7px 5px;background:#fff;color:#111827;border:1.5px solid #d1d5db;border-radius:5px;"><option value="0" selected>Imp.Op Baixo (0)</option><option value="3">Imp.Op Médio (3)</option><option value="12">Imp.Op Alto (12)</option><option value="40">Imp.Op Extremo (40)</option></select>
+                        <select id="rec_constr_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount})" style="font-size:11px;padding:7px 5px;background:#fff;color:#111827;border:1.5px solid #d1d5db;border-radius:5px;"><option value="0.5">Constr. M.Robusta (x0,5)</option><option value="1" selected>Constr. Robusta (x1)</option><option value="2">Constr. Frágil (x2)</option></select>
                     </div>
+                    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;">
+                        <select id="rec_pfb_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount})" style="font-size:11px;padding:7px 5px;background:#fff;color:#111827;border:1.5px solid #d1d5db;border-radius:5px;"><option value="">PFB (Base)...</option><option value="1">PFB1</option><option value="2">PFB2</option><option value="3">PFB3</option><option value="4">PFB4</option><option value="5">PFB5</option></select>
+                        <select id="rec_pfa_${recomendacaoCount}" onchange="calcularRisco(${recomendacaoCount})" style="font-size:11px;padding:7px 5px;background:#fff;color:#111827;border:1.5px solid #d1d5db;border-radius:5px;"><option value="">PFA (Ações)...</option><option value="1">PFA1</option><option value="2">PFA2</option><option value="3">PFA3</option><option value="4">PFA4</option><option value="5">PFA5</option></select>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+                        <div style="background:#fff;border:1.5px solid #d1d5db;padding:8px;border-radius:5px;text-align:center;"><label style="font-size:10px;color:#6b7280;display:block;margin-bottom:3px;">PFC</label><div id="rec_pfc_${recomendacaoCount}" style="font-size:15px;font-weight:700;color:#0d6efd;">-</div></div>
+                        <div style="background:#fff;border:1.5px solid #d1d5db;padding:8px;border-radius:5px;text-align:center;"><label style="font-size:10px;color:#6b7280;display:block;margin-bottom:3px;">Consequência</label><div id="rec_cc_${recomendacaoCount}" style="font-size:15px;font-weight:700;color:#0d6efd;">-</div></div>
+                        <div style="background:#fff;border:1.5px solid #d1d5db;padding:8px;border-radius:5px;text-align:center;"><label style="font-size:10px;color:#6b7280;display:block;margin-bottom:3px;">Prioridade Estrutural</label><div id="rec_prioridade_${recomendacaoCount}" style="font-size:13px;font-weight:700;color:#374151;">-</div></div>
+                        <div style="background:#fff;border:1.5px solid #d1d5db;padding:8px;border-radius:5px;text-align:center;"><label style="font-size:10px;color:#6b7280;display:block;margin-bottom:3px;">Prazo</label><div id="rec_prazo_${recomendacaoCount}" style="font-size:13px;font-weight:700;color:#374151;">-</div></div>
+                    </div>
+                    <div id="rec_pontuacao_${recomendacaoCount}" style="display:none;">-</div>
                 </div>
             `;
             
@@ -4656,6 +5295,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
 
         // Funções para atualizar descrições de referência
         function atualizarDescricaoCD(id) {
+            var _de=document.getElementById('desc_cd_'+id); if(!_de) return;
             const valor = document.getElementById(`rec_cd_${id}`).value;
             const descricoes = {
                 '1': 'Proteção em condição de funcionamento parcial. Componente sem degradação.',
@@ -4668,6 +5308,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
         }
 
         function atualizarDescricaoAF(id) {
+            var _de=document.getElementById('desc_af_'+id); if(!_de) return;
             const valor = document.getElementById(`rec_af_${id}`).value;
             const descricoes = {
                 '1.0': 'O fator não apresenta influência significativa na evolução da degradação.',
@@ -4678,6 +5319,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
         }
 
         function atualizarDescricaoFE(id) {
+            var _de=document.getElementById('desc_fe_'+id); if(!_de) return;
             const valor = document.getElementById(`rec_fe_${id}`).value;
             const descricoes = {
                 '3.0': 'Elemento estrutural primário - essencial para estabilidade da estrutura.',
@@ -4688,6 +5330,7 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
         }
 
         function atualizarDescricaoSC(id) {
+            var _de=document.getElementById('desc_sc_'+id); if(!_de) return;
             const valor = document.getElementById(`rec_sc_${id}`).value;
             const descricoes = {
                 '5.0': 'Severidade Alta - Risco elevado de colapso com consequências graves.',
@@ -4699,61 +5342,44 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
 
         // Função para calcular risco automaticamente
         function calcularRisco(id) {
-            const cd = parseFloat(document.getElementById(`rec_cd_${id}`).value) || 0;
-            const af = parseFloat(document.getElementById(`rec_af_${id}`).value) || 0;
-            const fe = parseFloat(document.getElementById(`rec_fe_${id}`).value) || 0;
-            const sc = parseFloat(document.getElementById(`rec_sc_${id}`).value) || 0;
-            
-            if (cd === 0 || af === 0 || fe === 0 || sc === 0) {
-                document.getElementById(`rec_pontuacao_${id}`).textContent = '-';
-                document.getElementById(`rec_risco_${id}`).textContent = '-';
-                document.getElementById(`rec_prazo_${id}`).textContent = '-';
-                return;
-            }
-            
-            // Calcular pontuação: CD × AF × FE × SC
-            const pontuacao = cd * af * fe * sc;
-            
-            // Determinar risco e prazo
-            let risco, prazo, corRisco;
-            
-            if (pontuacao >= 75) {
-                risco = 'MUITO ALTO';
-                prazo = 'Imediato';
-                corRisco = '#dc3545';
-            } else if (pontuacao >= 40) {
-                risco = 'ALTO';
-                prazo = 'Até 12 meses';
-                corRisco = '#fd7e14';
-            } else if (pontuacao >= 15) {
-                risco = 'MÉDIO';
-                prazo = 'Até 36 meses';
-                corRisco = '#ffc107';
-            } else {
-                risco = 'BAIXO';
-                prazo = 'Até 48 meses';
-                corRisco = '#28a745';
-            }
-            
-            // Atualizar interface
-            document.getElementById(`rec_pontuacao_${id}`).textContent = pontuacao.toFixed(1);
-            
-            const riscoElement = document.getElementById(`rec_risco_${id}`);
-            riscoElement.textContent = risco;
-            riscoElement.style.color = 'white';
-            riscoElement.style.backgroundColor = corRisco;
-            riscoElement.style.padding = '5px 10px';
-            riscoElement.style.borderRadius = '5px';
-            riscoElement.style.fontWeight = '700';
-            
-            document.getElementById(`rec_prazo_${id}`).textContent = prazo;
-
-            // Auto-preencher descrição da recomendação com texto do PRO-024969
-            const descEl = document.getElementById(`rec_descricao_${id}`);
-            if (descEl && DIAGNOSTICOS_REC[risco]) {
-                descEl.value = DIAGNOSTICOS_REC[risco].recomendacao;
-                descEl.style.border = '2px solid ' + corRisco;
-                setTimeout(() => { descEl.style.border = ''; }, 1200);
+            const G=sfx=>document.getElementById('rec_'+sfx+'_'+id);
+            const val=sfx=>{ const e=G(sfx); return e? e.value : ''; };
+            const cdV=val('cd'), afV=val('af'), feV=val('fe'), faV=val('fa'), pfbV=val('pfb'), pfaV=val('pfa');
+            const setOut=(pfc,cc,pri,prazo,pont,cor)=>{
+                if(G('pfc')) G('pfc').textContent=pfc;
+                if(G('cc')) G('cc').textContent=cc;
+                if(G('prazo')) G('prazo').textContent=prazo;
+                if(G('pontuacao')) G('pontuacao').textContent=pont;
+                const pe=G('prioridade');
+                if(pe){ pe.textContent=pri;
+                    if(cor){ pe.style.backgroundColor=cor; pe.style.color=(pri.indexOf('Média')>=0?'#333':'#fff'); pe.style.padding='5px 8px'; pe.style.borderRadius='5px'; pe.style.fontWeight='700'; }
+                    else { pe.style.backgroundColor=''; pe.style.color='#374151'; pe.style.padding=''; }
+                }
+            };
+            if(!cdV||!afV||!feV||faV===''||!pfbV||!pfaV){ setOut('-','-','-','-','-',null); return; }
+            const cd=parseInt(cdV,10), af=parseInt(afV,10), fe=parseFloat(feV), fa=parseFloat(faV);
+            const pfbNum=parseInt(pfbV,10), pfaNum=parseInt(pfaV,10);
+            const oc=val('oc')!==''?parseFloat(val('oc')):0, is_=val('is')!==''?parseFloat(val('is')):0, io=val('io')!==''?parseFloat(val('io')):0, constr=val('constr')!==''?parseFloat(val('constr')):1;
+            const baseCD={1:1,2:4,3:7,4:10,5:13}, fatorAF={1:1,2:1.5,3:1.8};
+            const pfcVal=Math.ceil((baseCD[cd]*fatorAF[af])*fe+fa);
+            let pfcNum; if(pfcVal<=1)pfcNum=1; else if(pfcVal<=4)pfcNum=2; else if(pfcVal<=8)pfcNum=3; else if(pfcVal<=11)pfcNum=4; else pfcNum=5;
+            const dano=Math.round((oc+is_+io)*constr);
+            let cc; if(dano<=2)cc='CC1'; else if(dano<=39)cc='CC2'; else cc='CC3';
+            const pts={1:1,2:2,3:4,4:9,5:21};
+            const pontGeral=pts[pfbNum]+pts[pfcNum]+pts[pfaNum];
+            let prob; if(pontGeral===3)prob='MUITO REMOTA'; else if(pontGeral===4)prob='REMOTA'; else if(pontGeral<=8)prob='POUCO PROVÁVEL'; else if(pontGeral<=18)prob='PROVÁVEL'; else prob='MUITO PROVÁVEL';
+            const cols={'MUITO REMOTA':0,'REMOTA':1,'POUCO PROVÁVEL':2,'PROVÁVEL':3,'MUITO PROVÁVEL':4};
+            const M={'CC3':['Baixa','Média','Alta','Muito Alta','Muito Alta'],'CC2':['Baixa','Baixa','Média','Alta','Muito Alta'],'CC1':['Baixa','Baixa','Baixa','Média','Muito Alta']};
+            const prioridade=M[cc][cols[prob]];
+            const pcMap={'Baixa':'PC1','Média':'PC2','Alta':'PC3','Muito Alta':'PC4'};
+            const corMap={'Baixa':'#28a745','Média':'#ffc107','Alta':'#fd7e14','Muito Alta':'#dc3545'};
+            let prazo; if(prioridade==='Muito Alta')prazo='Imediato'; else if(prioridade==='Alta')prazo='Até 12 meses'; else if(prioridade==='Média')prazo='Até 36 meses'; else prazo='Até 48 meses';
+            setOut('PFC'+pfcNum, cc, prioridade+' ('+pcMap[prioridade]+')', prazo, String(pontGeral), corMap[prioridade]);
+            const descEl=G('descricao');
+            const riscoKey = prioridade==='Muito Alta'?'MUITO ALTO':(prioridade==='Alta'?'ALTO':(prioridade==='Média'?'MÉDIO':'BAIXO'));
+            if(descEl && !descEl.value.trim() && typeof DIAGNOSTICOS_REC!=='undefined' && DIAGNOSTICOS_REC[riscoKey]){
+                descEl.value=DIAGNOSTICOS_REC[riscoKey].recomendacao;
+                descEl.style.border='2px solid '+corMap[prioridade]; setTimeout(()=>{ descEl.style.border=''; }, 1200);
             }
         }
 
@@ -5090,25 +5716,17 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                     // Pegar ID do item
                     const id = item.id.replace('rec-', '');
                     
-                    // Coletar classificação de risco
-                    const cd = document.getElementById(`rec_cd_${id}`);
-                    const af = document.getElementById(`rec_af_${id}`);
-                    const fe = document.getElementById(`rec_fe_${id}`);
-                    const sc = document.getElementById(`rec_sc_${id}`);
-                    const pontuacao = document.getElementById(`rec_pontuacao_${id}`);
-                    const risco = document.getElementById(`rec_risco_${id}`);
-                    const prazo = document.getElementById(`rec_prazo_${id}`);
-                    
+                    // Coletar classificação de risco PNR
+                    const _rv=sfx=>{ const e=document.getElementById('rec_'+sfx+'_'+id); return e? e.value : ''; };
+                    const _rt=sfx=>{ const e=document.getElementById('rec_'+sfx+'_'+id); return e? (e.textContent||'').trim() : ''; };
                     dados.recomendacoes.push({
                         descricao: descricao,
                         classificacao: {
-                            cd: cd ? cd.value : '',
-                            af: af ? af.value : '',
-                            fe: fe ? fe.value : '',
-                            sc: sc ? sc.value : '',
-                            pontuacao: pontuacao ? pontuacao.textContent : '',
-                            nivelRisco: risco ? risco.textContent : '',
-                            prazo: prazo ? prazo.textContent : ''
+                            cd:_rv('cd'), af:_rv('af'), fe:_rv('fe'), fa:_rv('fa'),
+                            oc:_rv('oc'), is:_rv('is'), io:_rv('io'), constr:_rv('constr'),
+                            pfb:_rv('pfb'), pfa:_rv('pfa'),
+                            pfc:_rt('pfc'), cc:_rt('cc'), prioridade:_rt('prioridade'),
+                            prazo:_rt('prazo'), pontuacao:_rt('pontuacao')
                         }
                     });
                 }
@@ -5292,8 +5910,8 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                 bar('RECOMENDAÇÕES E CLASSIFICAÇÃO DE RISCO');
                 dados.recomendacoes.forEach((rec,idx)=>{
                     const desc2=wrap(rec.descricao||'', contentW-8, 9.5);
-                    const tc = rec.classificacao && rec.classificacao.pontuacao && rec.classificacao.pontuacao!=='-';
-                    const clH = tc ? 27 : 0;
+                    const tc = rec.classificacao && rec.classificacao.prioridade && rec.classificacao.prioridade!=='-' && String(rec.classificacao.prioridade).trim()!=='';
+                    const clH = tc ? 20 : 0;
                     const h=4+lineH(9.5)+1+desc2.length*lineH(9.5)+3 + clH;
                     ensure(h+3);
                     const topY=y;
@@ -5309,33 +5927,26 @@ As não conformidades identificadas requerem atenção e devem ser tratadas conf
                         const c=rec.classificacao;
                         const boxX=mL+4, boxW=contentW-8;
                         setFill(LIGHT); pdf.rect(boxX,yy,boxW,clH-1,'F');
-                        pdf.setFont('helvetica','bold'); pdf.setFontSize(7.5); setText(GREEN);
-                        pdf.text('CLASSIFICAÇÃO DE RISCO (PRO-024969)', boxX+2, yy+2, {baseline:'top'});
-                        const cg=2, cw4=(boxW-4-cg*3)/4; let cx=boxX+2; const cy=yy+6;
-                        [['CD',c.cd],['AF',c.af],['FE',c.fe],['SC',c.sc]].forEach(f=>{
-                            setFill([255,255,255]); pdf.setDrawColor(BORDER[0],BORDER[1],BORDER[2]); pdf.setLineWidth(0.3);
-                            pdf.rect(cx,cy,cw4,8.5,'FD');
-                            pdf.setFont('helvetica','bold'); pdf.setFontSize(7); setText(GRAY); pdf.text(f[0],cx+cw4/2,cy+2.6,{align:'center',baseline:'middle'});
-                            pdf.setFontSize(10); setText(DARK); pdf.text(String(f[1]||'-'),cx+cw4/2,cy+6,{align:'center',baseline:'middle'});
-                            cx+=cw4+cg;
-                        });
-                        const ry=cy+10, rg=2;
-                        const innerW=boxW-4;
-                        const w1=innerW*0.25, w2=innerW*0.5-rg, w3=innerW*0.25-rg;
-                        let rx=boxX+2;
-                        pdf.setFillColor(232,245,233); pdf.rect(rx,ry,w1,8.5,'F');
-                        pdf.setFont('helvetica','bold'); pdf.setFontSize(7); pdf.setTextColor(21,87,36); pdf.text('PONTUAÇÃO',rx+w1/2,ry+2.6,{align:'center',baseline:'middle'});
-                        pdf.setFontSize(11); pdf.text(String(c.pontuacao||'-'),rx+w1/2,ry+6,{align:'center',baseline:'middle'});
-                        rx+=w1+rg;
-                        const nv=(c.nivelRisco||'').toUpperCase(); let nc2=[108,117,125];
-                        if(nv.indexOf('MUITO ALTO')>=0)nc2=[220,53,69]; else if(nv.indexOf('ALTO')>=0)nc2=[253,126,20]; else if(nv.indexOf('MÉD')>=0||nv.indexOf('MED')>=0)nc2=[255,193,7]; else if(nv.indexOf('BAIXO')>=0)nc2=[40,167,69];
-                        pdf.setFillColor(nc2[0],nc2[1],nc2[2]); pdf.rect(rx,ry,w2,8.5,'F');
-                        pdf.setTextColor(255,255,255); pdf.setFontSize(7); pdf.text('NÍVEL DE RISCO',rx+w2/2,ry+2.6,{align:'center',baseline:'middle'});
-                        pdf.setFontSize(9); pdf.text(String(c.nivelRisco||'-'),rx+w2/2,ry+6,{align:'center',baseline:'middle'});
-                        rx+=w2+rg;
-                        pdf.setFillColor(255,243,205); pdf.setDrawColor(255,193,7); pdf.setLineWidth(0.3); pdf.rect(rx,ry,w3,8.5,'FD');
-                        pdf.setTextColor(133,100,4); pdf.setFontSize(7); pdf.text('PRAZO',rx+w3/2,ry+2.6,{align:'center',baseline:'middle'});
-                        pdf.setFontSize(8.5); pdf.text(String(c.prazo||'-'),rx+w3/2,ry+6,{align:'center',baseline:'middle'});
+                        pdf.setFont('helvetica','bold'); pdf.setFontSize(7); setText([13,110,253]);
+                        pdf.text('CLASSIFICAÇÃO DE RISCO - PNR (PNR-000047)', boxX+2, yy+1.5, {baseline:'top'});
+                        function _corPri(s){ s=String(s||''); if(s.indexOf('Muito Alta')>=0) return [220,53,69]; if(s.indexOf('Alta')>=0) return [253,126,20]; if(s.indexOf('Média')>=0) return [255,193,7]; return [40,167,69]; }
+                        const cg=2, cw4=(boxW-4-cg*3)/4; let cx=boxX+2; const cy=yy+5.5;
+                        setFill([255,255,255]); pdf.setDrawColor(BORDER[0],BORDER[1],BORDER[2]); pdf.setLineWidth(0.3); pdf.rect(cx,cy,cw4,12,'FD');
+                        pdf.setFont('helvetica','bold'); pdf.setFontSize(6.5); setText(GRAY); pdf.text('PFC',cx+cw4/2,cy+2.6,{align:'center',baseline:'middle'});
+                        pdf.setFontSize(9.5); setText(DARK); pdf.text(String(c.pfc||'-'),cx+cw4/2,cy+8,{align:'center',baseline:'middle'});
+                        cx+=cw4+cg;
+                        setFill([255,255,255]); pdf.setDrawColor(BORDER[0],BORDER[1],BORDER[2]); pdf.setLineWidth(0.3); pdf.rect(cx,cy,cw4,12,'FD');
+                        pdf.setFont('helvetica','bold'); pdf.setFontSize(6.5); setText(GRAY); pdf.text('CONSEQUÊNCIA',cx+cw4/2,cy+2.6,{align:'center',baseline:'middle'});
+                        pdf.setFontSize(9.5); setText(DARK); pdf.text(String(c.cc||'-'),cx+cw4/2,cy+8,{align:'center',baseline:'middle'});
+                        cx+=cw4+cg;
+                        const pcr=_corPri(c.prioridade); pdf.setFillColor(pcr[0],pcr[1],pcr[2]); pdf.rect(cx,cy,cw4,12,'F');
+                        const fgP=(String(c.prioridade).indexOf('Média')>=0)?[51,51,51]:[255,255,255];
+                        pdf.setFont('helvetica','bold'); pdf.setFontSize(6.5); pdf.setTextColor(fgP[0],fgP[1],fgP[2]); pdf.text('PRIORIDADE',cx+cw4/2,cy+2.6,{align:'center',baseline:'middle'});
+                        pdf.setFontSize(8); pdf.text(String(c.prioridade||'-'),cx+cw4/2,cy+8,{align:'center',baseline:'middle'});
+                        cx+=cw4+cg;
+                        pdf.setFillColor(255,243,205); pdf.setDrawColor(255,193,7); pdf.setLineWidth(0.3); pdf.rect(cx,cy,cw4,12,'FD');
+                        pdf.setTextColor(133,100,4); pdf.setFont('helvetica','bold'); pdf.setFontSize(6.5); pdf.text('PRAZO',cx+cw4/2,cy+2.6,{align:'center',baseline:'middle'});
+                        pdf.setFontSize(7.5); pdf.text(String(c.prazo||'-'),cx+cw4/2,cy+8,{align:'center',baseline:'middle'});
                     }
                     y=topY+h+3;
                 });
@@ -7114,7 +7725,7 @@ function _normalizarAnexo(f) {
                             <div style="text-align: right;">
                                 <div style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">LAUDO DE CONDIÇÃO ESTRUTURAL</div>
                                 <div style="font-size: 13px; opacity: 0.95;"><span id="laudo_codigo_cabecalho">FEKS-BFE-CAR-RC_2092-RC03-ST1</span></div>
-                                <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">PRO-024969, Rev. 05 - 14/08/2024</div>
+                                <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">PRO-024969, Rev.: 06 - 23/03/2026 | PNR-000047, Rev.: 03-22/05/2026</div>
                                 <div style="font-size: 11px; opacity: 0.8; margin-top: 3px;">Serra Sul - Carajás</div>
                             </div>
                         </div>
@@ -7277,106 +7888,135 @@ function _normalizarAnexo(f) {
                         </div>
                     </div>
                     
-                    <!-- CLASSIFICAÇÃO DE RISCO -->
+                    <!-- CLASSIFICAÇÃO DE RISCO - PNR (PNR-000047) -->
                     <div style="padding: 30px 40px; background: #ffffff;">
-                        <h3 style="margin: 0 0 20px 0; color: #003d2e; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 10px; padding: 15px 20px; background: #e8f5ee; border-left: 4px solid #ffc107; border-radius: 4px;">
-                            <span style="font-size: 20px;">⚠️</span> CLASSIFICAÇÃO DE RISCO
+                        <h3 style="margin: 0 0 8px 0; color: #003d2e; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 10px; padding: 15px 20px; background: #eaf3ff; border-left: 4px solid #0d6efd; border-radius: 4px;">
+                            <span style="font-size: 20px;">⚠️</span> CLASSIFICAÇÃO DE RISCO (PNR-000047)
                         </h3>
-                        
-                        <div style="background: #e8f5ee; border: 2px solid #005a45; padding: 20px; border-radius: 10px; margin-bottom: 25px; color: #003d2e; text-align: center;">
-                            <div style="font-size: 12px; font-weight: 600; opacity: 0.95; margin-bottom: 8px;">CÁLCULO DA PONTUAÇÃO GERAL</div>
-                            <div style="font-size: 22px; font-weight: 900; font-family: monospace; letter-spacing: 2px;">CD × AF × FE × SC</div>
-                            <div style="font-size: 10px; opacity: 0.9; margin-top: 8px;">Classe Degradação × Assoc. Fatores × Função Estrutural × Severidade Colapso</div>
-                        </div>
-                        
-                        <!-- 4 DROPDOWNS -->
-                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px;">
-                            <div>
-                                <label style="display: block; font-size: 11px; font-weight: 700; color: #003d2e; margin-bottom: 8px; text-align: center;">TABELA 7<br>Classe Degradação (CD)</label>
-                                <select id="risco_cd" onchange="calcularRiscoTabela11()" style="width: 100%; padding: 10px; border: 2px solid #003d2e; border-radius: 6px; font-size: 11px; font-weight: 600; background: #ffffff; cursor: pointer;">
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3" selected>3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label style="display: block; font-size: 11px; font-weight: 700; color: #005a45; margin-bottom: 8px; text-align: center;">TABELA 8<br>Assoc. Fatores (AF)</label>
-                                <select id="risco_af" onchange="calcularRiscoTabela11()" style="width: 100%; padding: 10px; border: 2px solid #005a45; border-radius: 6px; font-size: 11px; font-weight: 600; background: #ffffff; cursor: pointer;">
-                                    <option value="1.0">AF1 = 1,0</option>
-                                    <option value="1.5" selected>AF2 = 1,5</option>
-                                    <option value="2.2">AF3 = 2,2</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label style="display: block; font-size: 11px; font-weight: 700; color: #FFA500; margin-bottom: 8px; text-align: center;">TABELA 9<br>Função Estrutural (FE)</label>
-                                <select id="risco_fe" onchange="calcularRiscoTabela11()" style="width: 100%; padding: 10px; border: 2px solid #FFA500; border-radius: 6px; font-size: 11px; font-weight: 600; background: #ffffff; cursor: pointer;">
-                                    <option value="3.0" selected>Primário = 3,0</option>
-                                    <option value="1.0">Secundário = 1,0</option>
-                                    <option value="0.5">Não estrutural = 0,5</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label style="display: block; font-size: 11px; font-weight: 700; color: #dc3545; margin-bottom: 8px; text-align: center;">TABELA 10<br>Sever. Colapso (SC)</label>
-                                <select id="risco_sc" onchange="calcularRiscoTabela11()" style="width: 100%; padding: 10px; border: 2px solid #dc3545; border-radius: 6px; font-size: 11px; font-weight: 600; background: #ffffff; cursor: pointer;">
-                                    <option value="5.0">Alta = 5,0</option>
-                                    <option value="3.0" selected>Média = 3,0</option>
-                                    <option value="1.0">Baixa = 1,0</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <!-- RESULTADO -->
-                        <div style="background: #f0f8f0; padding: 14px 18px; border-radius: 10px; border: 2px solid #005a45;">
-                            <div style="display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center;">
-                                <div style="text-align: center; padding: 12px 18px; background: #ffffff; border-radius: 8px; border: 1.5px solid #003d2e; min-width: 130px;">
-                                    <div style="font-size: 10px; font-weight: 700; color: #a0a0a0; margin-bottom: 6px; letter-spacing: 0.5px;">PONTUAÇÃO GERAL</div>
-                                    <div id="laudo_pontuacao" style="font-size: 34px; font-weight: 900; color: #00cc7a; line-height: 1; min-height: 32px">20,25</div>
-                                    <div id="laudo_formula" style="font-size: 10px; color: #707070; margin-top: 6px; min-height: 14px">3 × 1,5 × 3,0 × 1,5</div>
-                                </div>
+                        <div style="font-size: 11px; color: #555; margin: 6px 4px 18px;">Método oficial PNR-000047: Consequência (Tab. 2/3) × Probabilidade de Falha (PFB+PFC+PFA) → Prioridade Estrutural (PC1 a PC4).</div>
 
+                        <!-- 1) PFC -->
+                        <div style="font-size:12px; font-weight:800; color:#003d2e; margin:4px 0 8px; border-bottom:1px solid #cfe3d6; padding-bottom:4px;">1) Probabilidade de Falha de Condição (PFC) - Tab. 7 a 11</div>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px;">
+                            <div>
+                                <label style="display:block; font-size:11px; font-weight:700; margin-bottom:6px; color:#003d2e;">CD - Classe Degradação (Tab. 7)</label>
+                                <select id="pnr_cd" onchange="calcularRiscoPNR()" style="width:100%; padding:9px; border-radius:6px; font-size:12px; font-weight:600; background:#fff; cursor:pointer;" >
+                                    <option value="1">CD 1</option><option value="2">CD 2</option><option value="3" selected>CD 3</option><option value="4">CD 4</option><option value="5">CD 5</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block; font-size:11px; font-weight:700; margin-bottom:6px; color:#005a45;">AF - Assoc. Fatores (Tab. 8)</label>
+                                <select id="pnr_af" onchange="calcularRiscoPNR()" style="width:100%; padding:9px; border-radius:6px; font-size:12px; font-weight:600; background:#fff; cursor:pointer;" >
+                                    <option value="1">AF1 = 1,0</option><option value="2" selected>AF2 = 1,5</option><option value="3">AF3 = 1,8</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block; font-size:11px; font-weight:700; margin-bottom:6px; color:#FFA500;">FE - Função Estrutural (Tab. 9)</label>
+                                <select id="pnr_fe" onchange="calcularRiscoPNR()" style="width:100%; padding:9px; border-radius:6px; font-size:12px; font-weight:600; background:#fff; cursor:pointer;" >
+                                    <option value="1" selected>Principal/crítico = 1,00</option><option value="0.36">Secundário = 0,36</option><option value="0.16">Não estrutural = 0,16</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block; font-size:11px; font-weight:700; margin-bottom:6px; color:#dc3545;">FA - Agravante (Tab. 10)</label>
+                                <select id="pnr_fa" onchange="calcularRiscoPNR()" style="width:100%; padding:9px; border-radius:6px; font-size:12px; font-weight:600; background:#fff; cursor:pointer;" >
+                                    <option value="0" selected>Inalterado = 0</option><option value="12">Agravante alto = 12</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 2) Consequência -->
+                        <div style="font-size:12px; font-weight:800; color:#003d2e; margin:4px 0 8px; border-bottom:1px solid #cfe3d6; padding-bottom:4px;">2) Classe de Consequência - Dano Potencial (Tab. 2 e 3)</div>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px;">
+                            <div>
+                                <label style="display:block; font-size:11px; font-weight:700; margin-bottom:6px; color:#6f42c1;">Ocupação / área de influência</label>
+                                <select id="pnr_oc" onchange="calcularRiscoPNR()" style="width:100%; padding:9px; border-radius:6px; font-size:12px; font-weight:600; background:#fff; cursor:pointer;" >
+                                    <option value="0" selected>Baixa (0)</option><option value="3">Média (3)</option><option value="12">Alta (12)</option><option value="40">Extrema (40)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block; font-size:11px; font-weight:700; margin-bottom:6px; color:#6f42c1;">Impacto socioecon./ambiental</label>
+                                <select id="pnr_is" onchange="calcularRiscoPNR()" style="width:100%; padding:9px; border-radius:6px; font-size:12px; font-weight:600; background:#fff; cursor:pointer;" >
+                                    <option value="0" selected>Baixo (0)</option><option value="3">Médio (3)</option><option value="12">Alto (12)</option><option value="40">Extremo (40)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block; font-size:11px; font-weight:700; margin-bottom:6px; color:#6f42c1;">Impacto operacional</label>
+                                <select id="pnr_io" onchange="calcularRiscoPNR()" style="width:100%; padding:9px; border-radius:6px; font-size:12px; font-weight:600; background:#fff; cursor:pointer;" >
+                                    <option value="0" selected>Baixo (0)</option><option value="3">Médio (3)</option><option value="12">Alto (12)</option><option value="40">Extremo (40)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block; font-size:11px; font-weight:700; margin-bottom:6px; color:#6f42c1;">Tipo de construção (×)</label>
+                                <select id="pnr_constr" onchange="calcularRiscoPNR()" style="width:100%; padding:9px; border-radius:6px; font-size:12px; font-weight:600; background:#fff; cursor:pointer;" >
+                                    <option value="0.5">Muito Robusta (x0,5)</option><option value="1" selected>Robusta (x1,0)</option><option value="2">Frágil (x2,0)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 3) PFB e PFA -->
+                        <div style="font-size:12px; font-weight:800; color:#003d2e; margin:4px 0 8px; border-bottom:1px solid #cfe3d6; padding-bottom:4px;">3) Falha de Base (PFB) e por Falta de Ações Preventivas (PFA)</div>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 6px;">
+                            <div>
+                                <label style="display:block; font-size:11px; font-weight:700; margin-bottom:6px; color:#0d6efd;">PFB - Falha de Base (Tab. 4 / Fig. 5)</label>
+                                <select id="pnr_pfb_sel" onchange="calcularRiscoPNR()" style="width:100%; padding:9px; border-radius:6px; font-size:12px; font-weight:600; background:#fff; cursor:pointer;" >
+                                    <option value="1">PFB1</option><option value="2" selected>PFB2</option><option value="3">PFB3</option><option value="4">PFB4</option><option value="5">PFB5</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block; font-size:11px; font-weight:700; margin-bottom:6px; color:#0d6efd;">PFA - Falta de Ações (Tab. 12)</label>
+                                <select id="pnr_pfa" onchange="calcularRiscoPNR()" style="width:100%; padding:9px; border-radius:6px; font-size:12px; font-weight:600; background:#fff; cursor:pointer;" >
+                                    <option value="1" selected>PFA1</option><option value="2">PFA2</option><option value="3">PFA3</option><option value="4">PFA4</option><option value="5">PFA5</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="font-size:10px; color:#777; margin:0 2px 16px;">Ref. Tab. 4 (ativo novo): CC3 &rarr; PFB1 &middot; CC2 &rarr; PFB2 &middot; CC1 &rarr; PFB3. Para ativo existente, o PFB vem do processo de inspeção (Fig. 5).</div>
+
+                        <!-- DERIVADOS -->
+                        <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; margin-bottom:16px;">
+                            <div style="text-align:center; padding:10px; background:#f0f8f0; border:1.5px solid #005a45; border-radius:8px;"><div style="font-size:9px; font-weight:700; color:#707070;">PFC</div><div id="pnr_pfc" style="font-size:15px; font-weight:900; color:#003d2e;">-</div></div>
+                            <div style="text-align:center; padding:10px; background:#f0f8f0; border:1.5px solid #005a45; border-radius:8px;"><div style="font-size:9px; font-weight:700; color:#707070;">Dano Potencial</div><div id="pnr_dano" style="font-size:15px; font-weight:900; color:#003d2e;">-</div></div>
+                            <div style="text-align:center; padding:10px; background:#f0f8f0; border:1.5px solid #005a45; border-radius:8px;"><div style="font-size:9px; font-weight:700; color:#707070;">Consequência</div><div id="pnr_cc" style="font-size:15px; font-weight:900; color:#003d2e;">-</div></div>
+                            <div style="text-align:center; padding:10px; background:#f0f8f0; border:1.5px solid #005a45; border-radius:8px;"><div style="font-size:9px; font-weight:700; color:#707070;">PFB</div><div id="pnr_pfb" style="font-size:15px; font-weight:900; color:#003d2e;">-</div></div>
+                            <div style="text-align:center; padding:10px; background:#f0f8f0; border:1.5px solid #005a45; border-radius:8px;"><div style="font-size:9px; font-weight:700; color:#707070;">PFA</div><div id="pnr_pfa_lbl" style="font-size:15px; font-weight:900; color:#003d2e;">-</div></div>
+                        </div>
+
+                        <!-- RESULTADO -->
+                        <div style="background:#f0f8f0; padding:14px 18px; border-radius:10px; border:2px solid #0d6efd;">
+                            <div style="display:grid; grid-template-columns:auto 1fr; gap:16px; align-items:center;">
+                                <div style="text-align:center; padding:12px 18px; background:#fff; border-radius:8px; border:1.5px solid #003d2e; min-width:150px;">
+                                    <div style="font-size:10px; font-weight:700; color:#a0a0a0; margin-bottom:6px;">PONTUAÇÃO GERAL</div>
+                                    <div id="pnr_pont_geral" style="font-size:30px; font-weight:900; color:#0d6efd; line-height:1;">-</div>
+                                    <div id="pnr_pts" style="font-size:10px; color:#707070; margin-top:6px;">-</div>
+                                </div>
                                 <div>
-                                    <div id="laudo_card_risco" style="padding: 10px 14px; border-radius: 8px; background: #FFEB3B; margin-bottom: 10px; min-height: 32px">
-                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div id="pnr_card" style="padding:12px 16px; border-radius:8px; background:#FFEB3B; margin-bottom:10px;">
+                                        <div style="display:flex; justify-content:space-between; align-items:center;">
                                             <div>
-                                                <div style="font-size: 10px; font-weight: 600; color: #333333; opacity: 0.8; margin-bottom: 3px;">TABELA 11 - NÍVEL DE RISCO</div>
-                                                <div id="laudo_nivel" style="font-size: 22px; font-weight: 900; color: #333333; min-height: 28px">MÉDIO</div>
+                                                <div style="font-size:10px; font-weight:600; color:#333; opacity:0.85; margin-bottom:3px;">PRIORIDADE ESTRUTURAL</div>
+                                                <div id="pnr_prioridade" style="font-size:22px; font-weight:900; color:#333;">-</div>
                                             </div>
-                                            <div id="laudo_prazo_display" style="text-align: right; min-height: 28px">
-                                                <div style="font-size: 10px; font-weight: 600; color: #333333; opacity: 0.8; margin-bottom: 3px;">PRAZO</div>
-                                                <div style="font-size: 20px; font-weight: 900; color: #333333;">36 meses</div>
+                                            <div style="text-align:right;">
+                                                <div style="font-size:10px; font-weight:600; color:#333; opacity:0.85; margin-bottom:3px;">PROBABILIDADE</div>
+                                                <div id="pnr_prob" style="font-size:14px; font-weight:800; color:#333;">-</div>
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div style="padding: 10px 12px; background: #f8f9fa; border: 1px solid #dddddd; border-radius: 7px;">
-                                        <div style="font-size: 10px; color: #555555; margin-bottom: 4px;">Data de Conclusão Desejada:</div>
-                                        <input id="laudo_data_limite" type="date" readonly style="width: 100%; padding: 6px; border: 2px solid #005a45; border-radius: 6px; font-size: 12px; font-weight: 700; color: #dc3545; background: #ffffff; box-sizing: border-box; min-height: 28px">
+                                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                                        <div style="background:#fff; border:1.5px solid #003d2e; border-radius:8px; padding:8px 12px; text-align:center;">
+                                            <div style="font-size:9px; font-weight:700; color:#a0a0a0;">PRAZO (Tab. 11)</div>
+                                            <div id="pnr_prazo" style="font-size:15px; font-weight:900; color:#003d2e;">-</div>
+                                        </div>
+                                        <div style="background:#fff; border:1.5px solid #dc3545; border-radius:8px; padding:8px 12px; text-align:center;">
+                                            <div style="font-size:9px; font-weight:700; color:#a0a0a0;">DATA DE CONCLUSÃO DESEJADA</div>
+                                            <div id="pnr_data_limite" style="font-size:15px; font-weight:900; color:#dc3545;">-</div>
+                                        </div>
                                     </div>
+                                    <div style="font-size:10px; color:#555;">PC1 = Baixa &nbsp;|&nbsp; PC2 = Média &nbsp;|&nbsp; PC3 = Alta &nbsp;|&nbsp; PC4 = Muito Alta</div>
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- TABELA 11 -->
-                        <div style="margin-top: 25px; padding: 20px; background: #ffffff; border-radius: 10px; border: 2px solid #003d2e;">
-                            <div style="font-size: 12px; font-weight: 700; color: #00cc7a; margin-bottom: 15px; text-align: center;">TABELA 11: Definição de Risco e Prazo conforme Pontuação Geral</div>
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <thead><tr style="background: #003d2e; color: white; font-size: 11px;">
-                                    <th style="padding: 10px; border: 1px solid #003d2e;">Pontuação Geral</th>
-                                    <th style="padding: 10px; border: 1px solid #003d2e;">Risco</th>
-                                    <th style="padding: 10px; border: 1px solid #003d2e;">Prazo (meses)</th>
-                                </tr></thead>
-                                <tbody style="font-size: 11px;">
-                                    <tr><td style="padding: 10px; border: 1px solid #cccccc; text-align: center;">Maior ou igual à 75</td><td style="padding: 10px; border: 1px solid #cccccc; text-align: center; background: #dc3545; color: white; font-weight: 700;">Muito Alto</td><td style="padding: 10px; border: 1px solid #cccccc; text-align: center; font-weight: 600;">Imediato</td></tr>
-                                    <tr><td style="padding: 10px; border: 1px solid #cccccc; text-align: center;">40 a 74</td><td style="padding: 10px; border: 1px solid #cccccc; text-align: center; background: #FFA500; color: white; font-weight: 700;">Alto</td><td style="padding: 10px; border: 1px solid #cccccc; text-align: center; font-weight: 600;">Até 12</td></tr>
-                                    <tr><td style="padding: 10px; border: 1px solid #cccccc; text-align: center;">15 a 39</td><td style="padding: 10px; border: 1px solid #cccccc; text-align: center; background: #FFEB3B; color: #333333; font-weight: 700;">Médio</td><td style="padding: 10px; border: 1px solid #cccccc; text-align: center; font-weight: 600;">Até 36</td></tr>
-                                    <tr><td style="padding: 10px; border: 1px solid #cccccc; text-align: center;">1 a 14</td><td style="padding: 10px; border: 1px solid #cccccc; text-align: center; background: #4CAF50; color: white; font-weight: 700;">Baixo</td><td style="padding: 10px; border: 1px solid #cccccc; text-align: center; font-weight: 600;">Até 48</td></tr>
-                                </tbody>
-                            </table>
-                            <div style="margin-top: 12px; padding: 10px; background: #fff8e1; border-radius: 6px; font-size: 10px; color: #856404; line-height: 1.5;"><strong>*</strong> Como exceção, a determinação de prazo para Proteção Anticorrosiva é definida a partir da Classe de Degradação, obtida nas Tabelas 12 e 13.</div>
-                        </div>
                     </div>
+
                     
                     <!-- DIAGNÓSTICO -->
                     <div style="padding: 30px 40px; background: #f8f9fa;">
@@ -7419,7 +8059,11 @@ function _normalizarAnexo(f) {
                             </tbody>
                         </table>
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding: 10px; background: #f0f8f0; border-radius: 6px; border: 2px solid #005a45;">
-                            <button onclick="adicionarLinhaBOM('laudo')" style="padding: 6px 14px; background: #005a45; color: white; border: none; border-radius: 5px; font-size: 11px; font-weight: 600; cursor: pointer;">➕ Adicionar Linha</button>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                <button onclick="adicionarLinhaBOM('laudo')" style="padding: 6px 14px; background: #005a45; color: white; border: none; border-radius: 5px; font-size: 11px; font-weight: 600; cursor: pointer;">➕ Adicionar Linha</button>
+                                <button onclick="importarBOMdeExcel('laudo')" style="padding: 6px 14px; background: #1d6f42; color: white; border: none; border-radius: 5px; font-size: 11px; font-weight: 600; cursor: pointer;">📊 Importar Excel/CSV</button>
+                                <input type="file" id="laudo_bom_xls_input" accept=".xlsx,.xls,.csv" style="display:none" onchange="_handleBOMxls('laudo', event)">
+                            </div>
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <span style="font-size: 12px; font-weight: 700; color: #555555;">PESO TOTAL (Kg) =</span>
                                 <input id="laudo_bom_peso_total" type="text" placeholder="0" readonly style="width: 100px; padding: 6px; border: 2px solid #005a45; border-radius: 4px; font-size: 14px; font-weight: 700; color: #005a45; text-align: center; background: #e8f5ee; box-sizing: border-box; cursor: default;">
@@ -7443,7 +8087,7 @@ function _normalizarAnexo(f) {
                             <div>
                                 <div style="font-size: 11px; opacity: 0.8; margin-bottom: 10px; letter-spacing: 0.5px;">ELABORADO POR</div>
                                 <div style="font-size: 14px; font-weight: 700; margin-bottom: 15px;">Integridade Estrutural - Vale S.A.</div>
-                                <div style="font-size: 10px; opacity: 0.7; line-height: 1.6;">PRO-024969, Rev. 05 - 14/08/2024 | Serra Sul | Pág. 1</div>
+                                <div style="font-size: 10px; opacity: 0.7; line-height: 1.6;">PRO-024969, Rev.: 06 - 23/03/2026 | PNR-000047, Rev.: 03-22/05/2026 | Serra Sul | Pág. 1</div>
                             </div>
                             <div style="text-align: right;">
                                 <div style="font-size: 11px; opacity: 0.8; margin-bottom: 10px; letter-spacing: 0.5px;">DATA DE EMISSÃO</div>
@@ -7460,7 +8104,7 @@ function _normalizarAnexo(f) {
             document.body.appendChild(modal);
             _inicBtnSecao('laudo_', 4, 'rascunho_laudo');
             for (let i = 0; i < 2; i++) adicionarRecomendacaoLaudo();
-            calcularRiscoTabela11();
+            calcularRiscoPNR();
         }
         
         function atualizarCabecalhoLaudo(valor) {
@@ -7468,6 +8112,7 @@ function _normalizarAnexo(f) {
         }
         
         function calcularRiscoTabela11() {
+            if(!document.getElementById('risco_cd')) return;
             const cd = parseFloat(document.getElementById('risco_cd').value) || 3;
             const af = parseFloat(document.getElementById('risco_af').value) || 1.5;
             const fe = parseFloat(document.getElementById('risco_fe').value) || 3.0;
@@ -7522,6 +8167,83 @@ function _normalizarAnexo(f) {
             document.getElementById('laudo_data_limite').value = dataLimite.toISOString().split('T')[0];
         }
         
+
+        // ===== CLASSIFICAÇÃO DE RISCO PNR (PRO-024969 / PNR-000047) =====
+        function calcularRiscoPNR() {
+            const g = id => document.getElementById(id);
+            if (!g('pnr_cd')) return;
+            const cd = parseInt(g('pnr_cd').value, 10);
+            const af = parseInt(g('pnr_af').value, 10);
+            const fe = parseFloat(g('pnr_fe').value);
+            const fa = parseFloat(g('pnr_fa').value);
+            const pfbNum = parseInt(g('pnr_pfb_sel').value, 10);
+            const pfaNum = parseInt(g('pnr_pfa').value, 10);
+
+            // ----- Consequência: Dano Potencial (Tab. 2) -> CC (Tab. 3) -----
+            const oc = parseFloat(g('pnr_oc').value);
+            const impSoc = parseFloat(g('pnr_is').value);
+            const impOp = parseFloat(g('pnr_io').value);
+            const constr = parseFloat(g('pnr_constr').value);
+            const dano = Math.round((oc + impSoc + impOp) * constr);
+            let cc;
+            if (dano <= 2) cc = 'CC1'; else if (dano <= 39) cc = 'CC2'; else cc = 'CC3';
+
+            // ----- PFC: condição do defeito (Tab. 7-11) -----
+            const baseCD = {1:1, 2:4, 3:7, 4:10, 5:13};
+            const fatorAF = {1:1, 2:1.5, 3:1.8};
+            const pfcVal = Math.ceil((baseCD[cd] * fatorAF[af]) * fe + fa);
+            let pfcNum;
+            if (pfcVal <= 1) pfcNum = 1; else if (pfcVal <= 4) pfcNum = 2;
+            else if (pfcVal <= 8) pfcNum = 3; else if (pfcVal <= 11) pfcNum = 4; else pfcNum = 5;
+
+            // ----- Pontos (Tab. 13) e Probabilidade (Tab. 14) -----
+            const pts = {1:1, 2:2, 3:4, 4:9, 5:21};
+            const pPFB = pts[pfbNum], pPFC = pts[pfcNum], pPFA = pts[pfaNum];
+            const pontGeral = pPFB + pPFC + pPFA;
+            let prob;
+            if (pontGeral === 3) prob = 'MUITO REMOTA';
+            else if (pontGeral === 4) prob = 'REMOTA';
+            else if (pontGeral <= 8) prob = 'POUCO PROVÁVEL';
+            else if (pontGeral <= 18) prob = 'PROVÁVEL';
+            else prob = 'MUITO PROVÁVEL';
+
+            // ----- Matriz de prioridade (Fig. 8): CC x Probabilidade -----
+            const cols = {'MUITO REMOTA':0, 'REMOTA':1, 'POUCO PROVÁVEL':2, 'PROVÁVEL':3, 'MUITO PROVÁVEL':4};
+            const M = {
+                'CC3': ['Baixa','Média','Alta','Muito Alta','Muito Alta'],
+                'CC2': ['Baixa','Baixa','Média','Alta','Muito Alta'],
+                'CC1': ['Baixa','Baixa','Baixa','Média','Muito Alta']
+            };
+            const prioridade = M[cc][cols[prob]];
+            const pcMap = {'Baixa':'PC1','Média':'PC2','Alta':'PC3','Muito Alta':'PC4'};
+            const corMap = {'Baixa':'#4CAF50','Média':'#FFEB3B','Alta':'#FFA500','Muito Alta':'#dc3545'};
+            const txtCor = (prioridade === 'Média') ? '#333' : '#fff';
+
+            g('pnr_pfc').textContent = 'PFC' + pfcNum + ' (' + pfcVal + ')';
+            g('pnr_dano').textContent = dano;
+            g('pnr_cc').textContent = cc;
+            g('pnr_pfb').textContent = 'PFB' + pfbNum;
+            g('pnr_pfa_lbl').textContent = 'PFA' + pfaNum;
+            g('pnr_pont_geral').textContent = pontGeral;
+            g('pnr_pts').textContent = 'PFB ' + pPFB + ' + PFC ' + pPFC + ' + PFA ' + pPFA + ' = ' + pontGeral;
+            g('pnr_prob').textContent = prob;
+            g('pnr_prioridade').textContent = prioridade + ' (' + pcMap[prioridade] + ')';
+            const card = g('pnr_card');
+            const sufMap = {'Baixa':'baixa','Média':'media','Alta':'alta','Muito Alta':'muitoalta'};
+            if (card) card.className = 'pnrpri-' + (sufMap[prioridade] || 'media');
+
+            // ----- Prazo e Data de Conclusão Desejada (Tabela 11) -----
+            let prazoMeses, prazoTxt;
+            if (prioridade === 'Muito Alta') { prazoMeses = 0; prazoTxt = 'Imediato'; }
+            else if (prioridade === 'Alta') { prazoMeses = 12; prazoTxt = 'Até 12 meses'; }
+            else if (prioridade === 'Média') { prazoMeses = 36; prazoTxt = 'Até 36 meses'; }
+            else { prazoMeses = 48; prazoTxt = 'Até 48 meses'; }
+            const dl = new Date();
+            if (prazoMeses > 0) dl.setMonth(dl.getMonth() + prazoMeses); else dl.setDate(dl.getDate() + 7);
+            const pzEl = g('pnr_prazo'); if (pzEl) pzEl.textContent = prazoTxt;
+            const dtEl = g('pnr_data_limite'); if (dtEl) dtEl.textContent = dl.toLocaleDateString('pt-BR');
+        }
+
         let contadorRecomendacoesLaudo = 0;
         
         function adicionarRecomendacaoLaudo() {
@@ -7689,7 +8411,7 @@ function _normalizarAnexo(f) {
             pdf.setFont('helvetica','normal'); pdf.setFontSize(8.5); pdf.setTextColor(220,235,228);
             pdf.text(String(d.codigo||'FEKS-BFE-CAR-RC_2092-RC03-ST1'), pageW-mR, 14, {align:'right', baseline:'top'});
             pdf.setFontSize(7.5);
-            pdf.text('PRO-024969, Rev. 05 - 14/08/2024', pageW-mR, 18.5, {align:'right', baseline:'top'});
+            pdf.text('PRO-024969, Rev.: 06 - 23/03/2026 | PNR-000047, Rev.: 03-22/05/2026', pageW-mR, 18.5, {align:'right', baseline:'top'});
             pdf.text('Serra Sul - Carajás', pageW-mR, 22, {align:'right', baseline:'top'});
             y=31;
 
@@ -7799,6 +8521,65 @@ function _normalizarAnexo(f) {
                 y+=3;
             }
 
+            // ---- CLASSIFICAÇÃO DE RISCO - PNR (PNR-000047) ----
+            if(d.pnr && d.pnr.prioridade && d.pnr.prioridade !== '-' && String(d.pnr.prioridade).trim()){
+                bar('CLASSIFICAÇÃO DE RISCO - PNR (PNR-000047)',[13,110,253]);
+                const p=d.pnr;
+                function corPri(s){ s=String(s||''); if(s.indexOf('Muito Alta')>=0) return {bg:[220,53,69],fg:[255,255,255]}; if(s.indexOf('Alta')>=0) return {bg:[255,165,0],fg:[255,255,255]}; if(s.indexOf('Média')>=0) return {bg:[255,235,59],fg:[51,51,51]}; return {bg:[76,175,80],fg:[255,255,255]}; }
+                const fac=[['PFC (Tab. 11)',p.pfc],['CONSEQUÊNCIA (Tab. 3)',p.cc],['PFB (Tab. 4)',p.pfb],['PFA (Tab. 12)',p.pfa]];
+                const gap=3, cw=(contentW-gap*3)/4;
+                ensure(13);
+                fac.forEach((f,i)=>{ const x=mL+i*(cw+gap);
+                    setFill([255,255,255]); pdf.setDrawColor(13,110,253); pdf.setLineWidth(0.4); pdf.rect(x,y,cw,12,'FD');
+                    pdf.setFont('helvetica','bold'); pdf.setFontSize(5.6); pdf.setTextColor(13,110,253); pdf.text(f[0],x+cw/2,y+3,{align:'center',baseline:'middle'});
+                    pdf.setFontSize(12); setText(DARK); pdf.text(String(f[1]||'-'),x+cw/2,y+8,{align:'center',baseline:'middle'});
+                });
+                y+=14;
+                ensure(18);
+                const pcW=46;
+                setFill([240,246,255]); pdf.setDrawColor(13,110,253); pdf.setLineWidth(0.4); pdf.rect(mL,y,pcW,17,'FD');
+                pdf.setFont('helvetica','bold'); pdf.setFontSize(7); setText(GRAY); pdf.text('PONTUAÇÃO GERAL',mL+pcW/2,y+3,{align:'center',baseline:'middle'});
+                pdf.setFontSize(20); pdf.setTextColor(13,110,253); pdf.text(String(p.pontGeral||'-'),mL+pcW/2,y+9,{align:'center',baseline:'middle'});
+                pdf.setFont('helvetica','normal'); pdf.setFontSize(6); setText(GRAY); pdf.text(String(p.pontDetalhe||''),mL+pcW/2,y+14,{align:'center',baseline:'middle'});
+                const nx=mL+pcW+3, nw=contentW-pcW-3;
+                const pc=corPri(p.prioridade);
+                pdf.setFillColor(pc.bg[0],pc.bg[1],pc.bg[2]); pdf.rect(nx,y,nw,17,'F');
+                pdf.setFont('helvetica','bold'); pdf.setFontSize(8); pdf.setTextColor(pc.fg[0],pc.fg[1],pc.fg[2]);
+                pdf.text('PRIORIDADE ESTRUTURAL (Fig. 8)', nx+4, y+4, {baseline:'top'});
+                pdf.setFontSize(16); pdf.text(String(p.prioridade||'-'), nx+4, y+8.5, {baseline:'top'});
+                pdf.setFontSize(8); pdf.text('PROBABILIDADE', nx+nw-4, y+4, {align:'right', baseline:'top'});
+                pdf.setFontSize(11); pdf.text(String(p.prob||'-'), nx+nw-4, y+8.5, {align:'right', baseline:'top'});
+                if(p.dataLimite){ pdf.setFont('helvetica','bold'); pdf.setFontSize(7.5); pdf.text('Conclusão desejada: '+p.dataLimite+'  ('+(p.prazo||'')+')', nx+nw-4, y+14, {align:'right', baseline:'top'}); }
+                y+=20;
+                ensure(30);
+                pdf.setFont('helvetica','bold'); pdf.setFontSize(8.5); setText([13,110,253]);
+                pdf.text('FIGURA 8: Matriz de Prioridade Estrutural (Consequência x Probabilidade)', mL, y, {baseline:'top'}); y+=5;
+                const probs=['Muito Remota','Remota','Pouco Provável','Provável','Muito Provável'];
+                const matrix={ 'CC3':['Baixa','Média','Alta','Muito Alta','Muito Alta'], 'CC2':['Baixa','Baixa','Média','Alta','Muito Alta'], 'CC1':['Baixa','Baixa','Baixa','Média','Muito Alta'] };
+                const c0=16, mcw=(contentW-c0)/5, rh=6;
+                let xh=mL+c0;
+                setFill([13,110,253]); pdf.rect(mL,y,c0,rh,'F'); probs.forEach(()=>{ pdf.rect(xh,y,mcw,rh,'F'); xh+=mcw; });
+                pdf.setFont('helvetica','bold'); pdf.setFontSize(5.4); setText([255,255,255]);
+                xh=mL+c0; probs.forEach((pr)=>{ pdf.text(pr, xh+mcw/2, y+rh/2, {align:'center',baseline:'middle'}); xh+=mcw; });
+                y+=rh;
+                ['CC3','CC2','CC1'].forEach(cck=>{
+                    setFill([13,110,253]); pdf.rect(mL,y,c0,rh,'F');
+                    pdf.setFont('helvetica','bold'); pdf.setFontSize(6.5); setText([255,255,255]); pdf.text(cck, mL+c0/2, y+rh/2, {align:'center',baseline:'middle'});
+                    let xr=mL+c0;
+                    matrix[cck].forEach((cell,ci)=>{
+                        const cc2=corPri(cell);
+                        const isSel=(String(p.cc)===cck)&&(probs[ci].toUpperCase()===String(p.prob).toUpperCase());
+                        pdf.setFillColor(cc2.bg[0],cc2.bg[1],cc2.bg[2]); pdf.rect(xr,y,mcw,rh,'F');
+                        if(isSel){ pdf.setDrawColor(0,0,0); pdf.setLineWidth(0.9); pdf.rect(xr,y,mcw,rh,'S'); pdf.setLineWidth(0.3); }
+                        pdf.setFont('helvetica',isSel?'bold':'normal'); pdf.setFontSize(5.6); pdf.setTextColor(cc2.fg[0],cc2.fg[1],cc2.fg[2]);
+                        pdf.text(cell, xr+mcw/2, y+rh/2, {align:'center',baseline:'middle'});
+                        xr+=mcw;
+                    });
+                    y+=rh;
+                });
+                y+=3;
+            }
+
             // ---- DIAGNÓSTICO ----
             if(d.diagnostico && String(d.diagnostico).trim()){
                 bar('DIAGNÓSTICO');
@@ -7867,38 +8648,38 @@ function _normalizarAnexo(f) {
                 y+=3;
             }
 
-            // ---- FOTOS ----
+            // ---- FOTOS (dimensionadas para garantir no máximo 2 páginas) ----
             const fotos=(d.fotos||[]).filter(f=>f && f.src);
             if(fotos.length){
                 bar('EVIDÊNCIAS FOTOGRÁFICAS');
-                const gap=8, colW=(contentW-gap)/2, maxImgH=58;
+                const gap=8, colW=(contentW-gap)/2;
+                const footerH=20, yLimit=pageH-mB-footerH;
+                let pg=pdf.internal.getNumberOfPages();
+                let avail=yLimit-y;
+                if(pg<2 && avail<80){ pdf.addPage(); y=12; pg=2; avail=yLimit-y; }
+                const nRows=Math.ceil(fotos.length/2);
+                const titleH=5.5, capH=5.5, rowGap=4, overhead=titleH+capH+rowGap;
+                let imgH=Math.floor((avail-nRows*overhead)/nRows);
+                imgH=Math.max(16, Math.min(56, imgH));
                 for(let i=0;i<fotos.length;i+=2){
                     const pair=[fotos[i],fotos[i+1]].filter(Boolean);
-                    const cells=pair.map((f,k)=>{
-                        const dim=_ip_dimFromDataURL_laudo(f.src)||{w:4,h:3};
-                        let w=colW-4, h=w*dim.h/dim.w; if(h>maxImgH){h=maxImgH;w=h*dim.w/dim.h;}
-                        const cap=wrap(f.legenda||('FOTO '+(i+k+1)), colW-6, 8.5);
-                        return {f,w,h,cap,capH:cap.length*lineH(8.5)+4, idx:i+k+1};
-                    });
-                    const imgAreaH=Math.max.apply(null,cells.map(c=>c.h))+6;
-                    const titleH=6;
-                    const capH=Math.max.apply(null,cells.map(c=>c.capH));
-                    const rowH=titleH+imgAreaH+capH;
-                    ensure(rowH+4);
-                    const topY=y;
-                    cells.forEach((c,ci)=>{
+                    const topY=y, rowH=titleH+imgH+capH;
+                    pair.forEach((f,ci)=>{
                         const x=mL+ci*(colW+gap);
+                        const dim=_ip_dimFromDataURL_laudo(f.src)||{w:4,h:3};
+                        let w=colW-4, h=w*dim.h/dim.w; if(h>imgH){h=imgH; w=h*dim.w/dim.h;}
                         pdf.setDrawColor(200,200,200); pdf.setLineWidth(0.4); pdf.rect(x,topY,colW,rowH,'S');
                         setFill(DGREEN); pdf.rect(x,topY,colW,titleH,'F');
-                        pdf.setFont('helvetica','bold'); pdf.setFontSize(8.5); setText([255,255,255]); pdf.text('FOTO '+c.idx, x+3, topY+titleH/2, {baseline:'middle'});
-                        setFill([245,245,245]); pdf.rect(x,topY+titleH,colW,imgAreaH,'F');
-                        const fmt=/image\/png/i.test(c.f.src)?'PNG':'JPEG';
-                        try{ pdf.addImage(c.f.src, fmt, x+(colW-c.w)/2, topY+titleH+3, c.w, c.h); }catch(e){}
-                        setFill(LIGHT); pdf.rect(x,topY+titleH+imgAreaH,colW,capH,'F');
-                        pdf.setFont('helvetica','normal'); pdf.setFontSize(8.5); setText([85,85,85]);
-                        pdf.text(c.cap, x+colW/2, topY+titleH+imgAreaH+2.5, {align:'center', baseline:'top'});
+                        pdf.setFont('helvetica','bold'); pdf.setFontSize(8); setText([255,255,255]); pdf.text('FOTO '+(i+ci+1), x+3, topY+titleH/2, {baseline:'middle'});
+                        setFill([245,245,245]); pdf.rect(x,topY+titleH,colW,imgH,'F');
+                        const fmt=/image\/png/i.test(f.src)?'PNG':'JPEG';
+                        try{ pdf.addImage(f.src, fmt, x+(colW-w)/2, topY+titleH+(imgH-h)/2, w, h); }catch(e){}
+                        setFill(LIGHT); pdf.rect(x,topY+titleH+imgH,colW,capH,'F');
+                        pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5); setText([85,85,85]);
+                        const cap=wrap(f.legenda||('FOTO '+(i+ci+1)), colW-6, 7.5);
+                        pdf.text(cap[0]||('FOTO '+(i+ci+1)), x+colW/2, topY+titleH+imgH+1.6, {align:'center', baseline:'top'});
                     });
-                    y=topY+rowH+5;
+                    y=topY+rowH+rowGap;
                 }
             }
 
@@ -7910,7 +8691,7 @@ function _normalizarAnexo(f) {
             pdf.setFont('helvetica','bold'); pdf.setFontSize(11); setText([255,255,255]);
             pdf.text('Integridade Estrutural - Vale S.A.', mL, y+8, {baseline:'top'});
             pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5); pdf.setTextColor(190,210,202);
-            pdf.text('PRO-024969, Rev. 05 - 14/08/2024 | Serra Sul', mL, y+14, {baseline:'top'});
+            pdf.text('PRO-024969, Rev.: 06 - 23/03/2026 | PNR-000047, Rev.: 03-22/05/2026 | Serra Sul', mL, y+14, {baseline:'top'});
             pdf.setFontSize(8); pdf.setTextColor(200,220,212); pdf.text('DATA DE EMISSÃO', pageW-mR, y+4, {align:'right', baseline:'top'});
             pdf.setFont('helvetica','bold'); pdf.setFontSize(14); setText([255,255,255]); pdf.text(String(d.dataEmissao||''), pageW-mR, y+9, {align:'right', baseline:'top'});
             y+=20;
@@ -7918,6 +8699,7 @@ function _normalizarAnexo(f) {
 
 
         function coletarDadosLaudo(){
+            if(typeof calcularRiscoPNR==='function'){ try{ calcularRiscoPNR(); }catch(e){} }
             const gv=id=>{ const e=document.getElementById(id); return e? (e.value!==undefined? e.value : (e.textContent||'')) : ''; };
             const tx=id=>{ const e=document.getElementById(id); return e? (e.textContent||'').trim() : ''; };
             const fmtData=v=>{ if(!v) return ''; const p=String(v).split('-'); return p.length===3? (p[2]+'/'+p[1]+'/'+p[0]) : v; };
@@ -7939,9 +8721,10 @@ function _normalizarAnexo(f) {
                 ativo: gv('laudo_ativo'), numeroNota: gv('laudo_numero_nota'), numeroOrdem: gv('laudo_numero_ordem'),
                 avaliador: gv('laudo_avaliador'), itemEstrutural: gv('laudo_item_estrutural'), recomendacaoCurta: gv('laudo_recomendacao'),
                 quantitativos,
-                risco: { cd: gv('risco_cd'), af: gv('risco_af'), fe: gv('risco_fe'), sc: gv('risco_sc'),
-                         pontuacao: tx('laudo_pontuacao'), formula: tx('laudo_formula'), nivel: tx('laudo_nivel'),
-                         prazo: (tx('laudo_prazo_display')||'').replace(/PRAZO/i,'').trim(), dataLimite: fmtData(gv('laudo_data_limite')) },
+                risco: null,
+                pnr: { pfc: tx('pnr_pfc'), cc: tx('pnr_cc'), dano: tx('pnr_dano'), pfb: tx('pnr_pfb'), pfa: tx('pnr_pfa_lbl'),
+                       pontGeral: tx('pnr_pont_geral'), pontDetalhe: tx('pnr_pts'), prob: tx('pnr_prob'),
+                       prioridade: tx('pnr_prioridade'), prazo: tx('pnr_prazo'), dataLimite: tx('pnr_data_limite') },
                 diagnostico: gv('laudo_diagnostico'),
                 recomendacoes: recs,
                 bom: { desenho: gv('laudo_bom_desenho'), notaSap: gv('laudo_bom_nota_sap'), linhas, pesoTotal: gv('laudo_bom_peso_total') },
@@ -7967,7 +8750,7 @@ function _normalizarAnexo(f) {
                 renderLaudoTextoPDF(pdf, dadosLaudo);
                 numerarPaginasPDF(pdf, dadosLaudo.codigo || 'LAUDO');
 
-                const _nivel = (dadosLaudo.risco && dadosLaudo.risco.nivel) || 'MEDIO';
+                const _nivel = (dadosLaudo.pnr && dadosLaudo.pnr.prioridade) ? String(dadosLaudo.pnr.prioridade).split('(')[0].trim().toUpperCase() : 'MEDIO';
                 const _nomeDef = ((dadosLaudo.numeroNota||'') + '_' + (dadosLaudo.ativo||'') + '_RISCO ' + _nivel).replace(/\s+/g,' ').trim();
                 const _nomeEscolhido = await pedirNomeArquivo(_nomeDef);
                 if (!_nomeEscolhido) return;
@@ -8056,6 +8839,237 @@ function _normalizarAnexo(f) {
             tr.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
+        // ===== IMPORTAR LISTA DE MATERIAL (BOM) DE PDF =====
+        function importarBOMdePDF(prefixo){ var inp=document.getElementById(prefixo+'_bom_pdf_input'); if(inp) inp.click(); }
+
+        // ===== IMPORTAR LISTA DE MATERIAL (BOM) DE EXCEL/CSV =====
+        function importarBOMdeExcel(prefixo){ var inp=document.getElementById(prefixo+'_bom_xls_input'); if(inp) inp.click(); }
+
+        function _ensureXLSX(){
+            return new Promise(function(res,rej){
+                if(typeof XLSX!=='undefined'){ res(); return; }
+                var s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+                s.onload=function(){ res(); }; s.onerror=function(){ rej(new Error('Nao foi possivel carregar a biblioteca de planilha (precisa de internet nesta primeira vez).')); };
+                document.head.appendChild(s);
+            });
+        }
+        async function _handleBOMxls(prefixo, ev){
+            var file=ev.target.files && ev.target.files[0]; ev.target.value='';
+            if(!file) return;
+            try{
+                await _ensureXLSX();
+                var buf=await file.arrayBuffer();
+                var rows=_extrairBOMdeExcel(new Uint8Array(buf));
+                if(!rows.length){ alert('Nao identifiquei uma tabela de material nesta planilha.\n\nVerifique se ha uma linha de cabecalho com colunas como ITEM/DESCRICAO, QTD, MATERIAL e PESO.'); return; }
+                _mostrarPreviewBOM(prefixo, rows);
+            }catch(e){ alert('Erro ao ler a planilha: '+(e.message||e)); console.error('BOM XLS:', e); }
+        }
+        function _extrairBOMdeExcel(data){
+            var wb=XLSX.read(data,{type:'array'});
+            var best=[];
+            wb.SheetNames.forEach(function(sn){
+                var ws=wb.Sheets[sn];
+                var aoa=XLSX.utils.sheet_to_json(ws,{header:1,blankrows:false,defval:''});
+                var r=_parseBOMaoa(aoa);
+                if(r.length>best.length) best=r;
+            });
+            return best;
+        }
+        function _parseBOMaoa(aoa){
+            function norm(v){ return String(v==null?'':v).trim().toUpperCase(); }
+            var hdrIdx=-1, hdr=null;
+            for(var i=0;i<Math.min(aoa.length,40);i++){
+                var row=(aoa[i]||[]).map(norm); var joined=row.join(' ');
+                var score=0;
+                if(/DESCRI|ITEM|DESCRIPTION/.test(joined)) score++;
+                if(/QTY|QTD|QUANT/.test(joined)) score++;
+                if(/MATERIAL/.test(joined)) score++;
+                if(/WEIGHT|PESO/.test(joined)) score++;
+                if(score>=2){ hdrIdx=i; hdr=row; break; }
+            }
+            if(hdrIdx<0) return [];
+            var used={};
+            function findCol(res){ for(var j=0;j<hdr.length;j++){ if(used[j]) continue; for(var k=0;k<res.length;k++){ if(res[k].test(hdr[j])){ used[j]=1; return j; } } } return -1; }
+            var qtyC=findCol([/^QTY/,/^QTD/,/QUANT/,/^QT\.?$/]);
+            var matC=findCol([/MATERIAL/,/^MAT\.?$/]);
+            var pesoC=findCol([/TOTAL.*(WEIGHT|PESO)/,/(WEIGHT|PESO).*TOTAL/,/^TOTAL$/,/PESO.*TOTAL/]);
+            if(pesoC<0) pesoC=findCol([/PESO/,/WEIGHT/]);
+            var descC=findCol([/DESCRI/,/DESCRIPTION/]);
+            if(descC<0) descC=findCol([/^ITEM$/,/ITEM/,/NOME|NAME/]);
+            var numC=findCol([/^N[Oº°]?\.?$/,/^POS/,/^#$/,/ITEM\s*N/]);
+            if(numC<0) numC=findCol([/^ITEM$/]);
+            var rows=[];
+            for(var i2=hdrIdx+1;i2<aoa.length;i2++){
+                var r=aoa[i2]||[];
+                var get=function(c){ return c>=0&&c<r.length? String(r[c]==null?'':r[c]).trim() : ''; };
+                var desc=get(descC), num=get(numC), qty=get(qtyC), mat=get(matC), peso=get(pesoC);
+                if(!desc && !qty && !mat) continue;
+                if(/^TOTAL/i.test(num) || /^TOTAL/i.test(desc)) continue;
+                rows.push({ item:num, descricao:desc, qtd:qty, material:mat, peso:peso });
+            }
+            return rows;
+        }
+
+        function _ensurePdfJs(){
+            return new Promise(function(res,rej){
+                if(window.pdfjsLib){ res(); return; }
+                var s=document.createElement('script');
+                s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+                s.onload=function(){ try{ window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; }catch(e){} res(); };
+                s.onerror=function(){ rej(new Error('Nao foi possivel carregar a biblioteca de leitura de PDF (precisa de internet nesta primeira vez).')); };
+                document.head.appendChild(s);
+            });
+        }
+        async function _handleBOMpdf(prefixo, ev){
+            var file=ev.target.files && ev.target.files[0]; ev.target.value='';
+            if(!file) return;
+            try{
+                await _ensurePdfJs();
+                var buf=await file.arrayBuffer();
+                var rows=await _extrairBOMdePDF(new Uint8Array(buf));
+                if(!rows.length){ alert('Nao identifiquei uma tabela de material neste PDF.\n\nVerifique se o PDF tem TEXTO selecionavel (nao e imagem escaneada) e se tem as colunas NO / ITEM / QTY / MATERIAL.'); return; }
+                _mostrarPreviewBOM(prefixo, rows);
+            }catch(e){ alert('Erro ao ler o PDF: '+(e.message||e)); console.error('BOM PDF:', e); }
+        }
+        async function _extrairBOMdePDF(data){
+            var doc=await pdfjsLib.getDocument({data:data}).promise;
+            var allRows=[], centers=null, noX=null;
+            for(var p=1;p<=doc.numPages;p++){
+                var page=await doc.getPage(p);
+                var tc=await page.getTextContent();
+                var items=tc.items.map(function(it){ return {str:(it.str||'').trim(), x:it.transform[4], y:it.transform[5]}; }).filter(function(i){ return i.str; });
+                var fh=function(re){ var f=items.filter(function(i){ return re.test(i.str.toUpperCase()); }); return f.length? f.sort(function(a,b){return b.y-a.y;})[0]:null; };
+                var hNo=fh(/^NO/), hItem=fh(/^ITEM/), hQty=fh(/^QTY/), hMat=fh(/MATERIAL/), hUnit=fh(/UNIT/), hTot=fh(/TOTAL/);
+                var headerY=1e9;
+                if(hNo&&hItem&&hQty){
+                    var cArr=[['no',hNo],['item',hItem],['qty',hQty],['mat',hMat],['unit',hUnit],['tot',hTot]].filter(function(c){return c[1];}).map(function(c){return {k:c[0],x:c[1].x};});
+                    cArr.sort(function(a,b){return a.x-b.x;}); centers=cArr; noX=hNo.x; headerY=hNo.y;
+                }
+                if(!centers) continue;
+                var colOf=function(x){ var b=centers[0].k, bd=1e9; centers.forEach(function(c){ var d=Math.abs(x-c.x); if(d<bd){bd=d;b=c.k;} }); return b; };
+                var body=items.filter(function(i){ return i.y<headerY-2; });
+                var anchors=body.filter(function(i){ return /^\d+$/.test(i.str)&&Math.abs(i.x-noX)<28; }).sort(function(a,b){return b.y-a.y;});
+                anchors.forEach(function(a,idx){
+                    var yTop=a.y+4, yBot= idx<anchors.length-1? anchors[idx+1].y+4 : -1e9;
+                    var cells={no:'',item:'',qty:'',mat:'',unit:'',tot:''};
+                    body.filter(function(i){ return i.y<=yTop&&i.y>yBot; }).sort(function(p2,q){ return (q.y-p2.y)||(p2.x-q.x); }).forEach(function(i){ var c=colOf(i.x); if(c in cells) cells[c]=(cells[c]?cells[c]+' ':'')+i.str; });
+                    allRows.push({ item:cells.no, descricao:cells.item, qtd:cells.qty, material:cells.mat, peso:(cells.tot||cells.unit) });
+                });
+            }
+            return allRows;
+        }
+        function _mostrarPreviewBOM(prefixo, rows, origem){
+            var old=document.getElementById('bomPreviewModal'); if(old) old.remove();
+            var esc=function(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
+            var ov=document.createElement('div'); ov.id='bomPreviewModal';
+            ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:20000;display:flex;align-items:center;justify-content:center;padding:20px;';
+            var rowsHtml=rows.map(function(r){
+                return '<tr>'+
+                  '<td style="text-align:center;border:1px solid #ddd;padding:2px;"><input type="checkbox" class="bompv-ck" checked></td>'+
+                  '<td style="border:1px solid #ddd;padding:2px;"><input class="bompv-item" value="'+esc(r.item)+'" style="width:42px;border:none;font-size:11px;text-align:center;"></td>'+
+                  '<td style="border:1px solid #ddd;padding:2px;"><input class="bompv-qtd" value="'+esc(r.qtd)+'" style="width:38px;border:none;font-size:11px;text-align:center;"></td>'+
+                  '<td style="border:1px solid #ddd;padding:2px;"><input class="bompv-desc" value="'+esc(r.descricao)+'" style="width:100%;border:none;font-size:11px;"></td>'+
+                  '<td style="border:1px solid #ddd;padding:2px;"><input class="bompv-mat" value="'+esc(r.material)+'" style="width:120px;border:none;font-size:11px;"></td>'+
+                  '<td style="border:1px solid #ddd;padding:2px;"><input class="bompv-peso" value="'+esc(r.peso)+'" style="width:55px;border:none;font-size:11px;text-align:center;"></td>'+
+                '</tr>';
+            }).join('');
+            var fechar='var m=document.getElementById(&quot;bomPreviewModal&quot;);if(m)m.remove();';
+            var nota, footer;
+            if(origem==='ocr'){
+                nota='O OCR pode errar - CONFIRA e edite os campos. Depois clique em "Baixar Excel" e importe pelo botao "Importar Excel/CSV". Colunas: ITEM, QTD, DESCRICAO, MATERIAL, PESO (total).';
+                footer='<div style="padding:14px 18px;border-top:1px solid #eee;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;">'+
+                  '<button onclick="'+fechar+'" style="padding:9px 18px;background:#6c757d;color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;">Cancelar</button>'+
+                  '<button onclick="_baixarBOMexcel()" style="padding:9px 22px;background:#1d6f42;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;">Baixar Excel</button>'+
+                '</div>';
+            } else {
+                nota='Desmarque linhas que nao quiser e edite qualquer campo.';
+                footer='<div style="padding:14px 18px;border-top:1px solid #eee;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">'+
+                  '<label style="font-size:12px;"><input type="radio" name="bompv_modo" value="add" checked> Adicionar ao final &nbsp;&nbsp;<input type="radio" name="bompv_modo" value="rep"> Substituir lista atual</label>'+
+                  '<div style="display:flex;gap:8px;flex-wrap:wrap;"><button onclick="'+fechar+'" style="padding:9px 18px;background:#6c757d;color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;">Cancelar</button>'+
+                  '<button onclick="_inserirBOMselecionado(\'' + 'PFX' + '\')" style="padding:9px 18px;background:#0d6efd;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;">Inserir na lista</button></div>'+
+                '</div>';
+            }
+            footer=footer.replace('PFX', prefixo);
+            ov.innerHTML='<div style="background:#fff;border-radius:10px;max-width:900px;width:100%;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.3);">'+
+                '<div style="background:#0f3460;color:#fff;padding:14px 18px;font-weight:700;font-size:15px;">Lista de material detectada - confira ('+rows.length+' itens)</div>'+
+                '<div style="padding:10px 18px;font-size:12px;color:#555;">'+nota+'</div>'+
+                '<div style="overflow:auto;padding:0 18px;flex:1;"><table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="background:#e8f0fe;">'+
+                  '<th style="border:1px solid #ddd;padding:5px;">OK</th><th style="border:1px solid #ddd;padding:5px;">ITEM</th><th style="border:1px solid #ddd;padding:5px;">QTD</th><th style="border:1px solid #ddd;padding:5px;">DESCRICAO</th><th style="border:1px solid #ddd;padding:5px;">MATERIAL</th><th style="border:1px solid #ddd;padding:5px;">PESO</th>'+
+                '</tr></thead><tbody>'+rowsHtml+'</tbody></table></div>'+
+                footer+'</div>';
+            document.body.appendChild(ov);
+        }
+        function _inserirBOMselecionado(prefixo){
+            var modal=document.getElementById('bomPreviewModal'); if(!modal) return;
+            var trs=modal.querySelectorAll('tbody tr');
+            var modoEl=modal.querySelector('input[name=bompv_modo]:checked');
+            var modo=modoEl? modoEl.value : 'add';
+            var tbody=document.getElementById(prefixo+'_bom_tbody');
+            if(!tbody){ modal.remove(); return; }
+            if(modo==='rep') tbody.innerHTML='';
+            var n=0;
+            trs.forEach(function(tr){
+                var ck=tr.querySelector('.bompv-ck'); if(!ck||!ck.checked) return;
+                var item=tr.querySelector('.bompv-item').value, qtd=tr.querySelector('.bompv-qtd').value, desc=tr.querySelector('.bompv-desc').value, mat=tr.querySelector('.bompv-mat').value, peso=tr.querySelector('.bompv-peso').value;
+                adicionarLinhaBOM(prefixo);
+                var rows=tbody.querySelectorAll('tr'); var last=rows[rows.length-1];
+                var ins=last.querySelectorAll('input');
+                if(ins.length>=6){ ins[0].value=item; ins[1].value=qtd; ins[2].value=desc; ins[3].value=''; ins[4].value=mat; ins[5].value=peso; }
+                n++;
+            });
+            try{ var pin=tbody.querySelector('tr td:nth-child(6) input'); if(pin && typeof calcularPesoTotalBOM==='function') calcularPesoTotalBOM(pin); }catch(e){}
+            modal.remove();
+            alert('Pronto! '+n+' itens inseridos na lista de material.');
+        }
+
+        function _coletarPreviewRows(){
+            var modal=document.getElementById('bomPreviewModal'); if(!modal) return [];
+            var out=[];
+            modal.querySelectorAll('tbody tr').forEach(function(tr){
+                var ck=tr.querySelector('.bompv-ck'); if(!ck||!ck.checked) return;
+                out.push({ item:tr.querySelector('.bompv-item').value, qtd:tr.querySelector('.bompv-qtd').value, descricao:tr.querySelector('.bompv-desc').value, material:tr.querySelector('.bompv-mat').value, peso:tr.querySelector('.bompv-peso').value });
+            });
+            return out;
+        }
+        async function _baixarBOMexcel(){
+            var rows=_coletarPreviewRows(); if(!rows.length){ alert('Marque ao menos uma linha.'); return; }
+            try{ await _ensureXLSX(); }catch(e){ alert(e.message||e); return; }
+            var _num=function(v){ v=String(v==null?'':v).trim(); if(v==='') return ''; var n=Number(v.replace(/\s/g,'').replace(',','.')); return isNaN(n)? v : n; };
+            var aoa=[];
+            aoa.push(['LISTA DE MATERIAL','','','','','','','']);
+            aoa.push(['ITEM','QUANT.','DESCRIÇÃO','OBS.','MATERIAL','ÁREA DE PINTURA','PESO UNI.','PESO TOTAL']);
+            var first=3;
+            rows.forEach(function(r){ aoa.push([ (r.item||''), _num(r.qtd), (r.descricao||''), '', (r.material||''), '-', _num(r.peso), '' ]); });
+            var last=first+rows.length-1;
+            aoa.push(['','','','','','','','']);
+            aoa.push(['TOTAL DOS ITENS','','','','','','','']);
+            var ws=XLSX.utils.aoa_to_sheet(aoa);
+            var somaTot=0, temSoma=false;
+            for(var i=0;i<rows.length;i++){
+                var rr=first+i; var q=aoa[rr-1][1], u=aoa[rr-1][6];
+                if(typeof q==='number' && typeof u==='number'){ var tt=Math.round(q*u*100)/100; ws['H'+rr]={t:'n', f:'B'+rr+'*G'+rr, v:tt}; somaTot+=tt; temSoma=true; }
+                else if(u!==''){ ws['H'+rr]={t:'s', v:String(u)}; }
+            }
+            var totalRow=last+2;
+            ws['H'+totalRow]= temSoma? {t:'n', f:'SUM(H'+first+':H'+last+')', v:Math.round(somaTot*100)/100} : {t:'s', v:''};
+            var fonteRow=totalRow+2;
+            ws['A'+fonteRow]={t:'s', v:'Fonte: lista extraida por OCR da imagem - confira os valores antes de usar.'};
+            ws['!ref']='A1:H'+fonteRow;
+            ws['!cols']=[{wch:10},{wch:10},{wch:36},{wch:14},{wch:14},{wch:15},{wch:12},{wch:12}];
+            ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:7}},{s:{r:totalRow-1,c:0},e:{r:totalRow-1,c:6}},{s:{r:fonteRow-1,c:0},e:{r:fonteRow-1,c:7}}];
+            var wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Lista de Material');
+            XLSX.writeFile(wb, 'Lista_de_Material.xlsx');
+        }
+        function _baixarBOMcsv(){
+            var rows=_coletarPreviewRows(); if(!rows.length){ alert('Marque ao menos uma linha.'); return; }
+            var esc=function(v){ v=String(v==null?'':v); return /[";\n]/.test(v)? '"'+v.replace(/"/g,'""')+'"' : v; };
+            var lines=['ITEM;QTD;DESCRICAO;MATERIAL;PESO'];
+            rows.forEach(function(r){ lines.push([r.item,r.qtd,r.descricao,r.material,r.peso].map(esc).join(';')); });
+            var blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+            var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='lista_material.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(function(){ try{URL.revokeObjectURL(a.href);}catch(e){} },100);
+        }
+
+
         // ========================================
         // ELABORAÇÃO DE LAUDO PAC
         // ========================================
@@ -8086,7 +9100,7 @@ function _normalizarAnexo(f) {
                             <div style="text-align: right;">
                                 <div style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">LAUDO AVALIAÇÃO DE CONDIÇÃO ESTRUTURAL</div>
                                 <div style="font-size: 13px; opacity: 0.95;"><span id="laudoPAC_codigo_cabecalho">FECJ-BFE-EST-TRANS-TR_151_40</span></div>
-                                <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">PRO-024969, Rev. 05 - 14/08/2024</div>
+                                <div style="font-size: 10px; opacity: 0.8; margin-top: 5px;">PRO-024969, Rev.: 06 - 23/03/2026 | PNR-000047, Rev.: 03-22/05/2026</div>
                                 <div style="font-size: 11px; opacity: 0.8; margin-top: 3px;">Serra Sul - Carajás</div>
                             </div>
                         </div>
@@ -8289,7 +9303,11 @@ function _normalizarAnexo(f) {
                             </tbody>
                         </table>
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding: 10px; background: #f0f8ff; border-radius: 6px; border: 2px solid #0f3460;">
-                            <button onclick="adicionarLinhaBOM('laudoPAC')" style="padding: 6px 14px; background: #0f3460; color: white; border: none; border-radius: 5px; font-size: 11px; font-weight: 600; cursor: pointer;">➕ Adicionar Linha</button>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                <button onclick="adicionarLinhaBOM('laudoPAC')" style="padding: 6px 14px; background: #0f3460; color: white; border: none; border-radius: 5px; font-size: 11px; font-weight: 600; cursor: pointer;">➕ Adicionar Linha</button>
+                                <button onclick="importarBOMdeExcel('laudoPAC')" style="padding: 6px 14px; background: #1d6f42; color: white; border: none; border-radius: 5px; font-size: 11px; font-weight: 600; cursor: pointer;">📊 Importar Excel/CSV</button>
+                                <input type="file" id="laudoPAC_bom_xls_input" accept=".xlsx,.xls,.csv" style="display:none" onchange="_handleBOMxls('laudoPAC', event)">
+                            </div>
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <span style="font-size: 12px; font-weight: 700; color: #555555;">PESO TOTAL (Kg) =</span>
                                 <input id="laudoPAC_bom_peso_total" type="text" placeholder="0" readonly style="width: 100px; padding: 6px; border: 2px solid #0f3460; border-radius: 4px; font-size: 14px; font-weight: 700; color: #0f3460; text-align: center; background: #e8f0fe; box-sizing: border-box; cursor: default;">
@@ -8326,7 +9344,7 @@ function _normalizarAnexo(f) {
                             <div>
                                 <div style="font-size: 11px; opacity: 0.8; margin-bottom: 10px;">ELABORADO POR</div>
                                 <div style="font-size: 14px; font-weight: 700; margin-bottom: 15px;">Integridade Estrutural - Vale S.A.</div>
-                                <div style="font-size: 10px; opacity: 0.7;">PRO-024969, Rev. 05 - 14/08/2024 | Serra Sul | Laudo PAC</div>
+                                <div style="font-size: 10px; opacity: 0.7;">PRO-024969, Rev.: 06 - 23/03/2026 | PNR-000047, Rev.: 03-22/05/2026 | Serra Sul | Laudo PAC</div>
                             </div>
                             <div style="text-align: right;">
                                 <div style="font-size: 11px; opacity: 0.8; margin-bottom: 10px;">DATA DE EMISSÃO</div>
@@ -8606,7 +9624,7 @@ function _normalizarAnexo(f) {
             pdf.setFont('helvetica','normal'); pdf.setFontSize(8.5); pdf.setTextColor(210,220,235);
             pdf.text(String(d.codigo||'FECJ-BFE-EST-TRANS-TR_151_40'), pageW-mR, 13.5, {align:'right', baseline:'top'});
             pdf.setFontSize(7.5);
-            pdf.text('PRO-024969, Rev. 05 - 14/08/2024', pageW-mR, 18, {align:'right', baseline:'top'});
+            pdf.text('PRO-024969, Rev.: 06 - 23/03/2026 | PNR-000047, Rev.: 03-22/05/2026', pageW-mR, 18, {align:'right', baseline:'top'});
             pdf.text('Serra Sul - Carajás', pageW-mR, 21.5, {align:'right', baseline:'top'});
             y=31;
 
@@ -8769,7 +9787,7 @@ function _normalizarAnexo(f) {
             pdf.setFont('helvetica','bold'); pdf.setFontSize(11); setText([255,255,255]);
             pdf.text('Integridade Estrutural - Vale S.A.', mL, y+8, {baseline:'top'});
             pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5); pdf.setTextColor(190,202,220);
-            pdf.text('PRO-024969, Rev. 05 - 14/08/2024 | Serra Sul | Laudo PAC', mL, y+14, {baseline:'top'});
+            pdf.text('PRO-024969, Rev.: 06 - 23/03/2026 | PNR-000047, Rev.: 03-22/05/2026 | Serra Sul | Laudo PAC', mL, y+14, {baseline:'top'});
             pdf.setFontSize(8); pdf.setTextColor(200,212,230); pdf.text('DATA DE EMISSÃO', pageW-mR, y+4, {align:'right', baseline:'top'});
             pdf.setFont('helvetica','bold'); pdf.setFontSize(14); setText([255,255,255]); pdf.text(String(d.dataEmissao||''), pageW-mR, y+9, {align:'right', baseline:'top'});
             y+=20;
@@ -10090,7 +11108,7 @@ function _normalizarAnexo(f) {
                                 <div style="font-size: 10px; opacity: 0.9; margin-top: 4px;">
                                     <span id="ra_codigo_cabecalho">FEKS-XXX-XXX</span>
                                 </div>
-                                <div style="font-size: 9px; opacity: 0.8;">PRO-024969, Rev. 05</div>
+                                <div style="font-size: 9px; opacity: 0.8;">PRO-024969, Rev.: 06 - 23/03/2026 | PNR-000047, Rev.: 03-22/05/2026</div>
                                 <div style="font-size: 9px; opacity: 0.8;">Serra Sul - Carajás</div>
                             </div>
                         </div>
@@ -10135,7 +11153,7 @@ function _normalizarAnexo(f) {
                             <span style="font-size: 20px;">📝</span> INTRODUÇÃO
                         </h3>
                         <div style="background: #fff8e1; padding: 12px; border-radius: 6px; margin-bottom: 12px; font-size: 11px; color: #856404; border-left: 4px solid #ffc107;">
-                            <strong>📌 Modelo:</strong> Conforme o Plano de Proteção Estrutural (PRO-024969, Rev. 05), estruturas com nível de risco ALTO/MUITO ALTO devem ser acompanhadas periodicamente até a execução do reparo.
+                            <strong>📌 Modelo:</strong> Conforme o Plano de Proteção Estrutural (PRO-024969, Rev.: 06 - 23/03/2026), estruturas com nível de risco ALTO/MUITO ALTO devem ser acompanhadas periodicamente até a execução do reparo.
                         </div>
                         <textarea id="ra_introducao" placeholder="Descreva o objetivo do acompanhamento, referência ao laudo original, e contexto do monitoramento..." style="width: 100%; min-height: 120px; padding: 15px; border: 2px solid #cccccc; border-radius: 8px; font-family: Arial, sans-serif; font-size: 12px; line-height: 1.6; resize: vertical; box-sizing: border-box;"></textarea>
                     </div>
@@ -10181,7 +11199,7 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                             <div>
                                 <div style="font-size: 11px; opacity: 0.8; margin-bottom: 10px;">ELABORADO POR</div>
                                 <div style="font-size: 14px; font-weight: 700; margin-bottom: 15px;">Integridade Estrutural - Vale S.A.</div>
-                                <div style="font-size: 10px; opacity: 0.7;">PRO-024969, Rev. 05 | Serra Sul | Acompanhamento Risco Alto</div>
+                                <div style="font-size: 10px; opacity: 0.7;">PRO-024969, Rev.: 06 - 23/03/2026 | PNR-000047, Rev.: 03-22/05/2026 | Serra Sul | Acompanhamento Risco Alto</div>
                             </div>
                             <div style="text-align: right;">
                                 <div style="font-size: 11px; opacity: 0.8; margin-bottom: 10px;">DATA</div>
@@ -10335,7 +11353,7 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
             pdf.setFont('helvetica','normal'); pdf.setFontSize(8.5); pdf.setTextColor(240,210,210);
             pdf.text(String(d.codigo||'FEKS-XXX-XXX'), pageW-mR, 14.5, {align:'right', baseline:'top'});
             pdf.setFontSize(7.5);
-            pdf.text('PRO-024969, Rev. 05  |  Serra Sul - Carajás', pageW-mR, 19, {align:'right', baseline:'top'});
+            pdf.text('PRO-024969, Rev.: 06 - 23/03/2026 | PNR-000047, Rev.: 03-22/05/2026  |  Serra Sul - Carajás', pageW-mR, 19, {align:'right', baseline:'top'});
             y=31;
 
             // ---- IDENTIFICACAO ----
@@ -10403,7 +11421,7 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
             pdf.setFont('helvetica','bold'); pdf.setFontSize(11); setText([255,255,255]);
             pdf.text('Integridade Estrutural - Vale S.A.', mL, y+8, {baseline:'top'});
             pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5); pdf.setTextColor(225,195,195);
-            pdf.text('PRO-024969, Rev. 05 | Serra Sul | Acompanhamento Risco Alto', mL, y+14, {baseline:'top'});
+            pdf.text('PRO-024969, Rev.: 06 - 23/03/2026 | PNR-000047, Rev.: 03-22/05/2026 | Serra Sul | Acompanhamento Risco Alto', mL, y+14, {baseline:'top'});
             pdf.setFontSize(8); pdf.setTextColor(235,205,205); pdf.text('DATA', pageW-mR, y+4, {align:'right', baseline:'top'});
             pdf.setFont('helvetica','bold'); pdf.setFontSize(14); setText([255,255,255]); pdf.text(String(d.dataEmissao||''), pageW-mR, y+9, {align:'right', baseline:'top'});
             y+=20;
@@ -10663,7 +11681,7 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                                 <div style="font-size:15px;font-weight:800;letter-spacing:1px;">LAUDO DE CONDIÇÃO</div>
                                 <div style="font-size:13px;font-weight:800;letter-spacing:1px;">SUJIDADE / SOBRECARGA</div>
                                 <div style="font-size:10px;opacity:0.9;margin-top:4px;"><span id="suj_codigo_cabecalho">FEKS-XXX-XXX</span></div>
-                                <div style="font-size:9px;opacity:0.8;">PRO-024969, Rev. 05</div>
+                                <div style="font-size:9px;opacity:0.8;">PRO-024969, Rev.: 06 - 23/03/2026 | PNR-000047, Rev.: 03-22/05/2026</div>
                                 <div style="font-size:9px;opacity:0.8;">Serra Sul — Carajás</div>
                             </div>
                         </div>
@@ -10699,7 +11717,7 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                             <span style="font-size:20px;">📝</span> DESCRIÇÃO DA OCORRÊNCIA
                         </h3>
                         <div style="background:#fff8e1;padding:12px;border-radius:6px;margin-bottom:12px;font-size:11px;color:#856404;border-left:4px solid #ffc107;">
-                            <strong>📌 Referência:</strong> Conforme PRO-024969 Rev. 05 — Seção 1.7 (Sobrecarga Excessiva por Acúmulo de Material). A sujidade sobre estruturas metálicas e calhas pode caracterizar sobrecarga excessiva quando o acúmulo de material ultrapassa a altura de referência (h_ref).
+                            <strong>📌 Referência:</strong> Conforme PRO-024969 Rev.: 06 - 23/03/2026 — Seção 1.7 (Sobrecarga Excessiva por Acúmulo de Material). A sujidade sobre estruturas metálicas e calhas pode caracterizar sobrecarga excessiva quando o acúmulo de material ultrapassa a altura de referência (h_ref).
                         </div>
                         <textarea id="suj_descricao" placeholder="Descreva a ocorrência de acúmulo de material (sujidade) identificada: localização, extensão, tipo de material, condições observadas..." style="width:100%;min-height:110px;padding:15px;border:2px solid #cccccc;border-radius:8px;font-family:Arial,sans-serif;font-size:12px;line-height:1.6;resize:vertical;box-sizing:border-box;"></textarea>
                     </div>
@@ -10850,7 +11868,7 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
                             <div>
                                 <div style="font-size:11px;opacity:0.8;margin-bottom:10px;">ELABORADO POR</div>
                                 <div style="font-size:14px;font-weight:700;margin-bottom:15px;">Integridade Estrutural — Vale S.A.</div>
-                                <div style="font-size:10px;opacity:0.7;">PRO-024969, Rev. 05 | Serra Sul | Sujidade / Sobrecarga por Acúmulo de Material</div>
+                                <div style="font-size:10px;opacity:0.7;">PRO-024969, Rev.: 06 - 23/03/2026 | PNR-000047, Rev.: 03-22/05/2026 | Serra Sul | Sujidade / Sobrecarga por Acúmulo de Material</div>
                             </div>
                             <div style="text-align:right;">
                                 <div style="font-size:11px;opacity:0.8;margin-bottom:10px;">DATA</div>
@@ -10959,7 +11977,7 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
             pdf.setFontSize(11); pdf.text('SUJIDADE / SOBRECARGA', pageW-mR, 13, {align:'right', baseline:'top'});
             pdf.setFont('helvetica','normal'); pdf.setFontSize(8); pdf.setTextColor(225,215,210);
             pdf.text(String(d.codigo||'FEKS-XXX-XXX'), pageW-mR, 18.5, {align:'right', baseline:'top'});
-            pdf.setFontSize(7.5); pdf.text('PRO-024969, Rev. 05  |  Serra Sul - Carajás', pageW-mR, 22, {align:'right', baseline:'top'});
+            pdf.setFontSize(7.5); pdf.text('PRO-024969, Rev.: 06 - 23/03/2026 | PNR-000047, Rev.: 03-22/05/2026  |  Serra Sul - Carajás', pageW-mR, 22, {align:'right', baseline:'top'});
             y=31;
 
             // ---- IDENTIFICACAO ----
@@ -11063,7 +12081,7 @@ PRÓXIMO ACOMPANHAMENTO PREVISTO EM: _______.</textarea>
             pdf.setFont('helvetica','bold'); pdf.setFontSize(11); setText([255,255,255]);
             pdf.text('Integridade Estrutural - Vale S.A.', mL, y+8, {baseline:'top'});
             pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5); pdf.setTextColor(215,205,200);
-            pdf.text('PRO-024969, Rev. 05 | Serra Sul | Laudo Sujidade', mL, y+14, {baseline:'top'});
+            pdf.text('PRO-024969, Rev.: 06 - 23/03/2026 | PNR-000047, Rev.: 03-22/05/2026 | Serra Sul | Laudo Sujidade', mL, y+14, {baseline:'top'});
             pdf.setFontSize(8); pdf.setTextColor(225,215,210); pdf.text('DATA DE EMISSÃO', pageW-mR, y+4, {align:'right', baseline:'top'});
             pdf.setFont('helvetica','bold'); pdf.setFontSize(14); setText([255,255,255]); pdf.text(String(d.dataEmissao||''), pageW-mR, y+9, {align:'right', baseline:'top'});
             y+=20;
