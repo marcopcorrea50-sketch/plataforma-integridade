@@ -2,8 +2,8 @@ InspectPro S11D — Integridade Estrutural
 =========================================
 
 CONTEÚDO DESTA PASTA
-- InspectPro_S11D_v16.1.html ............ versão NORMAL (carrega as bibliotecas pela internet/CDN).
-- InspectPro_S11D_v16.1_OFFLINE.html .... versão OFFLINE (bibliotecas embutidas; NÃO precisa de internet).
+- InspectPro_S11D_v16.2.html ............ versão NORMAL (carrega as bibliotecas pela internet/CDN).
+- InspectPro_S11D_v16.2_OFFLINE.html .... versão OFFLINE (bibliotecas embutidas; NÃO precisa de internet).
 
 QUAL USAR NO PC DA EMPRESA?
 Use a versão OFFLINE. Ela funciona mesmo sem internet ou com o acesso a CDNs bloqueado.
