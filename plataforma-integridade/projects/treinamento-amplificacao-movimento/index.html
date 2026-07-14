@@ -1,0 +1,1678 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual de Treinamento Básico — Amplificação de Movimento (Motion Amplification®)</title>
+<style>
+:root{
+  --vermelho:#B01E24; --vermelho-escuro:#8C1218; --vermelho-claro:#FBEAEB;
+  --carvao:#232329; --grafite:#3A3A42; --cinza:#6B6B74; --cinza-claro:#E8E8EC;
+  --fundo:#F5F5F7; --branco:#FFFFFF; --ok:#1E7A46; --aviso:#B87700; --info:#1C5D8C;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:"Segoe UI",Arial,Helvetica,sans-serif;background:var(--fundo);color:var(--carvao);line-height:1.65;font-size:16px}
+/* ---------- LAYOUT ---------- */
+.layout{display:flex;min-height:100vh}
+nav#menu{width:320px;min-width:320px;background:var(--carvao);color:#D8D8DE;position:sticky;top:0;height:100vh;overflow-y:auto;padding:0 0 40px}
+nav#menu::-webkit-scrollbar{width:8px}
+nav#menu::-webkit-scrollbar-thumb{background:#4a4a55;border-radius:4px}
+.marca{padding:26px 22px 20px;border-bottom:1px solid #3a3a44;background:linear-gradient(160deg,#2A2A31,#1C1C22)}
+.marca .logo{font-size:26px;font-weight:800;color:var(--branco);letter-spacing:.5px}
+.marca .logo span{color:#E5484D}
+.marca small{display:block;margin-top:6px;color:#9A9AA4;font-size:12.5px;line-height:1.45}
+.menu-grupo{margin-top:10px}
+.menu-grupo>a.sec{display:block;padding:9px 22px;color:#F0F0F4;font-weight:700;font-size:13.5px;text-decoration:none;text-transform:uppercase;letter-spacing:.4px}
+.menu-grupo>a.sec:hover{background:#2E2E36}
+.menu-grupo .sub a{display:block;padding:4px 22px 4px 38px;color:#A8A8B2;font-size:13px;text-decoration:none;border-left:3px solid transparent}
+.menu-grupo .sub a:hover{color:#fff;background:#2A2A31}
+.menu-grupo .sub a.ativo{color:#fff;border-left-color:var(--vermelho);background:#2A2A31}
+main{flex:1;min-width:0}
+.conteudo{max-width:980px;margin:0 auto;padding:0 48px 90px}
+/* ---------- CAPA ---------- */
+header.capa{background:radial-gradient(1100px 500px at 85% -10%,#3D3D47 0%,var(--carvao) 55%);color:#fff;padding:78px 48px 64px;position:relative;overflow:hidden}
+header.capa::after{content:"";position:absolute;right:-140px;top:-140px;width:420px;height:420px;border:52px solid rgba(176,30,36,.28);border-radius:50%}
+header.capa::before{content:"";position:absolute;right:-40px;top:60px;width:200px;height:200px;border:26px solid rgba(255,255,255,.07);border-radius:50%}
+.capa-inner{max-width:980px;margin:0 auto;position:relative;z-index:2}
+.capa .tag{display:inline-block;background:var(--vermelho);color:#fff;font-size:12.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;padding:6px 14px;border-radius:3px}
+.capa h1{font-size:44px;line-height:1.15;margin:20px 0 8px;font-weight:800}
+.capa h2{font-size:22px;font-weight:400;color:#C9C9D2;margin-bottom:26px}
+.capa .meta{display:flex;gap:34px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.18);padding-top:22px;font-size:14px;color:#B9B9C3}
+.capa .meta b{display:block;color:#fff;font-size:15.5px;font-weight:600}
+/* ---------- TIPOGRAFIA DE SEÇÃO ---------- */
+section.secao{padding-top:26px}
+.cabecalho-secao{display:flex;align-items:center;gap:18px;margin:58px 0 10px}
+.cabecalho-secao .num{min-width:64px;height:64px;border-radius:50%;background:var(--vermelho);color:#fff;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;box-shadow:0 6px 16px rgba(176,30,36,.35)}
+.cabecalho-secao h2{font-size:31px;line-height:1.2;font-weight:800}
+.cabecalho-secao small{display:block;font-size:13.5px;color:var(--cinza);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+.objetivos{background:var(--carvao);color:#E6E6EC;border-radius:12px;padding:20px 26px;margin:18px 0 34px}
+.objetivos h4{color:#fff;font-size:13px;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px}
+.objetivos ol{margin-left:20px}
+.objetivos li{margin:4px 0}
+h3.topico{font-size:22.5px;margin:44px 0 12px;font-weight:750;color:var(--carvao);scroll-margin-top:24px}
+h3.topico::before{content:"";display:inline-block;width:12px;height:12px;background:var(--vermelho);border-radius:3px;margin-right:11px;transform:rotate(45deg)}
+h4.subtopico{font-size:17px;margin:26px 0 8px;color:var(--vermelho-escuro)}
+p{margin:10px 0}
+ul.lista,ol.lista{margin:10px 0 14px 24px}
+ul.lista li,ol.lista li{margin:6px 0}
+strong{font-weight:700}
+.eng{color:var(--cinza);font-style:italic}
+/* ---------- COMPONENTES ---------- */
+.cartoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:16px;margin:18px 0}
+.cartao{background:var(--branco);border:1px solid var(--cinza-claro);border-radius:12px;padding:18px 20px;box-shadow:0 2px 8px rgba(20,20,30,.05)}
+.cartao h5{font-size:15px;color:var(--vermelho);margin-bottom:6px;font-weight:750}
+.cartao p{font-size:14px;margin:0;color:var(--grafite)}
+.caixa{border-radius:12px;padding:16px 20px;margin:18px 0;font-size:15px}
+.caixa b:first-child{display:block;font-size:13px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.caixa.dica{background:#EDF6F0;border:1px solid #BFE0CC}
+.caixa.dica b:first-child{color:var(--ok)}
+.caixa.alerta{background:#FDF3E4;border:1px solid #EBD3A5}
+.caixa.alerta b:first-child{color:var(--aviso)}
+.caixa.nota{background:#EAF2F8;border:1px solid #BFD8EA}
+.caixa.nota b:first-child{color:var(--info)}
+.caixa.chave{background:var(--vermelho-claro);border:1px solid #EBC3C5}
+.caixa.chave b:first-child{color:var(--vermelho)}
+.formula{background:var(--carvao);color:#fff;border-radius:12px;padding:20px 26px;margin:20px 0;text-align:center}
+.formula .eq{font-family:Cambria,Georgia,serif;font-size:21px;letter-spacing:.3px}
+.formula .eq sub{font-size:13px}
+.formula small{display:block;margin-top:8px;color:#B9B9C3;font-size:13px}
+table.tabela{width:100%;border-collapse:collapse;margin:18px 0;background:var(--branco);border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(20,20,30,.05);font-size:14.5px}
+table.tabela th{background:var(--carvao);color:#fff;text-align:left;padding:11px 14px;font-size:13px;text-transform:uppercase;letter-spacing:.6px}
+table.tabela td{padding:10px 14px;border-bottom:1px solid var(--cinza-claro);vertical-align:top}
+table.tabela tr:last-child td{border-bottom:none}
+table.tabela tr:nth-child(even) td{background:#FAFAFC}
+.exercicio{background:var(--branco);border:1px solid var(--cinza-claro);border-left:6px solid var(--vermelho);border-radius:12px;padding:20px 26px;margin:26px 0;box-shadow:0 2px 10px rgba(20,20,30,.06)}
+.exercicio .rotulo{display:inline-block;background:var(--vermelho);color:#fff;font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;padding:4px 11px;border-radius:20px;margin-bottom:8px}
+.exercicio h4{font-size:18px;margin:2px 0 10px;scroll-margin-top:24px}
+.exercicio ol{margin-left:22px;counter-reset:passo}
+.exercicio ol>li{list-style:none;position:relative;padding-left:14px;margin:9px 0;counter-increment:passo}
+.exercicio ol>li::before{content:counter(passo);position:absolute;left:-22px;top:2px;width:22px;height:22px;background:var(--cinza-claro);color:var(--carvao);font-size:12px;font-weight:700;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.revisao{background:linear-gradient(160deg,#2A2A31,#1F1F26);color:#E4E4EA;border-radius:14px;padding:26px 30px;margin:40px 0 10px}
+.revisao h4{color:#fff;font-size:19px;margin-bottom:4px}
+.revisao>p{color:#A9A9B4;font-size:13.5px;margin-bottom:14px}
+.revisao details{border-bottom:1px solid #3B3B45;padding:9px 0}
+.revisao details:last-child{border-bottom:none}
+.revisao summary{cursor:pointer;font-size:15px;font-weight:600;color:#F0F0F4;list-style:none;display:flex;gap:10px}
+.revisao summary::before{content:"?";min-width:22px;height:22px;background:var(--vermelho);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;margin-top:2px}
+.revisao details[open] summary::before{content:"✓";background:var(--ok)}
+.revisao .resp{margin:8px 0 4px 32px;color:#C6E4D2;font-size:14.5px}
+.figura{background:var(--branco);border:1px solid var(--cinza-claro);border-radius:12px;padding:20px;margin:20px 0;text-align:center;box-shadow:0 2px 8px rgba(20,20,30,.05)}
+.figura svg{max-width:100%;height:auto}
+.figura figcaption{font-size:13px;color:var(--cinza);margin-top:10px}
+.checklist{background:var(--branco);border:2px solid var(--vermelho);border-radius:14px;padding:22px 28px;margin:24px 0}
+.checklist h4{color:var(--vermelho);font-size:18px;margin-bottom:10px}
+.checklist ol{margin-left:22px}
+.checklist li{margin:8px 0;font-size:15.5px}
+.checklist li b{color:var(--carvao)}
+.btn-original{display:inline-flex;align-items:center;gap:9px;margin-top:26px;background:transparent;border:2px solid rgba(255,255,255,.55);color:#fff;padding:11px 22px;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;letter-spacing:.3px;transition:background .2s,border-color .2s}
+.btn-original:hover{background:var(--vermelho);border-color:var(--vermelho)}
+.menu-grupo .sub a.orig{color:#E5484D;font-weight:700}
+.menu-grupo .sub a.orig:hover{color:#fff}
+.topo{position:fixed;right:26px;bottom:26px;width:46px;height:46px;border-radius:50%;background:var(--vermelho);color:#fff;border:none;font-size:20px;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.25);display:none;z-index:50}
+.agenda-dia{background:var(--branco);border:1px solid var(--cinza-claro);border-radius:12px;margin:14px 0;overflow:hidden;box-shadow:0 2px 8px rgba(20,20,30,.05)}
+.agenda-dia h5{background:var(--carvao);color:#fff;padding:10px 18px;font-size:14.5px;letter-spacing:.5px}
+.agenda-dia table{width:100%;border-collapse:collapse;font-size:14px}
+.agenda-dia td{padding:7px 18px;border-bottom:1px solid #F0F0F3}
+.agenda-dia tr:last-child td{border-bottom:none}
+.agenda-dia td.hora{width:130px;color:var(--vermelho);font-weight:700;white-space:nowrap}
+.agenda-dia tr.pausa td{background:#FAFAFC;color:var(--cinza);font-style:italic}
+.rodape{border-top:1px solid var(--cinza-claro);margin-top:70px;padding-top:22px;font-size:13px;color:var(--cinza)}
+@media (max-width:1000px){
+  nav#menu{display:none}
+  .conteudo{padding:0 22px 70px}
+  header.capa{padding:56px 22px 44px}
+  .capa h1{font-size:33px}
+}
+@media print{
+  nav#menu,.topo,.btn-original{display:none}
+  body{background:#fff}
+  header.capa{background:var(--carvao)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .conteudo{max-width:100%;padding:0 10mm}
+  section.secao{page-break-before:always}
+  .exercicio,.cartao,.caixa,.revisao,.figura{page-break-inside:avoid}
+  .revisao details{display:block}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav id="menu">
+  <div class="marca">
+    <div class="logo">Amplificação<span>.</span>de Movimento</div>
+    <small>Manual de Treinamento Básico · Motion Amplification® · Edição reconstruída v3.5</small>
+  </div>
+  <div class="menu-grupo"><a class="sec" href="#capa">Início</a>
+    <div class="sub"><a href="#agenda">Agenda do treinamento (3 dias)</a><a class="orig" href="Manual_Original_Digitalizado.pdf" target="_blank" rel="noopener">Original digitalizado (PDF) ↗</a></div>
+  </div>
+  <div class="menu-grupo"><a class="sec" href="#sec1">Seção 1 · Introdução</a>
+    <div class="sub">
+      <a href="#s1-visao">Visão global da tecnologia</a>
+      <a href="#s1-beneficios">Benefícios</a>
+      <a href="#s1-tradicionais">Tecnologias tradicionais</a>
+      <a href="#s1-relatorio">Relatório tradicional de vibração</a>
+      <a href="#s1-fase">Análise de fase</a>
+      <a href="#s1-ods">ODS — Forma de Deflexão Operacional</a>
+      <a href="#s1-unidades">Unidades de amplitude</a>
+      <a href="#s1-rev">Revisão da Seção 1</a>
+    </div>
+  </div>
+  <div class="menu-grupo"><a class="sec" href="#sec2">Seção 2 · Câmeras, Iluminação e Lentes</a>
+    <div class="sub">
+      <a href="#s2-irism">A câmera Iris M</a>
+      <a href="#s2-irismx">A câmera Iris MX</a>
+      <a href="#s2-lentes">As lentes</a>
+      <a href="#s2-focal">Distância focal</a>
+      <a href="#s2-abertura">Ajuste de abertura</a>
+      <a href="#s2-fratio">F Ratio (Razão F)</a>
+      <a href="#s2-profundidade">Profundidade de campo</a>
+      <a href="#s2-tripe">Uso do tripé</a>
+      <a href="#s2-usb">Cabo USB 3.0</a>
+      <a href="#s2-iluminacao">Iluminação</a>
+      <a href="#s2-rev">Revisão da Seção 2</a>
+    </div>
+  </div>
+  <div class="menu-grupo"><a class="sec" href="#sec3">Seção 3 · Motion Explorer</a>
+    <div class="sub">
+      <a href="#s3-apps">Os 4 aplicativos do software</a>
+      <a href="#s3-explorer">Motion Explorer</a>
+      <a href="#s3-iniciando">Iniciando</a>
+      <a href="#s3-ribbon">Barra de ferramentas (Ribbon)</a>
+      <a href="#s3-ex1">Exercício 1 — Criando uma hierarquia</a>
+      <a href="#s3-ex2">Exercício 2 — Armazenando uma gravação</a>
+      <a href="#s3-rev">Revisão da Seção 3</a>
+    </div>
+  </div>
+  <div class="menu-grupo"><a class="sec" href="#sec4">Seção 4 · RDI Acquisition</a>
+    <div class="sub">
+      <a href="#s4-opcoes">Opções da aplicação</a>
+      <a href="#s4-propriedades">Propriedades de gravação</a>
+      <a href="#s4-ex3">Exercício 3 — Medindo a RPM</a>
+      <a href="#s4-associacao">Associação de gravações</a>
+      <a href="#s4-camera">Propriedades da câmera e da imagem</a>
+      <a href="#s4-framerate">Framerate: considerações</a>
+      <a href="#s4-ac">Framerate e iluminação interna AC</a>
+      <a href="#s4-fmax">Framerate × F<sub>máx</sub></a>
+      <a href="#s4-ex4">Exercício 4 — Taxa de quadros e brilho</a>
+      <a href="#s4-exposicao">Tempo de exposição · Ganho</a>
+      <a href="#s4-saturacao">Saturação</a>
+      <a href="#s4-livema">Amplificação ao vivo (Live MA)</a>
+      <a href="#s4-resolucao">Resolução mínima de deslocamento</a>
+      <a href="#s4-crop">Corte (cropping) · Ex. 5a e 5b</a>
+      <a href="#s4-dynamic">Faixa dinâmica · Binning (MX)</a>
+      <a href="#s4-assistente">Assistente de aquisição</a>
+      <a href="#s4-eixo">Inspeção de eixo · Ex. 6</a>
+      <a href="#s4-gatilho">Aquisição por gatilho · Ex. 7</a>
+      <a href="#s4-timer">Aquisição temporizada · Ex. 8</a>
+      <a href="#s4-checklist">Checklist antes de gravar</a>
+      <a href="#s4-rev">Revisão da Seção 4</a>
+    </div>
+  </div>
+  <div class="menu-grupo"><a class="sec" href="#sec5">Seção 5 · Motion Amplification®</a>
+    <div class="sub">
+      <a href="#s5-iniciando">Iniciando · Ex. 9</a>
+      <a href="#s5-opcoes">Opções do aplicativo</a>
+      <a href="#s5-reproducao">Reprodução básica</a>
+      <a href="#s5-sliders">Amplificação e velocidade (sliders)</a>
+      <a href="#s5-ex10">Exercício 10 — MA básico</a>
+      <a href="#s5-granulacao">Por que a imagem fica granulada?</a>
+      <a href="#s5-ex11">Exercício 11 — Exportação básica</a>
+      <a href="#s5-ex12">Exercício 12 — Vídeo lado a lado</a>
+      <a href="#s5-ex13">Exercício 13 — Modificar a reprodução</a>
+      <a href="#s5-transiente">Amplificação normal × transiente</a>
+      <a href="#s5-mapa-mov">Mapa de movimento</a>
+      <a href="#s5-mapa-fase">Mapa de fase · Ex. 14</a>
+      <a href="#s5-ex15">Exercício 15 — Aparar (Trim)</a>
+      <a href="#s5-ex16">Exercício 16 — Ajuste de contraste</a>
+      <a href="#s5-ex17">Exercício 17 — Região de amplificação</a>
+      <a href="#s5-grade">Grade e anotações · Ex. 18</a>
+      <a href="#s5-roi">Medição padrão de vibração (ROI)</a>
+      <a href="#s5-eixohv">Medições de eixo horizontal/vertical</a>
+      <a href="#s5-graficos">Formas de onda, espectros e órbitas</a>
+      <a href="#s5-ex19">Exercício 19 — Gráficos de vibração</a>
+      <a href="#s5-distancias">Múltiplas distâncias · Ex. 20</a>
+      <a href="#s5-filtros">Filtros por frequência · Ex. 21</a>
+      <a href="#s5-filtro-amp">Filtragem por amplitude</a>
+      <a href="#s5-filtro-top">Frequências dominantes</a>
+      <a href="#s5-tipos-filtro">Tipos de filtros</a>
+      <a href="#s5-vetores">Vetores de movimento · Ex. 22</a>
+      <a href="#s5-estabilizacao">Estabilização da imagem</a>
+      <a href="#s5-rev">Revisão da Seção 5</a>
+    </div>
+  </div>
+  <div class="menu-grupo"><a class="sec" href="#sec6">Seção 6 · Motion Studio</a>
+    <div class="sub">
+      <a href="#s6-iniciando">Iniciando · Ex. 23</a>
+      <a href="#s6-ex24">Ex. 24 — Slide de título</a>
+      <a href="#s6-ex25">Ex. 25 — Segmento de vídeo</a>
+      <a href="#s6-ex26">Ex. 26 — Copiar, colar e anotações</a>
+      <a href="#s6-ex27">Ex. 27 — Composto</a>
+      <a href="#s6-ex28">Ex. 28 — Transição Line Scan</a>
+      <a href="#s6-ex29">Ex. 29 — Adicionando som</a>
+      <a href="#s6-ex30">Ex. 30 — Salvar projeto e filme</a>
+      <a href="#s6-projeto">Projeto em sala de aula</a>
+    </div>
+  </div>
+  <div class="menu-grupo"><a class="sec" href="#sec7">Seção 7 · Manutenção do banco de dados</a>
+    <div class="sub">
+      <a href="#s7-manutencao">Por que manter a hierarquia</a>
+      <a href="#s7-ex31">Exercício 31 — Exportação de dados</a>
+      <a href="#s7-ex32">Exercício 32 — Importação de dados</a>
+      <a href="#s7-mover">Mover arquivos</a>
+    </div>
+  </div>
+  <div class="menu-grupo"><a class="sec" href="#sec8">Seção 8 · Resolução de problemas</a>
+    <div class="sub">
+      <a href="#s8-flicker">Iluminação oscilando</a>
+      <a href="#s8-tudo-move">Movimento na imagem inteira</a>
+      <a href="#s8-parado">Movimento lento ou “parado”</a>
+      <a href="#s8-suporte">Suporte</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+<header class="capa" id="capa">
+  <div class="capa-inner">
+    <span class="tag">Treinamento Básico · Nível I</span>
+    <h1>Amplificação de Movimento</h1>
+    <h2>Manual de Treinamento — sistema Motion Amplification® (câmeras Iris M / Iris MX)</h2>
+    <div class="meta">
+      <div><b>Referência</b>Conteúdo baseado no manual v3.5</div>
+      <div><b>Formato</b>Edição digital reconstruída</div>
+      <div><b>Duração do curso</b>3 dias · 8 seções · 32 exercícios</div>
+      <div><b>Certificação</b>Exame Nível I ao final do 3º dia</div>
+    </div>
+    <a class="btn-original" href="Manual_Original_Digitalizado.pdf" target="_blank" rel="noopener" title="Abre o PDF escaneado original — mantenha o arquivo na mesma pasta deste HTML">Ver o manual original digitalizado (PDF)&nbsp;&nbsp;↗</a>
+  </div>
+</header>
+
+<div class="conteudo">
+
+<section class="secao" id="agenda">
+  <div class="cabecalho-secao">
+    <div class="num">☰</div>
+    <div><small>Programação</small><h2>Agenda do Treinamento — 3 dias</h2></div>
+  </div>
+  <p>O curso básico é dividido em três dias de aula, combinando teoria, demonstrações e exercícios práticos com o kit de rotor de ensaio. A prova de certificação de Nível I é aplicada na tarde do terceiro dia.</p>
+
+  <div class="agenda-dia">
+    <h5>1º dia — Fundamentos e aquisição</h5>
+    <table>
+      <tr><td class="hora">08:00 – 08:30</td><td>Chegada, apresentações, aula e instalações</td></tr>
+      <tr><td class="hora">08:30 – 09:15</td><td>Seção 1 — Introdução à Amplificação de Movimento®</td></tr>
+      <tr class="pausa"><td class="hora">09:15 – 09:30</td><td>Pausa</td></tr>
+      <tr><td class="hora">09:30 – 10:30</td><td>Seção 2 — Câmera, iluminação e lentes</td></tr>
+      <tr class="pausa"><td class="hora">10:30 – 10:45</td><td>Pausa</td></tr>
+      <tr><td class="hora">10:45 – 12:00</td><td>Seção 3 — Introdução ao Motion Explorer</td></tr>
+      <tr class="pausa"><td class="hora">12:00 – 13:00</td><td>Almoço</td></tr>
+      <tr><td class="hora">13:00 – 17:00</td><td>Seção 4 — RDI Acquisition (com pausa às 14:30)</td></tr>
+    </table>
+  </div>
+  <div class="agenda-dia">
+    <h5>2º dia — Análise e edição</h5>
+    <table>
+      <tr><td class="hora">08:00 – 08:15</td><td>Chegada ao local de treinamento</td></tr>
+      <tr><td class="hora">08:15 – 12:00</td><td>Seção 5 — Amplificação de Movimento RDI (com pausa às 10:00)</td></tr>
+      <tr class="pausa"><td class="hora">12:00 – 13:00</td><td>Almoço</td></tr>
+      <tr><td class="hora">13:00 – 15:30</td><td>Exercícios de coleta de dados de campo</td></tr>
+      <tr class="pausa"><td class="hora">15:30 – 15:45</td><td>Pausa</td></tr>
+      <tr><td class="hora">15:45 – 17:00</td><td>Seção 6 — Introdução ao Motion Studio</td></tr>
+    </table>
+  </div>
+  <div class="agenda-dia">
+    <h5>3º dia — Consolidação e certificação</h5>
+    <table>
+      <tr><td class="hora">08:00 – 08:15</td><td>Chegada ao local de treinamento</td></tr>
+      <tr><td class="hora">08:15 – 09:30</td><td>Seção 7 — Manutenção do banco de dados do Motion Explorer</td></tr>
+      <tr class="pausa"><td class="hora">09:30 – 09:45</td><td>Pausa</td></tr>
+      <tr><td class="hora">09:45 – 12:00</td><td>Trabalho no projeto de classe</td></tr>
+      <tr class="pausa"><td class="hora">12:00 – 13:00</td><td>Almoço</td></tr>
+      <tr><td class="hora">13:00 – 13:45</td><td>Apresentação, avaliação e discussão dos projetos</td></tr>
+      <tr><td class="hora">13:45 – 14:15</td><td>Seção 8 — Dicas básicas para solução de problemas</td></tr>
+      <tr><td class="hora">14:30 – 15:00</td><td>Revisão e preparação para a prova</td></tr>
+      <tr><td class="hora">15:00 – 16:30</td><td>Exame de Certificação de Amplificação de Movimento — Nível I</td></tr>
+      <tr><td class="hora">16:30 – 17:00</td><td>Revisão e dispensa da turma</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ================= SEÇÃO 1 ================= -->
+<section class="secao" id="sec1">
+  <div class="cabecalho-secao">
+    <div class="num">1</div>
+    <div><small>1º dia de aula</small><h2>Introdução à Amplificação de Movimento</h2></div>
+  </div>
+  <div class="objetivos">
+    <h4>Objetivos desta seção</h4>
+    <ol>
+      <li>Apresentar a tecnologia Motion Amplification®;</li>
+      <li>Comparar a Amplificação de Movimento com as demais tecnologias de manutenção preditiva;</li>
+      <li>Revisar as unidades de amplitude de vibração usadas no Motion Amplification®.</li>
+    </ol>
+  </div>
+
+  <h3 class="topico" id="s1-visao">Visão global da tecnologia</h3>
+  <p>A Amplificação de Movimento <span class="eng">(Motion Amplification® — MA)</span> é uma tecnologia que torna visíveis movimentos microscópicos que o olho humano não consegue perceber. Uma câmera de alta velocidade registra o equipamento em operação e algoritmos patenteados processam essa filmagem, gerando um arquivo de dados que é analisado no software de Amplificação de Movimento.</p>
+  <div class="caixa chave"><b>Conceito central</b>O software transforma, na prática, <strong>cada pixel do vídeo em um sensor</strong> capaz de medir vibração e movimento. Em vez de 10 ou 12 pontos de medição em uma máquina típica, passa-se a dispor de informação vibratória em <strong>milhões de posições simultâneas</strong>.</div>
+
+  <h3 class="topico" id="s1-beneficios">Benefícios do Motion Amplification®</h3>
+  <div class="cartoes">
+    <div class="cartao"><h5>Mais segurança</h5><p>A medição é totalmente sem contato: ninguém precisa tocar a máquina em operação, reduzindo drasticamente o risco de acidentes em comparação à coleta tradicional.</p></div>
+    <div class="cartao"><h5>Menos parada não planejada</h5><p>O problema fica visível no vídeo, então as ações corretivas podem ser planejadas e executadas com muito mais precisão.</p></div>
+    <div class="cartao"><h5>Apoio à análise de causa raiz (RCA)</h5><p>Em muitos casos a causa raiz torna-se visualmente aparente na gravação amplificada.</p></div>
+    <div class="cartao"><h5>Aplicações diversas</h5><p>Máquinas rotativas e alternativas, estruturas, linhas de produção, tubulações e muito mais.</p></div>
+    <div class="cartao"><h5>Rápido e fácil</h5><p>Pouca preparação e coletas que normalmente duram apenas alguns segundos — ideal para troubleshooting.</p></div>
+    <div class="cartao"><h5>Informação acessível</h5><p>O resultado é um vídeo em formato padrão, que qualquer pessoa entende — da manutenção à gerência.</p></div>
+    <div class="cartao"><h5>Menos treinamento</h5><p>Dominar análise de vibração tradicional leva anos; o treinamento em Amplificação de Movimento leva dias.</p></div>
+  </div>
+
+  <h3 class="topico" id="s1-tradicionais">Tecnologias tradicionais</h3>
+  <p>A <strong>análise de vibração</strong> é há décadas a principal ferramenta da manutenção preditiva e da solução de problemas em máquinas. Seu processo típico, baseado em rotas, envolve:</p>
+  <ul class="lista">
+    <li>Pré-definir os pontos de medição da máquina e organizá-los em um banco de dados no software de análise;</li>
+    <li>Transferir as rotas para um coletor portátil de vibração;</li>
+    <li>Posicionar o acelerômetro ponto a ponto, até concluir todos os pontos da rota;</li>
+    <li>Transferir os dados de volta ao software para análise.</li>
+  </ul>
+  <p>Esse fluxo tem limitações importantes:</p>
+  <ul class="lista">
+    <li>Espectros e formas de onda exigem um <strong>analista experiente</strong> — a formação completa costuma levar mais de dois anos;</li>
+    <li>Resultados muitas vezes são <strong>inconclusivos</strong>, exigindo técnicas complementares (análise de fase, ODS) para chegar à causa raiz;</li>
+    <li>A coleta normalmente <strong>não é simultânea</strong>: a informação de fase precisa ser obtida em um processo separado.</li>
+  </ul>
+
+  <h3 class="topico" id="s1-relatorio">Relatório tradicional de vibração</h3>
+  <p>O relatório tradicional se apoia em dados de FFT — os espectros. Isso traz desafios práticos de comunicação:</p>
+  <ul class="lista">
+    <li>Que condição da máquina é capaz de gerar determinado espectro?</li>
+    <li>Como explicar o gráfico a um gerente ou a um mecânico que não é analista?</li>
+    <li>O espectro indica “folga” — mas <em>que tipo</em> de folga? E <em>onde</em>?</li>
+  </ul>
+  <p>Com a Amplificação de Movimento, o relatório passa a ser o próprio vídeo: o movimento anômalo é mostrado, não apenas inferido.</p>
+
+  <h3 class="topico" id="s1-fase">Análise de fase</h3>
+  <p>A análise de fase costuma ser o primeiro recurso avançado usado pelo analista quando a análise de rota não identifica a causa raiz. Ao adicionar a informação de fase, o analista conhece não só a frequência e a amplitude da vibração, mas também a <strong>relação temporal entre os movimentos das partes da máquina</strong> — o que ajuda a caracterizar condições como desbalanceamento, folga, desalinhamento, pé manco e eixo empenado.</p>
+  <p>O procedimento tradicional envolve:</p>
+  <ul class="lista">
+    <li>Parar o equipamento para instalar fita reflexiva no eixo (sistema de um canal com foto-tacômetro) ou montar um sensor de referência (sistema de dois canais);</li>
+    <li>Adquirir amplitude e fase em cada ponto de medição, um por vez;</li>
+    <li>Montar manualmente um diagrama de bolhas com os resultados;</li>
+    <li>Interpretar o diagrama — tarefa que, novamente, exige um analista experiente e cuja conclusão precisa ser traduzida para a linguagem de mecânicos e gestores.</li>
+  </ul>
+
+  <h3 class="topico" id="s1-ods">ODS — Forma de Deflexão Operacional</h3>
+  <p>A ODS <span class="eng">(Operating Deflection Shape)</span> é um método avançado de análise de fase, o passo lógico seguinte quando o problema se mostra complexo. Assim como a análise de fase, ela revela como a máquina se move; a diferença é que o resultado é uma <strong>animação 3D</strong> do movimento, em vez de um diagrama de bolhas.</p>
+  <p>O processo típico de uma ODS:</p>
+  <ol class="lista">
+    <li>Fazer um diagrama ou esboço da máquina analisada;</li>
+    <li>Medir amplitude e fase em tantos pontos e direções quanto necessário — base, máquina e elementos estruturais;</li>
+    <li>Transferir os dados para um software de ODS;</li>
+    <li>Criar no software um modelo visualmente semelhante à máquina;</li>
+    <li>Numerar os pontos do modelo exatamente como os pontos medidos;</li>
+    <li>Associar os dados medidos aos pontos do modelo;</li>
+    <li>Executar a animação para visualizar o resultado;</li>
+    <li>Gerar um vídeo da animação e encaminhá-lo com as recomendações.</li>
+  </ol>
+  <p>Bem executada, a ODS resolve problemas complexos de vibração — mas tem desvantagens claras:</p>
+  <ul class="lista">
+    <li>Exige instrumento de medição e software de ODS adquiridos separadamente;</li>
+    <li>Modelar a máquina costuma levar horas ou dias, e a coleta, horas;</li>
+    <li>Risco alto de dados questionáveis em algum ponto e de erros ao associar medições ao modelo;</li>
+    <li>Mesmo com centenas de pontos, o ponto crucial pode ficar de fora;</li>
+    <li>A animação inclui movimentos <em>interpolados</em> — que não foram realmente medidos;</li>
+    <li>Eventos transitórios são muito difíceis de tratar, a menos que haja muitos canais medindo simultaneamente.</li>
+  </ul>
+  <div class="caixa dica"><b>Onde o MA se encaixa</b>A Amplificação de Movimento combina os benefícios da análise de vibração, da análise de fase e da ODS: um único vídeo curto de alta velocidade traz um volume de dados muito maior, com <strong>todos os pixels coletados simultaneamente</strong> — a informação de fase já está lá, sem processo adicional e sem interpolação.</div>
+
+  <h3 class="topico" id="s1-unidades">Unidades de amplitude de vibração do Motion Amplification®</h3>
+  <p>Com os procedimentos corretos de configuração e aquisição, os dados da câmera Iris M permitem medir vibração, frequência e amplitude de praticamente qualquer item na imagem. O software calcula tanto a forma de onda quanto o espectro — resultados análogos aos da FFT de um analisador tradicional.</p>
+  <div class="caixa chave"><b>Ponto fundamental</b>As unidades nativas de amplitude do Motion Amplification® são de <strong>deslocamento</strong>: <strong>mícrons (µm)</strong> ou <strong>mils</strong> (milésimos de polegada). O analisador FFT típico, por sua vez, costuma medir <strong>aceleração em g</strong>.</div>
+  <div class="figura">
+    <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Curvas de deslocamento, velocidade e aceleração em função da frequência">
+      <line x1="60" y1="250" x2="720" y2="250" stroke="#232329" stroke-width="2"/>
+      <line x1="60" y1="250" x2="60" y2="30" stroke="#232329" stroke-width="2"/>
+      <text x="390" y="285" font-size="15" fill="#232329" text-anchor="middle" font-weight="600">Frequência →</text>
+      <text x="30" y="140" font-size="15" fill="#232329" text-anchor="middle" font-weight="600" transform="rotate(-90 30 140)">Amplitude →</text>
+      <path d="M 70 60 C 200 70, 320 200, 700 240" fill="none" stroke="#B01E24" stroke-width="4"/>
+      <text x="150" y="52" font-size="14.5" fill="#B01E24" font-weight="700">Deslocamento (µm · mils) — acentua baixas frequências</text>
+      <line x1="70" y1="150" x2="700" y2="150" stroke="#1C5D8C" stroke-width="4" stroke-dasharray="1 0"/>
+      <text x="480" y="138" font-size="14.5" fill="#1C5D8C" font-weight="700">Velocidade (mm/s · in/s) — consistente em todas as frequências</text>
+      <path d="M 70 240 C 420 225, 560 120, 700 45" fill="none" stroke="#1E7A46" stroke-width="4"/>
+      <text x="470" y="228" font-size="14.5" fill="#1E7A46" font-weight="700">Aceleração (g) — acentua altas frequências</text>
+    </svg>
+    <figcaption>Cada grandeza “enxerga” melhor uma faixa do espectro. O MA mede deslocamento real — por isso se destaca em baixas frequências.</figcaption>
+  </div>
+  <p>Como a aceleração produz valores muito pequenos em baixas frequências, acelerômetros tradicionais têm dificuldade abaixo de <strong>2 Hz (120 CPM)</strong>. O Motion Amplification® mede deslocamento real e, portanto, funciona muito bem mesmo em equipamentos de giro bem lento.</p>
+  <p>Na maioria das máquinas rotativas, as forças que causam movimento — as chamadas <strong>funções de força</strong> — vêm de:</p>
+  <div class="cartoes">
+    <div class="cartao"><h5>Fáceis para o MA (baixa frequência)</h5><p>Desbalanceamento · desalinhamento · folgas. São as funções de força mais identificadas pela Amplificação de Movimento.</p></div>
+    <div class="cartao"><h5>Melhores no método tradicional (alta frequência)</h5><p>Defeitos de rolamentos · defeitos de engrenamento · problemas de lubrificação — mais bem detectados pela análise de vibração convencional.</p></div>
+  </div>
+
+  <div class="revisao" id="s1-rev">
+    <h4>Seção 1 — Revisão</h4>
+    <p>Responda mentalmente e clique para conferir a resposta sugerida.</p>
+    <details><summary>Por que a Amplificação de Movimento é mais segura que a análise de vibração de rota tradicional?</summary><div class="resp">Porque a medição é sem contato: o coletor não precisa tocar a máquina em operação, eliminando a exposição do técnico a partes girantes.</div></details>
+    <details><summary>Qual é a unidade nativa de amplitude de vibração no Motion Amplification®?</summary><div class="resp">Deslocamento, em mícrons (µm) ou mils.</div></details>
+    <details><summary>De que forma o Motion Amplification® se diferencia da ODS?</summary><div class="resp">Todos os dados (todos os pixels) são coletados simultaneamente, sem modelagem manual e sem pontos interpolados — a fase já está embutida na própria gravação.</div></details>
+    <details><summary>Quais funções de força são identificadas mais facilmente pelo Motion Amplification®?</summary><div class="resp">Desbalanceamento, desalinhamento e folgas — fenômenos de baixa frequência, dominantes em deslocamento.</div></details>
+  </div>
+</section>
+
+<!-- ================= SEÇÃO 2 ================= -->
+<section class="secao" id="sec2">
+  <div class="cabecalho-secao">
+    <div class="num">2</div>
+    <div><small>1º dia de aula</small><h2>Câmeras, Iluminação e Lentes</h2></div>
+  </div>
+  <div class="objetivos">
+    <h4>Propósitos desta seção</h4>
+    <ol>
+      <li>Compreender técnicas básicas de fotografia;</li>
+      <li>Aprender a usar os equipamentos dos kits Iris M e Iris MX;</li>
+      <li>Dominar a terminologia comum da aquisição de dados na Amplificação de Movimento.</li>
+    </ol>
+  </div>
+
+  <h3 class="topico" id="s2-irism">A câmera Iris M</h3>
+  <p>A Iris M é uma câmera de <em>streaming</em> de alto desempenho que captura imagens de alta qualidade em escala de cinza.</p>
+  <table class="tabela">
+    <tr><th>Característica</th><th>Iris M</th></tr>
+    <tr><td>Sensor</td><td>CMOS de 12 bits, matriz de 1920 × 1200 pixels (&gt; 2,3 MP)</td></tr>
+    <tr><td>Taxa de quadros padrão</td><td>120 FPS em resolução plena</td></tr>
+    <tr><td>Taxa máxima</td><td>Até 1.300 FPS com resolução reduzida (ex.: 450 × 420 px)</td></tr>
+    <tr><td>Conexão</td><td>Cabo USB 3.0 — fornece energia e transmite o vídeo à unidade de aquisição</td></tr>
+    <tr><td>Extras</td><td>Conector com trava de parafusos · porta GPIO para tacômetro a laser opcional</td></tr>
+  </table>
+  <div class="caixa alerta"><b>Atenção</b>Use sempre o conector com trava ao ligar o cabo USB 3.0 à câmera. Se a câmera for desconectada com o software de aquisição aberto, <strong>o software precisará ser reiniciado</strong> após a reconexão.</div>
+
+  <h3 class="topico" id="s2-irismx">A câmera Iris MX</h3>
+  <p>A Iris MX foi desenvolvida para aquisições em velocidade muito alta.</p>
+  <table class="tabela">
+    <tr><th>Característica</th><th>Iris MX</th></tr>
+    <tr><td>Sensor</td><td>CMOS avançado de 12 bits, 2560 × 2048 pixels (&gt; 5,3 MP)</td></tr>
+    <tr><td>Taxa máxima</td><td>Até 29.000 FPS com resolução reduzida</td></tr>
+    <tr><td>Memória</td><td>SSD embarcado na própria câmera</td></tr>
+    <tr><td>Conexão</td><td>Gigabit Ethernet + adaptador USB-Ethernet</td></tr>
+    <tr><td>Alimentação</td><td>Fonte externa 10–26 VDC ou bateria Li-ion</td></tr>
+  </table>
+  <ul class="lista">
+    <li>Ligue e desligue a câmera pelo botão do software de aquisição ou pelo botão físico traseiro — <strong>evite desligá-la desconectando o cabo de alimentação</strong>;</li>
+    <li>Além da Amplificação de Movimento, a MX serve como câmera de alta velocidade para qualquer aplicação que exija esse recurso.</li>
+  </ul>
+
+  <h3 class="topico" id="s2-lentes">As lentes</h3>
+  <ul class="lista">
+    <li>O kit padrão inclui diversas lentes com diferentes distâncias focais (por exemplo, 12,5&nbsp;mm, 25&nbsp;mm, 50&nbsp;mm e até 100&nbsp;mm);</li>
+    <li>Cada lente recebe um <strong>anel de cor</strong> inspirado nas cores do espectro/arco-íris, para identificação rápida em campo;</li>
+    <li>As lentes são do tipo <strong>C-Mount</strong> — rosqueadas ao corpo da câmera — padrão conhecido pela boa qualidade óptica;</li>
+    <li>Todas as lentes, exceto a de 6&nbsp;mm, podem ser intercambiadas entre a Iris M e a Iris MX;</li>
+    <li>Existem outros padrões de montagem (CS, F-mount/Nikon, EF/Canon) e adaptadores, mas as C-Mount são as compatíveis com essas câmeras.</li>
+  </ul>
+
+  <h3 class="topico" id="s2-focal">Distância focal</h3>
+  <p>A distância focal de uma lente determina o <strong>campo de visão</strong> e a <strong>ampliação</strong> da imagem. Tecnicamente, é a distância entre a lente equivalente e o sensor da câmera.</p>
+  <ul class="lista">
+    <li>As lentes do sistema Iris M têm distância focal <strong>fixa</strong>, gravada no corpo — não há zoom óptico ajustável;</li>
+    <li>A única forma de mudar a distância focal é <strong>trocar a lente</strong>;</li>
+    <li>Dobrando a distância focal, a ampliação dobra e o campo de visão cai pela metade; reduzindo à metade, ocorre o inverso;</li>
+    <li>Uma distância focal maior faz o objeto parecer mais próximo e <strong>melhora (reduz) a resolução mínima de deslocamento</strong>;</li>
+    <li>Exceção: a lente do kit Iris M Traveler tem distância focal ajustável de 12,5 a 75&nbsp;mm.</li>
+  </ul>
+  <div class="figura">
+    <svg viewBox="0 0 760 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Relação entre distância focal e campo de visão">
+      <rect x="20" y="30" width="150" height="110" rx="10" fill="#232329"/>
+      <rect x="170" y="65" width="46" height="40" rx="6" fill="#3A3A42"/>
+      <text x="95" y="92" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">Câmera</text>
+      <text x="95" y="112" font-size="12.5" fill="#B9B9C3" text-anchor="middle">lente 12,5 mm</text>
+      <polygon points="216,85 690,20 690,150" fill="rgba(176,30,36,.14)" stroke="#B01E24" stroke-width="2.5"/>
+      <text x="470" y="100" font-size="14" fill="#B01E24" font-weight="700">Menor distância focal → MAIOR campo de visão</text>
+      <rect x="20" y="205" width="150" height="110" rx="10" fill="#232329"/>
+      <rect x="170" y="240" width="66" height="40" rx="6" fill="#3A3A42"/>
+      <text x="95" y="267" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">Câmera</text>
+      <text x="95" y="287" font-size="12.5" fill="#B9B9C3" text-anchor="middle">lente 50 mm</text>
+      <polygon points="236,260 690,225 690,295" fill="rgba(28,93,140,.14)" stroke="#1C5D8C" stroke-width="2.5"/>
+      <text x="475" y="268" font-size="14" fill="#1C5D8C" font-weight="700">Maior distância focal → menor campo de visão, mais ampliação</text>
+    </svg>
+    <figcaption>Trocar a lente é trocar o enquadramento: focal curta enxerga a máquina inteira; focal longa aproxima detalhes e enxerga movimentos menores.</figcaption>
+  </div>
+
+  <h3 class="topico" id="s2-abertura">Ajuste de abertura</h3>
+  <p>Os ajustes de abertura da maioria das lentes vão de <strong>f/1.4 a f/16</strong> — valores conhecidos como <em>f-stops</em>. Muitas lentes fotográficas têm “cliques” de retenção em cada valor; as lentes do kit Iris M não têm, então a abertura é ajustada alinhando o anel da lente à marcação desejada.</p>
+  <ul class="lista">
+    <li>f/1.4 é a abertura que mais deixa luz chegar ao sensor; f/16, a que menos deixa;</li>
+    <li>Cada passo da escala representa <strong>metade (ou o dobro) da luz</strong>: f/2.8 admite metade da luz de f/2 e o dobro de f/4;</li>
+    <li>A abertura define diretamente a claridade da imagem gravada.</li>
+  </ul>
+  <div class="figura">
+    <svg viewBox="0 0 760 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Série de aberturas f-stop">
+      <g font-size="13.5" font-weight="700" fill="#232329" text-anchor="middle">
+        <circle cx="70" cy="60" r="34" fill="#FBEAEB" stroke="#B01E24" stroke-width="3"/><circle cx="70" cy="60" r="30" fill="#B01E24" opacity=".9"/><text x="70" y="125">f/1.4</text>
+        <circle cx="180" cy="60" r="34" fill="#FBEAEB" stroke="#B01E24" stroke-width="3"/><circle cx="180" cy="60" r="24" fill="#B01E24" opacity=".9"/><text x="180" y="125">f/2</text>
+        <circle cx="290" cy="60" r="34" fill="#FBEAEB" stroke="#B01E24" stroke-width="3"/><circle cx="290" cy="60" r="19" fill="#B01E24" opacity=".9"/><text x="290" y="125">f/2.8</text>
+        <circle cx="400" cy="60" r="34" fill="#FBEAEB" stroke="#B01E24" stroke-width="3"/><circle cx="400" cy="60" r="15" fill="#B01E24" opacity=".9"/><text x="400" y="125">f/4</text>
+        <circle cx="510" cy="60" r="34" fill="#FBEAEB" stroke="#B01E24" stroke-width="3"/><circle cx="510" cy="60" r="11.5" fill="#B01E24" opacity=".9"/><text x="510" y="125">f/5.6</text>
+        <circle cx="620" cy="60" r="34" fill="#FBEAEB" stroke="#B01E24" stroke-width="3"/><circle cx="620" cy="60" r="8.5" fill="#B01E24" opacity=".9"/><text x="620" y="125">f/8</text>
+        <circle cx="710" cy="60" r="34" fill="#FBEAEB" stroke="#B01E24" stroke-width="3"/><circle cx="710" cy="60" r="5.5" fill="#B01E24" opacity=".9"/><text x="710" y="125">f/11–f/16</text>
+      </g>
+    </svg>
+    <figcaption>Quanto maior o número f, menor o furo por onde a luz passa — cada passo corta a luz pela metade.</figcaption>
+  </div>
+  <div class="caixa dica"><b>Boa prática</b>Se a imagem estiver clara demais ou com 100% de saturação nas áreas de interesse, <strong>feche primeiro a abertura</strong> (número f maior) antes de reduzir o brilho (%) no software.</div>
+
+  <h3 class="topico" id="s2-fratio">F Ratio (Razão F)</h3>
+  <p>Os números f parecem “crescer ao contrário” porque o valor é uma razão entre a distância focal da lente (f) e o diâmetro de abertura (d):</p>
+  <div class="formula"><div class="eq">F&nbsp;Ratio&nbsp;=&nbsp;distância focal (f)&nbsp;÷&nbsp;diâmetro de abertura (d)</div><small>Ex.: lente de 50 mm com abertura de 50 mm → f/1 · mesma lente com abertura de 25 mm → f/2</small></div>
+
+  <h3 class="topico" id="s2-profundidade">Profundidade de campo e abertura</h3>
+  <p>A <strong>profundidade de campo</strong> é a distância entre o ponto mais próximo e o mais distante da cena que permanecem em foco.</p>
+  <ul class="lista">
+    <li><strong>Abertura grande (f/1.4 – f/2.8):</strong> profundidade de campo pequena — só o primeiro plano fica nítido (típico de retratos);</li>
+    <li><strong>Abertura média (f/5.6):</strong> profundidade intermediária — parte da cena em foco;</li>
+    <li><strong>Abertura pequena (f/11 – f/22):</strong> profundidade grande — praticamente tudo em foco (típico de paisagens).</li>
+  </ul>
+  <table class="tabela">
+    <tr><th></th><th>f/1.4</th><th>f/2.8</th><th>f/5.6</th><th>f/11</th><th>f/22</th></tr>
+    <tr><td><strong>Abertura</strong></td><td>Muito grande</td><td>Grande</td><td>Média</td><td>Pequena</td><td>Muito pequena</td></tr>
+    <tr><td><strong>Profundidade de campo</strong></td><td>Muito pequena</td><td>Pequena</td><td>Média</td><td>Grande</td><td>Muito grande</td></tr>
+    <tr><td><strong>O que fica em foco</strong></td><td>Quase nada</td><td>Pouco</td><td>Algumas coisas</td><td>Muito</td><td>Quase tudo</td></tr>
+    <tr><td><strong>Brilho da imagem</strong></td><td>Mais brilhante</td><td>Brilhante</td><td>Médio</td><td>Escuro</td><td>Mais escuro</td></tr>
+  </table>
+  <div class="caixa alerta"><b>Compromisso inevitável</b>Fechar a abertura (ex.: de f/2 para f/4) para ganhar profundidade de campo reduz a luz que chega ao sensor e escurece a imagem. Se você realmente precisa de mais profundidade de campo, <strong>providencie iluminação mais intensa</strong>.</div>
+
+  <h3 class="topico" id="s2-tripe">Uso do tripé</h3>
+  <p>O tripé do kit foi projetado para oferecer várias opções de montagem e praticamente qualquer ângulo de filmagem. Depois da segurança, a consideração mais importante é a <strong>estabilidade da câmera</strong>: qualquer trepidação, por menor que seja, interfere na gravação. O software tem ferramentas para atenuar o efeito, mas a melhor gravação é a que nasce sem oscilação.</p>
+  <ul class="lista">
+    <li><strong>Use sempre os isoladores de vibração</strong> (coxins) sob os pés — combinados ao peso pendurado na haste central, reduzem a vibração transmitida em até 50% e os impactos em até 90%;</li>
+    <li><strong>Pendure um peso na haste central</strong> — abaixa a frequência natural do conjunto e melhora o isolamento;</li>
+    <li><strong>Afaste a câmera da fonte de vibração</strong> — com uma lente de distância focal maior, obtém-se o mesmo enquadramento de longe;</li>
+    <li><strong>Estenda primeiro os estágios mais grossos das pernas</strong>; use o estágio fino apenas se necessário;</li>
+    <li><strong>Evite estender a haste central</strong> — deve ser o último recurso para ganhar altura.</li>
+  </ul>
+
+  <h3 class="topico" id="s2-usb">Cabo USB 3.0</h3>
+  <ul class="lista">
+    <li>O cabo especial USB 3.0 alimenta a câmera Iris M e transmite o vídeo em tempo real à unidade de aquisição;</li>
+    <li>Ao conectar na câmera, <strong>aperte sempre as travas de parafuso</strong> — isso evita danos à porta traseira da câmera;</li>
+    <li>Se precisar de um cabo mais longo, solicite ao suporte do fabricante um cabo homologado.</li>
+  </ul>
+
+  <h3 class="topico" id="s2-iluminacao">Iluminação</h3>
+  <p>Mesmo com os recursos de brilho do software de aquisição, muitas situações exigem luz adicional para enxergar bem a máquina ou estrutura analisada. Por isso o kit inclui um holofote de LED de corrente contínua:</p>
+  <table class="tabela">
+    <tr><th>Item</th><th>Especificação</th></tr>
+    <tr><td>Intensidade</td><td>135.000 lux de luz contínua</td></tr>
+    <tr><td>Regulagem</td><td>10% a 100%, por controles internos ou controle remoto sem fio</td></tr>
+    <tr><td>Alimentação</td><td>Rede bivolt 110/220 VAC ou bateria de Li-ion do kit</td></tr>
+    <tr><td>Autonomia da bateria</td><td>≈ 23 minutos em intensidade máxima</td></tr>
+  </table>
+  <div class="caixa alerta"><b>Planeje a gravação</b>Com apenas ~23 minutos de bateria em potência máxima, defina antes o que será filmado para não ficar sem luz em locais sem ponto de recarga.</div>
+
+  <div class="revisao" id="s2-rev">
+    <h4>Seção 2 — Revisão</h4>
+    <p>Responda mentalmente e clique para conferir a resposta sugerida.</p>
+    <details><summary>Qual é a taxa máxima de quadros da câmera Iris M?</summary><div class="resp">1.300 FPS, com resolução reduzida.</div></details>
+    <details><summary>Qual é a taxa máxima de quadros da câmera Iris MX?</summary><div class="resp">29.000 FPS, com resolução reduzida.</div></details>
+    <details><summary>As lentes fornecidas nos kits possuem zoom ajustável?</summary><div class="resp">Não — são de distância focal fixa (exceto a lente 12,5–75 mm do Iris M Traveler). Para mudar o enquadramento, troca-se a lente.</div></details>
+    <details><summary>Quando os isoladores de vibração devem ser usados no tripé?</summary><div class="resp">Sempre. Eles reduzem a vibração transmitida à câmera em até 50% e impactos em até 90%.</div></details>
+    <details><summary>Quando usar os parafusos de fixação do cabo USB 3.0 na Iris M?</summary><div class="resp">Sempre que o cabo for conectado à câmera — as travas protegem o conector traseiro.</div></details>
+    <details><summary>Qual abertura reduz pela metade a entrada de luz em relação a f/4?</summary><div class="resp">f/5.6 — cada passo da escala corta a luz pela metade.</div></details>
+    <details><summary>Qual configuração tem profundidade de campo mais ampla: f/5.6 ou f/16?</summary><div class="resp">f/16 — abertura menor, profundidade de campo maior.</div></details>
+    <details><summary>O que significa FPS?</summary><div class="resp">Frames Per Second — quadros por segundo.</div></details>
+    <details><summary>Qual distância focal gera o maior campo de visão: 25 mm ou 50 mm?</summary><div class="resp">25 mm — quanto menor a distância focal, maior o campo de visão.</div></details>
+  </div>
+</section>
+<!-- ================= SEÇÃO 3 ================= -->
+<section class="secao" id="sec3">
+  <div class="cabecalho-secao">
+    <div class="num">3</div>
+    <div><small>1º dia de aula</small><h2>Introdução ao Motion Explorer</h2></div>
+  </div>
+  <div class="objetivos">
+    <h4>Propósitos desta seção</h4>
+    <ol>
+      <li>Apresentar os quatro aplicativos do pacote de software;</li>
+      <li>Montar uma estrutura hierárquica no Motion Explorer;</li>
+      <li>Iniciar os softwares de Aquisição e de Amplificação de Movimento a partir do Motion Explorer.</li>
+    </ol>
+  </div>
+
+  <h3 class="topico" id="s3-apps">Os quatro aplicativos do software</h3>
+  <p>A unidade de aquisição (o computador do sistema Iris M) vem com quatro aplicativos pré-instalados. Cada um pode ser aberto pelo ícone da área de trabalho ou pela barra de tarefas.</p>
+  <div class="cartoes">
+    <div class="cartao"><h5>1 · RDI Motion Explorer</h5><p>O “navegador” do sistema: cria a hierarquia lógica de pastas, ativos e coleções que organiza gravações originais, vídeos MP4 exportados e outros arquivos (imagens, gráficos). É também o ponto de partida mais conveniente para abrir os outros três aplicativos.</p></div>
+    <div class="cartao"><h5>2 · RDI Acquisition</h5><p>Faz a aquisição dos dados. Só funciona com a câmera conectada à unidade de aquisição.</p></div>
+    <div class="cartao"><h5>3 · RDI Motion Amplification®</h5><p>Reproduz, amplifica, analisa e edita as gravações depois da aquisição. Para poupar recursos, o aplicativo de aquisição é fechado automaticamente quando este é aberto.</p></div>
+    <div class="cartao"><h5>4 · RDI Motion Studio</h5><p>Editor de vídeo do pacote: monta filmes a partir de MP4 individuais e imagens estáticas, com títulos e narração — ideal para contar a história completa da avaliação de um ativo.</p></div>
+  </div>
+
+  <h3 class="topico" id="s3-explorer">Motion Explorer</h3>
+  <ul class="lista">
+    <li>A hierarquia organiza <strong>pastas</strong> e <strong>ativos</strong>; cada ativo possui uma ou mais <strong>coleções</strong> — é nelas que as gravações e os MP4 exportados residem;</li>
+    <li>Quando o RDI Acquisition grava, o arquivo é associado automaticamente à coleção que estava selecionada na hierarquia;</li>
+    <li>Gravações derivadas (filtradas ou estabilizadas) criadas no Motion Amplification® entram automaticamente na mesma coleção da gravação original;</li>
+    <li>Vídeos MP4 exportados também ficam associados à coleção do arquivo de origem.</li>
+  </ul>
+
+  <h3 class="topico" id="s3-iniciando">Iniciando</h3>
+  <p>Na primeira execução, a hierarquia contém apenas um item de <strong>empresa</strong> <span class="eng">(Company)</span> e uma pasta <strong>Não Associada</strong> <span class="eng">(Unassigned)</span>. Renomeie o item de empresa para o nome da sua organização e adicione pastas e ativos que representem a organização lógica da sua planta. As gravações e vídeos serão associados aos ativos definidos aqui.</p>
+
+  <h3 class="topico" id="s3-ribbon">Barra de ferramentas (Ribbon Bar)</h3>
+  <p>A Ribbon Bar é sensível ao contexto: mostra apenas as ações válidas para o item selecionado.</p>
+  <table class="tabela">
+    <tr><th>Função</th><th>Comportamento</th></tr>
+    <tr><td><strong>Adicionar itens</strong></td><td>Com a empresa selecionada, adicionam-se pastas e ativos; com uma pasta, novas pastas e ativos; com um ativo, novas coleções.</td></tr>
+    <tr><td><strong>Recortar / Copiar / Colar</strong></td><td>Movem ou duplicam itens da hierarquia. Gravações, MP4 e demais arquivos em si não podem ser copiados de dentro do Motion Explorer.</td></tr>
+    <tr><td><strong>Remover</strong></td><td>Qualquer item pode ser removido, exceto a empresa. Um diálogo pergunta se você quer (1) remover o item e seus afiliados apenas da hierarquia, mantendo os arquivos no disco, ou (2) removê-los da hierarquia <strong>e DELETAR</strong> os arquivos associados do computador.</td></tr>
+    <tr><td><strong>Renomear</strong></td><td>Coloca o item selecionado em modo de edição; digite o novo nome e confirme com Enter.</td></tr>
+  </table>
+  <div class="caixa alerta"><b>Importante</b>Gravações, MP4 e anexos não ficam “dentro” da hierarquia — ficam no sistema de arquivos do Windows, e a hierarquia guarda apenas os links. Se você optar por deletar os arquivos, <strong>eles não vão para a lixeira e não podem ser recuperados</strong>.</div>
+
+  <div class="exercicio" id="s3-ex1">
+    <span class="rotulo">Exercício 1</span>
+    <h4>Criando uma hierarquia</h4>
+    <ol>
+      <li>Ligue a unidade de aquisição (o computador) do sistema Iris M;</li>
+      <li>Inicie o aplicativo <strong>Motion Explorer</strong>;</li>
+      <li>Clique em “Company Name” no painel esquerdo e renomeie com o nome da sua empresa ou unidade;</li>
+      <li>Adicione uma nova pasta <span class="eng">(New Folder)</span> chamada <strong>Classroom</strong>;</li>
+      <li>Dentro de Classroom, adicione um novo ativo <span class="eng">(New Asset)</span> chamado <strong>Rotor Kit 1</strong>;</li>
+      <li>Dentro de Rotor Kit 1, adicione uma nova coleção <span class="eng">(New Collection)</span> chamada <strong>Coleção 1</strong>.</li>
+    </ol>
+    <p>Resultado: Empresa → Classroom → Rotor Kit 1 → Coleção 1.</p>
+  </div>
+
+  <div class="exercicio" id="s3-ex2">
+    <span class="rotulo">Exercício 2</span>
+    <h4>Armazenando uma gravação no Motion Explorer</h4>
+    <ol>
+      <li>Conecte o cabo USB 3.0 à câmera, apertando os parafusos da trava;</li>
+      <li>Conecte a outra ponta à unidade de aquisição — o LED verde deve acender na traseira da câmera;</li>
+      <li>Instale a lente de <strong>25 mm</strong> do kit;</li>
+      <li>Selecione a coleção recém-criada e clique em <strong>New Recording</strong> na Ribbon Bar para abrir o RDI Acquisition — a imagem ao vivo deve aparecer;</li>
+      <li>Enquadre o kit de rotor inteiro na imagem e faça o foco pelo método do zoom digital (abaixo);</li>
+      <li>Meça com trena a laser a distância da lente até o rotor e digite o valor no campo <strong>Distance</strong>;</li>
+      <li>Selecione <strong>25</strong> em Focal Length (mm);</li>
+      <li>Escolha o tipo de aquisição <strong>Standard</strong>;</li>
+      <li>Defina <strong>Duration = 3 s</strong>;</li>
+      <li>Configure o <strong>framerate = 120 fps</strong>;</li>
+      <li>Configure o <strong>brilho = 100%</strong>;</li>
+      <li>Configure o <strong>ganho = 0 dB</strong>;</li>
+      <li>Clique no botão vermelho de <strong>gravação</strong>;</li>
+      <li>Quando a barra verde de progresso completar, clique em <strong>Salvar</strong> — sua primeira gravação está feita;</li>
+      <li>Feche o aplicativo de aquisição;</li>
+      <li>De volta ao Motion Explorer, selecione a coleção: a gravação aparece no painel central, nomeada com a data e a extensão <strong>.rdi</strong>;</li>
+      <li>Selecione a gravação: o painel direito mostra a pré-visualização e as propriedades do arquivo.</li>
+    </ol>
+    <div class="caixa dica"><b>Método de foco recomendado</b>1) Aplique <strong>zoom digital</strong> em uma área com detalhes/contraste (uma etiqueta, por exemplo); 2) ajuste o <strong>foco manual</strong> da lente no zoom máximo; 3) <strong>desfaça o zoom</strong>. A imagem estará focada da melhor forma possível. Use esse procedimento antes de toda gravação. (Clique com o botão direito na imagem para a opção “Maximum Zoom”.)</div>
+    <div class="caixa nota"><b>Observações</b>Arquivos deletados no software de aquisição <strong>não vão para a lixeira</strong> — são apagados permanentemente. No painel do Motion Explorer é possível editar depois a Distância Focal, a Distância e a Velocidade do Ativo, além de adicionar Anotações <span class="eng">(Notes)</span>; os arquivos .rdi só podem ser abertos pelo software Motion Amplification®.</div>
+  </div>
+
+  <div class="revisao" id="s3-rev">
+    <h4>Seção 3 — Revisão</h4>
+    <p>Responda mentalmente e clique para conferir a resposta sugerida.</p>
+    <details><summary>Qual aplicativo do pacote permite criar a estrutura hierárquica?</summary><div class="resp">O Motion Explorer.</div></details>
+    <details><summary>Anotações podem ser armazenadas junto com a gravação?</summary><div class="resp">Sim — ficam permanentemente associadas ao arquivo e visíveis no Motion Explorer.</div></details>
+    <details><summary>Qual extensão o arquivo de dados brutos recebe?</summary><div class="resp">.rdi — legível apenas no software Motion Amplification®.</div></details>
+    <details><summary>As gravações são armazenadas automaticamente?</summary><div class="resp">Não — é preciso clicar em Salvar após a aquisição.</div></details>
+    <details><summary>Qual botão da Ribbon Bar inicia uma aquisição?</summary><div class="resp">New Recording (Nova Gravação).</div></details>
+    <details><summary>Um arquivo deletado no software de aquisição pode ser restaurado?</summary><div class="resp">Não — a exclusão é permanente e não passa pela lixeira.</div></details>
+    <details><summary>O que fazer antes de capturar o vídeo para melhorar o foco?</summary><div class="resp">Zoom digital na imagem → foco manual da lente → zoom out.</div></details>
+    <details><summary>É possível editar a Distância Focal e a Distância depois de armazenada a gravação?</summary><div class="resp">Sim — ambas podem ser corrigidas no painel de propriedades do Motion Explorer.</div></details>
+  </div>
+</section>
+
+<!-- ================= SEÇÃO 4 ================= -->
+<section class="secao" id="sec4">
+  <div class="cabecalho-secao">
+    <div class="num">4</div>
+    <div><small>1º dia de aula</small><h2>RDI Acquisition</h2></div>
+  </div>
+  <div class="objetivos">
+    <h4>Propósitos desta seção</h4>
+    <ol>
+      <li>Discutir as configurações do RDI Acquisition e seus impactos na qualidade dos dados;</li>
+      <li>Entender como essas configurações afetam os dados de vibração;</li>
+      <li>Aprender técnicas apropriadas de iluminação.</li>
+    </ol>
+  </div>
+  <div class="caixa nota"><b>Mini exercício de preparação</b>No Motion Explorer, crie uma nova coleção em Rotor Kit 1 chamada “Coleção 2”, selecione-a e inicie o RDI Acquisition pelo botão New Recording. Antes de mexer nas propriedades, abra as Opções da Aplicação clicando na <strong>engrenagem</strong> no canto superior direito.</div>
+
+  <h3 class="topico" id="s4-opcoes">Opções da aplicação (RDI Acquisition Options)</h3>
+  <table class="tabela">
+    <tr><th>Opção</th><th>O que controla</th></tr>
+    <tr><td>Grid Color / Grid Size</td><td>Cor e tamanho (em pixels) da grade de referência sobreposta à imagem.</td></tr>
+    <tr><td>UI Options</td><td>Interface para Desktop ou Tablet (paisagem/tela larga).</td></tr>
+    <tr><td>Units</td><td>Sistema de unidades (imperial/métrico), unidade de frequência (Hz ou CPM) e frequência padrão da rede elétrica (50/60 Hz).</td></tr>
+    <tr><td>Recording Storage</td><td>Pasta de armazenamento das gravações e limite de espaço livre (GB) abaixo do qual um alerta é exibido.</td></tr>
+    <tr><td>Default Recording Name</td><td>Nome padrão: pela data do dia, pelo nome da gravação anterior ou pela coleção atual.</td></tr>
+    <tr><td>Dynamic Range</td><td>Faixa dinâmica do sensor (ver adiante).</td></tr>
+    <tr><td>Binning</td><td>Agrupamento de pixels — exclusivo da Iris MX (ver adiante).</td></tr>
+  </table>
+  <p>As unidades escolhidas (Hz ou CPM) serão aplicadas aos dados de vibração. Ajuste tudo e clique OK para voltar à tela de aquisição.</p>
+
+  <h3 class="topico" id="s4-propriedades">Propriedades de gravação (Recording Properties)</h3>
+  <table class="tabela">
+    <tr><th>Campo</th><th>Função</th></tr>
+    <tr><td><strong>Name</strong></td><td>Nome do arquivo. Se já existir, o software acrescenta um sufixo numérico automático (motor.rdi → motor_01.rdi).</td></tr>
+    <tr><td><strong>Distance</strong> (m ou ft)</td><td>Distância da lente até o objeto. <strong>Crítica para a exatidão</strong>: um erro de 5% na distância gera 5% de erro na amplitude de vibração medida.</td></tr>
+    <tr><td><strong>Focal Length</strong> (mm)</td><td>Distância focal da lente usada. Afeta a exatidão da amplitude tanto quanto a distância — registre com o mesmo rigor.</td></tr>
+    <tr><td><strong>Acquisition Type</strong></td><td>Standard · Timer · Triggered · Shaft Inspection · Long Term (ver quadro abaixo).</td></tr>
+    <tr><td><strong>Duration</strong> (s)</td><td>Duração da gravação em segundos.</td></tr>
+    <tr><td><strong>Asset Speed</strong> (RPM)</td><td>Velocidade de giro do ativo. Preencher este campo libera todas as funcionalidades que dependem da rotação.</td></tr>
+    <tr><td><strong>Add Notes</strong></td><td>Abre uma janela de anotações; as notas tornam-se parte permanente dos dados e ficam visíveis no Motion Explorer.</td></tr>
+  </table>
+  <h4 class="subtopico">Tipos de aquisição</h4>
+  <div class="cartoes">
+    <div class="cartao"><h5>Standard</h5><p>Aquisição padrão para Amplificação de Movimento. A RPM pode ser informada (não muda a gravação; serve para as análises de vibração).</p></div>
+    <div class="cartao"><h5>Timer</h5><p>Define um atraso temporizado entre o clique e o início real da aquisição.</p></div>
+    <div class="cartao"><h5>Triggered</h5><p>Define tempos de pré e pós-gatilho para capturar eventos transitórios.</p></div>
+    <div class="cartao"><h5>Shaft Inspection</h5><p>Grava um componente rotativo para “congelar” e girar lentamente o eixo na tela, para inspeção visual. Exige a RPM; não usa amplificação.</p></div>
+    <div class="cartao"><h5>Long Term</h5><p>Gravações de longa duração e tendências de posição.</p></div>
+  </div>
+
+  <div class="exercicio" id="s4-ex3">
+    <span class="rotulo">Exercício 3</span>
+    <h4>Medindo a RPM</h4>
+    <ol>
+      <li>Nas Propriedades de Gravação, clique no botão (ícone de lupa/lente) de <strong>cálculo da velocidade do ativo</strong> — abre a janela de Cálculo de Velocidade de Eixo;</li>
+      <li>Informe a velocidade aproximada <span class="eng">(User Estimated Speed)</span> ou selecione a faixa adequada no menu: Low (10–300 RPM) ou High (300–7000 RPM);</li>
+      <li>Crie uma região de interesse sobre uma parte exposta do eixo;</li>
+      <li>Clique em <strong>Calculate</strong>;</li>
+      <li>Se a RPM calculada for coerente (ex.: “2619.07 RPM / 43,65 Hz”), confirme com <strong>Yes</strong>; caso pareça errada, clique em No e repita os passos 2 a 4;</li>
+      <li>Adquira a gravação (botão de gravar) e clique em <strong>Store Recording</strong> ao terminar — ela aparecerá no Motion Explorer, na coleção selecionada.</li>
+    </ol>
+  </div>
+
+  <h3 class="topico" id="s4-associacao">Associação de gravações (Recording Association)</h3>
+  <ul class="lista">
+    <li><strong>Collection</strong> — coleção à qual a gravação será associada; pode ser trocada ou criada pelo botão <em>Change…</em> dentro do próprio software de aquisição;</li>
+    <li><strong>Asset</strong> — ativo da gravação; <strong>ativos não podem ser criados</strong> no software de aquisição, apenas no Motion Explorer;</li>
+    <li>Se o RDI Acquisition foi aberto a partir de uma coleção selecionada no Motion Explorer, esses campos já vêm preenchidos automaticamente.</li>
+  </ul>
+
+  <h3 class="topico" id="s4-camera">Propriedades da câmera e da imagem</h3>
+  <table class="tabela">
+    <tr><th>Controle</th><th>O que faz</th></tr>
+    <tr><td><strong>Framerate (fps)</strong></td><td>Quantos quadros por segundo serão adquiridos. Iris M: padrão 121 fps, até 1.300 com resolução reduzida. Iris MX: padrão 211 fps, até 29.000 com resolução reduzida.</td></tr>
+    <tr><td><strong>Brightness (%)</strong></td><td>Ajusta o brilho alterando o <em>tempo de exposição de cada quadro</em>: quanto maior o percentual, maior a exposição.</td></tr>
+    <tr><td><strong>Gain (dB)</strong></td><td>Aumenta a sensibilidade do sensor. A imagem clareia, mas ganha ruído — use apenas depois de esgotar as opções de iluminação.</td></tr>
+    <tr><td><strong>Image Rotation</strong></td><td>Gira a imagem (90°, 180°, 270°). A rotação fica gravada permanentemente no arquivo.</td></tr>
+    <tr><td><strong>Image Properties</strong></td><td>Largura/altura da imagem. O botão <em>Reset</em> oferece presets de resolução com o fps máximo de cada um.</td></tr>
+  </table>
+  <table class="tabela">
+    <tr><th>Preset (Iris M)</th><th>FPS máximo</th></tr>
+    <tr><td>1920 × 1200</td><td>109 fps</td></tr>
+    <tr><td>1920 × 1080</td><td>121 fps</td></tr>
+    <tr><td>1600 × 900</td><td>168 fps</td></tr>
+    <tr><td>1280 × 720</td><td>207 fps</td></tr>
+    <tr><td>1024 × 576</td><td>255 fps</td></tr>
+    <tr><td>… reduções seguintes</td><td>até 1.276 fps (128 × 72)</td></tr>
+  </table>
+
+  <h3 class="topico" id="s4-framerate">RDI Acquisition — considerações de framerate</h3>
+  <p>De todas as configurações, a taxa de quadros é provavelmente <strong>a mais importante</strong>. Ela está ligada a:</p>
+  <ul class="lista">
+    <li>A oscilação (flicker) da iluminação artificial em ambientes internos;</li>
+    <li>A frequência máxima (F<sub>máx</sub>) do espectro de vibração;</li>
+    <li>O brilho disponível da imagem;</li>
+    <li>A taxa de amostragem da forma de onda.</li>
+  </ul>
+  <p>Na maioria dos casos usa-se o padrão de <strong>120 fps</strong> — principalmente porque muitas gravações acontecem sob iluminação interna em corrente alternada.</p>
+
+  <h3 class="topico" id="s4-ac">Framerate e iluminação interna AC</h3>
+  <p>No Brasil, nos EUA e em boa parte das Américas, a rede elétrica é de <strong>60 Hz</strong>: a tensão alterna do positivo ao negativo 60 vezes por segundo. Entre um pico e outro a tensão passa por zero — e a intensidade da luz cai. O resultado é uma pulsação de luminosidade a <strong>120 Hz</strong> (duas quedas por ciclo).</p>
+  <p>O olho humano não percebe essa pulsação, mas a Amplificação de Movimento amplifica <em>toda</em> variação da gravação — inclusive a de luz. Se a taxa de quadros estiver fora de sincronia com a pulsação da iluminação, o vídeo amplificado exibirá um “flicker” bem visível, mesmo que a gravação bruta pareça normal.</p>
+  <div class="caixa chave"><b>Regra prática</b>Em ambientes com luz artificial AC, use taxa de quadros <strong>síncrona com a rede</strong>: 120 ou 60 fps em redes de 60 Hz · 100 ou 50 fps em redes de 50 Hz. Assim a captura “pisca junto” com a luz e a oscilação praticamente desaparece.</div>
+
+  <h3 class="topico" id="s4-fmax">Taxa de quadros (framerate) × F<sub>máx</sub></h3>
+  <p>A frequência máxima do espectro de vibração é determinada exclusivamente pela taxa de quadros:</p>
+  <div class="formula"><div class="eq">F<sub>máx</sub> (Hz) = fps ÷ 2</div><small>Ex.: gravação a 120 fps → espectros com F<sub>máx</sub> de 60 Hz</small></div>
+  <p>Um espectro com F<sub>máx</sub> de 60 Hz, porém, não resolve bem um pico localizado exatamente em (ou muito perto de) 60 Hz. Por isso a melhor prática é:</p>
+  <div class="formula"><div class="eq">fps mínimo recomendado = 2,5 × maior frequência de interesse (Hz)</div><small>Margem que garante o pico de interesse bem dentro do espectro</small></div>
+  <div class="caixa nota"><b>Exemplo resolvido</b>Motobomba a ~1800 RPM (30 Hz). Suspeita de desalinhamento paralelo → vibração em 2× a rotação = 3600 CPM = 60 Hz (maior frequência de interesse). Taxa mínima de quadros: 2,5 × 60 = <strong>150 fps</strong>.</div>
+
+  <div class="exercicio" id="s4-ex4">
+    <span class="rotulo">Exercício 4</span>
+    <h4>Ajuste da taxa de quadros e do brilho</h4>
+    <ol>
+      <li>Configure <strong>100 fps</strong> e brilho <strong>100%</strong>. Observe o brilho da imagem — o tempo de exposição de cada quadro é ≈ 0,01 s (1/100);</li>
+      <li>Reduza para <strong>10 fps</strong>, mantendo 100% de brilho. A imagem fica muito mais clara sem tocar na abertura: a exposição de cada quadro agora é 10× maior (0,1 s);</li>
+      <li>Reduza o brilho para <strong>10%</strong>. O brilho aparente volta a ser o mesmo do passo 1 — o percentual de brilho é aplicado proporcionalmente ao tempo de exposição (10% de 0,1 s = 0,01 s).</li>
+    </ol>
+    <p>Conclusão: o ajuste de brilho controla o tempo de exposição de cada quadro; aumentar a taxa de quadros dá maior F<sub>máx</sub>, mas deixa menos tempo de exposição — e a imagem mais escura.</p>
+  </div>
+
+  <h3 class="topico" id="s4-exposicao">Tempo de exposição de um único quadro · Ganho</h3>
+  <div class="formula"><div class="eq">Tempo de exposição (s) = (1 ÷ fps) × brilho%</div><small>100 fps × 100% → 0,01 s&nbsp;&nbsp;·&nbsp;&nbsp;10 fps × 100% → 0,1 s&nbsp;&nbsp;·&nbsp;&nbsp;10 fps × 10% → 0,01 s</small></div>
+  <p><strong>Ganho (Gain):</strong> diferentemente do brilho, o ganho não muda o tempo de exposição — ele torna o sensor mais sensível à luz. Ajuda em ambientes escuros, mas aumenta o ruído da imagem. Recomenda-se usá-lo com moderação e somente depois de esgotar iluminação e abertura.</p>
+
+  <h3 class="topico" id="s4-saturacao">Saturação (Saturation)</h3>
+  <p>Iluminação adequada é essencial: além de dar qualidade profissional à gravação — lembre-se, <strong>no MA o vídeo é o relatório</strong> —, ela evita a saturação dos pixels. No software de aquisição, o ponteiro do mouse mostra o percentual de saturação de qualquer pixel sob o cursor.</p>
+  <p>Um pixel com <strong>100% de saturação</strong> está “cheio” de fótons: não é possível saber quanta luz de fato ele recebeu (pode ser 100%, pode ser 200%). Consequências para pixels saturados:</p>
+  <ul class="lista">
+    <li>Não são amplificados;</li>
+    <li>Podem não aparecer se movendo no vídeo amplificado;</li>
+    <li>Podem não fornecer forma de onda precisa.</li>
+  </ul>
+  <ul class="lista">
+    <li>Superfícies refletivas são especialmente propensas à supersaturação — pinte com tinta fosca ou evite iluminá-las diretamente;</li>
+    <li>Áreas saturadas não são um problema, <strong>desde que fora das regiões de interesse</strong>;</li>
+    <li>A <strong>Saturation Tool</strong>, na parte superior da tela de aquisição, destaca em vermelho todas as áreas saturadas da imagem.</li>
+  </ul>
+
+  <h3 class="topico" id="s4-livema">Amplificação de Movimento ao vivo (Live MA)</h3>
+  <p>O botão Ativar/Desativar Amplificação de Movimento no RDI Acquisition permite ver a amplificação <strong>em tempo real</strong>, ainda durante a aquisição. É útil para escolher o melhor ângulo de filmagem e para “varrer” grandes ativos em busca de componentes com movimento excessivo.</p>
+  <ul class="lista">
+    <li>Com o Live MA ativo, os sliders de amplificação e de velocidade de reprodução aparecem à direita da tela;</li>
+    <li>Há um atraso natural no vídeo ao vivo — quanto menor a velocidade de reprodução e mais tempo no modo ao vivo, maior o atraso;</li>
+    <li><strong>Return to Live</strong> reinicia a reprodução; desativar o recurso devolve a tela normal de aquisição.</li>
+  </ul>
+
+  <h3 class="topico" id="s4-resolucao">Resolução mínima de deslocamento</h3>
+  <p>É a menor quantidade de movimento (em mícrons/mils) necessária para que duas coisas aconteçam: (1) o movimento seja visível na gravação amplificada e (2) um pico apareça acima do ruído no espectro. Dois fatores a determinam: a <strong>distância da câmera</strong> até a região de interesse e a <strong>distância focal</strong> da lente.</p>
+  <div class="formula">
+    <div class="eq">R<sub>mils</sub> = (D ÷ F) × 0,5&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;R<sub>µm</sub> = (D ÷ F) × 12,5</div>
+    <small>D = distância lente–objeto (m) · F = distância focal (mm) · fatores 0,5 e 12,5 são empíricos · multiplique por 2 na Iris M colorida</small>
+  </div>
+  <table class="tabela">
+    <tr><th>Distância ao objeto (D)</th><th>Distância focal (F)</th><th>Resolução de deslocamento (R)</th></tr>
+    <tr><td>2 m</td><td>25 mm</td><td>1 µm (0,04 mils)</td></tr>
+    <tr><td>2 m</td><td>50 mm</td><td>0,5 µm (0,02 mils)</td></tr>
+    <tr><td>1 m</td><td>50 mm</td><td>0,25 µm (0,01 mils)</td></tr>
+  </table>
+  <p>Na prática: aproximar a câmera ou usar lente de focal maior permite enxergar movimentos menores.</p>
+
+  <h3 class="topico" id="s4-crop">Cortando (cropping) a imagem</h3>
+  <p>O slider de framerate para em 121 fps (Iris M) ou 211 fps (MX) em resolução plena porque o sensor precisa ler e transferir milhões de pixels por quadro — e, na Iris M, tudo passa pelo cabo USB 3.0, que tem um limite de fluxo. Para ultrapassar esses valores, <strong>corta-se a imagem</strong>: com menos pixels por quadro, taxas maiores ficam disponíveis.</p>
+  <div class="exercicio" id="s4-ex5a">
+    <span class="rotulo">Exercício 5a</span>
+    <h4>Corte manual</h4>
+    <ol>
+      <li>Certifique-se de que o modo ROI esteja desabilitado;</li>
+      <li>Clique com o botão esquerdo no canto da área desejada e arraste — um retângulo vermelho de corte é desenhado;</li>
+      <li>Solte o botão no tamanho desejado: a imagem é redimensionada mostrando apenas a área cortada;</li>
+      <li>Observe que o framerate máximo disponível aumentou; repita o corte se quiser valores ainda maiores.</li>
+    </ol>
+  </div>
+  <div class="exercicio" id="s4-ex5b">
+    <span class="rotulo">Exercício 5b</span>
+    <h4>Corte automático (presets)</h4>
+    <ol>
+      <li>Clique no botão <strong>Reset</strong> em Image Properties — um menu lista os tamanhos predefinidos com o fps máximo de cada um;</li>
+      <li>Selecione <strong>1280 × 720 (máx. 207 fps)</strong>;</li>
+      <li>Observe: a imagem cortada permite mais fps, porém fica menor <em>e mais escura</em>, mesmo com brilho em 100% — mais quadros por segundo significam menos tempo de exposição por quadro.</li>
+    </ol>
+    <div class="caixa dica"><b>Lição</b>Se você precisa de fps alto (F<sub>máx</sub> maior), enquadre o ativo de forma que o corte ainda o mostre bem — e, em ambientes internos, planeje iluminação adicional.</div>
+  </div>
+
+  <h3 class="topico" id="s4-dynamic">Faixa dinâmica (Dynamic Range) e Iris MX Binning</h3>
+  <p><strong>Faixa dinâmica:</strong> as câmeras usam sensor CMOS de 12 bits, mas o software permite mudar para 8 bits — opção “Lower Sensitivity / Higher Framerate” nas Opções de Aquisição. Isso eleva o fps (até ~180 na Iris M <em>sem</em> cortar a imagem) ao custo de menor sensibilidade/qualidade de imagem.</p>
+  <p><strong>Iris MX Binning:</strong> combina blocos de 2×2 pixels em um único pixel maior. O sensor lê 1 pixel em vez de 4, liberando taxas maiores com o <strong>mesmo campo de visão</strong>; a resolução cai pela metade em cada dimensão (2560×2048 → 1280×1024). Ativa-se na engrenagem de opções, com a MX conectada.</p>
+
+  <h3 class="topico" id="s4-assistente">O Assistente de Aquisição (Acquisition Assistant)</h3>
+  <p>O Assistente simplifica o processo oferecendo uma lista de verificação ordenada e interativa que cobre cada configuração de aquisição:</p>
+  <ul class="lista">
+    <li>Adjust Framerate → Adjust Field of View → Adjust Focus → Flicker Detection → Exposure Control → Camera Shake Detection;</li>
+    <li>Em cada etapa o usuário completa um mini ajuste e clica em <strong>Mark Complete</strong> — a etapa ganha um selo de verificação;</li>
+    <li>Ao final, <strong>Finish</strong> aplica todas as configurações à tela do RDI Acquisition (ou <em>Discard Changes</em> descarta). Nada fica esquecido.</li>
+  </ul>
+
+  <h3 class="topico" id="s4-eixo">Inspeção de componente rotativo (Shaft Inspection)</h3>
+  <p>A aquisição de Inspeção de Eixo serve a um único propósito: <strong>inspecionar visualmente</strong> um eixo, acoplamento, polia ou correia com a máquina em operação — sob a carga real de trabalho. O software “congela” o giro e permite rodá-lo lentamente na tela.</p>
+  <div class="exercicio" id="s4-ex6">
+    <span class="rotulo">Exercício 6</span>
+    <h4>Inspeção de eixo rotativo</h4>
+    <ol>
+      <li>Em Acquisition Type, selecione <strong>Shaft Inspection</strong>;</li>
+      <li>Clique no botão <strong>Measure Asset Speed</strong> — para melhor resultado, a rotação deve ser a mais exata possível;</li>
+      <li>Selecione a faixa de velocidade apropriada ou informe a estimativa do usuário;</li>
+      <li>Clique sobre uma área exposta do eixo;</li>
+      <li>Clique em <strong>Calculate</strong>;</li>
+      <li>Confirme com <strong>Yes</strong> quando a velocidade determinada aparecer;</li>
+      <li>Observe: brilho e ganho são definidos automaticamente (tipicamente brilho &lt; 1% e ganho ≈ 29 dB) — <strong>não altere</strong>; os campos Framerate e Duration desaparecem, pois são calculados para registrar aproximadamente uma volta completa do eixo;</li>
+      <li>Clique em gravar e, ao final, abra a gravação no Motion Amplification® (botão de lupa).</li>
+    </ol>
+    <div class="caixa nota"><b>Dicas para inspeção de eixo</b>Prepare <strong>iluminação adicional</strong> — o tempo de exposição precisa ser curtíssimo para congelar o giro; a RPM deve ser <strong>estável</strong> durante a aquisição, senão o resultado pode ser inutilizável; na análise, a velocidade de reprodução é ajustável e quase todas as ferramentas funcionam, <strong>exceto espectro, órbita e o slider de amplificação — não há Amplificação de Movimento em gravações de inspeção de eixo</strong>.</div>
+  </div>
+
+  <h3 class="topico" id="s4-gatilho">Modo de aquisição por gatilho (Triggered)</h3>
+  <p>No modo Triggered, o usuário define tempos de <strong>pré-gatilho</strong> e <strong>pós-gatilho</strong>. Ao clicar em gravar, o sistema preenche continuamente o buffer de pré-gatilho; quando você aciona o gatilho, ele grava ainda o tempo de pós-gatilho. A gravação final é a soma dos dois tempos — os instantes imediatamente <em>antes</em> e <em>depois</em> do evento.</p>
+  <div class="exercicio" id="s4-ex7">
+    <span class="rotulo">Exercício 7</span>
+    <h4>Aquisição por gatilho</h4>
+    <ol>
+      <li>Selecione <strong>Triggered</strong> em Acquisition Type;</li>
+      <li>Digite <strong>3</strong> no campo Pre-trigger (s);</li>
+      <li>Digite <strong>3</strong> no campo Post-trigger (s) — os valores não precisam ser iguais;</li>
+      <li>Clique no botão amarelo <strong>Initiate Recording</strong>; decorrido o tempo de pré-gatilho, o estado muda para <strong>Armed</strong>;</li>
+      <li>Clique em <strong>Trigger Recording</strong> no momento do evento — o sistema completa o pós-gatilho e armazena 6 s no total;</li>
+      <li>Observe a <strong>linha dourada</strong> na barra de progresso marcando o instante do disparo — ela também aparecerá ao analisar a gravação no Motion Amplification®.</li>
+    </ol>
+  </div>
+
+  <h3 class="topico" id="s4-timer">Modo temporizado de aquisição (Timer)</h3>
+  <p>Permite definir um atraso entre o clique no botão de gravação e o início real da aquisição — útil para o operador se afastar ou para aguardar uma condição da máquina.</p>
+  <div class="exercicio" id="s4-ex8">
+    <span class="rotulo">Exercício 8</span>
+    <h4>Aquisição temporizada</h4>
+    <ol>
+      <li>Selecione <strong>Timer</strong> em Acquisition Type;</li>
+      <li>Digite <strong>3</strong> em Duration (s);</li>
+      <li>Digite <strong>10</strong> em Delay Time (s);</li>
+      <li>Clique em gravar: um cronômetro regressivo aparece na tela; quando chega a zero, a aquisição de 3 s começa e é armazenada automaticamente, com as mesmas opções de uma aquisição padrão.</li>
+    </ol>
+  </div>
+
+  <div class="checklist" id="s4-checklist">
+    <h4>✔ Antes de apertar o botão vermelho — checklist de 5 itens</h4>
+    <ol>
+      <li><b>Lente</b> — registre com precisão a distância focal;</li>
+      <li><b>Distância</b> — meça com precisão a distância da lente até a região de interesse;</li>
+      <li><b>Iluminação</b> — adéque a luz ao ambiente e ao objeto em análise;</li>
+      <li><b>Foco</b> — zoom digital <em>in</em> → foque → zoom <em>out</em>;</li>
+      <li><b>Estabilidade</b> — coxins isoladores sob os pés do tripé e todas as articulações bem apertadas.</li>
+    </ol>
+  </div>
+
+  <div class="revisao" id="s4-rev">
+    <h4>Seção 4 — Revisão</h4>
+    <p>Responda mentalmente e clique para conferir a resposta sugerida.</p>
+    <details><summary>Qual a resolução mínima de deslocamento com a câmera a 5 m usando lente de 25 mm?</summary><div class="resp">R = (5 ÷ 25) × 12,5 = 2,5 µm (ou (5÷25)×0,5 = 0,1 mils).</div></details>
+    <details><summary>O framerate máximo mostra 121 fps. Cite duas maneiras de ultrapassá-lo.</summary><div class="resp">Cortar (crop) a imagem — manual ou por preset — e reduzir a faixa dinâmica de 12 para 8 bits (Lower Sensitivity / Higher Framerate). Na Iris MX, o binning também eleva o limite.</div></details>
+    <details><summary>Como reduzir o efeito de oscilação da luz em gravações internas?</summary><div class="resp">Usar taxa de quadros síncrona com a frequência da rede (120/60 fps em 60 Hz; 100/50 fps em 50 Hz).</div></details>
+    <details><summary>V ou F: na Inspeção de Eixo o brilho é reduzido automaticamente e deve ser aumentado manualmente para 100%.</summary><div class="resp">Falso — brilho e ganho são definidos automaticamente e devem ser mantidos nos valores calculados.</div></details>
+    <details><summary>Se “Higher Sensitivity” for selecionado na faixa dinâmica, qual o efeito na taxa de quadros?</summary><div class="resp">Maior sensibilidade (12 bits) = menor taxa de quadros disponível.</div></details>
+    <details><summary>O zoom digital pode ser usado para aumentar o framerate?</summary><div class="resp">Não — o zoom digital serve para ajustar o foco. Quem libera mais fps é o corte (crop) da imagem.</div></details>
+    <details><summary>O que o aumento do ganho faz com a imagem?</summary><div class="resp">Clareia a imagem (mais sensibilidade do sensor), mas adiciona ruído — sem alterar o tempo de exposição.</div></details>
+    <details><summary>O que acontece com o tempo de exposição quando o brilho é diminuído?</summary><div class="resp">Diminui na mesma proporção — o percentual de brilho é aplicado diretamente ao tempo de exposição de cada quadro.</div></details>
+    <details><summary>Calcule o tempo de exposição por quadro para 150 fps e brilho 50%.</summary><div class="resp">(1 ÷ 150) × 0,5 ≈ 0,0033 s ≈ 3,3 ms.</div></details>
+  </div>
+</section>
+<!-- ================= SEÇÃO 5 ================= -->
+<section class="secao" id="sec5">
+  <div class="cabecalho-secao">
+    <div class="num">5</div>
+    <div><small>2º dia de aula</small><h2>RDI Motion Amplification®</h2></div>
+  </div>
+  <div class="objetivos">
+    <h4>Propósitos desta seção</h4>
+    <ol>
+      <li>Identificar e discutir as ferramentas do Motion Amplification®;</li>
+      <li>Gerar dados de vibração a partir das gravações;</li>
+      <li>Praticar as habilidades em exercícios de sala de aula.</li>
+    </ol>
+  </div>
+
+  <h3 class="topico" id="s5-iniciando">Iniciando o RDI Motion Amplification®</h3>
+  <p>O software Motion Amplification® amplia, analisa e gera vídeos MP4 a partir dos arquivos .rdi. Ele pode ser aberto de três formas:</p>
+  <ol class="lista">
+    <li>Pelo atalho na área de trabalho;</li>
+    <li>Pelo ícone do MA dentro do software de aquisição, logo após terminar uma gravação;</li>
+    <li>Pelo Motion Explorer — duplo clique em qualquer arquivo .rdi ou pelo ícone do MA na barra de ferramentas.</li>
+  </ol>
+  <div class="exercicio" id="s5-ex9">
+    <span class="rotulo">Exercício 9</span>
+    <h4>Iniciando o Motion Amplification®</h4>
+    <ol>
+      <li>Abra o Motion Explorer;</li>
+      <li>Selecione o arquivo .rdi gravado no exercício da Seção 3 e inicie o Motion Amplification®;</li>
+      <li>A janela abre com a gravação carregada — confira o nome no campo <em>Source File</em>, no canto superior esquerdo.</li>
+    </ol>
+  </div>
+
+  <h3 class="topico" id="s5-opcoes">Opções do Motion Amplification®</h3>
+  <p>O botão de opções (canto superior direito) reúne as preferências do usuário:</p>
+  <ul class="lista">
+    <li>Cor e tamanho da grade · exibição do nível de saturação;</li>
+    <li><strong>Layout Mode</strong> — para o curso, selecione <em>Historical Data Analysis</em> (análise de dados históricos);</li>
+    <li><strong>UI Options</strong> — Desktop para o sistema Iris M padrão; Tablet para o Iris M Traveler;</li>
+    <li>Pasta de exportação · logotipo da empresa incluído nos vídeos;</li>
+    <li>Unidades (sistema imperial/métrico; Hz ou CPM);</li>
+    <li>Modo de amplificação padrão para gravações Iris M e Iris MX.</li>
+  </ul>
+
+  <h3 class="topico" id="s5-reproducao">Reprodução básica</h3>
+  <p>Na parte inferior da tela ficam os controles de <strong>Play</strong> (reproduzir a gravação amplificada) e <strong>Loop</strong> (reprodução contínua), além da <strong>barra de progresso</strong>, que mostra o andamento, o tempo no marcador e permite saltar direto a qualquer ponto da gravação. O botão de <strong>exportar vídeo</strong> fica no canto inferior direito.</p>
+
+  <h3 class="topico" id="s5-sliders">Controles de amplificação e velocidade de reprodução</h3>
+  <p>Dois controles deslizantes (sliders) ficam à direita da tela. Arraste-os até a posição desejada ou clique neles com o botão direito para digitar um valor numérico.</p>
+  <div class="cartoes">
+    <div class="cartao"><h5>Slider superior — Amplificação</h5><p>Controla o fator de amplificação de 0 a 100×. Clicando com o botão direito no ícone MA acima do slider é possível habilitar a <strong>Amplificação Extrema</strong>, que chega a 500×. O slider inicia no valor usado mais recentemente — e só há amplificação visível com valor &gt; 0.</p></div>
+    <div class="cartao"><h5>Slider lateral — Velocidade de reprodução</h5><p>A linha fina horizontal que cruza o slider marca a taxa original de captura: slider na linha = velocidade real; abaixo = câmera lenta; acima = acelerado. O padrão de partida é 10% da taxa original.</p></div>
+  </div>
+  <div class="caixa dica"><b>Boas práticas</b>Comece com pouca amplificação e aumente aos poucos, evitando exageros; comece na reprodução mais lenta e suba até achar a velocidade que melhor ilustra o movimento.</div>
+  <div class="caixa chave"><b>Não esqueça</b>A amplificação é <strong>apenas visual</strong>: ela não altera as amplitudes de deslocamento medidas nas formas de onda e espectros.</div>
+
+  <div class="exercicio" id="s5-ex10">
+    <span class="rotulo">Exercício 10</span>
+    <h4>Motion Amplification® básico</h4>
+    <ol>
+      <li>Clique no botão <strong>Loop</strong> para ativar a reprodução contínua;</li>
+      <li>Sem ajustar nada, clique em <strong>Play</strong> e assista à gravação original, sem amplificação;</li>
+      <li>Arraste o slider de <strong>amplificação</strong> ao nível desejado;</li>
+      <li>Ajuste a <strong>velocidade de reprodução</strong> e observe o movimento em diferentes velocidades — do mais lento para o mais rápido.</li>
+    </ol>
+  </div>
+
+  <h3 class="topico" id="s5-granulacao">Por que a gravação fica tão granulada?</h3>
+  <p>Toda imagem digital carrega um ruído inerente: o sensor (CMOS, no caso da Iris M) não mede a luz de cada pixel com perfeição absoluta. O ruído é mais perceptível com pouca luz, quando a relação sinal/ruído é baixa. Dois fatores o agravam:</p>
+  <ul class="lista">
+    <li><strong>Ganho</strong> — clareia a imagem, mas amplifica também o ruído do sensor;</li>
+    <li><strong>Amplificação de Movimento</strong> — ao ampliar os movimentos da cena, amplia igualmente o “chuvisco”.</li>
+  </ul>
+  <div class="caixa dica"><b>Como reduzir a granulação</b>Mantenha a <strong>Redução de Ruído</strong> <span class="eng">(Noise Reduction)</span> habilitada — recurso da versão 3.5, no lado direito da barra de ferramentas — e prefira boa iluminação a ganho alto. A filtragem por frequência (adiante) também limpa bastante a imagem.</div>
+
+  <div class="exercicio" id="s5-ex11">
+    <span class="rotulo">Exercício 11</span>
+    <h4>Exportação básica de vídeo</h4>
+    <p>O arquivo .rdi só abre no software Motion Amplification®. Exportar para .mp4 (ou GIF) torna a gravação acessível a todos — e o MP4 é o componente central do relatório.</p>
+    <ol>
+      <li>Clique no ícone <strong>Exportar Vídeo</strong> (canto inferior direito). A janela <em>Export Content and Layout</em> apresenta as opções:
+        <ul class="lista">
+          <li>Tipo: MP4 ou GIF · Conteúdo: apenas amplificado ou original + amplificado;</li>
+          <li>Formato: Full HD, HD ou SD · Qualidade: baixa, média, alta;</li>
+          <li>Incluir gráficos de dados (espectro, forma de onda, órbita) e traços sobrepostos;</li>
+          <li>Incluir mapa de movimento, mapa de fase e sua legenda;</li>
+          <li>Incluir logotipo da empresa, descrição da gravação e etiqueta de amplificação/velocidade.</li>
+        </ul>
+      </li>
+      <li>Em Video Content, selecione <strong>Include Only Amplified Video</strong> e clique OK — uma janela mostra o progresso da exportação;</li>
+      <li>Ao concluir, escolha <strong>Play Exported Video</strong> e clique OK;</li>
+      <li>Assista ao vídeo; se estiver satisfatório, feche o player;</li>
+      <li>Feche o Motion Amplification® e confirme no Motion Explorer que o .mp4 foi arquivado na mesma coleção.</li>
+    </ol>
+    <div class="caixa nota"><b>Observação</b>A velocidade de reprodução do .mp4 pode diferir da do .rdi — a conversão envolve compressão e cada player se comporta de um jeito. Se o movimento não ficou bem representado, ajuste a velocidade no MA e exporte novamente.</div>
+  </div>
+
+  <div class="exercicio" id="s5-ex12">
+    <span class="rotulo">Exercício 12</span>
+    <h4>Exportação avançada — vídeo lado a lado original/amplificado</h4>
+    <ol>
+      <li>No Motion Explorer, selecione a gravação .rdi e abra o Motion Amplification®;</li>
+      <li>Ajuste o slider de amplificação e clique em <strong>Exportar Vídeo</strong>;</li>
+      <li>Em Video Content, selecione <strong>Include Original and Amplified Video</strong>;</li>
+      <li>Em Video Layout, selecione <strong>Horizontal</strong> (mantenha o formato de vídeo);</li>
+      <li>Clique OK para exportar;</li>
+      <li>Ao concluir, selecione <strong>Play Exported Video</strong> — a tela dividida mostra os dois vídeos simultaneamente (o amplificado, à direita, é o mais granulado);</li>
+      <li>Feche o player e o MA — o novo .mp4 está listado no Motion Explorer.</li>
+    </ol>
+  </div>
+
+  <div class="exercicio" id="s5-ex13">
+    <span class="rotulo">Exercício 13</span>
+    <h4>Modifique a reprodução do vídeo exportado</h4>
+    <p>É possível exportar apenas um trecho do vídeo (reduzindo o tamanho do arquivo) e delimitar em que parte a amplificação acontece.</p>
+    <ol>
+      <li>Selecione o arquivo .rdi e abra o Motion Amplification®;</li>
+      <li>Arraste a <strong>bandeira verde da direita</strong> na barra de reprodução até ~1 s — só o intervalo entre as duas bandeiras verdes será exportado;</li>
+      <li>Arraste a <strong>bandeira azul da esquerda</strong> até a metade do intervalo — a amplificação ocorrerá apenas entre as bandeiras azuis;</li>
+      <li>Clique no botão de <strong>exportação</strong> na barra de reprodução;</li>
+      <li>Selecione <strong>Include Only Amplified Video</strong> e clique OK;</li>
+      <li>Ao concluir, reproduza o vídeo: a amplificação só começa na metade do trecho;</li>
+      <li>Compare no Motion Explorer: o novo .mp4 é significativamente menor que os anteriores.</li>
+    </ol>
+  </div>
+
+  <h3 class="topico" id="s5-transiente">Ferramentas de edição — amplificação normal × transiente</h3>
+  <p>O Motion Amplification® inclui diversas ferramentas para refinar gravações brutas feitas em condições de campo desfavoráveis. A partir da versão 3.0, o método padrão de amplificação é a <strong>Amplificação Transiente</strong>, com vantagens claras:</p>
+  <ul class="lista">
+    <li>Tempo de processamento muito menor que o da amplificação padrão;</li>
+    <li>A Amplificação ao Vivo (Live MA) só é possível no modo transiente;</li>
+    <li>Movimentos transitórios aparecem com aspecto muito mais natural;</li>
+    <li>Permite medir e analisar movimentos <strong>periódicos e não periódicos</strong>.</li>
+  </ul>
+  <ul class="lista">
+    <li><strong>Velocidade do movimento transiente:</strong> se um transiente parecer “borrado” ou granulado na gravação amplificada, clique na seta ao lado do botão de Modo de Amplificação Transiente e ajuste o slider <em>Speed of Transient Motion</em> até o efeito desejado;</li>
+    <li><strong>Ativar/desativar:</strong> pelo botão correspondente na barra de ferramentas (botão opaco = transiente ativado). O modo transiente volta a ser ativado a cada reinício do software — e é o recomendado na maioria dos casos.</li>
+  </ul>
+
+  <h3 class="topico" id="s5-mapa-mov">O Mapa de Movimento (Motion Map)</h3>
+  <p>O Mapa de Movimento localiza rapidamente as áreas com movimento significativo — especialmente útil quando vários componentes aparecem na mesma gravação. Ative-o pelo ícone na barra de ferramentas.</p>
+  <ul class="lista">
+    <li>Configurações: modo média/pico · contornos de frequência específica · autoescala · limites · transparência · paleta (cor única, arco-íris, arco de ferro);</li>
+    <li>Um espectro acompanha a janela; seus picos combinam dois fatores: o <strong>número de pixels</strong> que se movem em cada frequência e a <strong>soma das amplitudes</strong> nessa frequência.</li>
+  </ul>
+  <h4 class="subtopico">Contornos de movimento de frequência específica</h4>
+  <p>Ao marcar <em>Display frequency specific motion contours</em>, três coisas acontecem: um marcador é posicionado automaticamente no maior pico do espectro; o campo <em>Frequency of Interest</em> exibe a frequência exata; e uma sobreposição colorida aparece na imagem referente apenas àquela frequência — cores quentes onde há mais movimento, frias onde há menos.</p>
+  <h4 class="subtopico">Definir regiões para cálculo de espectro</h4>
+  <p>Com a caixa <em>Define Regions for Spectrum Calculation</em> marcada, você adiciona regiões da imagem a incluir ou excluir dos cálculos do mapa — processo análogo ao das regiões de amplificação.</p>
+
+  <h3 class="topico" id="s5-mapa-fase">O Mapa de Fase (Phase Map)</h3>
+  <p>O Mapa de Fase é a análise de fase gráfica do MA: mostra, de forma rápida, as relações de fase dentro da gravação.</p>
+  <div class="exercicio" id="s5-ex14">
+    <span class="rotulo">Exercício 14</span>
+    <h4>Usando o Mapa de Fase</h4>
+    <ol>
+      <li>Clique no botão <strong>Phase Map</strong> na barra de ferramentas. O espectro exibido é o mesmo do Motion Map — aqui ele serve para escolher a frequência de fase; por padrão o cursor vai ao pico dominante (mova-o para escolher outra frequência);</li>
+      <li>A sobreposição colorida corresponde ao círculo <em>Phase Angles of Interest</em>: cada mudança de cor representa <strong>22,5°</strong> de fase relativa — pixels em vermelho escuro estão a 90° dos pixels em amarelo, por exemplo. Clique na guia amarela e, com Ctrl pressionado, na guia azul-escura: só as áreas com <strong>180°</strong> de defasagem entre si permanecem destacadas;</li>
+      <li>Clique nas setas centrais do círculo para reativar todos os ângulos de fase.</li>
+    </ol>
+    <div class="caixa nota"><b>Compact Recording</b>Motion Map e Phase Map acrescentam um volume significativo de dados ao arquivo .rdi. Para removê-los, selecione a gravação no Motion Explorer e clique em <strong>Compact Recording</strong> na barra de ferramentas.</div>
+  </div>
+
+  <div class="exercicio" id="s5-ex15">
+    <span class="rotulo">Exercício 15</span>
+    <h4>Aparar (Trim) a gravação</h4>
+    <p>O Trim descarta trechos indesejados da gravação original — importante quando uma aquisição longa foi necessária para capturar um evento transitório e o arquivo ficou pesado. (Não confunda com a seleção de trecho para exportação de MP4.)</p>
+    <ol>
+      <li>Selecione o .rdi original e abra o Motion Amplification®;</li>
+      <li>Clique em <strong>Edit Recording</strong> (fim da barra de ferramentas) e selecione <strong>Trim</strong>;</li>
+      <li>Arraste os triângulos vermelhos da barra de reprodução: o da esquerda define o novo início, o da direita define o novo fim;</li>
+      <li>Clique em <strong>Trim Recording</strong>;</li>
+      <li>Na janela que abre, confira o nome (recebe o sufixo “_trim”) e clique OK.</li>
+    </ol>
+    <div class="caixa nota"><b>Observação</b>Por padrão a gravação original é preservada — só é apagada se você marcar “Delete old recording when complete”.</div>
+  </div>
+
+  <div class="exercicio" id="s5-ex16">
+    <span class="rotulo">Exercício 16</span>
+    <h4>Ajuste de contraste (Adjust Threshold Mapping)</h4>
+    <ol>
+      <li>Selecione o .rdi e abra o Motion Amplification®;</li>
+      <li>Clique na <strong>seta</strong> ao lado do botão Threshold Mapping na barra de ferramentas — o Editor de Contraste abre com um histograma das intensidades de luz;</li>
+      <li>Arraste os controles inferiores do histograma até as margens da região de maior intensidade — as faixas pouco usadas (muito escuras e muito claras) passam a ser ignoradas, aumentando bastante o contraste; o slider da direita ajusta o brilho da gravação amplificada;</li>
+      <li>Clique OK e observe: áreas escuras da imagem ficam mais claras e detalhadas.</li>
+    </ol>
+    <div class="caixa nota"><b>Observações</b><em>Reset</em> devolve os sliders à posição original; <em>Auto</em> (ou clicar diretamente no botão Threshold Mapping, em vez da seta) aplica as posições ótimas calculadas automaticamente. Os ajustes ficam retidos no .rdi — permanecem ao fechar e reabrir — e são incorporados ao .mp4 exportado.</div>
+  </div>
+
+  <div class="exercicio" id="s5-ex17">
+    <span class="rotulo">Exercício 17</span>
+    <h4>Aplicando uma Região de Amplificação</h4>
+    <p>O Editor de Amplificação aplica a amplificação apenas às áreas selecionadas — útil quando corrimãos, tubulações ou eletrodutos “dançando” desviam a atenção do ativo em estudo. Também é possível o inverso: amplificar só um componente e “des-amplificar” o resto.</p>
+    <ol>
+      <li>Clique no botão <strong>Amplification Region</strong> na barra de ferramentas;</li>
+      <li>No editor, em <em>Default Amplification Behavior</em>, selecione <strong>Amplify All</strong> — a imagem inteira fica esverdeada, indicando que tudo será amplificado;</li>
+      <li>Em <em>Select Shape to Not Amplify</em>, escolha o <strong>polígono</strong>;</li>
+      <li>Desenhe com cliques do botão esquerdo, contornando a área a excluir (ela ficará vermelha); duplo clique fecha a forma. Formas podem ser movidas arrastando e redimensionadas pelos círculos dos cantos;</li>
+      <li>Clique em <strong>Finished</strong>;</li>
+      <li>No campo <em>Export Description</em>, escreva “Região de amplificação editada” e exporte;</li>
+      <li>Para desfazer, reabra o editor e remova a região.</li>
+    </ol>
+    <div class="caixa nota"><b>Observação</b>O ajuste não altera o .rdi original, mas permanece em vigor pela hierarquia do Motion Explorer — mesmo fechando e reabrindo o arquivo — e vale para os vídeos exportados.</div>
+  </div>
+
+  <h3 class="topico" id="s5-grade">Grade na imagem e anotações</h3>
+  <p><strong>Grade:</strong> uma grade sobreposta fornece referência estática que facilita perceber movimentos. Ative pelo botão <em>Show/Hide Grid</em>; a seta ao lado abre as opções de cor e tamanho. Reposicione a grade com as setas do teclado ou arrastando com o mouse.</p>
+  <p><strong>Anotações:</strong> o <em>Annotation Editor</em> adiciona à gravação: texto, linha, retângulo, elipse, polilinha, polígono, imagem, logotipo, régua, transferidor, data/hora e gráfico.</p>
+  <ul class="lista">
+    <li>Texto: digite no campo de propriedades e ajuste cor, fonte e alinhamento;</li>
+    <li>Linhas e formas: clique e arraste para desenhar;</li>
+    <li>Imagem/gráfico: desenhe a caixa e escolha o conteúdo nas propriedades (é possível conectar o gráfico a uma ROI, acompanhar a reprodução e exibir traços);</li>
+    <li>Mover: arraste; redimensionar: pelas alças brancas; editar: clique sobre a anotação; excluir: botão direito → <em>delete annotation</em> (ou pelo editor).</li>
+  </ul>
+  <div class="exercicio" id="s5-ex18">
+    <span class="rotulo">Exercício 18</span>
+    <h4>Anotação</h4>
+    <ol>
+      <li>Insira uma <strong>seta vermelha</strong> na imagem do kit de rotor apontando para a base da máquina;</li>
+      <li>Crie a anotação de texto <strong>“Base não presa”</strong> e alinhe-a à seta;</li>
+      <li>Sobreponha uma <strong>grade amarela</strong> à imagem;</li>
+      <li>Amplifique, exporte o vídeo e reproduza-o;</li>
+      <li>Feche o player e o MA e renomeie o vídeo no Motion Explorer para <strong>“Anotação com Grade.mp4”</strong>.</li>
+    </ol>
+  </div>
+
+  <h3 class="topico" id="s5-roi">Medição padrão de vibração (ROI)</h3>
+  <p>Medições de vibração são feitas diretamente na gravação: desenhe uma <strong>região de interesse</strong> <span class="eng">(ROI — Region of Interest)</span> clicando e arrastando sobre o local a medir. O software calcula as medições de deslocamento daquela região — e o número de ROIs por imagem é ilimitado.</p>
+  <p>Uma ROI mal desenhada gera dados imprecisos e enganosos. Siga sempre as quatro regras:</p>
+  <div class="cartoes">
+    <div class="cartao"><h5>Regra 1 — Mantenha pequena</h5><p>ROIs pequenas são quase sempre mais exatas: quanto maior a região, maior a chance de capturar movimento de algo indesejado dentro dela.</p></div>
+    <div class="cartao"><h5>Regra 2 — Use contraste</h5><p>O software precisa de contraste para “enxergar” a vibração — sem contraste, não há dado algum. O kit inclui adesivos e ímãs de contraste; um marcador de tinta contrastante também resolve.</p></div>
+    <div class="cartao"><h5>Regra 3 — Um componente só</h5><p>Com mais de um componente dentro da ROI, não há como saber qual deles gerou o dado. Bordas de componentes são aceitáveis apenas se o fundo atrás delas não tiver contraste.</p></div>
+    <div class="cartao"><h5>Regra 4 — Nada de rotativos no modo XY</h5><p>No modo padrão XY, o software não mede deslocamento de componentes girantes — dados de ROI sobre eixos em rotação são inválidos e devem ser ignorados. Use os modos de eixo (a seguir).</p></div>
+  </div>
+
+  <h3 class="topico" id="s5-eixohv">Medições de eixo horizontal/vertical</h3>
+  <p>Para medir o deslocamento de um componente rotativo (um eixo girando, por exemplo) a partir de uma aquisição padrão, selecione o modo no botão <strong>ROI Calculation Mode</strong> da barra de ferramentas:</p>
+  <ul class="lista">
+    <li><strong>Horizontal Shaft</strong> — para eixo na horizontal: mede o deslocamento <em>vertical</em> do componente;</li>
+    <li><strong>Vertical Shaft</strong> — para eixo na vertical: mede o deslocamento <em>horizontal</em>;</li>
+    <li>Desenhe a ROI sobre a <strong>borda</strong> do eixo ou rotor — será gerada forma de onda e espectro em um único eixo (X ou Y);</li>
+    <li>Recomenda-se usar o valor <strong>Máx Pk-Pk</strong> da forma de onda como resultado da medição.</li>
+  </ul>
+
+  <h3 class="topico" id="s5-graficos">Formas de onda, espectros e órbitas</h3>
+  <p>Ao desenhar uma ROI padrão, o software gera automaticamente as formas de onda de vibração dos eixos X e Y da imagem:</p>
+  <ul class="lista">
+    <li><strong>Forma de onda:</strong> amplitude de deslocamento (µm ou mils) × tempo (s). A duração da forma de onda é exatamente a duração da gravação — a 120 fps, são 120 amostras por segundo;</li>
+    <li><strong>Espectro:</strong> amplitude de deslocamento × frequência (Hz ou CPM), calculado a partir da forma de onda. A F<sub>máx</sub> é exatamente metade da taxa de quadros da aquisição;</li>
+    <li><strong>Órbita X-Y:</strong> disponível sob demanda — clique no botão <em>Orbit</em> após desenhar a ROI. O gráfico traça o deslocamento X contra o Y. Na prática, órbitas filtradas são as mais úteis: <strong>filtre os dados antes de gerar a órbita</strong>.</li>
+    </ul>
+
+  <div class="exercicio" id="s5-ex19">
+    <span class="rotulo">Exercício 19</span>
+    <h4>Gráficos de vibração</h4>
+    <ol>
+      <li>Desenhe uma ROI na imagem — janelas de forma de onda e espectro aparecem;</li>
+      <li>Clique dentro do espectro do eixo X para ativar o cursor e use as setas do teclado para centralizá-lo no pico dominante — frequência e amplitude aparecem no canto inferior direito;</li>
+      <li>Clique com o botão direito no espectro e selecione <strong>Setup Options</strong>;</li>
+      <li>Em General Plot Options, selecione <strong>Displacement</strong> como unidade de amplitude do espectro;</li>
+      <li>Marque <strong>Automatically Locate Spectrum Peaks</strong> — como a resolução do espectro é limitada, o centro verdadeiro do pico nem sempre é plotado; com a opção ativa, ele é estimado automaticamente (há também o comando manual <em>Locate Peak</em> no menu de contexto);</li>
+      <li>Clique OK e note a frequência ligeiramente diferente ao posicionar o cursor no pico;</li>
+      <li>Abra as <strong>Configurações do Aplicativo</strong> (canto superior direito);</li>
+      <li>Troque a unidade de frequência entre <strong>Hz e CPM</strong> e clique OK;</li>
+      <li>Feche e reabra a janela de espectros pelo botão da barra de ferramentas — os valores agora aparecem em CPM;</li>
+      <li>Clique com o botão direito no espectro e selecione <strong>Save Image → Current Plot → Include Asset Image</strong>;</li>
+      <li>Nomeie o arquivo com a data atual seguida de “Rotor Kit — lado direito” e clique OK;</li>
+      <li>No Motion Explorer, confirme que o espectro foi salvo como <strong>.png</strong>, junto de uma imagem estática do vídeo, na árvore do ativo.</li>
+    </ol>
+  </div>
+
+  <h3 class="topico" id="s5-distancias">Acrescentando e aplicando medições de múltiplas distâncias</h3>
+  <p>A exatidão da amplitude depende diretamente da distância informada: <strong>10% de erro na distância = 10% de erro na amplitude</strong>. Em máquinas e estruturas grandes, porém, a distância varia bastante entre as partes da imagem — daí o recurso de múltiplas localizações.</p>
+  <div class="exercicio" id="s5-ex20">
+    <span class="rotulo">Exercício 20</span>
+    <h4>Medições de múltiplas distâncias</h4>
+    <ol>
+      <li>Selecione o .rdi do kit de rotor e abra o Motion Amplification®;</li>
+      <li>Clique no botão <strong>Locations</strong> na barra de ferramentas;</li>
+      <li>Na janela <em>Define Locations</em>, clique em <strong>Add</strong>;</li>
+      <li>Arraste o novo marcador até o ponto da imagem onde vale a nova distância (o marcador padrão também pode ser reposicionado);</li>
+      <li>Digite o nome e a distância do local;</li>
+      <li>Clique OK — as duas distâncias ficam disponíveis para as análises;</li>
+      <li>Desenhe uma ROI no local de medição desejado;</li>
+      <li>Clique com o botão esquerdo diretamente sobre a ROI;</li>
+      <li>Na janela <em>ROI Properties</em>, selecione a distância adequada;</li>
+      <li>Feche a janela — os cálculos são refeitos com a nova distância.</li>
+    </ol>
+    <div class="caixa alerta"><b>Importante</b>Com vários locais definidos, escolha sempre a distância certa para cada ROI — a distância errada gera deslocamentos significativamente imprecisos. O recurso existe tanto no RDI Acquisition quanto no Motion Amplification®.</div>
+  </div>
+
+  <h3 class="topico" id="s5-filtros">Filtros baseados em frequência</h3>
+  <p>A filtragem por frequência é útil por dois motivos:</p>
+  <ul class="lista">
+    <li><strong>Isolar causas:</strong> a gravação passa a mostrar movimento apenas em determinadas frequências — perfeito para separar funções de força em máquinas com vários componentes girando em velocidades diferentes;</li>
+    <li><strong>Limpar a imagem:</strong> deixando passar só as frequências de interesse, boa parte do ruído e da granulação desaparece — mesmo gravações muito amplificadas ou com ganho alto ficam com aparência de gravação original.</li>
+  </ul>
+  <div class="exercicio" id="s5-ex21">
+    <span class="rotulo">Exercício 21</span>
+    <h4>Filtragem baseada em frequência</h4>
+    <ol>
+      <li>Abra o .rdi do exercício anterior no Motion Amplification®;</li>
+      <li>Clique no botão <strong>Filter Recording</strong> da barra de ferramentas;</li>
+      <li>Na janela <em>Filter Specification</em>, desenhe uma ROI de interesse na imagem — um espectro aparece na parte inferior para orientar o filtro;</li>
+      <li>Clique em <strong>Add Filter</strong> (em <em>Filters to Apply</em>);</li>
+      <li>Em <em>Type</em>, selecione <strong>Bandpass</strong> (passa-banda);</li>
+      <li>Arraste os <strong>puxadores vermelhos</strong> <span class="eng">(filter handles)</span>: o da esquerda para o início do pico dominante e o da direita para logo após o pico — definindo os cortes Low e High. Clique em <strong>Apply</strong> e aguarde a filtragem;</li>
+      <li>Ajuste o slider de amplificação e assista à nova gravação filtrada;</li>
+      <li>Exporte com <strong>Include Only Amplified Video</strong>;</li>
+      <li>Saia do MA e confira o resultado no Motion Explorer.</li>
+    </ol>
+    <div class="caixa nota"><b>Observações</b>A filtragem cria um novo .rdi (sufixo “_filtered”), <strong>sem alterar o original</strong>, já incluído no Motion Explorer. Benefícios: reduz o chuvisco, pode eliminar oscilação de câmera sem estabilização e separa o movimento por frequência. Se o movimento da câmera ocorre em frequências diferentes das filtradas, filtre <em>antes</em> de estabilizar.</div>
+  </div>
+
+  <h3 class="topico" id="s5-filtro-amp">Filtragem baseada em amplitude</h3>
+  <p>Um segundo método define o filtro pela <strong>amplitude</strong>, não pela frequência — ideal para simplesmente eliminar a maior parte do ruído mantendo as características importantes do movimento.</p>
+  <ul class="lista">
+    <li>Em <em>Filtering Mode</em>, selecione <strong>Amplitude Threshold</strong>;</li>
+    <li>Arraste a <strong>linha amarela</strong> sobre o espectro até a amplitude desejada: só os picos que a ultrapassam passam pelo filtro (verde = incluído, vermelho = excluído);</li>
+    <li>O método cria <strong>uma única</strong> gravação filtrada, não importa quantos picos passem — internamente, uma série de passa-bandas em torno de cada pico destacado.</li>
+  </ul>
+
+  <h3 class="topico" id="s5-filtro-top">Filtragem baseada em frequências dominantes (Top Frequencies)</h3>
+  <p>O terceiro método monta automaticamente filtros passa-banda em torno dos picos detectados — o caminho mais rápido quando há muitos picos no espectro.</p>
+  <ul class="lista">
+    <li>Em <em>Filtering Mode</em>, selecione <strong>Top Frequencies</strong>;</li>
+    <li>Um <strong>espectro composto</strong> é calculado usando a imagem inteira (não uma ROI específica), e a lista das frequências dominantes aparece na parte superior;</li>
+    <li>Marque/desmarque as frequências desejadas nas caixas de seleção; ajuste as bandas pelos puxadores vermelhos, como no filtro manual;</li>
+    <li>Ao clicar em <strong>Apply</strong>, o software cria <strong>uma gravação filtrada para cada</strong> passa-banda selecionado.</li>
+  </ul>
+
+  <h3 class="topico" id="s5-tipos-filtro">Explicação dos tipos de filtros</h3>
+  <div class="figura">
+    <svg viewBox="0 0 760 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Quatro tipos de filtro">
+      <g font-size="13.5" font-weight="700">
+        <rect x="15" y="15" width="355" height="185" rx="10" fill="#FAFAFC" stroke="#E8E8EC"/>
+        <text x="35" y="42" fill="#B01E24">BANDPASS · passa-banda</text>
+        <rect x="35" y="60" width="90" height="100" fill="rgba(176,30,36,.15)"/>
+        <rect x="125" y="60" width="120" height="100" fill="rgba(30,122,70,.2)"/>
+        <rect x="245" y="60" width="105" height="100" fill="rgba(176,30,36,.15)"/>
+        <line x1="35" y1="160" x2="350" y2="160" stroke="#232329" stroke-width="2"/>
+        <text x="185" y="118" fill="#1E7A46" text-anchor="middle" font-size="12.5">passa</text>
+        <text x="35" y="185" fill="#6B6B74" font-size="12" font-weight="400">Só o intervalo entre os cortes Low e High passa.</text>
+        <rect x="390" y="15" width="355" height="185" rx="10" fill="#FAFAFC" stroke="#E8E8EC"/>
+        <text x="410" y="42" fill="#B01E24">LOWPASS · passa-baixa</text>
+        <rect x="410" y="60" width="160" height="100" fill="rgba(30,122,70,.2)"/>
+        <rect x="570" y="60" width="155" height="100" fill="rgba(176,30,36,.15)"/>
+        <line x1="410" y1="160" x2="725" y2="160" stroke="#232329" stroke-width="2"/>
+        <text x="490" y="118" fill="#1E7A46" text-anchor="middle" font-size="12.5">passa</text>
+        <text x="410" y="185" fill="#6B6B74" font-size="12" font-weight="400">Um único corte High: passam as frequências abaixo dele.</text>
+        <rect x="15" y="225" width="355" height="185" rx="10" fill="#FAFAFC" stroke="#E8E8EC"/>
+        <text x="35" y="252" fill="#B01E24">HIGHPASS · passa-alta</text>
+        <rect x="35" y="270" width="155" height="100" fill="rgba(176,30,36,.15)"/>
+        <rect x="190" y="270" width="160" height="100" fill="rgba(30,122,70,.2)"/>
+        <line x1="35" y1="370" x2="350" y2="370" stroke="#232329" stroke-width="2"/>
+        <text x="270" y="328" fill="#1E7A46" text-anchor="middle" font-size="12.5">passa</text>
+        <text x="35" y="395" fill="#6B6B74" font-size="12" font-weight="400">Um único corte Low: passam as frequências acima dele.</text>
+        <rect x="390" y="225" width="355" height="185" rx="10" fill="#FAFAFC" stroke="#E8E8EC"/>
+        <text x="410" y="252" fill="#B01E24">BANDSTOP · rejeita-banda</text>
+        <rect x="410" y="270" width="100" height="100" fill="rgba(30,122,70,.2)"/>
+        <rect x="510" y="270" width="110" height="100" fill="rgba(176,30,36,.15)"/>
+        <rect x="620" y="270" width="105" height="100" fill="rgba(30,122,70,.2)"/>
+        <line x1="410" y1="370" x2="725" y2="370" stroke="#232329" stroke-width="2"/>
+        <text x="565" y="328" fill="#B01E24" text-anchor="middle" font-size="12.5">bloqueia</text>
+        <text x="410" y="395" fill="#6B6B74" font-size="12" font-weight="400">Passa tudo, exceto o intervalo entre Low e High.</text>
+      </g>
+    </svg>
+    <figcaption>Verde = frequências incluídas · vermelho = frequências ignoradas.</figcaption>
+  </div>
+
+  <div class="exercicio" id="s5-vetores">
+    <span class="rotulo">Exercício 22</span>
+    <h4>Vetores de movimento</h4>
+    <p>Os vetores de movimento mostram graficamente as relações de fase e amplitude nas gravações — aplicáveis a qualquer ROI que tenha dados de vibração X e/ou Y.</p>
+    <ol>
+      <li>Desenhe duas ROIs, uma de cada lado do ativo;</li>
+      <li>Clique no botão <strong>Motion Vectors</strong> — as ROIs são substituídas por setas vetoriais animadas;</li>
+      <li>Clique na seta ao lado do botão para abrir as opções: comprimento (escala) das linhas, unidades de amplitude, orientação (X, Y ou X&amp;Y) e cores dos vetores.</li>
+    </ol>
+  </div>
+
+  <h3 class="topico" id="s5-estabilizacao">Estabilização da imagem</h3>
+  <p>Pisos com muita vibração e vento são os ambientes mais difíceis: se a câmera balança, a gravação treme junto — e, com amplificação, o tremor domina a cena, podendo inviabilizar a análise.</p>
+  <div class="caixa dica"><b>Primeiro o físico, depois o digital</b>Melhore o isolamento (mais coxins, reposicionar o tripé) antes de tudo. Se for impossível, tente a <strong>filtragem</strong>; a estabilização digital é o último recurso.</div>
+  <h4 class="subtopico">Estabilizar uma gravação</h4>
+  <ol class="lista">
+    <li>Clique em <strong>Edit Recording</strong> (fim da barra de ferramentas) e selecione <strong>Stabilize</strong>;</li>
+    <li>Na janela, escolha a <strong>base para estabilização</strong>:
+      <ul class="lista">
+        <li><em>Use Entire Frame</em> — estabilização automática, sem entradas adicionais;</li>
+        <li><em>Specify Portion of Frame</em> — desenhe ROIs sobre o <strong>fundo</strong> da imagem (nunca sobre o ativo!), capturando o máximo possível de fundo com contraste; se faltar contraste, acrescente marcações;</li>
+      </ul>
+    </li>
+    <li>Ao concluir, a nova gravação estabilizada abre no MA; a original é fechada — e preservada. O novo .rdi aparece na hierarquia do Motion Explorer.</li>
+  </ol>
+  <h4 class="subtopico">Estabilização — melhores práticas</h4>
+  <ul class="lista">
+    <li>Trepidação periódica em frequência <em>diferente</em> da frequência de interesse? Um passa-banda na frequência de interesse provavelmente elimina o tremor <strong>sem</strong> estabilizar;</li>
+    <li>Se precisar de filtragem <em>e</em> estabilização: <strong>estabilize primeiro, filtre depois</strong>;</li>
+    <li>Ativo ocupa <em>menos</em> da metade da cena → use <em>Entire Frame</em>; ocupa <em>mais</em> da metade → use <em>Specify Portion of Frame</em>;</li>
+    <li>Acrescente contraste ao fundo se ele for “liso” — a estabilização depende de contraste para funcionar.</li>
+  </ul>
+
+  <div class="revisao" id="s5-rev">
+    <h4>Seção 5 — Revisão</h4>
+    <p>Responda mentalmente e clique para conferir a resposta sugerida.</p>
+    <details><summary>A posição do slider de amplificação afeta os valores de deslocamento da forma de onda?</summary><div class="resp">Não — a amplificação é apenas visual; as medições não mudam.</div></details>
+    <details><summary>Quantas ROIs podem ser desenhadas em uma única imagem?</summary><div class="resp">Quantas forem necessárias — o número é ilimitado.</div></details>
+    <details><summary>Um movimento de 30 Hz seria visível aplicando um filtro passa-baixa de 60 Hz?</summary><div class="resp">Sim — 30 Hz está abaixo do corte de 60 Hz, portanto passa pelo filtro.</div></details>
+    <details><summary>A aplicação de um filtro altera permanentemente o .rdi original?</summary><div class="resp">Não — é criado um novo arquivo filtrado; o original permanece intacto.</div></details>
+    <details><summary>Aceleração em g pode ser selecionada como unidade de amplitude da forma de onda?</summary><div class="resp">Sim — nas opções gerais dos gráficos é possível escolher deslocamento, velocidade ou aceleração.</div></details>
+    <details><summary>Qual é o formato do arquivo criado ao exportar um vídeo?</summary><div class="resp">MP4 (ou GIF, se selecionado).</div></details>
+    <details><summary>O deslocamento de um componente rotativo pode ser medido com ROI padrão XY?</summary><div class="resp">Não — para rotativos, use os modos Horizontal Shaft ou Vertical Shaft, com a ROI na borda do eixo.</div></details>
+    <details><summary>Cite duas ferramentas que reduzem a granulação da imagem amplificada.</summary><div class="resp">A Redução de Ruído (Noise Reduction) e a filtragem baseada em frequência.</div></details>
+    <details><summary>V ou F: ao criar ROIs para estabilização, deve-se capturar o máximo possível do ativo.</summary><div class="resp">Falso — captura-se o máximo possível do <em>fundo</em>, tomando cuidado para não incluir o ativo.</div></details>
+  </div>
+</section>
+<!-- ================= SEÇÃO 6 ================= -->
+<section class="secao" id="sec6">
+  <div class="cabecalho-secao">
+    <div class="num">6</div>
+    <div><small>2º dia de aula</small><h2>Introdução ao Motion Studio</h2></div>
+  </div>
+  <div class="objetivos">
+    <h4>Objetivos desta seção</h4>
+    <ol>
+      <li>Identificar as funções básicas do Motion Studio;</li>
+      <li>Criar um projeto no Motion Studio como exercício em sala de aula.</li>
+    </ol>
+  </div>
+
+  <h3 class="topico" id="s6-iniciando">Iniciando o Motion Studio</h3>
+  <p>O Motion Studio é o editor de vídeo do pacote: monta filmes a partir de MP4 amplificados individuais e imagens estáticas, com slides de título e narração — a forma ideal de contar a história completa da avaliação de um ativo. Ele pode ser aberto pelo Motion Explorer ou pelo ícone na área de trabalho.</p>
+  <p>A interface tem quatro áreas: a <strong>barra de ferramentas</strong> no topo, o painel de <strong>conteúdo disponível</strong> (vídeos e imagens do ativo/coleção selecionados), a <strong>área de trabalho do projeto</strong> (a “linha do tempo” do filme) e a janela de <strong>pré-visualização</strong>.</p>
+  <div class="exercicio" id="s6-ex23">
+    <span class="rotulo">Exercício 23</span>
+    <h4>Iniciando o Motion Studio</h4>
+    <ol>
+      <li>No Motion Explorer, selecione a Coleção 1 do Rotor Kit 1 (pasta Classroom);</li>
+      <li>Clique no botão <strong>New Movie Project</strong> na barra de ferramentas — o Motion Studio abre em uma nova janela.</li>
+    </ol>
+  </div>
+
+  <div class="exercicio" id="s6-ex24">
+    <span class="rotulo">Exercício 24</span>
+    <h4>Adicionando um slide de título</h4>
+    <ol>
+      <li>Na barra de ferramentas, clique em <strong>Add Title</strong> — um slide genérico aparece na pré-visualização;</li>
+      <li>Clique no texto “Title Slide” para editá-lo;</li>
+      <li>Na janela de propriedades da anotação, escreva <strong>“Exercício Um”</strong> (ajuste alinhamento, cor e fonte se quiser);</li>
+      <li>Feche a janela de propriedades pelo botão vermelho.</li>
+    </ol>
+  </div>
+
+  <div class="exercicio" id="s6-ex25">
+    <span class="rotulo">Exercício 25</span>
+    <h4>Adicionando e editando um segmento de vídeo</h4>
+    <ol>
+      <li>Marque a caixa de seleção do primeiro vídeo da turma no painel de conteúdo — ele entra na área de trabalho do projeto;</li>
+      <li>Note que o vídeo aparece como <em>vários</em> quadros idênticos: por padrão, cada miniatura representa no máximo 10 segundos (um vídeo de ~32 s vira quatro quadros);</li>
+      <li>Clique com o botão direito sobre qualquer um dos quadros e selecione <strong>Edit</strong>;</li>
+      <li>Na janela <em>Video Item Properties</em>, digite <strong>5</strong> em <em>Included Duration</em> (a duração incluída passa a ser 5 s; há ainda campos de fade in/out) e clique OK;</li>
+      <li>O segmento agora aparece como uma única miniatura.</li>
+    </ol>
+  </div>
+
+  <div class="exercicio" id="s6-ex26">
+    <span class="rotulo">Exercício 26</span>
+    <h4>Copiar, colar e anotações</h4>
+    <ol>
+      <li>Com o primeiro segmento selecionado na área de trabalho, clique em <strong>Copy</strong> na barra de ferramentas;</li>
+      <li>Clique em <strong>Paste</strong> — um novo segmento é criado;</li>
+      <li>Edite o novo segmento para reproduzir por 5 segundos;</li>
+      <li>Selecione o terceiro segmento e clique no botão <strong>Annotate</strong> da janela de pré-visualização;</li>
+      <li>Escolha o tipo de anotação <strong>Text</strong>;</li>
+      <li>Clique no local desejado dentro da pré-visualização;</li>
+      <li>Escreva <strong>“Base não presa”</strong> <span class="eng">(Unsecured Base)</span> e feche a janela de propriedades.</li>
+    </ol>
+  </div>
+
+  <div class="exercicio" id="s6-ex27">
+    <span class="rotulo">Exercício 27</span>
+    <h4>Adicionando um composto</h4>
+    <p>O recurso <em>Add Composite</em> exibe vários vídeos ao mesmo tempo na tela.</p>
+    <ol>
+      <li>Na barra de ferramentas, clique em <strong>Add Composite</strong>;</li>
+      <li>Em <em>Type of Composite Tile</em>, selecione <strong>Top/Bottom</strong> (cima/baixo);</li>
+      <li>Clique na caixa superior para escolher o vídeo de cima;</li>
+      <li>Na janela de seleção, navegue até a Coleção 1 e escolha o vídeo <strong>não filtrado</strong>; clique OK;</li>
+      <li>Clique na caixa inferior para escolher o vídeo de baixo;</li>
+      <li>Selecione o vídeo <strong>filtrado</strong> e clique OK;</li>
+      <li>Configure a <strong>duração total</strong> <span class="eng">(Overall Duration)</span> do composto para 10 segundos e clique OK;</li>
+      <li>Crie uma anotação de texto <strong>“Não filtrado”</strong> para a metade superior;</li>
+      <li>Crie outra anotação <strong>“Filtrado”</strong> para a metade inferior;</li>
+      <li>Crie um slide de título <strong>“Fim”</strong> e posicione-o no final do projeto.</li>
+    </ol>
+  </div>
+
+  <div class="exercicio" id="s6-ex28">
+    <span class="rotulo">Exercício 28</span>
+    <h4>Adicionando uma transição de varredura de linha (Line Scan)</h4>
+    <p>O Line Scan converte gradualmente uma imagem em um vídeo amplificado — uma linha varre a tela trocando o conteúdo.</p>
+    <ol>
+      <li>Na barra de ferramentas, clique em <strong>Add Line Scan</strong>;</li>
+      <li>Em <em>Orientation</em>, selecione <strong>Left to Right</strong>;</li>
+      <li>Em <em>Mode</em>, selecione <strong>Pre/Post Begin Simultaneously</strong>;</li>
+      <li>Clique na caixa <strong>Pre</strong> para escolher o vídeo exibido antes da transição;</li>
+      <li>Navegue até a Coleção 1, selecione o vídeo original não filtrado e clique OK;</li>
+      <li>Clique na caixa <strong>Post</strong> para escolher o vídeo exibido após a transição;</li>
+      <li>Selecione o vídeo filtrado e clique OK;</li>
+      <li>Defina <em>Pre Duration</em> = <strong>5 s</strong>;</li>
+      <li>Defina <em>Transition Duration</em> = <strong>2 s</strong> (espessura e cor da linha também são ajustáveis);</li>
+      <li>Defina <em>Post Duration</em> = <strong>5 s</strong>;</li>
+      <li>Clique OK;</li>
+      <li>Crie um slide de título <strong>“Final”</strong> e coloque-o no fim do projeto.</li>
+    </ol>
+  </div>
+
+  <div class="exercicio" id="s6-ex29">
+    <span class="rotulo">Exercício 29</span>
+    <h4>Adicionando som</h4>
+    <div class="caixa alerta"><b>Regra de ouro</b>Adicionar som deve ser o <strong>último</strong> passo do projeto — depois do áudio inserido, não é recomendado editar o vídeo.</div>
+    <ol>
+      <li>Na barra de ferramentas, clique em <strong>Audio Editor</strong>;</li>
+      <li>Clique em <strong>Add Narration</strong> no canto superior esquerdo do editor (há também <em>Add Music</em> para trilha);</li>
+      <li>Posicione a barra de progresso no ponto de início desejado e clique em <strong>gravar</strong>; fale ao microfone — por exemplo: “Como se vê no vídeo amplificado, há folga na base do equipamento”;</li>
+      <li>Clique em <strong>Pause</strong> para encerrar — o áudio aparece como um segmento sombreado na linha do tempo do microfone;</li>
+      <li>Clique OK para fechar o Audio Editor.</li>
+    </ol>
+  </div>
+
+  <div class="exercicio" id="s6-ex30">
+    <span class="rotulo">Exercício 30</span>
+    <h4>Salve um projeto e um filme</h4>
+    <p>Salvar o <em>projeto</em> permite retomar a edição depois; salvar o <em>filme</em> gera o arquivo .mp4 final.</p>
+    <ol>
+      <li>Abra a aba <strong>File</strong> no canto esquerdo da barra de ferramentas;</li>
+      <li>Clique em <strong>Save Project</strong> — o projeto é salvo e um link aparece no Motion Explorer;</li>
+      <li>Clique em <strong>Save Movie</strong> — o filme .mp4 é renderizado;</li>
+      <li>Selecione <strong>None</strong> na janela final e clique OK;</li>
+      <li>Feche o Motion Studio e confira: o .mp4 e o projeto salvos aparecem na hierarquia do Motion Explorer.</li>
+    </ol>
+    <div class="caixa nota"><b>Por que salvar o projeto?</b>Abrir o projeto permite editar o filme depois. Sem ele, qualquer modificação exigiria começar tudo de novo.</div>
+  </div>
+
+  <h3 class="topico" id="s6-projeto">Projeto em sala de aula</h3>
+  <p>Crie uma apresentação no Motion Studio com os dados coletados em sala e em campo. Ao finalizar, você apresentará o projeto à turma. O filme deve atender aos critérios:</p>
+  <ol class="lista">
+    <li>Começar com o título <strong>“Projeto de Vídeo em Sala de Aula no Motion Studio”</strong> e o seu nome como subtítulo;</li>
+    <li>Incluir pelo menos <strong>6 segmentos de vídeo</strong> diferentes, sendo que o conjunto deve:
+      <ul class="lista">
+        <li>Usar Redução de Ruído — nada de vídeos granulados;</li>
+        <li>Incluir pelo menos um vídeo <strong>filtrado</strong>;</li>
+        <li>Incluir pelo menos um segmento <strong>composto</strong>;</li>
+        <li>Incluir pelo menos uma transição <strong>Line Scan</strong>;</li>
+        <li>Usar <strong>anotação</strong> em pelo menos um segmento;</li>
+        <li>Usar uma <strong>região amplificada/não amplificada</strong> em pelo menos um segmento;</li>
+        <li>Usar o <strong>editor de limites</strong> (threshold) onde apropriado;</li>
+        <li>Incluir um <strong>gráfico de vibração</strong> (como .png separado ou anotação) em pelo menos um segmento;</li>
+      </ul>
+    </li>
+    <li>Encerrar com um slide de título <strong>“Fim”</strong>.</li>
+  </ol>
+</section>
+
+<!-- ================= SEÇÃO 7 ================= -->
+<section class="secao" id="sec7">
+  <div class="cabecalho-secao">
+    <div class="num">7</div>
+    <div><small>3º dia de aula</small><h2>Manutenção da Estrutura Hierárquica do Motion Explorer</h2></div>
+  </div>
+  <div class="objetivos">
+    <h4>Objetivos desta seção</h4>
+    <ol>
+      <li>Importar, exportar e mover arquivos com o Motion Explorer;</li>
+      <li>Discutir dicas básicas para resolução de problemas.</li>
+    </ol>
+  </div>
+
+  <h3 class="topico" id="s7-manutencao">Por que manter a hierarquia</h3>
+  <p>Arquivos de Amplificação de Movimento são grandes — não é incomum adquirir <strong>mais de 100 GB em um único dia</strong> de coleta. A unidade de aquisição padrão tem disco de 1 TB, dos quais ~80 GB são ocupados pelos aplicativos, restando ~920 GB para dados.</p>
+  <p>Por isso, depois de analisados e processados, os dados devem ser arquivados de forma permanente em um servidor ou em um disco rígido portátil (este último ainda em campo, se possível). As funções de <strong>Exportar, Importar e Mover</strong> do Motion Explorer cuidam disso.</p>
+
+  <div class="exercicio" id="s7-ex31">
+    <span class="rotulo">Exercício 31</span>
+    <h4>Exportação de dados</h4>
+    <p>A função Export move um grupo de gravações — com suas coleções, ativos e pastas — da unidade de aquisição para outro computador ou disco externo.</p>
+    <ol>
+      <li>No Motion Explorer, selecione a pasta criada nos exercícios (Classroom) e clique no ícone <strong>Export</strong>;</li>
+      <li>Na página 1 da janela <em>Export Specification</em>, faça as seleções:
+        <ul class="lista">
+          <li><em>O que exportar:</em> “All Collections not previously exported” (também há opções por intervalo de datas e seleção manual);</li>
+          <li><em>Tipos de arquivo:</em> RDI Recordings, Exported MP4 Videos e All Other Files (espectros, formas de onda e tendências também são opções);</li>
+          <li><em>Destino:</em> mantenha o nome padrão do arquivo de exportação (.exp);</li>
+        </ul>
+      </li>
+      <li>Em <em>Browse for Folder</em>, crie uma nova pasta chamada <strong>Export Example</strong> e clique OK;</li>
+      <li>Não marque <em>Compress Exported Files</em>; selecione <strong>Leave Collections and associated files on computer</strong> e clique em <strong>Next</strong>;</li>
+      <li>Na página 2, confira os itens marcados (a janela mostra o espaço requerido e o disponível), desmarque o que não quiser e clique em <strong>Finish</strong>;</li>
+      <li>No Windows Explorer, confirme que o arquivo .exp está na pasta Export Example;</li>
+      <li>De volta ao Motion Explorer, selecione a pasta Classroom e clique em <strong>Remove</strong>;</li>
+      <li>Escolha <strong>Remover o item e seus subordinados da hierarquia E DELETAR os arquivos associados</strong> e clique OK;</li>
+      <li>Confirme com <strong>Yes</strong> no aviso de exclusão definitiva.</li>
+    </ol>
+    <p>Resultado: a pasta Classroom e todo o seu conteúdo saem do Motion Explorer e do disco — liberando espaço para novas coletas, com o backup seguro no arquivo .exp.</p>
+  </div>
+
+  <div class="exercicio" id="s7-ex32">
+    <span class="rotulo">Exercício 32</span>
+    <h4>Importação de dados</h4>
+    <p>A função Import traz de volta arquivos exportados — deste ou de outro sistema.</p>
+    <ol>
+      <li>No Motion Explorer, selecione o nome da empresa na hierarquia e clique no ícone <strong>Import</strong>;</li>
+      <li>Selecione o arquivo <strong>.exp</strong> criado no exercício anterior e clique em <strong>Open</strong>;</li>
+      <li>A janela <em>Import Summary</em> resume o conteúdo (ativos, coleções, gravações, vídeos, outros arquivos) — clique em <strong>Yes</strong>.</li>
+    </ol>
+    <p>Resultado: a pasta Classroom é restaurada na hierarquia com todos os arquivos associados, gravados de volta em seus locais originais no disco.</p>
+  </div>
+
+  <h3 class="topico" id="s7-mover">Mover arquivos (Move Files)</h3>
+  <ul class="lista">
+    <li>Move os arquivos de dados de um local de armazenamento para outro — por exemplo, do SSD interno da unidade de aquisição para um servidor de rede;</li>
+    <li>Diferença-chave para a exportação: <strong>a hierarquia e a posição dos itens são mantidas</strong> no Motion Explorer — só o local físico dos arquivos muda;</li>
+    <li>Pode ser iniciada em qualquer nível da hierarquia; tudo que estiver abaixo do item selecionado é movido junto;</li>
+    <li>Defina o diretório de destino, clique OK e acompanhe a barra de progresso;</li>
+    <li>Após a movimentação, a hierarquia permanece funcional <em>desde que</em> haja conexão com o novo local. Se a unidade for desconectada do servidor, os níveis afetados aparecem “desbotados” e deixam de funcionar até a conexão voltar.</li>
+  </ul>
+</section>
+
+<!-- ================= SEÇÃO 8 ================= -->
+<section class="secao" id="sec8">
+  <div class="cabecalho-secao">
+    <div class="num">8</div>
+    <div><small>3º dia de aula</small><h2>Resolução de Problemas</h2></div>
+  </div>
+
+  <h3 class="topico" id="s8-flicker">“A iluminação oscila durante a reprodução amplificada”</h3>
+  <ul class="lista">
+    <li>Em ambientes fechados, verifique a taxa de quadros usada na aquisição: se ela não for síncrona com 2× a frequência da rede, surge um <strong>batimento</strong> entre a captura e a pulsação da luz;</li>
+    <li>Corrija gravando em fps síncrono com a rede (120/60 fps em 60 Hz; 100/50 fps em 50 Hz);</li>
+    <li>O batimento de iluminação muitas vezes pode ser removido depois, via <strong>filtragem baseada em frequência</strong>;</li>
+    <li>Garanta níveis de iluminação constantes durante a aquisição.</li>
+  </ul>
+
+  <h3 class="topico" id="s8-tudo-move">“O movimento aparece na imagem inteira”</h3>
+  <ul class="lista">
+    <li>Provavelmente a <strong>câmera vibrou</strong> durante a aquisição — confirme se os isoladores de vibração foram usados no tripé;</li>
+    <li>Use a <strong>estabilização</strong> para remover o efeito da trepidação (ou a filtragem, se o tremor estiver em frequência distinta da de interesse).</li>
+  </ul>
+
+  <h3 class="topico" id="s8-parado">“O movimento parece lento demais ou parado em certas velocidades”</h3>
+  <ul class="lista">
+    <li>É o clássico <strong>efeito roda de carruagem</strong> <span class="eng">(wagon wheel effect)</span>: um movimento de 30 Hz reproduzido a 30 fps pode parecer congelado;</li>
+    <li>Experimente várias velocidades de reprodução até encontrar a que melhor ilustra o movimento — começando pela mais lenta e subindo gradualmente.</li>
+  </ul>
+
+  <h3 class="topico" id="s8-suporte">Suporte</h3>
+  <p>Para mais soluções de problemas e suporte em geral, consulte a página de suporte do fabricante (rditechnologies.com/support) ou o representante que forneceu o treinamento.</p>
+
+</section>
+  <div class="rodape">
+    <p><strong>Manual de Treinamento Básico — Amplificação de Movimento (Motion Amplification®)</strong> · Edição digital reconstruída e reescrita a partir do manual do curso (v3.5, tradução Vitek Consultoria). Motion Amplification®, Iris M e Iris MX são marcas da RDI Technologies. Material de estudo de uso interno.</p>
+  </div>
+</div><!-- /conteudo -->
+</main>
+</div><!-- /layout -->
+<button class="topo" id="btnTopo" title="Voltar ao topo">↑</button>
+<script>
+const links=[...document.querySelectorAll('#menu .sub a, #menu a.sec')].filter(a=>(a.getAttribute('href')||'').startsWith('#'));
+const alvos=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+const obs=new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(e.isIntersecting){
+      links.forEach(l=>l.classList.remove('ativo'));
+      const l=links.find(x=>x.getAttribute('href')==='#'+e.target.id);
+      if(l){l.classList.add('ativo');l.scrollIntoView({block:'nearest'});}
+    }
+  });
+},{rootMargin:'-15% 0px -75% 0px'});
+alvos.forEach(t=>obs.observe(t));
+const btn=document.getElementById('btnTopo');
+window.addEventListener('scroll',()=>{btn.style.display=window.scrollY>600?'block':'none'});
+btn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+</script>
+</body>
+</html>
