@@ -1048,7 +1048,11 @@
             padding: 1px 0 0 !important;
             line-height: 1.2 !important;
         }
-        .evidence-grid { grid-template-columns: repeat(4, 1fr) !important; gap: 5px !important; margin-top: 8px !important; }
+        .evidence-grid { grid-template-columns: repeat(4, 1fr) !important; gap: 5px !important; margin-top: 6px !important; }
+        .evidence-section { margin-bottom: 12px !important; break-inside: auto !important; }
+        .ev-section-header { padding: 5px 12px !important; margin-bottom: 6px !important; break-after: avoid !important; page-break-after: avoid !important; }
+        .ev-section-header > div:first-child { font-size: 0.9em !important; }
+        .ev-section-header button, .ev-section-header input { display: none !important; }
         .evidence-card { break-inside: avoid !important; border-radius: 4px !important; overflow: hidden !important; }
         .evidence-upload {
             margin: 3px !important;
@@ -1164,7 +1168,7 @@
             </div>
             <div class="header-badge">
                 <div class="rev">Revisão</div>
-                <div class="num" contenteditable="true">0</div>
+                <div class="num" id="revBadge" contenteditable="true">1</div>
             </div>
         </div>
     </div>
@@ -1195,12 +1199,22 @@
                     <tr>
                         <td contenteditable="true">0</td>
                         <td contenteditable="true">C</td>
-                        <td contenteditable="true">PARA CONHECIMENTO</td>
+                        <td contenteditable="true">EMISSÃO INICIAL — PARA CONHECIMENTO</td>
                         <td contenteditable="true">MA</td>
                         <td contenteditable="true">—</td>
                         <td contenteditable="true">—</td>
                         <td contenteditable="true">13/07/2026</td>
-                        <td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td>
+                        <td><button class="btn-remove" onclick="this.closest('tr').remove(); syncRevBadge();" style="padding:4px 8px;">✕</button></td>
+                    </tr>
+                    <tr>
+                        <td contenteditable="true">1</td>
+                        <td contenteditable="true">C</td>
+                        <td contenteditable="true">REVISÃO GERAL — Inclusão dos componentes do vão (19 dormentes, 38 almofadas, 19 grampos e 2 tirantes), mapas de calor por item e detalhe do vão, evidências fotográficas por grupo de balizas e atualização da lista de materiais</td>
+                        <td contenteditable="true">MA</td>
+                        <td contenteditable="true">—</td>
+                        <td contenteditable="true">—</td>
+                        <td contenteditable="true">06/08/2026</td>
+                        <td><button class="btn-remove" onclick="this.closest('tr').remove(); syncRevBadge();" style="padding:4px 8px;">✕</button></td>
                     </tr>
                 </tbody>
             </table>
@@ -1384,8 +1398,16 @@
         <div class="card">
             <div class="card-title"><span class="icon">🔎</span> 7.4 Detalhe do Vão entre Balizas — Componentes</div>
             <p style="color:var(--text-secondary);font-size:0.85em;margin-bottom:12px;">
-                Cada vão entre balizas possui <strong>19 dormentes</strong>, <strong>38 almofadas</strong> (2 por dormente), <strong>19 grampos</strong> e <strong>2 tirantes</strong>. Selecione o vão e o lado; clique em um componente para registrar anomalia específica. Cor forte = anomalia registrada no componente; cor clara = anomalia geral do item no vão.
+                Cada vão entre balizas possui <strong>19 dormentes</strong>, <strong>38 almofadas</strong> (2 por dormente), <strong>19 grampos</strong> e <strong>2 tirantes</strong>. Selecione o vão e o lado; clique em um componente para registrar anomalia específica. As cores seguem o mapa de calor — as balizas nas extremidades mostram a severidade máxima do trecho.
             </p>
+            <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;">
+                <div class="legend-item"><div class="legend-dot" style="background:#22C55E"></div> Conforme (0)</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#EAB308"></div> Baixo (1)</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#F97316"></div> Médio (2)</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#EF4444"></div> Alto (3)</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#DC2626"></div> Muito Alto (4)</div>
+                <div class="legend-item" style="margin-left:auto;"><div class="legend-dot" style="background:#DC2626;border:2px solid #1A1D26"></div> Contorno escuro = anomalia no próprio componente</div>
+            </div>
             <div style="display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px;">
                 <div class="form-field" style="min-width:220px;"><label>Vão (Baliza → Baliza)</label><select id="vao-select" onchange="renderVaoDetail()"></select></div>
                 <div class="form-field" style="min-width:180px;"><label>Lado</label><select id="vao-lado" onchange="renderVaoDetail()"><option value="LD">LD — Lado Direito</option><option value="LE">LE — Lado Esquerdo</option></select></div>
@@ -1536,14 +1558,8 @@
     <div class="tab-content" id="tab-evidencias">
         <div class="card">
             <div class="section-title">10.0 EVIDÊNCIAS FOTOGRÁFICAS</div>
-            <p style="color:var(--text-secondary);font-size:0.9em;margin-bottom:16px;">Registre as evidências fotográficas e vincule cada foto à baliza correspondente. Balizas com anomalia registrada aparecem com ★ na lista.</p>
-
-            <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:12px;">
-                <button class="btn-add" style="padding:6px 14px;font-size:0.82em;" onclick="document.getElementById('multiFotos').click()">📷 Adicionar Fotos</button>
-                <input type="file" id="multiFotos" accept="image/*" multiple style="display:none;" onchange="handleMultiUpload(this)">
-                <button class="btn-add" style="padding:6px 14px;font-size:0.82em;background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border-subtle);" onclick="addEvidenceSlot()">+ Individual</button>
-            </div>
-            <div class="evidence-grid" id="evidenceGrid"></div>
+            <p style="color:var(--text-secondary);font-size:0.9em;margin-bottom:16px;">Registre as evidências fotográficas por grupo de balizas. Use <strong>📷 Fotos</strong> para enviar várias de uma vez ou <strong>+ Individual</strong> para adicionar uma. Dentro de cada grupo, vincule a foto à baliza correspondente (balizas com anomalia aparecem com ★).</p>
+            <div id="evidenceSections"></div>
         </div>
     </div>
 
@@ -2029,24 +2045,38 @@ function onGroupSelectChange() {
 // ============================
 // LINHAS EDITÁVEIS (REVISÕES / NORMAS / MATERIAIS)
 // ============================
+// Mantém o número da revisão no cabeçalho igual ao da última linha da tabela
+function syncRevBadge() {
+    const rows = document.querySelectorAll('#revisionTableBody tr');
+    const badge = document.getElementById('revBadge');
+    if (!badge) return;
+    if (!rows.length) { badge.textContent = '0'; return; }
+    const ultima = rows[rows.length - 1].cells[0].textContent.trim();
+    badge.textContent = ultima || '0';
+}
+
 function addRevisionRow() {
     const tbody = document.getElementById('revisionTableBody');
-    const rowCount = tbody.querySelectorAll('tr').length;
+    const rows = tbody.querySelectorAll('tr');
+    const ultimaRev = rows.length ? parseInt(rows[rows.length - 1].cells[0].textContent.trim()) : -1;
+    const novaRev = isNaN(ultimaRev) ? rows.length : ultimaRev + 1;
     const tr = document.createElement('tr');
     const today = new Date().toLocaleDateString('pt-BR');
     tr.innerHTML = `
-        <td contenteditable="true">${rowCount}</td>
+        <td contenteditable="true">${novaRev}</td>
         <td contenteditable="true">C</td>
         <td contenteditable="true"></td>
         <td contenteditable="true"></td>
         <td contenteditable="true">—</td>
         <td contenteditable="true">—</td>
         <td contenteditable="true">${today}</td>
-        <td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td>
+        <td><button class="btn-remove" onclick="this.closest('tr').remove(); syncRevBadge();" style="padding:4px 8px;">✕</button></td>
     `;
     tbody.appendChild(tr);
+    tr.addEventListener('input', syncRevBadge);
+    syncRevBadge();
     tr.querySelector('td:nth-child(3)').focus();
-    showToast('Nova revisão adicionada');
+    showToast('Revisão ' + novaRev + ' adicionada');
 }
 
 function addNorma() {
@@ -2212,22 +2242,28 @@ function renderHeatmaps() {
 // ============================
 // DETALHE DO VÃO (COMPONENTES)
 // ============================
+// O vão é delimitado por DUAS balizas (v e v+1): anomalias em qualquer uma delas valem para o vão
+function balizasDoVao(vao) { return [vao, Math.min(vao + 1, NUM_BALIZAS - 1)]; }
+
 function getCompSeverity(vao, lado, compTipo, compNum) {
-    const rel = anomalies.filter(a => a.baliza === vao && (a.lado === lado || a.lado === 'LD+LE') && a.compTipo === compTipo && a.compNum === compNum);
+    const bs = balizasDoVao(vao);
+    const rel = anomalies.filter(a => bs.includes(a.baliza) && (a.lado === lado || a.lado === 'LD+LE') && a.compTipo === compTipo && a.compNum === compNum);
     return rel.length ? Math.max(...rel.map(a => a.sev)) : 0;
 }
 
 function getItemGenericSeverity(vao, lado, itemOp) {
-    const rel = anomalies.filter(a => a.baliza === vao && (a.lado === lado || a.lado === 'LD+LE') && a.item === itemOp && !a.compTipo);
+    const bs = balizasDoVao(vao);
+    const rel = anomalies.filter(a => bs.includes(a.baliza) && (a.lado === lado || a.lado === 'LD+LE') && a.item === itemOp && !a.compTipo);
     return rel.length ? Math.max(...rel.map(a => a.sev)) : 0;
 }
 
 function compFill(vao, lado, comp, num, defFill) {
     const spec = getCompSeverity(vao, lado, comp.id, num);
-    if (spec > 0) return { fill: getSeverityColor(spec), op: 1, sev: spec, generic: false };
+    if (spec > 0) return { fill: getSeverityColor(spec), op: 1, sev: spec, generic: false, stroke: '#1A1D26' };
     const gen = getItemGenericSeverity(vao, lado, comp.item);
-    if (gen > 0) return { fill: getSeverityColor(gen), op: 0.35, sev: gen, generic: true };
-    return { fill: defFill, op: 1, sev: 0, generic: false };
+    // Herança do item no vão — mesma cor do mapa de calor, levemente suavizada
+    if (gen > 0) return { fill: getSeverityColor(gen), op: 0.8, sev: gen, generic: true, stroke: getSeverityColor(gen) };
+    return { fill: defFill, op: 1, sev: 0, generic: false, stroke: null };
 }
 
 function renderVaoDetail() {
@@ -2248,11 +2284,19 @@ function renderVaoDetail() {
     svg += `<text x="${startX}" y="20" fill="var(--text-primary)" font-size="12" font-weight="700">VÃO BALIZA ${pad2(v)} → ${pad2(v + 1)} · LADO ${lado}</text>`;
     svg += `<text x="${W - 20}" y="20" fill="var(--text-muted)" font-size="9" text-anchor="end">19 dormentes · 38 almofadas · 19 grampos · 2 tirantes</text>`;
 
+    // Balizas do vão (extremidades) — mesma cor do mapa de calor geral
+    [{ b: v, x: startX - 34 }, { b: Math.min(v + 1, NUM_BALIZAS - 1), x: 1122 }].forEach(p => {
+        const sev = getMaxSeverity(p.b, lado);
+        const cor = getSeverityColor(sev);
+        svg += `<rect x="${p.x}" y="40" width="26" height="178" rx="4" fill="${cor}" fill-opacity="${sev > 0 ? 0.9 : 0.22}" stroke="${cor}" stroke-width="1.2" class="rail-support" onclick="onSupportClick(${p.b},'${lado}')"><title>Baliza ${pad2(p.b)} ${lado}: ${getSeverityLabel(sev)}</title></rect>`;
+        svg += `<text x="${p.x + 13}" y="132" fill="${sev > 0 ? '#fff' : 'var(--text-secondary)'}" font-size="10" font-weight="700" text-anchor="middle" transform="rotate(-90 ${p.x + 13} 132)" pointer-events="none">BALIZA ${pad2(p.b)}</text>`;
+    });
+
     // Dormentes
     for (let n = 1; n <= D.qty; n++) {
         const cx = startX + dx * (n - 0.5);
         const f = compFill(v, lado, D, n, '#E8EDF3');
-        svg += `<rect x="${cx - 10}" y="44" width="20" height="170" rx="3" class="rail-support" fill="${f.fill}" fill-opacity="${f.op}" stroke="#94A3B8" stroke-width="0.8" onclick="onVaoCompClick(${v},'${lado}','dormente',${n})"><title>Dormente ${n}: ${getSeverityLabel(f.sev)}${f.generic ? ' (anomalia geral do item)' : ''}</title></rect>`;
+        svg += `<rect x="${cx - 10}" y="44" width="20" height="170" rx="3" class="rail-support" fill="${f.fill}" fill-opacity="${f.op}" stroke="${f.stroke || '#94A3B8'}" stroke-width="${f.sev > 0 ? 1.4 : 0.8}" onclick="onVaoCompClick(${v},'${lado}','dormente',${n})"><title>Dormente ${n}: ${getSeverityLabel(f.sev)}${f.generic ? ' (anomalia geral do item no vão)' : ''}</title></rect>`;
         svg += `<text x="${cx}" y="232" fill="var(--text-muted)" font-size="8" text-anchor="middle" font-family="JetBrains Mono,monospace">${n}</text>`;
     }
 
@@ -2267,7 +2311,7 @@ function renderVaoDetail() {
     [1, 2].forEach(n => {
         const xT = startX + dx * (n === 1 ? 6 : 13);
         const f = compFill(v, lado, T, n, '#DDD6FE');
-        svg += `<rect x="${xT - 5}" y="${railSup}" width="10" height="${railInf - railSup}" rx="2" class="rail-support" fill="${f.fill}" fill-opacity="${f.op}" stroke="#7C3AED" stroke-width="0.9" onclick="onVaoCompClick(${v},'${lado}','tirante',${n})"><title>Tirante ${n}: ${getSeverityLabel(f.sev)}${f.generic ? ' (anomalia geral do item)' : ''}</title></rect>`;
+        svg += `<rect x="${xT - 5}" y="${railSup}" width="10" height="${railInf - railSup}" rx="2" class="rail-support" fill="${f.fill}" fill-opacity="${f.op}" stroke="${f.stroke || '#7C3AED'}" stroke-width="${f.sev > 0 ? 1.4 : 0.9}" onclick="onVaoCompClick(${v},'${lado}','tirante',${n})"><title>Tirante ${n}: ${getSeverityLabel(f.sev)}${f.generic ? ' (anomalia geral do item no vão)' : ''}</title></rect>`;
         svg += `<text x="${xT}" y="${(railSup + railInf) / 2 + 3}" fill="#7C3AED" font-size="7" text-anchor="middle" font-weight="700" pointer-events="none">T${n}</text>`;
     });
 
@@ -2276,7 +2320,7 @@ function renderVaoDetail() {
         const cx = startX + dx * (n - 0.5);
         [{ num: 2 * n - 1, y: railSup }, { num: 2 * n, y: railInf }].forEach(p => {
             const f = compFill(v, lado, A, p.num, '#D9F2F8');
-            svg += `<rect x="${cx - 7}" y="${p.y - 7}" width="14" height="14" rx="2" class="rail-support" fill="${f.fill}" fill-opacity="${f.op}" stroke="#0E7490" stroke-width="0.9" onclick="onVaoCompClick(${v},'${lado}','almofada',${p.num})"><title>Almofada ${p.num} (Dormente ${n} — ${p.y === railSup ? 'Trilho 1' : 'Trilho 2'}): ${getSeverityLabel(f.sev)}${f.generic ? ' (anomalia geral do item)' : ''}</title></rect>`;
+            svg += `<rect x="${cx - 7}" y="${p.y - 7}" width="14" height="14" rx="2" class="rail-support" fill="${f.fill}" fill-opacity="${f.op}" stroke="${f.stroke || '#0E7490'}" stroke-width="${f.sev > 0 ? 1.4 : 0.9}" onclick="onVaoCompClick(${v},'${lado}','almofada',${p.num})"><title>Almofada ${p.num} (Dormente ${n} — ${p.y === railSup ? 'Trilho 1' : 'Trilho 2'}): ${getSeverityLabel(f.sev)}${f.generic ? ' (anomalia geral do item no vão)' : ''}</title></rect>`;
         });
     }
 
@@ -2284,7 +2328,7 @@ function renderVaoDetail() {
     for (let n = 1; n <= G.qty; n++) {
         const cx = startX + dx * (n - 0.5);
         const f = compFill(v, lado, G, n, '#EEF2F7');
-        svg += `<circle cx="${cx}" cy="128" r="6.5" class="rail-support" fill="${f.fill}" fill-opacity="${f.op}" stroke="#4A5068" stroke-width="0.9" onclick="onVaoCompClick(${v},'${lado}','grampo',${n})"><title>Grampo ${n}: ${getSeverityLabel(f.sev)}${f.generic ? ' (anomalia geral do item)' : ''}</title></circle>`;
+        svg += `<circle cx="${cx}" cy="128" r="6.5" class="rail-support" fill="${f.fill}" fill-opacity="${f.op}" stroke="${f.stroke || '#4A5068'}" stroke-width="${f.sev > 0 ? 1.5 : 0.9}" onclick="onVaoCompClick(${v},'${lado}','grampo',${n})"><title>Grampo ${n}: ${getSeverityLabel(f.sev)}${f.generic ? ' (anomalia geral do item no vão)' : ''}</title></circle>`;
     }
 
     svg += `</svg>`;
@@ -2542,7 +2586,7 @@ function fmtKB(str) {
 // Otimiza todas as imagens já inseridas (fotos e desenhos)
 async function otimizarImagens(silencioso) {
     const alvos = [];
-    document.querySelectorAll('#evidenceGrid .evidence-card img').forEach(i => alvos.push({ img: i, max: 1600, q: 0.82 }));
+    document.querySelectorAll('#evidenceSections .evidence-card img').forEach(i => alvos.push({ img: i, max: 1600, q: 0.82 }));
     document.querySelectorAll('.drawing-upload-area img').forEach(i => alvos.push({ img: i, max: 2400, q: 0.88 }));
     let orig = 0, comp = 0, n = 0;
     for (const t of alvos) {
@@ -2561,9 +2605,44 @@ async function otimizarImagens(silencioso) {
 // ============================
 // EVIDÊNCIAS
 // ============================
-function buildEvidenceBalizaOptions() {
+// Cores das subseções (ciclo suave por grupo)
+const EV_COLORS = ['#3B82F6', '#A855F7', '#10B981', '#F59E0B', '#0891B2', '#EC4899', '#7C3AED'];
+
+function renderEvidenceSections() {
+    const c = document.getElementById('evidenceSections');
+    if (!c) return;
+    c.innerHTML = GROUPS.map((g, gi) => {
+        const cor = EV_COLORS[gi % EV_COLORS.length];
+        return `
+        <div class="evidence-section" id="evSection-${gi}" data-group="${gi}" style="margin-bottom:22px;">
+            <div class="ev-section-header" style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;padding:9px 16px;background:${cor}14;border-left:4px solid ${cor};border-radius:0 8px 8px 0;">
+                <div style="font-weight:700;color:${cor};font-size:1em;">10.${gi + 1} Balizas ${g.label} <span class="ev-count" style="font-weight:500;font-size:0.82em;color:var(--text-muted);"></span></div>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn-add" style="padding:6px 14px;font-size:0.82em;" onclick="document.getElementById('multiFotos-${gi}').click()">📷 Fotos</button>
+                    <input type="file" id="multiFotos-${gi}" accept="image/*" multiple style="display:none;" onchange="handleMultiUpload(this, ${gi})">
+                    <button class="btn-add" style="padding:6px 14px;font-size:0.82em;background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border-subtle);" onclick="addEvidenceSlot(null, ${gi})">+ Individual</button>
+                </div>
+            </div>
+            <div class="evidence-grid" id="evidenceGrid-${gi}"></div>
+        </div>`;
+    }).join('');
+    updateEvidenceCounts();
+}
+
+function updateEvidenceCounts() {
+    GROUPS.forEach((g, gi) => {
+        const sec = document.getElementById('evSection-' + gi);
+        if (!sec) return;
+        const n = sec.querySelectorAll('.evidence-card').length;
+        const lbl = sec.querySelector('.ev-count');
+        if (lbl) lbl.textContent = n ? `· ${n} foto(s)` : '· sem fotos';
+    });
+}
+
+function buildEvidenceBalizaOptions(gi) {
+    const g = GROUPS[gi] || { start: 0, end: NUM_BALIZAS - 1 };
     let html = '<option value="">Vincular à baliza...</option>';
-    for (let b = 0; b < NUM_BALIZAS; b++) {
+    for (let b = g.start; b <= g.end; b++) {
         const suffix = anomalies.some(a => a.baliza === b) ? ' ★' : '';
         html += `<option value="${b}">Baliza ${pad2(b)}${suffix}</option>`;
     }
@@ -2576,13 +2655,15 @@ function getAnomalyDescForBaliza(b) {
     return anoms.map(a => `${a.lado} · ${getItem(a.item) ? getItem(a.item).nome : ''}: ${a.desc}`).join(' | ');
 }
 
-function addEvidenceSlot(imgDataUrl) {
+function addEvidenceSlot(imgDataUrl, groupIndex) {
+    const gi = (groupIndex === undefined || groupIndex === null || isNaN(groupIndex)) ? 0 : parseInt(groupIndex);
     evidenceCounter++;
-    const grid = document.getElementById('evidenceGrid');
+    const grid = document.getElementById('evidenceGrid-' + gi);
     if (!grid) return;
     const id = 'ev-' + evidenceCounter;
     const div = document.createElement('div');
     div.className = 'evidence-card';
+    div.setAttribute('data-group', gi);
     div.innerHTML = `
         <div class="evidence-upload" onclick="document.getElementById('${id}-file').click()">
             <input type="file" id="${id}-file" accept="image/*" style="display:none;" onchange="handleEvUpload(this,'${id}-img')">
@@ -2590,10 +2671,10 @@ function addEvidenceSlot(imgDataUrl) {
             <div class="upload-ph"><div class="ico">📷</div><div>Clique para adicionar foto</div></div>
         </div>
         <div class="evidence-meta">
-            <select onchange="onEvBalizaChange(this)">${buildEvidenceBalizaOptions()}</select>
+            <select onchange="onEvBalizaChange(this)">${buildEvidenceBalizaOptions(gi)}</select>
             <div class="ev-desc-label" style="font-size:0.78em;color:var(--text-muted);font-style:italic;min-height:18px;margin-top:2px;"></div>
             <div style="display:flex;gap:6px;margin-top:4px;">
-                <button class="btn-remove" style="flex:1;" onclick="this.closest('.evidence-card').remove()">✕ Remover</button>
+                <button class="btn-remove" style="flex:1;" onclick="this.closest('.evidence-card').remove(); updateEvidenceCounts();">✕ Remover</button>
             </div>
         </div>
     `;
@@ -2603,6 +2684,7 @@ function addEvidenceSlot(imgDataUrl) {
         img.src = imgDataUrl;
         div.querySelector('.evidence-upload').classList.add('has-image');
     }
+    updateEvidenceCounts();
     return id;
 }
 
@@ -2630,11 +2712,12 @@ function handleEvUpload(input, previewId) {
     }
 }
 
-function handleMultiUpload(input) {
+function handleMultiUpload(input, groupIndex) {
     if (!input.files || input.files.length === 0) return;
+    const gi = (groupIndex === undefined || groupIndex === null) ? 0 : parseInt(groupIndex);
     const files = Array.from(input.files);
     input.value = '';
-    showToast(`📷 Processando ${files.length} foto(s)...`);
+    showToast(`📷 Processando ${files.length} foto(s) — Balizas ${GROUPS[gi].label}...`);
     (async () => {
         let orig = 0, comp = 0;
         for (const file of files) {
@@ -2645,10 +2728,10 @@ function handleMultiUpload(input) {
             });
             const small = await compressImage(raw, 1600, 0.82);
             orig += raw.length; comp += small.length;
-            addEvidenceSlot(small);
+            addEvidenceSlot(small, gi);
         }
         const pct = orig ? Math.round((1 - comp / orig) * 100) : 0;
-        showToast(`📷 ${files.length} foto(s) adicionada(s) — otimizadas (${pct}% mais leves)`);
+        showToast(`📷 ${files.length} foto(s) em Balizas ${GROUPS[gi].label} — otimizadas (${pct}% mais leves)`);
     })();
 }
 
@@ -2765,8 +2848,14 @@ async function gerarPDF() {
     // Lista de Tarefas não vai para o PDF
     document.getElementById('tab-tarefas').style.display = 'none';
 
-    // Oculta a seção de evidências se não houver fotos
-    if (!document.querySelector('#evidenceGrid .evidence-upload.has-image')) {
+    // Oculta subseções de evidências sem fotos (e a seção inteira, se nenhuma tiver)
+    document.querySelectorAll('.evidence-section').forEach(sec => {
+        if (!sec.querySelector('.evidence-upload.has-image')) {
+            sec.setAttribute('data-print-hidden', 'true');
+            sec.style.display = 'none';
+        }
+    });
+    if (!document.querySelector('#evidenceSections .evidence-upload.has-image')) {
         const ev = document.getElementById('tab-evidencias');
         ev.setAttribute('data-print-hidden', 'true');
         ev.style.display = 'none';
@@ -3036,25 +3125,26 @@ async function exportarPPTX() {
     }
 
     // ── SLIDES DE EVIDÊNCIAS FOTOGRÁFICAS ──
-    const grid = document.getElementById('evidenceGrid');
-    if (grid) {
-        const cards = grid.querySelectorAll('.evidence-card');
+    // Evidências agrupadas por grupo de balizas (uma sequência de slides por grupo)
+    GROUPS.forEach((g, gi) => {
+        const grid = document.getElementById('evidenceGrid-' + gi);
+        if (!grid) return;
         const photos = [];
-        cards.forEach(card => {
+        grid.querySelectorAll('.evidence-card').forEach(card => {
             const img = card.querySelector('img');
             const balizaSelect = card.querySelector('.evidence-meta select');
             if (img && img.src && img.src.startsWith('data:')) {
-                const b = balizaSelect ? balizaSelect.value : '';
-                photos.push({ src: img.src, baliza: b });
+                photos.push({ src: img.src, baliza: balizaSelect ? balizaSelect.value : '' });
             }
         });
+        if (photos.length === 0) return;
 
         for (let i = 0; i < photos.length; i += 4) {
             const batch = photos.slice(i, i + 4);
             const sEv = pres.addSlide();
             sEv.background = { color: C.white };
             sEv.addShape(pres.shapes.RECTANGLE, { x: 0, y: 0, w: 10, h: 0.6, fill: { color: C.green } });
-            sEv.addText('EVIDÊNCIAS FOTOGRÁFICAS — VIA DE ROLAMENTO', { x: 0.5, y: 0.08, w: 9, h: 0.45, fontSize: 14, fontFace: 'Arial Black', color: 'FFFFFF', bold: true, margin: 0 });
+            sEv.addText(`EVIDÊNCIAS FOTOGRÁFICAS — BALIZAS ${g.label}`, { x: 0.5, y: 0.08, w: 9, h: 0.45, fontSize: 14, fontFace: 'Arial Black', color: 'FFFFFF', bold: true, margin: 0 });
 
             batch.forEach((photo, j) => {
                 const col = j % 2;
@@ -3073,7 +3163,7 @@ async function exportarPPTX() {
                 sEv.addText(`${photos.length} foto(s)`, { x: 7, y: 5.2, w: 2.5, h: 0.3, fontSize: 8, color: C.gray, align: 'right' });
             }
         }
-    }
+    });
 
     // ── SLIDES DE DESENHOS ──
     const drawingCards = document.querySelectorAll('.drawing-card');
@@ -3126,19 +3216,17 @@ async function exportarPPTX() {
 // ============================
 function collectFullState() {
     const evidencias = [];
-    const grid = document.getElementById('evidenceGrid');
-    if (grid) {
-        grid.querySelectorAll('.evidence-card').forEach(card => {
-            const img = card.querySelector('img');
-            const balizaSelect = card.querySelector('.evidence-meta select');
-            if (img && img.src && img.src.startsWith('data:')) {
-                evidencias.push({
-                    src: img.src,
-                    baliza: balizaSelect ? balizaSelect.value : '',
-                });
-            }
-        });
-    }
+    document.querySelectorAll('#evidenceSections .evidence-card').forEach(card => {
+        const img = card.querySelector('img');
+        const balizaSelect = card.querySelector('.evidence-meta select');
+        if (img && img.src && img.src.startsWith('data:')) {
+            evidencias.push({
+                src: img.src,
+                baliza: balizaSelect ? balizaSelect.value : '',
+                grupo: parseInt(card.getAttribute('data-group')) || 0,
+            });
+        }
+    });
 
     const desenhos = [];
     document.querySelectorAll('.drawing-card').forEach(card => {
@@ -3172,12 +3260,14 @@ function restoreFullState(data) {
     }
 
     if (data.evidencias && Array.isArray(data.evidencias)) {
-        const grid = document.getElementById('evidenceGrid');
-        if (grid) grid.innerHTML = '';
+        document.querySelectorAll('#evidenceSections .evidence-grid').forEach(g => g.innerHTML = '');
         evidenceCounter = 0;
         data.evidencias.forEach(ev => {
-            const id = addEvidenceSlot(ev.src);
-            const card = document.getElementById(id + '-img').closest('.evidence-card');
+            // Grupo salvo ou deduzido pela baliza vinculada
+            let gi = (ev.grupo !== undefined && ev.grupo !== null) ? parseInt(ev.grupo) : null;
+            if (gi === null || isNaN(gi)) gi = (ev.baliza !== '' && ev.baliza !== undefined) ? getGroupIndex(parseInt(ev.baliza)) : 0;
+            const id = addEvidenceSlot(ev.src, gi);
+            const card = id && document.getElementById(id + '-img') ? document.getElementById(id + '-img').closest('.evidence-card') : null;
             if (card) {
                 const balizaSelect = card.querySelector('.evidence-meta select');
                 if (balizaSelect && ev.baliza !== '' && ev.baliza !== undefined) {
@@ -3186,6 +3276,7 @@ function restoreFullState(data) {
                 }
             }
         });
+        updateEvidenceCounts();
     }
 
     if (data.desenhos && Array.isArray(data.desenhos)) {
@@ -3296,7 +3387,12 @@ function showToast(msg) {
 function init() {
     renderTaskList();
     renderGroupChips();
+    renderEvidenceSections();
     selectGroup(0);
+
+    // Revisão do cabeçalho sempre igual à última linha da tabela de revisões
+    const revTable = document.getElementById('revisionTableBody');
+    if (revTable) { revTable.addEventListener('input', syncRevBadge); syncRevBadge(); }
 
     const saved = localStorage.getItem('via_rolamento_mp_inspecao');
     let loadedFromStorage = false;
