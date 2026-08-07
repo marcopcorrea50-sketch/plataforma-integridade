@@ -441,7 +441,10 @@
             border-radius: 12px;
             padding: 24px;
         }
-        .chart-box canvas { max-height: 320px; }
+        .chart-box canvas { max-height: 100%; }
+        .chart-holder { position: relative; height: 260px; }
+        .chart-holder.wide { height: 300px; }
+        .chart-holder canvas { width: 100% !important; height: 100% !important; }
 
         /* IMAGE UPLOAD */
         .evidence-grid {
@@ -760,7 +763,7 @@
 
         @media print {
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-            body { background: #fff !important; color: #1A1D26 !important; padding: 0 !important; font-size: 11px !important; }
+            body { background: #fff !important; color: #1A1D26 !important; padding: 0 !important; font-size: 13.5px !important; line-height: 1.45 !important; }
             .app-container { max-width: 100% !important; }
 
             .floating-actions, .tab-nav, .btn-add, .btn-remove, .btn-small,
@@ -801,29 +804,32 @@
 
             .heatmap-cell { border: 1px solid rgba(0,0,0,0.08) !important; }
 
-            /* Charts — 1 per row to avoid page cuts */
+            /* Charts — 2 por linha, todos com a mesma altura */
             .chart-row {
                 display: grid !important;
-                grid-template-columns: 1fr !important;
-                gap: 16px !important;
-                margin-bottom: 16px !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 10px !important;
+                margin-bottom: 10px !important;
             }
             .chart-box {
                 break-inside: avoid !important;
                 page-break-inside: avoid !important;
                 page-break-before: auto !important;
-                max-height: 320px !important;
+                padding: 10px 12px !important;
                 overflow: hidden !important;
             }
-            .chart-box canvas { max-height: 260px !important; }
-            .card:has(canvas) {
-                break-inside: avoid !important;
-                page-break-inside: avoid !important;
-            }
+            .chart-box .card-title { font-size: 0.86em !important; margin-bottom: 6px !important; }
+            .chart-holder { height: 132px !important; }
+            .chart-holder.wide { height: 165px !important; }
+            .card:has(canvas) { break-inside: auto !important; page-break-inside: auto !important; }
 
-            .drawing-card { break-inside: avoid; page-break-inside: avoid; }
+            .drawing-card { break-inside: avoid; page-break-inside: avoid; margin-bottom: 8px !important; }
+            .drawing-card-header { padding: 6px 12px !important; }
+            .drawing-card-header input { font-size: 0.86em !important; border-bottom: none !important; }
+            .drawing-card-footer { padding: 5px 12px !important; }
+            .drawing-card-footer textarea { font-size: 0.8em !important; border-left: none !important; padding-left: 0 !important; }
             .drawing-upload-area { min-height: auto !important; border: 1px solid #ccc !important; }
-            .drawing-upload-area img { max-height: 500px !important; padding: 0 !important; display: block !important; }
+            .drawing-upload-area img { max-height: 310px !important; padding: 0 !important; display: block !important; }
             .drawing-upload-area:not(.has-image) img { display: none !important; }
             .drawing-card-header button { display: none !important; }
             .drawing-card:has(.drawing-upload-area:not(.has-image)) { display: none !important; }
@@ -993,16 +999,90 @@
     #groupChips .zone-name { font-size: 0.85em; margin-bottom: 2px; }
     #groupChips .zone-range { font-size: 0.7em; }
 
-    .print-footer { display: none; }
+    .print-footer, .ev-print-label { display: none; }
 
     @media print {
-        @page { size: A4; margin: 11mm 9mm 16mm 9mm; }
+        @page { size: A4; margin: 12mm 10mm 16mm 10mm; }
+
+        /* ===== CAMPOS COMO DOCUMENTO, NÃO COMO FORMULÁRIO ===== */
+        input[type="text"], input[type="date"], input[type="number"], select, textarea,
+        .form-field input, .form-field select, .form-field textarea, .norma-input, .sig-block input {
+            -webkit-appearance: none !important;
+            appearance: none !important;
+            background: transparent !important;
+            border: none !important;
+            border-bottom: 1px solid #C9CEDA !important;
+            border-radius: 0 !important;
+            padding: 2px 2px 3px !important;
+            font-size: 1em !important;
+            font-weight: 600 !important;
+            color: #1A1D26 !important;
+            box-shadow: none !important;
+        }
+        select::-ms-expand { display: none !important; }
+        .form-field label { font-size: 0.68em !important; letter-spacing: 0.05em !important; margin-bottom: 3px !important; }
+        .form-grid { gap: 12px 18px !important; margin-bottom: 8px !important; }
+
+        /* Textareas: texto completo, sem caixa nem rolagem */
+        textarea {
+            border: none !important;
+            border-left: 3px solid #D8DBE2 !important;
+            padding: 2px 0 2px 10px !important;
+            font-weight: 400 !important;
+            font-style: normal !important;
+            min-height: 0 !important;
+            overflow: hidden !important;
+            resize: none !important;
+            white-space: pre-wrap !important;
+        }
+
+        /* Evidências fotográficas — grade compacta (4 por linha), sem perda de nitidez */
+        .evidence-meta select, .evidence-meta button, .evidence-meta .ev-desc-label,
+        .ev-print-label:empty { display: none !important; }
+        .ev-print-label {
+            display: block !important;
+            font-size: 0.68em !important;
+            font-weight: 700 !important;
+            color: #1A1D26 !important;
+            text-align: center;
+            padding: 1px 0 0 !important;
+            line-height: 1.2 !important;
+        }
+        .evidence-grid { grid-template-columns: repeat(4, 1fr) !important; gap: 5px !important; margin-top: 8px !important; }
+        .evidence-card { break-inside: avoid !important; border-radius: 4px !important; overflow: hidden !important; }
+        .evidence-upload {
+            margin: 3px !important;
+            width: calc(100% - 6px) !important;
+            min-height: 0 !important;
+            border-width: 1px !important;
+            border-radius: 3px !important;
+            padding: 0 !important;
+        }
+        /* A imagem impressa menor mantém toda a resolução original → mais DPI, mais nitidez */
+        .evidence-upload.has-image img {
+            max-height: 108px !important;
+            width: 100% !important;
+            object-fit: cover !important;
+            image-rendering: auto !important;
+            padding: 0 !important;
+            display: block !important;
+        }
+        .evidence-meta { padding: 1px 3px 3px !important; }
 
         /* Lista de Tarefas não vai para o PDF */
         #tab-tarefas { display: none !important; }
 
-        /* Cada seção inicia em nova página */
-        #tab-diagrama, #tab-heatmap, #tab-registro, #tab-graficos, #tab-evidencias, #tab-conclusao { page-break-before: always; }
+        /* Fluxo totalmente contínuo — sem páginas pela metade */
+        #tab-resumo, #tab-diagrama, #tab-heatmap, #tab-registro,
+        #tab-graficos, #tab-evidencias, #tab-conclusao { page-break-before: auto !important; }
+        .tab-content { margin-bottom: 0 !important; }
+        /* Títulos nunca ficam órfãos no rodapé */
+        .section-title, .card-title { break-after: avoid !important; page-break-after: avoid !important; }
+        p, td, div { orphans: 2; widows: 2; }
+
+        /* Cabeçalhos de tabela não podem ser sticky no papel */
+        .data-table thead th { position: static !important; top: auto !important; }
+        .data-table { page-break-inside: auto !important; }
 
         /* Rodapé em todas as páginas */
         .print-footer {
@@ -1020,39 +1100,54 @@
         body { padding-bottom: 26px !important; }
 
         /* Cabeçalho mais compacto e formal */
-        .report-header { padding: 20px 26px !important; border-radius: 8px !important; }
-        .header-title { font-size: 1.45em !important; letter-spacing: 0.01em !important; }
-        .header-subtitle { font-size: 0.98em !important; }
-        .header-meta { font-size: 0.78em !important; }
+        .report-header { padding: 18px 24px !important; border-radius: 8px !important; margin-bottom: 14px !important; }
+        .header-title { font-size: 1.6em !important; letter-spacing: 0.01em !important; }
+        .header-subtitle { font-size: 1.05em !important; }
+        .header-meta { font-size: 0.84em !important; line-height: 1.4 !important; }
+        .header-badge { padding: 10px 18px !important; }
+        .header-badge .num { font-size: 1.5em !important; }
 
         /* KPIs em uma única linha */
         .kpi-row { grid-template-columns: repeat(7, 1fr) !important; gap: 6px !important; margin-bottom: 14px !important; }
-        .kpi-card { padding: 8px 4px !important; border-radius: 8px !important; }
-        .kpi-value { font-size: 1.35em !important; margin: 3px 0 !important; }
-        .kpi-label { font-size: 0.58em !important; letter-spacing: 0.04em !important; }
-        .kpi-sub { font-size: 0.6em !important; }
+        .kpi-card { padding: 9px 5px !important; border-radius: 8px !important; }
+        .kpi-value { font-size: 1.5em !important; margin: 2px 0 !important; }
+        .kpi-label { font-size: 0.64em !important; letter-spacing: 0.03em !important; line-height: 1.2 !important; }
+        .kpi-sub { font-size: 0.62em !important; line-height: 1.2 !important; }
 
-        /* Cartões e títulos */
-        .card { padding: 16px 18px !important; margin-bottom: 12px !important; border-radius: 8px !important; break-inside: avoid-page; }
-        .card:has(#anomalyTableBody), .card:has(#groupTableBody), .card:has(#materialTableBody), .card:has(#revisionTableBody) { break-inside: auto; }
-        .section-title { font-size: 1.1em !important; margin-bottom: 12px !important; padding-bottom: 8px !important; }
-        .card-title { font-size: 1em !important; }
+        /* Cartões: conteúdo flui entre páginas (evita metade de página vazia) */
+        .card { padding: 12px 14px !important; margin-bottom: 8px !important; border-radius: 8px !important; break-inside: auto !important; page-break-inside: auto !important; }
+        /* Só blocos pequenos e indivisíveis evitam quebra */
+        .chart-box, .kpi-card, .evidence-card, .hm-item-container, .diagram-wrapper, .signatures-grid { break-inside: avoid !important; page-break-inside: avoid !important; }
+        .card > div[style*="margin-top:28px"] { margin-top: 12px !important; }
+        .signatures-grid { margin-top: 16px !important; padding-top: 14px !important; }
+        .sig-line { margin: 18px 14px 4px !important; }
+        .diagram-wrapper { padding: 10px !important; margin-bottom: 8px !important; }
+        .diagram-controls { margin-bottom: 8px !important; }
+        #normasContainer { gap: 4px !important; }
+        .norma-row { margin: 0 !important; }
+        .card:has(#anomalyTableBody), .card:has(#groupTableBody), .card:has(#materialTableBody), .card:has(#revisionTableBody), .card:has(.evidence-grid) { break-inside: auto; }
+        .section-title { font-size: 1.2em !important; margin-bottom: 12px !important; padding-bottom: 8px !important; }
+        .card-title { font-size: 1.05em !important; }
+        .card p { font-size: 0.84em !important; }
 
         /* Tabelas compactas, zebradas e sem quebra no meio da linha */
-        .data-table { font-size: 0.76em !important; }
-        .data-table thead th { padding: 6px 8px !important; }
-        .data-table tbody td { padding: 4px 8px !important; }
+        .data-table { font-size: 0.84em !important; }
+        .data-table thead th { padding: 6px 8px !important; font-size: 0.82em !important; }
+        .data-table tbody td { padding: 5px 8px !important; }
+        .severity-badge { font-size: 0.85em !important; padding: 2px 7px !important; }
         .data-table tbody tr:nth-child(even) td { background: #F6F8FA !important; }
         .data-table tr { page-break-inside: avoid; }
         .data-table thead { display: table-header-group; }
 
         /* Mapas de calor por item — compactos e sem rolagem */
-        .hm-item-container { min-width: 0 !important; break-inside: avoid; gap: 2px !important; margin: 8px 0 !important; }
-        .hm-item-label { font-size: 0.56em !important; }
-        .hm-cell-sm { height: 11px !important; border: 0.5px solid rgba(0,0,0,0.08) !important; border-radius: 1px !important; }
-        .hm-axis { font-size: 0.5em !important; height: 9px !important; line-height: 9px !important; }
-        .hm-side-title { font-size: 0.8em !important; padding: 5px 10px !important; margin: 10px 0 3px !important; }
-        #heatmapGeneral .diagram-wrapper { padding: 8px !important; margin-bottom: 8px !important; }
+        .hm-item-container { min-width: 0 !important; break-inside: avoid; gap: 2px !important; margin: 8px 0 !important; grid-template-columns: 118px 1fr !important; }
+        .hm-item-label { font-size: 0.62em !important; }
+        .hm-cell-sm { height: 13px !important; border: 0.5px solid rgba(0,0,0,0.08) !important; border-radius: 1px !important; }
+        .hm-axis { font-size: 0.55em !important; height: 10px !important; line-height: 10px !important; }
+        .hm-side-title { font-size: 0.9em !important; padding: 6px 12px !important; margin: 10px 0 3px !important; }
+        #heatmapGeneral .diagram-wrapper, #vaoDetail { padding: 8px !important; margin-bottom: 8px !important; overflow: visible !important; }
+        #vaoDetail svg, #heatmapLD, #heatmapLE { min-width: 0 !important; overflow: visible !important; }
+        .legend-item { font-size: 0.8em !important; }
 
         /* Elementos de interação ocultos no PDF */
         .task-group, .tl-controls, .tl-banner, .btn-registrar, #groupChips { display: none !important; }
@@ -1183,17 +1278,22 @@
 
         <div class="card">
             <div class="section-title">4.0 LISTA DE MATERIAIS (Referência)</div>
+            <p style="color:var(--text-secondary);font-size:0.85em;margin-bottom:14px;">
+                Quantitativo calculado para <strong>74 balizas</strong> (00 a 73) = <strong>73 vãos por via</strong>, em <strong>2 vias</strong> (LD e LE). Composição por vão: 19 dormentes · 38 almofadas · 19 grampos · 2 tirantes.
+            </p>
             <table class="data-table" id="materialTable">
-                <thead><tr><th>Item</th><th>Descrição</th><th>Qtd.</th><th style="width:40px;"></th></tr></thead>
+                <thead><tr><th>Item</th><th>Descrição</th><th>Un.</th><th>Por Vão</th><th>Por Via (73 vãos)</th><th>Total (LD + LE)</th><th style="width:40px;"></th></tr></thead>
                 <tbody id="materialTableBody">
-                    <tr><td contenteditable="true">1</td><td contenteditable="true">Dormentes</td><td contenteditable="true">—</td><td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td></tr>
-                    <tr><td contenteditable="true">2</td><td contenteditable="true">Grampos de Fixação</td><td contenteditable="true">—</td><td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td></tr>
-                    <tr><td contenteditable="true">3</td><td contenteditable="true">Lastro (brita)</td><td contenteditable="true">—</td><td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td></tr>
-                    <tr><td contenteditable="true">4</td><td contenteditable="true">Trilho</td><td contenteditable="true">—</td><td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td></tr>
-                    <tr><td contenteditable="true">5</td><td contenteditable="true">Palmilhas</td><td contenteditable="true">—</td><td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td></tr>
-                    <tr><td contenteditable="true">6</td><td contenteditable="true">Talas de Junção</td><td contenteditable="true">—</td><td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td></tr>
-                    <tr><td contenteditable="true">7</td><td contenteditable="true">Parafusos de Tala de Junção</td><td contenteditable="true">—</td><td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td></tr>
-                    <tr><td contenteditable="true">8</td><td contenteditable="true">Batente Fim de Curso</td><td contenteditable="true">—</td><td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td></tr>
+                    <tr><td contenteditable="true">1</td><td contenteditable="true">Dormentes</td><td contenteditable="true">un</td><td contenteditable="true">19</td><td contenteditable="true">1.387</td><td contenteditable="true">2.774</td><td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td></tr>
+                    <tr><td contenteditable="true">2</td><td contenteditable="true">Almofadas (2 por dormente)</td><td contenteditable="true">un</td><td contenteditable="true">38</td><td contenteditable="true">2.774</td><td contenteditable="true">5.548</td><td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td></tr>
+                    <tr><td contenteditable="true">3</td><td contenteditable="true">Grampos de Fixação</td><td contenteditable="true">un</td><td contenteditable="true">19</td><td contenteditable="true">1.387</td><td contenteditable="true">2.774</td><td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td></tr>
+                    <tr><td contenteditable="true">4</td><td contenteditable="true">Tirantes</td><td contenteditable="true">un</td><td contenteditable="true">2</td><td contenteditable="true">146</td><td contenteditable="true">292</td><td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td></tr>
+                    <tr><td contenteditable="true">5</td><td contenteditable="true">Trilho (boleto)</td><td contenteditable="true">m</td><td contenteditable="true">—</td><td contenteditable="true">—</td><td contenteditable="true">—</td><td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td></tr>
+                    <tr><td contenteditable="true">6</td><td contenteditable="true">Cordão de Solda / Juntas</td><td contenteditable="true">un</td><td contenteditable="true">—</td><td contenteditable="true">—</td><td contenteditable="true">—</td><td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td></tr>
+                    <tr><td contenteditable="true">7</td><td contenteditable="true">Lastro (brita)</td><td contenteditable="true">m³</td><td contenteditable="true">—</td><td contenteditable="true">—</td><td contenteditable="true">—</td><td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td></tr>
+                    <tr><td contenteditable="true">8</td><td contenteditable="true">Talas de Junção</td><td contenteditable="true">un</td><td contenteditable="true">—</td><td contenteditable="true">—</td><td contenteditable="true">—</td><td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td></tr>
+                    <tr><td contenteditable="true">9</td><td contenteditable="true">Parafusos de Tala de Junção</td><td contenteditable="true">un</td><td contenteditable="true">—</td><td contenteditable="true">—</td><td contenteditable="true">—</td><td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td></tr>
+                    <tr><td contenteditable="true">10</td><td contenteditable="true">Batente Fim de Curso</td><td contenteditable="true">un</td><td contenteditable="true">—</td><td contenteditable="true">2 (extremidades)</td><td contenteditable="true">4</td><td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td></tr>
                 </tbody>
             </table>
             <button class="btn-add" style="margin-top:10px;" onclick="addMaterialRow()">+ Inserir Material</button>
@@ -1280,6 +1380,28 @@
             <div id="heatmapLE" style="overflow-x:auto;"></div>
         </div>
 
+        <!-- DETALHE DO VÃO -->
+        <div class="card">
+            <div class="card-title"><span class="icon">🔎</span> 7.4 Detalhe do Vão entre Balizas — Componentes</div>
+            <p style="color:var(--text-secondary);font-size:0.85em;margin-bottom:12px;">
+                Cada vão entre balizas possui <strong>19 dormentes</strong>, <strong>38 almofadas</strong> (2 por dormente), <strong>19 grampos</strong> e <strong>2 tirantes</strong>. Selecione o vão e o lado; clique em um componente para registrar anomalia específica. Cor forte = anomalia registrada no componente; cor clara = anomalia geral do item no vão.
+            </p>
+            <div style="display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px;">
+                <div class="form-field" style="min-width:220px;"><label>Vão (Baliza → Baliza)</label><select id="vao-select" onchange="renderVaoDetail()"></select></div>
+                <div class="form-field" style="min-width:180px;"><label>Lado</label><select id="vao-lado" onchange="renderVaoDetail()"><option value="LD">LD — Lado Direito</option><option value="LE">LE — Lado Esquerdo</option></select></div>
+            </div>
+            <div class="diagram-wrapper" id="vaoDetail" style="overflow-x:auto;"></div>
+            <table class="data-table" style="margin-top:14px;">
+                <thead><tr><th>Componente</th><th>Por Vão</th><th>Por Via (73 vãos)</th><th>Total (2 vias)</th></tr></thead>
+                <tbody>
+                    <tr><td>Dormentes</td><td>19</td><td>1.387</td><td>2.774</td></tr>
+                    <tr><td>Almofadas</td><td>38</td><td>2.774</td><td>5.548</td></tr>
+                    <tr><td>Grampos de Fixação</td><td>19</td><td>1.387</td><td>2.774</td></tr>
+                    <tr><td>Tirantes</td><td>2</td><td>146</td><td>292</td></tr>
+                </tbody>
+            </table>
+        </div>
+
         <!-- QUANTITATIVE SUMMARY TABLE -->
         <div class="card">
             <div class="card-title"><span class="icon">📊</span> Quantitativo por Grupo de Balizas e Lado</div>
@@ -1310,7 +1432,7 @@
 
             <div class="anomaly-panel">
                 <div style="font-weight:600;color:var(--accent-cyan);margin-bottom:14px;">Adicionar Anomalia</div>
-                <div class="anomaly-form-row" style="grid-template-columns: 110px 85px 90px 230px 140px 110px 80px auto;">
+                <div class="anomaly-form-row" style="grid-template-columns: 105px 80px 85px 195px 165px 125px 100px 75px auto;">
                     <div><label>Grupo</label>
                         <select id="inp-grupo" onchange="onGroupSelectChange()"></select>
                     </div>
@@ -1320,6 +1442,9 @@
                     <div><label>Lado</label><select id="inp-lado"><option value="LD">LD</option><option value="LE">LE</option><option value="LD+LE">LD+LE</option></select></div>
                     <div><label>Item (OP.0070)</label>
                         <select id="inp-item"></select>
+                    </div>
+                    <div><label>Componente do Vão</label>
+                        <select id="inp-comp" onchange="onCompChange()"></select>
                     </div>
                     <div><label>Tipo</label>
                         <select id="inp-tipo">
@@ -1374,36 +1499,36 @@
         <div class="chart-row">
             <div class="chart-box">
                 <div class="card-title" style="margin-bottom:14px;">Anomalias por Grupo de Balizas (LD vs LE)</div>
-                <canvas id="chartLdLe"></canvas>
+                <div class="chart-holder"><canvas id="chartLdLe"></canvas></div>
             </div>
             <div class="chart-box">
                 <div class="card-title" style="margin-bottom:14px;">Distribuição por Severidade</div>
-                <canvas id="chartSeverity"></canvas>
+                <div class="chart-holder"><canvas id="chartSeverity"></canvas></div>
             </div>
         </div>
         <div class="chart-row">
             <div class="chart-box">
                 <div class="card-title" style="margin-bottom:14px;">Anomalias por Item da Lista OP.0070</div>
-                <canvas id="chartItem"></canvas>
+                <div class="chart-holder"><canvas id="chartItem"></canvas></div>
             </div>
             <div class="chart-box">
                 <div class="card-title" style="margin-bottom:14px;">Anomalias por Tipo</div>
-                <canvas id="chartType"></canvas>
+                <div class="chart-holder"><canvas id="chartType"></canvas></div>
             </div>
         </div>
         <div class="chart-row">
             <div class="chart-box">
                 <div class="card-title" style="margin-bottom:14px;">Anomalias Totais por Grupo</div>
-                <canvas id="chartGroup"></canvas>
+                <div class="chart-holder"><canvas id="chartGroup"></canvas></div>
             </div>
             <div class="chart-box">
                 <div class="card-title" style="margin-bottom:14px;">Componentes p/ Troca por Grupo</div>
-                <canvas id="chartComp"></canvas>
+                <div class="chart-holder"><canvas id="chartComp"></canvas></div>
             </div>
         </div>
         <div class="card">
             <div class="card-title" style="margin-bottom:14px;">Perfil de Anomalias ao Longo da Via (Baliza 00–73)</div>
-            <canvas id="chartProfile" style="max-height:280px;"></canvas>
+            <div class="chart-holder wide"><canvas id="chartProfile"></canvas></div>
         </div>
     </div>
 
@@ -1487,6 +1612,7 @@
 <!-- FLOATING ACTIONS -->
 <div class="floating-actions">
     <button class="fab fab-secondary" onclick="salvarDados()" title="Salvar no navegador">💾</button>
+    <button class="fab fab-secondary" onclick="otimizarImagens()" title="Otimizar imagens (reduz o peso do PDF)">🗜️</button>
     <button class="fab fab-export" onclick="exportarJSON()" title="Exportar JSON">📤 JSON</button>
     <button class="fab fab-secondary" onclick="document.getElementById('jsonImportInput').click()" title="Importar JSON">📥 Importar</button>
     <input type="file" id="jsonImportInput" accept=".json" style="display:none;" onchange="importarJSON(this)">
@@ -1509,6 +1635,15 @@ const ITEMS = [
     { num: '05', op: 'OP.00190', nome: 'CORDÃO DE SOLDA' },
     { num: '06', op: 'OP.00200', nome: 'FIXAÇÃO DAS PALMILHAS' },
     { num: '07', op: 'OP.00220', nome: 'BATENTE FIM DE CURSO' },
+    { num: '08', op: 'TIRANTES', nome: 'TIRANTES', extra: true },
+];
+
+// Composição de cada vão entre balizas (por via/lado)
+const COMPONENTES_VAO = [
+    { id: 'dormente', nome: 'Dormente', plural: 'Dormentes', qty: 19, item: 'OP.00140' },
+    { id: 'almofada', nome: 'Almofada', plural: 'Almofadas', qty: 38, item: 'OP.00200' },
+    { id: 'grampo', nome: 'Grampo', plural: 'Grampos', qty: 19, item: 'OP.00150' },
+    { id: 'tirante', nome: 'Tirante', plural: 'Tirantes', qty: 2, item: 'TIRANTES' },
 ];
 
 const GROUPS = (() => {
@@ -1612,15 +1747,16 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 // ============================
 function renderTaskList() {
     const c = document.getElementById('taskListContainer');
+    const opItems = ITEMS.filter(i => !i.extra); // lista OP.0070 original (7 itens)
     c.innerHTML = GROUPS.map((g, gi) => `
         <div class="task-group" id="tg-${gi}">
             <div class="task-group-header" onclick="toggleGroup(${gi})">
                 <span class="tg-arrow">▶</span>
                 <span class="tg-title">BALIZA ${g.label}</span>
-                <span class="tg-count">${ITEMS.length} itens</span>
+                <span class="tg-count">${opItems.length} itens</span>
             </div>
             <div class="task-group-body">
-                ${ITEMS.map(it => `
+                ${opItems.map(it => `
                     <div class="task-item">
                         <span class="ti-num">${it.num}</span>
                         <span class="ti-name"><span class="ti-op">${it.op}</span> — ${it.nome}</span>
@@ -1842,7 +1978,29 @@ function renderGroupChips() {
     gsel.innerHTML = GROUPS.map((g, gi) => `<option value="${gi}">${g.label}</option>`).join('');
 
     const isel = document.getElementById('inp-item');
-    isel.innerHTML = ITEMS.map(it => `<option value="${it.op}">${it.num} · ${it.op} — ${it.nome}</option>`).join('');
+    isel.innerHTML = ITEMS.map(it => `<option value="${it.op}">${it.num} · ${it.op === it.nome ? it.nome : it.op + ' — ' + it.nome}</option>`).join('');
+
+    // Componentes do vão (opcional)
+    const csel = document.getElementById('inp-comp');
+    if (csel) {
+        csel.innerHTML = '<option value="">— Geral (sem componente) —</option>' + COMPONENTES_VAO.map(c =>
+            `<optgroup label="${c.plural} (${c.qty} por vão)">` +
+            Array.from({ length: c.qty }, (_, i) => `<option value="${c.id}:${i + 1}">${c.nome} ${i + 1}</option>`).join('') +
+            `</optgroup>`).join('');
+    }
+
+    // Seletor de vão (detalhe no mapa de calor)
+    const vsel = document.getElementById('vao-select');
+    if (vsel) {
+        vsel.innerHTML = Array.from({ length: NUM_BALIZAS - 1 }, (_, v) => `<option value="${v}">Baliza ${pad2(v)} → ${pad2(v + 1)}</option>`).join('');
+    }
+}
+
+function onCompChange() {
+    const v = document.getElementById('inp-comp').value;
+    if (!v) return;
+    const c = COMPONENTES_VAO.find(x => x.id === v.split(':')[0]);
+    if (c) document.getElementById('inp-item').value = c.item;
 }
 
 function rebuildBalizaSelect(gi) {
@@ -1907,6 +2065,9 @@ function addMaterialRow() {
     tr.innerHTML = `
         <td contenteditable="true">${rowCount + 1}</td>
         <td contenteditable="true"></td>
+        <td contenteditable="true">un</td>
+        <td contenteditable="true">—</td>
+        <td contenteditable="true">—</td>
         <td contenteditable="true">—</td>
         <td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td>
     `;
@@ -1929,8 +2090,20 @@ function addAnomaly() {
     if (isNaN(baliza) || baliza < 0 || baliza > NUM_BALIZAS - 1) return showToast('Baliza deve ser entre 00 e ' + pad2(NUM_BALIZAS - 1));
     if (!desc) return showToast('Descrição é obrigatória');
 
-    anomalies.push({ id: Date.now(), baliza, lado, item, tipo, desc, sev, qtd });
+    // Componente do vão (opcional)
+    const compVal = document.getElementById('inp-comp') ? document.getElementById('inp-comp').value : '';
+    let compTipo = null, compNum = null, comp = null;
+    if (compVal) {
+        const p = compVal.split(':');
+        compTipo = p[0];
+        compNum = parseInt(p[1]);
+        const c = COMPONENTES_VAO.find(x => x.id === compTipo);
+        comp = c ? c.nome + ' ' + compNum : compVal;
+    }
+
+    anomalies.push({ id: Date.now(), baliza, lado, item, tipo, desc, sev, qtd, compTipo, compNum, comp });
     document.getElementById('inp-desc').value = '';
+    if (document.getElementById('inp-comp')) document.getElementById('inp-comp').value = '';
     renderAnomalyTable();
     updateKPIs();
     renderDiagram();
@@ -1952,20 +2125,24 @@ function renderAnomalyTable() {
         tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text-muted);padding:30px;">Nenhuma anomalia registrada. Use o formulário acima, o diagrama, os mapas de calor ou a lista de tarefas.</td></tr>';
         return;
     }
-    tbody.innerHTML = anomalies.map((a, i) => `
+    tbody.innerHTML = anomalies.map((a, i) => {
+        const it = getItem(a.item);
+        const opLabel = it && it.op !== it.nome ? `<span style="color:var(--accent-green);font-weight:700;">${it.op}</span> ` : '';
+        const compLabel = a.comp ? ` <span style="color:var(--accent-purple);font-weight:600;font-size:0.9em;">· ${a.comp}</span>` : '';
+        return `
         <tr>
             <td style="font-family:JetBrains Mono,monospace;font-weight:600;">${i+1}</td>
             <td style="font-family:JetBrains Mono,monospace;font-weight:700;color:var(--accent-cyan);">${pad2(a.baliza)}</td>
             <td>${getGroup(a.baliza).label}</td>
             <td><span style="font-weight:600;color:${a.lado.includes('LD')?'var(--accent-yellow)':'var(--accent-orange)'}">${a.lado}</span></td>
-            <td style="font-size:0.92em;"><span style="color:var(--accent-green);font-weight:700;">${getItem(a.item) ? getItem(a.item).op : ''}</span> ${getItem(a.item) ? getItem(a.item).nome : (a.item || '—')}</td>
+            <td style="font-size:0.92em;">${opLabel}${it ? it.nome : (a.item || '—')}${compLabel}</td>
             <td>${a.tipo}</td>
             <td style="max-width:260px;">${a.desc}</td>
             <td><span class="severity-badge ${getSeverityClass(a.sev)}">${getSeverityLabel(a.sev)}</span></td>
             <td style="font-family:JetBrains Mono,monospace;font-weight:700;color:var(--accent-red);">${a.qtd || 1}</td>
             <td><button class="btn-remove" onclick="removeAnomaly(${a.id})">✕</button></td>
-        </tr>
-    `).join('');
+        </tr>`;
+    }).join('');
 }
 
 // ============================
@@ -2029,6 +2206,101 @@ function renderHeatmaps() {
     renderHeatmapGeneral();
     renderHeatmapItems('LD', 'heatmapLD');
     renderHeatmapItems('LE', 'heatmapLE');
+    renderVaoDetail();
+}
+
+// ============================
+// DETALHE DO VÃO (COMPONENTES)
+// ============================
+function getCompSeverity(vao, lado, compTipo, compNum) {
+    const rel = anomalies.filter(a => a.baliza === vao && (a.lado === lado || a.lado === 'LD+LE') && a.compTipo === compTipo && a.compNum === compNum);
+    return rel.length ? Math.max(...rel.map(a => a.sev)) : 0;
+}
+
+function getItemGenericSeverity(vao, lado, itemOp) {
+    const rel = anomalies.filter(a => a.baliza === vao && (a.lado === lado || a.lado === 'LD+LE') && a.item === itemOp && !a.compTipo);
+    return rel.length ? Math.max(...rel.map(a => a.sev)) : 0;
+}
+
+function compFill(vao, lado, comp, num, defFill) {
+    const spec = getCompSeverity(vao, lado, comp.id, num);
+    if (spec > 0) return { fill: getSeverityColor(spec), op: 1, sev: spec, generic: false };
+    const gen = getItemGenericSeverity(vao, lado, comp.item);
+    if (gen > 0) return { fill: getSeverityColor(gen), op: 0.35, sev: gen, generic: true };
+    return { fill: defFill, op: 1, sev: 0, generic: false };
+}
+
+function renderVaoDetail() {
+    const container = document.getElementById('vaoDetail');
+    const vsel = document.getElementById('vao-select');
+    const lsel = document.getElementById('vao-lado');
+    if (!container || !vsel || !lsel) return;
+    const v = parseInt(vsel.value) || 0;
+    const lado = lsel.value;
+    const W = 1160, H = 250, startX = 70, dx = (1120 - startX) / 19;
+    const railSup = 78, railInf = 178;
+    const D = COMPONENTES_VAO.find(c => c.id === 'dormente');
+    const A = COMPONENTES_VAO.find(c => c.id === 'almofada');
+    const G = COMPONENTES_VAO.find(c => c.id === 'grampo');
+    const T = COMPONENTES_VAO.find(c => c.id === 'tirante');
+
+    let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:950px;font-family:'IBM Plex Sans',sans-serif;">`;
+    svg += `<text x="${startX}" y="20" fill="var(--text-primary)" font-size="12" font-weight="700">VÃO BALIZA ${pad2(v)} → ${pad2(v + 1)} · LADO ${lado}</text>`;
+    svg += `<text x="${W - 20}" y="20" fill="var(--text-muted)" font-size="9" text-anchor="end">19 dormentes · 38 almofadas · 19 grampos · 2 tirantes</text>`;
+
+    // Dormentes
+    for (let n = 1; n <= D.qty; n++) {
+        const cx = startX + dx * (n - 0.5);
+        const f = compFill(v, lado, D, n, '#E8EDF3');
+        svg += `<rect x="${cx - 10}" y="44" width="20" height="170" rx="3" class="rail-support" fill="${f.fill}" fill-opacity="${f.op}" stroke="#94A3B8" stroke-width="0.8" onclick="onVaoCompClick(${v},'${lado}','dormente',${n})"><title>Dormente ${n}: ${getSeverityLabel(f.sev)}${f.generic ? ' (anomalia geral do item)' : ''}</title></rect>`;
+        svg += `<text x="${cx}" y="232" fill="var(--text-muted)" font-size="8" text-anchor="middle" font-family="JetBrains Mono,monospace">${n}</text>`;
+    }
+
+    // Trilhos
+    [railSup, railInf].forEach(ry => {
+        svg += `<line x1="40" y1="${ry}" x2="${W - 30}" y2="${ry}" stroke="#16A34A" stroke-width="3"/>`;
+    });
+    svg += `<text x="36" y="${railSup + 3}" fill="var(--text-muted)" font-size="7" text-anchor="end">TRILHO 1</text>`;
+    svg += `<text x="36" y="${railInf + 3}" fill="var(--text-muted)" font-size="7" text-anchor="end">TRILHO 2</text>`;
+
+    // Tirantes (entre dormentes 6–7 e 13–14)
+    [1, 2].forEach(n => {
+        const xT = startX + dx * (n === 1 ? 6 : 13);
+        const f = compFill(v, lado, T, n, '#DDD6FE');
+        svg += `<rect x="${xT - 5}" y="${railSup}" width="10" height="${railInf - railSup}" rx="2" class="rail-support" fill="${f.fill}" fill-opacity="${f.op}" stroke="#7C3AED" stroke-width="0.9" onclick="onVaoCompClick(${v},'${lado}','tirante',${n})"><title>Tirante ${n}: ${getSeverityLabel(f.sev)}${f.generic ? ' (anomalia geral do item)' : ''}</title></rect>`;
+        svg += `<text x="${xT}" y="${(railSup + railInf) / 2 + 3}" fill="#7C3AED" font-size="7" text-anchor="middle" font-weight="700" pointer-events="none">T${n}</text>`;
+    });
+
+    // Almofadas (2 por dormente: ímpar = Trilho 1, par = Trilho 2)
+    for (let n = 1; n <= D.qty; n++) {
+        const cx = startX + dx * (n - 0.5);
+        [{ num: 2 * n - 1, y: railSup }, { num: 2 * n, y: railInf }].forEach(p => {
+            const f = compFill(v, lado, A, p.num, '#D9F2F8');
+            svg += `<rect x="${cx - 7}" y="${p.y - 7}" width="14" height="14" rx="2" class="rail-support" fill="${f.fill}" fill-opacity="${f.op}" stroke="#0E7490" stroke-width="0.9" onclick="onVaoCompClick(${v},'${lado}','almofada',${p.num})"><title>Almofada ${p.num} (Dormente ${n} — ${p.y === railSup ? 'Trilho 1' : 'Trilho 2'}): ${getSeverityLabel(f.sev)}${f.generic ? ' (anomalia geral do item)' : ''}</title></rect>`;
+        });
+    }
+
+    // Grampos (1 por dormente, no centro)
+    for (let n = 1; n <= G.qty; n++) {
+        const cx = startX + dx * (n - 0.5);
+        const f = compFill(v, lado, G, n, '#EEF2F7');
+        svg += `<circle cx="${cx}" cy="128" r="6.5" class="rail-support" fill="${f.fill}" fill-opacity="${f.op}" stroke="#4A5068" stroke-width="0.9" onclick="onVaoCompClick(${v},'${lado}','grampo',${n})"><title>Grampo ${n}: ${getSeverityLabel(f.sev)}${f.generic ? ' (anomalia geral do item)' : ''}</title></circle>`;
+    }
+
+    svg += `</svg>`;
+    container.innerHTML = svg;
+}
+
+function onVaoCompClick(vao, lado, compTipo, compNum) {
+    document.querySelector('.tab-btn[data-tab="registro"]').click();
+    selectGroup(getGroupIndex(vao));
+    document.getElementById('inp-baliza').value = vao;
+    document.getElementById('inp-lado').value = lado;
+    const csel = document.getElementById('inp-comp');
+    if (csel) { csel.value = compTipo + ':' + compNum; onCompChange(); }
+    document.getElementById('inp-desc').focus();
+    const c = COMPONENTES_VAO.find(x => x.id === compTipo);
+    showToast((c ? c.nome + ' ' + compNum : '') + ' — vão ' + pad2(vao) + '→' + pad2(vao + 1) + ' (' + lado + ') selecionado');
 }
 
 function renderHeatmapGeneral() {
@@ -2068,6 +2340,16 @@ function renderHeatmapItems(side, containerId) {
 // ============================
 function updateCharts() {
     Chart.defaults.color = '#4A5068';
+    Chart.defaults.font.family = "'IBM Plex Sans', sans-serif";
+    Chart.defaults.font.size = 11;
+    Chart.defaults.devicePixelRatio = 3;           // nitidez no PDF
+    Chart.defaults.responsive = true;
+    Chart.defaults.maintainAspectRatio = false;    // altura padronizada pelo contêiner
+    Chart.defaults.animation = false;
+
+    // Padrões comuns a todos os gráficos
+    const LEG = { position: 'bottom', labels: { color: '#4A5068', boxWidth: 12, boxHeight: 12, padding: 10, font: { size: 10 } } };
+    const GRID = '#E2E6ED';
     const groupLabels = GROUPS.map(g => g.short);
 
     // Chart 1: LD vs LE por grupo
@@ -2088,7 +2370,7 @@ function updateCharts() {
                 { label: 'LE', data: ldLeData.map(d => d.le), backgroundColor: 'rgba(249,115,22,0.7)', borderRadius: 4 },
             ]
         },
-        options: { responsive: true, plugins: { legend: { labels: { color: '#4A5068' } }, datalabels: { color: '#fff', font: { weight: 'bold', size: 10 }, display: ctx => ctx.dataset.data[ctx.dataIndex] > 0 } }, scales: { x: { grid: { color: '#D8DBE2' }, ticks: { font: { size: 9 } } }, y: { grid: { color: '#D8DBE2' }, beginAtZero: true, ticks: { precision: 0 } } } },
+        options: { plugins: { legend: LEG, datalabels: { color: '#fff', font: { weight: 'bold', size: 10 }, display: ctx => ctx.dataset.data[ctx.dataIndex] > 0 } }, scales: { x: { grid: { display: false }, ticks: { font: { size: 9 } } }, y: { grid: { color: GRID }, beginAtZero: true, ticks: { precision: 0, font: { size: 10 } } } } },
         plugins: [ChartDataLabels]
     });
 
@@ -2107,11 +2389,11 @@ function updateCharts() {
             }]
         },
         options: {
-            responsive: true,
             cutout: '55%',
+            layout: { padding: 4 },
             plugins: {
-                legend: { position: 'bottom', labels: { color: '#4A5068', padding: 16 } },
-                datalabels: { color: '#fff', font: { weight: 'bold', size: 13 }, display: ctx => ctx.dataset.data[ctx.dataIndex] > 0 }
+                legend: LEG,
+                datalabels: { color: '#fff', font: { weight: 'bold', size: 12 }, display: ctx => ctx.dataset.data[ctx.dataIndex] > 0 }
             }
         },
         plugins: [ChartDataLabels]
@@ -2127,28 +2409,28 @@ function updateCharts() {
             labels: ITEMS.map(it => it.num + ' ' + it.nome),
             datasets: [{ label: 'Anomalias', data: itemCounts, backgroundColor: ITEMS.map((_, i) => itemColors[i % itemColors.length] + 'cc'), borderRadius: 6 }]
         },
-        options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false }, datalabels: { color: '#fff', font: { weight: 'bold', size: 12 }, anchor: 'end', align: 'start', display: ctx => ctx.dataset.data[ctx.dataIndex] > 0 } }, scales: { x: { grid: { color: '#D8DBE2' }, beginAtZero: true, ticks: { precision: 0 } }, y: { grid: { display: false }, ticks: { font: { size: 10 } } } } },
+        options: { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: { color: '#fff', font: { weight: 'bold', size: 11 }, anchor: 'end', align: 'start', display: ctx => ctx.dataset.data[ctx.dataIndex] > 0 } }, scales: { x: { grid: { color: GRID }, beginAtZero: true, ticks: { precision: 0, font: { size: 10 } } }, y: { grid: { display: false }, ticks: { font: { size: 9 } } } } },
         plugins: [ChartDataLabels]
     });
 
-    // Chart 4: Por tipo
+    // Chart 4: Por tipo (rosca — padronizado com o de severidade)
     destroyChart('chartType');
     const types = {};
     anomalies.forEach(a => { types[a.tipo] = (types[a.tipo] || 0) + 1; });
     const typeLabels = Object.keys(types);
     chartInstances['chartType'] = new Chart(document.getElementById('chartType'), {
-        type: 'polarArea',
+        type: 'doughnut',
         data: {
             labels: typeLabels,
             datasets: [{ data: typeLabels.map(t => types[t]), backgroundColor: typeLabels.map((_, i) => itemColors[i % itemColors.length] + 'cc'), borderWidth: 0 }]
         },
         options: {
-            responsive: true,
+            cutout: '55%',
+            layout: { padding: 4 },
             plugins: {
-                legend: { position: 'bottom', labels: { color: '#4A5068', padding: 12 } },
-                datalabels: { color: '#fff', font: { weight: 'bold' }, display: ctx => ctx.dataset.data[ctx.dataIndex] > 0 }
-            },
-            scales: { r: { grid: { color: '#D8DBE2' }, ticks: { display: false } } }
+                legend: LEG,
+                datalabels: { color: '#fff', font: { weight: 'bold', size: 12 }, display: ctx => ctx.dataset.data[ctx.dataIndex] > 0 }
+            }
         },
         plugins: [ChartDataLabels]
     });
@@ -2162,7 +2444,7 @@ function updateCharts() {
             labels: groupLabels,
             datasets: [{ label: 'Anomalias', data: groupCounts, backgroundColor: GROUPS.map((_, i) => (i % 2 === 0 ? '#2563EB' : '#059669') + 'cc'), borderRadius: 5 }]
         },
-        options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false }, datalabels: { color: '#fff', font: { weight: 'bold', size: 10 }, anchor: 'end', align: 'start', display: ctx => ctx.dataset.data[ctx.dataIndex] > 0 } }, scales: { x: { grid: { color: '#D8DBE2' }, beginAtZero: true, ticks: { precision: 0 } }, y: { grid: { display: false }, ticks: { font: { size: 9 } } } } },
+        options: { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: { color: '#fff', font: { weight: 'bold', size: 10 }, anchor: 'end', align: 'start', display: ctx => ctx.dataset.data[ctx.dataIndex] > 0 } }, scales: { x: { grid: { color: GRID }, beginAtZero: true, ticks: { precision: 0, font: { size: 10 } } }, y: { grid: { display: false }, ticks: { font: { size: 9 } } } } },
         plugins: [ChartDataLabels]
     });
 
@@ -2175,7 +2457,7 @@ function updateCharts() {
             labels: groupLabels,
             datasets: [{ label: 'Componentes p/ Troca', data: compCounts, backgroundColor: 'rgba(220,38,38,0.75)', borderRadius: 4 }]
         },
-        options: { responsive: true, plugins: { legend: { display: false }, datalabels: { color: '#fff', font: { weight: 'bold', size: 10 }, display: ctx => ctx.dataset.data[ctx.dataIndex] > 0 } }, scales: { x: { grid: { color: '#D8DBE2' }, ticks: { font: { size: 9 } } }, y: { grid: { color: '#D8DBE2' }, beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Componentes', color: '#4A5068' } } } },
+        options: { plugins: { legend: { display: false }, datalabels: { color: '#fff', font: { weight: 'bold', size: 10 }, display: ctx => ctx.dataset.data[ctx.dataIndex] > 0 } }, scales: { x: { grid: { display: false }, ticks: { font: { size: 9 } } }, y: { grid: { color: GRID }, beginAtZero: true, ticks: { precision: 0, font: { size: 10 } }, title: { display: true, text: 'Componentes', color: '#4A5068', font: { size: 10 } } } } },
         plugins: [ChartDataLabels]
     });
 
@@ -2197,11 +2479,10 @@ function updateCharts() {
             ]
         },
         options: {
-            responsive: true,
-            plugins: { legend: { labels: { color: '#4A5068' } }, datalabels: { display: false } },
+            plugins: { legend: LEG, datalabels: { display: false } },
             scales: {
-                x: { grid: { color: '#D8DBE2' }, ticks: { callback: v => v % 5 === 0 ? pad2(v) : '', color: '#7C819A', font: { size: 9 } } },
-                y: { grid: { color: '#D8DBE2' }, ticks: { callback: v => Math.abs(v), color: '#4A5068' }, title: { display: true, text: 'Severidade', color: '#4A5068' } }
+                x: { grid: { display: false }, stacked: true, ticks: { callback: v => v % 5 === 0 ? pad2(v) : '', color: '#7C819A', font: { size: 9 }, autoSkip: false } },
+                y: { grid: { color: GRID }, min: -4, max: 4, ticks: { stepSize: 1, callback: v => Math.abs(v), color: '#4A5068', font: { size: 10 } }, title: { display: true, text: 'Severidade', color: '#4A5068', font: { size: 10 } } }
             }
         },
         plugins: [ChartDataLabels]
@@ -2213,6 +2494,70 @@ function destroyChart(id) {
 }
 </script>
 <script>
+// ============================
+// COMPRESSÃO DE IMAGENS
+// Reduz o peso sem perda visual: o PDF fica leve e a
+// pré-visualização de impressão não trava.
+// ============================
+function compressImage(dataUrl, maxDim, quality) {
+    maxDim = maxDim || 1600;
+    quality = quality || 0.82;
+    return new Promise(resolve => {
+        if (typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image')) return resolve(dataUrl);
+
+        // Proteção: nunca deixa a promessa pendente (evita travar a geração do PDF)
+        let done = false;
+        const finish = v => { if (!done) { done = true; clearTimeout(timer); resolve(v); } };
+        const timer = setTimeout(() => finish(dataUrl), 6000);
+
+        const img = new Image();
+        img.onload = () => {
+            try {
+                let { width: w, height: h } = img;
+                if (!w || !h) return finish(dataUrl);
+                const scale = Math.min(1, maxDim / Math.max(w, h));
+                const cw = Math.round(w * scale), ch = Math.round(h * scale);
+                const canvas = document.createElement('canvas');
+                canvas.width = cw; canvas.height = ch;
+                const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(0, 0, cw, ch);
+                ctx.drawImage(img, 0, 0, cw, ch);
+                const out = canvas.toDataURL('image/jpeg', quality);
+                finish(out && out.length < dataUrl.length ? out : dataUrl);
+            } catch (e) { finish(dataUrl); }
+        };
+        img.onerror = () => finish(dataUrl);
+        img.src = dataUrl;
+    });
+}
+
+function fmtKB(str) {
+    const bytes = Math.round((str.length - (str.indexOf(',') + 1)) * 0.75);
+    return bytes > 1048576 ? (bytes / 1048576).toFixed(1) + ' MB' : Math.round(bytes / 1024) + ' KB';
+}
+
+// Otimiza todas as imagens já inseridas (fotos e desenhos)
+async function otimizarImagens(silencioso) {
+    const alvos = [];
+    document.querySelectorAll('#evidenceGrid .evidence-card img').forEach(i => alvos.push({ img: i, max: 1600, q: 0.82 }));
+    document.querySelectorAll('.drawing-upload-area img').forEach(i => alvos.push({ img: i, max: 2400, q: 0.88 }));
+    let orig = 0, comp = 0, n = 0;
+    for (const t of alvos) {
+        const src = t.img.getAttribute('src') || '';
+        if (!src.startsWith('data:image')) continue;
+        if (src.startsWith('data:image/jpeg') && src.length < 500000) { orig += src.length; comp += src.length; continue; }
+        const small = await compressImage(src, t.max, t.q);
+        orig += src.length; comp += small.length;
+        if (small !== src) { t.img.src = small; n++; }
+    }
+    const pct = orig ? Math.round((1 - comp / orig) * 100) : 0;
+    if (!silencioso) showToast(n ? `🗜️ ${n} imagem(ns) otimizada(s) — ${pct}% mais leve` : '✅ Imagens já otimizadas');
+    return { n, pct };
+}
+
 // ============================
 // EVIDÊNCIAS
 // ============================
@@ -2275,9 +2620,10 @@ function onEvBalizaChange(select) {
 function handleEvUpload(input, previewId) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
-        reader.onload = e => {
+        reader.onload = async e => {
+            const src = await compressImage(e.target.result, 1600, 0.82);
             const img = document.getElementById(previewId);
-            img.src = e.target.result;
+            img.src = src;
             input.closest('.evidence-upload').classList.add('has-image');
         };
         reader.readAsDataURL(input.files[0]);
@@ -2286,14 +2632,24 @@ function handleEvUpload(input, previewId) {
 
 function handleMultiUpload(input) {
     if (!input.files || input.files.length === 0) return;
-    const count = input.files.length;
-    Array.from(input.files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = e => { addEvidenceSlot(e.target.result); };
-        reader.readAsDataURL(file);
-    });
+    const files = Array.from(input.files);
     input.value = '';
-    showToast(`📷 ${count} foto(s) adicionada(s)!`);
+    showToast(`📷 Processando ${files.length} foto(s)...`);
+    (async () => {
+        let orig = 0, comp = 0;
+        for (const file of files) {
+            const raw = await new Promise(res => {
+                const r = new FileReader();
+                r.onload = e => res(e.target.result);
+                r.readAsDataURL(file);
+            });
+            const small = await compressImage(raw, 1600, 0.82);
+            orig += raw.length; comp += small.length;
+            addEvidenceSlot(small);
+        }
+        const pct = orig ? Math.round((1 - comp / orig) * 100) : 0;
+        showToast(`📷 ${files.length} foto(s) adicionada(s) — otimizadas (${pct}% mais leves)`);
+    })();
 }
 
 // ============================
@@ -2351,11 +2707,13 @@ function addDrawingSlot(title, description) {
 function handleDrawingUpload(input, previewId) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
-        reader.onload = e => {
+        reader.onload = async e => {
+            // Desenhos mantêm mais resolução (linhas finas e textos técnicos)
+            const src = await compressImage(e.target.result, 2400, 0.88);
             const img = document.getElementById(previewId);
-            img.src = e.target.result;
+            img.src = src;
             input.closest('.drawing-upload-area').classList.add('has-image');
-            showToast('✅ Desenho inserido com sucesso!');
+            showToast('✅ Desenho inserido (' + fmtKB(src) + ')');
         };
         reader.readAsDataURL(input.files[0]);
     }
@@ -2371,8 +2729,17 @@ function removeDrawing(cardId) {
 // ============================
 // PDF GENERATION
 // ============================
-function gerarPDF() {
-    showToast('📄 Preparando PDF — gerando relatório...');
+async function gerarPDF() {
+    showToast('📄 Preparando PDF — otimizando imagens...');
+
+    // Sem esta etapa, fotos em resolução original travam a pré-visualização do navegador.
+    // Limite global de 45s: se algo demorar, segue direto para a impressão.
+    try {
+        await Promise.race([
+            otimizarImagens(true),
+            new Promise(r => setTimeout(r, 45000))
+        ]);
+    } catch (e) { console.warn('Otimização:', e); }
 
     // Nome do arquivo: RL_{Local de Instalação}_{MM}_{AAAA} (mês/ano da Data da Inspeção)
     const originalTitle = document.title;
@@ -2405,6 +2772,26 @@ function gerarPDF() {
         ev.style.display = 'none';
     }
 
+    // Textos longos: expandir para mostrar todo o conteúdo (sem rolagem/corte)
+    document.querySelectorAll('textarea').forEach(t => {
+        t.setAttribute('data-prev-h', t.style.height || '');
+        t.style.height = 'auto';
+        t.style.height = (t.scrollHeight + 4) + 'px';
+    });
+
+    // Evidências: substituir o seletor pelo rótulo impresso da baliza
+    document.querySelectorAll('#evidenceGrid .evidence-card').forEach(card => {
+        const sel = card.querySelector('.evidence-meta select');
+        if (!sel) return;
+        let lbl = card.querySelector('.ev-print-label');
+        if (!lbl) {
+            lbl = document.createElement('div');
+            lbl.className = 'ev-print-label';
+            sel.parentNode.insertBefore(lbl, sel);
+        }
+        lbl.textContent = sel.value !== '' ? 'Baliza ' + pad2(parseInt(sel.value)) : '';
+    });
+
     document.querySelectorAll('.drawing-card').forEach(card => {
         const area = card.querySelector('.drawing-upload-area');
         if (area && !area.classList.contains('has-image')) {
@@ -2429,6 +2816,10 @@ function gerarPDF() {
         window.print();
         setTimeout(() => {
             document.title = originalTitle;
+            document.querySelectorAll('textarea').forEach(t => {
+                t.style.height = t.getAttribute('data-prev-h') || '';
+                t.removeAttribute('data-prev-h');
+            });
             document.querySelectorAll('.tab-content').forEach(t => { t.style.display = ''; });
             document.querySelectorAll('[data-print-hidden]').forEach(el => {
                 el.style.display = '';
