@@ -999,7 +999,86 @@
     #groupChips .zone-name { font-size: 0.85em; margin-bottom: 2px; }
     #groupChips .zone-range { font-size: 0.7em; }
 
-    .print-footer, .ev-print-label { display: none; }
+    .print-footer, .ev-print-label, .print-text { display: none; }
+
+    /* ===== EDITOR DE FORMAS (ANOTAÇÃO EM FOTOS) ===== */
+    .btn-formas {
+        position: absolute;
+        left: 8px; bottom: 8px;
+        background: var(--accent-green);
+        color: #fff;
+        border: none;
+        border-radius: 7px;
+        padding: 5px 12px;
+        font-family: inherit;
+        font-size: 0.78em;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        z-index: 3;
+    }
+    .btn-formas:hover { background: #047857; }
+    .evidence-upload, .drawing-upload-area { position: relative; }
+
+    .annot-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: #1A1D26;
+        z-index: 20000;
+        flex-direction: column;
+    }
+    .annot-overlay.open { display: flex; }
+    .annot-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        padding: 12px 18px;
+        background: #14161F;
+        border-bottom: 1px solid #2A2E3D;
+    }
+    .annot-bar .lbl { color: #C7CCDA; font-size: 0.82em; font-weight: 700; letter-spacing: 0.06em; }
+    .annot-tool, .annot-color {
+        background: #232735;
+        border: 2px solid #3A3F52;
+        border-radius: 9px;
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+    .annot-tool {
+        width: 56px; height: 44px;
+        color: #E6E9F2;
+        font-size: 1.1em;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .annot-tool:hover { border-color: #6B7290; }
+    .annot-tool.active { border-color: var(--accent-green); background: #16351F; color: #4ADE80; }
+    .annot-color { width: 44px; height: 40px; }
+    .annot-color.active { border-color: #fff; transform: scale(1.06); }
+    .annot-bar select {
+        background: #232735; color: #E6E9F2; border: 1px solid #3A3F52;
+        border-radius: 8px; padding: 8px 12px; font-family: inherit; font-size: 0.88em;
+    }
+    .annot-btn {
+        border: none; border-radius: 9px; padding: 10px 18px;
+        font-family: inherit; font-weight: 700; font-size: 0.86em; cursor: pointer;
+    }
+    .annot-undo { background: #232735; color: #E6E9F2; border: 1px solid #3A3F52; }
+    .annot-clear { background: #7F1D1D; color: #FCA5A5; }
+    .annot-cancel { background: #2A2E3D; color: #E6E9F2; }
+    .annot-apply { background: #047857; color: #fff; }
+    .annot-canvas-wrap {
+        flex: 1;
+        display: flex; align-items: center; justify-content: center;
+        background: #0F1117; overflow: auto; padding: 12px;
+    }
+    #annotCanvas { max-width: 100%; max-height: 100%; background: #fff; cursor: crosshair; box-shadow: 0 6px 30px rgba(0,0,0,0.5); }
+    .annot-foot {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        padding: 12px 18px; background: #14161F; border-top: 1px solid #2A2E3D;
+    }
+    .annot-foot .hint { color: #8A90A6; font-size: 0.82em; }
 
     @media print {
         @page { size: A4; margin: 12mm 10mm 16mm 10mm; }
@@ -1023,17 +1102,22 @@
         .form-field label { font-size: 0.68em !important; letter-spacing: 0.05em !important; margin-bottom: 3px !important; }
         .form-grid { gap: 12px 18px !important; margin-bottom: 8px !important; }
 
-        /* Textareas: texto completo, sem caixa nem rolagem */
-        textarea {
+        /* Textos longos: bloco fluido que quebra entre páginas sem cortar */
+        textarea { display: none !important; }
+        .print-text {
+            display: block !important;
+            white-space: pre-wrap;
+            word-wrap: break-word;
             border: none !important;
-            border-left: 3px solid #D8DBE2 !important;
-            padding: 2px 0 2px 10px !important;
-            font-weight: 400 !important;
-            font-style: normal !important;
-            min-height: 0 !important;
-            overflow: hidden !important;
-            resize: none !important;
-            white-space: pre-wrap !important;
+            padding: 2px 0;
+            font-size: 1em;
+            line-height: 1.55;
+            text-align: justify;
+            color: #1A1D26 !important;
+            break-inside: auto !important;
+            page-break-inside: auto !important;
+            orphans: 3;
+            widows: 3;
         }
 
         /* Evidências fotográficas — grade compacta (4 por linha), sem perda de nitidez */
@@ -1120,6 +1204,9 @@
 
         /* Cartões: conteúdo flui entre páginas (evita metade de página vazia) */
         .card { padding: 12px 14px !important; margin-bottom: 8px !important; border-radius: 8px !important; break-inside: auto !important; page-break-inside: auto !important; }
+        /* Conclusão e Recomendações: sem barras laterais coloridas */
+        #tab-conclusao .card { border-left: 1px solid #D8DBE2 !important; }
+        #tab-conclusao .card > div[style*="color:var(--accent-green)"] { color: #1A1D26 !important; }
         /* Só blocos pequenos e indivisíveis evitam quebra */
         .chart-box, .kpi-card, .evidence-card, .hm-item-container, .diagram-wrapper, .signatures-grid { break-inside: avoid !important; page-break-inside: avoid !important; }
         .card > div[style*="margin-top:28px"] { margin-top: 12px !important; }
@@ -1154,7 +1241,12 @@
         .legend-item { font-size: 0.8em !important; }
 
         /* Elementos de interação ocultos no PDF */
-        .task-group, .tl-controls, .tl-banner, .btn-registrar, #groupChips { display: none !important; }
+        .task-group, .tl-controls, .tl-banner, .btn-registrar, #groupChips,
+        .btn-formas, .annot-overlay, .btn-gerar-conclusao, .hint-gerador,
+        #topoAnexos { display: none !important; }
+        #topoGallery .drawing-card:has(.drawing-upload-area:not(.has-image)) { display: none !important; }
+        /* Sem barras laterais coloridas nos cartões do relatório impresso */
+        .card[style*="border-left"] { border-left: 1px solid #D8DBE2 !important; }
     }
 </style>
 <div class="app-container">
@@ -1182,6 +1274,7 @@
         <button class="tab-btn" data-tab="registro">Registro de Anomalias</button>
         <button class="tab-btn" data-tab="graficos">Gráficos Analíticos</button>
         <button class="tab-btn" data-tab="evidencias">Evidências Fotográficas</button>
+        <button class="tab-btn" data-tab="topografia">Topografia</button>
         <button class="tab-btn" data-tab="conclusao">Conclusão</button>
     </div>
 
@@ -1268,15 +1361,25 @@
                 <div class="form-field"><label>Área / Localização</label><input type="text" id="inp-area" value="TLO S11D — Canaã dos Carajás/PA" placeholder="Preenchido ao selecionar o local"></div>
                 <div class="form-field"><label>Data da Inspeção</label><input type="date" id="inp-data" value="2026-07-13"></div>
                 <div class="form-field"><label>Inspetor Responsável</label><select id="inp-inspetor"></select></div>
-                <div class="form-field"><label>Nº Ordem SAP</label><input type="text" value=""></div>
+                <div class="form-field"><label>Nº Ordem SAP</label><input type="text" id="inp-ordem-sap" value=""></div>
                 <div class="form-field"><label>Nº Plano</label><input type="text" id="inp-plano" value="" placeholder="Preenchido ao selecionar o local"></div>
+                <div class="form-field">
+                    <label>Condição de Limpeza / Sujidades</label>
+                    <select id="inp-limpeza">
+                        <option value="conforme">Conforme — via limpa e desobstruída</option>
+                        <option value="pontual" selected>Sujidade pontual — trechos localizados</option>
+                        <option value="generalizada">Sujidade generalizada — ao longo de toda a via</option>
+                        <option value="critica">Crítica — lastro colmatado / drenagem obstruída</option>
+                    </select>
+                </div>
+                <div class="form-field"><label>Trechos com Sujidade (balizas)</label><input type="text" id="inp-limpeza-trechos" value="" placeholder="Ex: 12 a 20, 45 e 58"></div>
             </div>
         </div>
 
         <div class="card">
             <div class="section-title">2.0 OBJETIVO</div>
             <div class="form-field">
-                <textarea style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;color:var(--text-primary);font-family:inherit;min-height:80px;">Realizar inspeção visual da via de rolamento em máquinas de pátio ao longo das balizas 00 a 73, em ambos os lados (LD — Lado Direito e LE — Lado Esquerdo), contemplando os itens da Lista de Tarefas Passo a Passo OP.0070: dormentes, grampos de fixação, lastro da via, trilho (boleto), cordão de solda, fixação das palmilhas e batente fim de curso, classificando as anomalias identificadas por severidade.</textarea>
+                <textarea id="txt-objetivo" style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;color:var(--text-primary);font-family:inherit;min-height:80px;">Realizar inspeção visual da via de rolamento em máquinas de pátio ao longo das balizas 00 a 73, em ambos os lados (LD — Lado Direito e LE — Lado Esquerdo), contemplando os itens da Lista de Tarefas Passo a Passo OP.0070: dormentes, grampos de fixação, lastro da via, trilho (boleto), cordão de solda, fixação das palmilhas e batente fim de curso, classificando as anomalias identificadas por severidade.</textarea>
             </div>
         </div>
 
@@ -1312,12 +1415,42 @@
             </table>
             <button class="btn-add" style="margin-top:10px;" onclick="addMaterialRow()">+ Inserir Material</button>
         </div>
+
+        <!-- 5.0 NOTAS DA CARTEIRA DO ATIVO -->
+        <div class="card" style="border-left:4px solid var(--accent-purple);">
+            <div class="section-title">5.0 CARTEIRA DO ATIVO — NOTAS DAS ÚLTIMAS INSPEÇÕES</div>
+            <p style="color:var(--text-secondary);font-size:0.88em;margin-bottom:14px;">
+                Notas SAP em aberto/tratativa geradas nas inspeções anteriores deste local de instalação. Serve de referência para acompanhamento das ações corretivas e verificação de reincidência.
+            </p>
+            <table class="data-table" id="notasTable">
+                <thead>
+                    <tr>
+                        <th style="width:130px;">Nº Nota SAP</th>
+                        <th style="width:105px;">Data</th>
+                        <th style="width:110px;">Tipo</th>
+                        <th>Descrição / Anomalia</th>
+                        <th style="width:120px;">Baliza / Trecho</th>
+                        <th style="width:120px;">Status</th>
+                        <th style="width:40px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="notasTableBody"></tbody>
+            </table>
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+                <button class="btn-add" onclick="addNotaRow()">+ Inserir Nota</button>
+                <button class="btn-add" style="background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border-subtle);" onclick="colarNotas()">📋 Colar lista de notas</button>
+            </div>
+            <div style="margin-top:16px;">
+                <label style="display:block;font-size:0.78em;font-weight:600;color:var(--accent-blue);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Observações sobre o histórico</label>
+                <textarea id="txt-notas" style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;color:var(--text-primary);font-family:inherit;min-height:70px;">Existem laudos pendentes de tratativa referentes às notas relacionadas acima. Recomenda-se o acompanhamento das ações corretivas e a atualização do status de cada nota junto à carteira do ativo.</textarea>
+            </div>
+        </div>
     </div>
 
     <!-- TAB 2: LISTA DE TAREFAS -->
     <div class="tab-content" id="tab-tarefas">
         <div class="card">
-            <div class="section-title">5.0 LISTA DE TAREFAS PASSO A PASSO — OP.0070</div>
+            <div class="section-title">6.0 LISTA DE TAREFAS PASSO A PASSO — OP.0070</div>
             <p style="color:var(--text-secondary);font-size:0.9em;margin-bottom:16px;">
                 Itens de inspeção aplicáveis a cada grupo de balizas, em ambos os lados (LD e LE). Use o botão <strong>+ Registrar</strong> para lançar uma anomalia já vinculada ao item.
             </p>
@@ -1333,7 +1466,7 @@
     <!-- TAB 3: DIAGRAMA -->
     <div class="tab-content" id="tab-diagrama">
         <div class="card">
-            <div class="section-title">6.0 DESENHO DE ARRANJO — MAPEAMENTO DE ANOMALIAS</div>
+            <div class="section-title">7.0 DESENHO DE ARRANJO — MAPEAMENTO DE ANOMALIAS</div>
             <p style="color:var(--text-secondary);font-size:0.9em;margin-bottom:16px;">
                 Planta esquemática conforme o cadastral: duas vias independentes — Lado Direito (LD) e Lado Esquerdo (LE) — com dormentes, trilhos, travessas de interligação e linha central entre elas. O mapa de calor é sobreposto ao desenho: a intensidade da cor em cada baliza indica a severidade máxima registrada. Clique em uma baliza para registrar anomalia.
             </p>
@@ -1365,9 +1498,9 @@
     <!-- TAB 4: HEATMAP -->
     <div class="tab-content" id="tab-heatmap">
         <div class="card">
-            <div class="section-title">7.0 MAPA DE CALOR — SEVERIDADE POR BALIZA</div>
+            <div class="section-title">8.0 MAPA DE CALOR — SEVERIDADE POR BALIZA</div>
             <p style="color:var(--text-secondary);font-size:0.9em;margin-bottom:20px;">
-                <strong>7.1 Visão Geral — Planta da Via:</strong> severidade máxima registrada em cada baliza (00–73) sobreposta à planta das vias LD e LE, conforme o cadastral. Clique em uma baliza para registrar anomalia.
+                <strong>8.1 Visão Geral — Planta da Via:</strong> severidade máxima registrada em cada baliza (00–73) sobreposta à planta das vias LD e LE, conforme o cadastral. Clique em uma baliza para registrar anomalia.
             </p>
             <div id="heatmapGeneral"></div>
 
@@ -1381,14 +1514,14 @@
         </div>
 
         <div class="card">
-            <div class="card-title"><span class="icon">🌡️</span> 7.2 Mapa de Calor por Item da Lista OP.0070 — Lado Direito (LD)</div>
+            <div class="card-title"><span class="icon">🌡️</span> 8.2 Mapa de Calor por Item da Lista OP.0070 — Lado Direito (LD)</div>
             <p style="color:var(--text-secondary);font-size:0.85em;margin-bottom:8px;">Linhas = itens da lista de tarefas · Colunas = balizas 00 a 73. Clique em uma célula para registrar anomalia no item/baliza.</p>
             <div class="hm-side-title hm-side-ld">LADO DIREITO (LD)</div>
             <div id="heatmapLD" style="overflow-x:auto;"></div>
         </div>
 
         <div class="card">
-            <div class="card-title"><span class="icon">🌡️</span> 7.3 Mapa de Calor por Item da Lista OP.0070 — Lado Esquerdo (LE)</div>
+            <div class="card-title"><span class="icon">🌡️</span> 8.3 Mapa de Calor por Item da Lista OP.0070 — Lado Esquerdo (LE)</div>
             <p style="color:var(--text-secondary);font-size:0.85em;margin-bottom:8px;">Linhas = itens da lista de tarefas · Colunas = balizas 00 a 73. Clique em uma célula para registrar anomalia no item/baliza.</p>
             <div class="hm-side-title hm-side-le">LADO ESQUERDO (LE)</div>
             <div id="heatmapLE" style="overflow-x:auto;"></div>
@@ -1396,7 +1529,7 @@
 
         <!-- DETALHE DO VÃO -->
         <div class="card">
-            <div class="card-title"><span class="icon">🔎</span> 7.4 Detalhe do Vão entre Balizas — Componentes</div>
+            <div class="card-title"><span class="icon">🔎</span> 8.4 Detalhe do Vão entre Balizas — Componentes</div>
             <p style="color:var(--text-secondary);font-size:0.85em;margin-bottom:12px;">
                 Cada vão entre balizas possui <strong>19 dormentes</strong>, <strong>38 almofadas</strong> (2 por dormente), <strong>19 grampos</strong> e <strong>2 tirantes</strong>. Selecione o vão e o lado; clique em um componente para registrar anomalia específica. As cores seguem o mapa de calor — as balizas nas extremidades mostram a severidade máxima do trecho.
             </p>
@@ -1447,7 +1580,7 @@
     <!-- TAB 5: REGISTRO -->
     <div class="tab-content" id="tab-registro">
         <div class="card">
-            <div class="section-title">8.0 REGISTRO DE ANOMALIAS</div>
+            <div class="section-title">9.0 REGISTRO DE ANOMALIAS</div>
 
             <!-- GROUP CHIPS -->
             <div id="groupChips"></div>
@@ -1478,6 +1611,9 @@
                             <option value="Corrosão">Corrosão</option>
                             <option value="Desnivelamento">Desnivelamento</option>
                             <option value="Contaminação do Lastro">Contaminação do Lastro</option>
+                            <option value="Sujidade / Acúmulo de Material">Sujidade / Acúmulo de Material</option>
+                            <option value="Vegetação">Vegetação</option>
+                            <option value="Obstrução de Drenagem">Obstrução de Drenagem</option>
                             <option value="Outro">Outro</option>
                         </select>
                     </div>
@@ -1517,7 +1653,7 @@
 
     <!-- TAB 6: GRÁFICOS -->
     <div class="tab-content" id="tab-graficos">
-        <div class="section-title" style="margin-bottom:20px;">9.0 ANÁLISE GRÁFICA</div>
+        <div class="section-title" style="margin-bottom:20px;">10.0 ANÁLISE GRÁFICA</div>
         <div class="chart-row">
             <div class="chart-box">
                 <div class="card-title" style="margin-bottom:14px;">Anomalias por Grupo de Balizas (LD vs LE)</div>
@@ -1557,16 +1693,73 @@
     <!-- TAB 7: EVIDÊNCIAS -->
     <div class="tab-content" id="tab-evidencias">
         <div class="card">
-            <div class="section-title">10.0 EVIDÊNCIAS FOTOGRÁFICAS</div>
+            <div class="section-title">11.0 EVIDÊNCIAS FOTOGRÁFICAS</div>
             <p style="color:var(--text-secondary);font-size:0.9em;margin-bottom:16px;">Registre as evidências fotográficas por grupo de balizas. Use <strong>📷 Fotos</strong> para enviar várias de uma vez ou <strong>+ Individual</strong> para adicionar uma. Dentro de cada grupo, vincule a foto à baliza correspondente (balizas com anomalia aparecem com ★).</p>
             <div id="evidenceSections"></div>
+        </div>
+    </div>
+
+    <!-- TAB: TOPOGRAFIA -->
+    <div class="tab-content" id="tab-topografia">
+        <div class="card">
+            <div class="section-title">12.0 RELATÓRIO TOPOGRÁFICO</div>
+            <p style="color:var(--text-secondary);font-size:0.9em;margin-bottom:16px;">
+                Dados do levantamento topográfico da via (nivelamento, alinhamento, bitola e superelevação). Anexe as pranchas/planilhas do levantamento e registre os desvios encontrados frente às tolerâncias de projeto.
+            </p>
+
+            <div class="form-grid">
+                <div class="form-field"><label>Empresa / Equipe Responsável</label><input type="text" id="topo-empresa" value=""></div>
+                <div class="form-field"><label>Responsável Técnico (CREA)</label><input type="text" id="topo-resp" value=""></div>
+                <div class="form-field"><label>Data do Levantamento</label><input type="date" id="topo-data" value=""></div>
+                <div class="form-field"><label>Equipamento Utilizado</label><input type="text" id="topo-equip" value="" placeholder="Ex: Estação Total / Nível Óptico"></div>
+                <div class="form-field"><label>Nº do Documento / Laudo</label><input type="text" id="topo-doc" value=""></div>
+                <div class="form-field"><label>Referência de Nível (RN)</label><input type="text" id="topo-rn" value=""></div>
+            </div>
+
+            <div class="card-title" style="margin:20px 0 10px;"><span class="icon">📐</span> 12.1 Resultados por Trecho</div>
+            <table class="data-table" id="topoTable">
+                <thead>
+                    <tr>
+                        <th style="width:120px;">Baliza / Trecho</th>
+                        <th style="width:80px;">Lado</th>
+                        <th>Parâmetro</th>
+                        <th style="width:100px;">Medido</th>
+                        <th style="width:110px;">Tolerância</th>
+                        <th style="width:100px;">Desvio</th>
+                        <th style="width:110px;">Situação</th>
+                        <th style="width:40px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="topoTableBody"></tbody>
+            </table>
+            <button class="btn-add" style="margin-top:10px;" onclick="addTopoRow()">+ Inserir Medição</button>
+
+            <div id="topoAnexos">
+                <div class="card-title" style="margin:24px 0 10px;"><span class="icon">📎</span> 12.2 Pranchas / Anexos do Levantamento</div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                    <span style="color:var(--text-muted);font-size:0.8em;">Uso interno — não é impresso no PDF</span>
+                    <button class="btn-add" onclick="addTopoSlot()">+ Adicionar Prancha</button>
+                </div>
+                <div id="topoGallery"></div>
+            </div>
+
+            <div style="margin-top:20px;">
+                <label style="display:block;font-size:0.78em;font-weight:600;color:var(--accent-blue);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">12.3 Conclusão do Levantamento Topográfico</label>
+                <textarea id="txt-topo" style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;color:var(--text-primary);font-family:inherit;min-height:90px;">[Descrever os desvios de nivelamento, alinhamento, bitola e superelevação identificados, os trechos críticos e a necessidade de correção geométrica da via.]</textarea>
+            </div>
         </div>
     </div>
 
     <!-- TAB 8: CONCLUSÃO -->
     <div class="tab-content" id="tab-conclusao">
         <div class="card" style="border-left:4px solid var(--accent-orange);">
-            <div class="section-title">11.0 CONCLUSÃO</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+                <div class="section-title" style="flex:1;min-width:220px;margin-bottom:12px;">13.0 CONCLUSÃO</div>
+                <button class="btn-add btn-gerar-conclusao" style="background:linear-gradient(135deg,#7C3AED,#5B21B6);" onclick="gerarConclusao(true)">✨ Gerar Conclusão e Recomendações</button>
+            </div>
+            <p class="hint-gerador" style="color:var(--text-muted);font-size:0.82em;margin:-6px 0 12px;">
+                Monta o texto a partir das anomalias registradas, das notas da carteira do ativo e do relatório topográfico. O texto gerado é editável.
+            </p>
             <div class="form-field">
                 <textarea style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;color:var(--text-primary);font-family:inherit;min-height:120px;" id="txt-conclusao">Foram inspecionadas as balizas 00 a 73 da via de rolamento (LD e LE), contemplando os 7 itens da Lista de Tarefas OP.0070: dormentes, grampos de fixação, lastro da via, trilho (boleto), cordão de solda, fixação das palmilhas e batente fim de curso.
 
@@ -1577,18 +1770,18 @@
         </div>
 
         <div class="card" style="border-left:4px solid var(--accent-green);">
-            <div class="section-title">12.0 RECOMENDAÇÕES</div>
+            <div class="section-title">14.0 RECOMENDAÇÕES</div>
             <div style="display:grid;gap:16px;">
                 <div>
-                    <div style="color:var(--accent-green);font-weight:600;margin-bottom:8px;">12.1 Engenharia</div>
+                    <div style="color:var(--accent-green);font-weight:600;margin-bottom:8px;">14.1 Engenharia</div>
                     <textarea style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;color:var(--text-primary);font-family:inherit;min-height:70px;" id="txt-eng">1. [Avaliações estruturais / notas YE necessárias.]</textarea>
                 </div>
                 <div>
-                    <div style="color:var(--accent-green);font-weight:600;margin-bottom:8px;">12.2 Inspeção</div>
+                    <div style="color:var(--accent-green);font-weight:600;margin-bottom:8px;">14.2 Inspeção</div>
                     <textarea style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;color:var(--text-primary);font-family:inherit;min-height:70px;" id="txt-insp">1. [Trechos pendentes, levantamentos dimensionais, prazo de reinspeção.]</textarea>
                 </div>
                 <div>
-                    <div style="color:var(--accent-green);font-weight:600;margin-bottom:8px;">12.3 Manutenção</div>
+                    <div style="color:var(--accent-green);font-weight:600;margin-bottom:8px;">14.3 Manutenção</div>
                     <textarea style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;color:var(--text-primary);font-family:inherit;min-height:70px;" id="txt-manut">1. [Substituições/correções por item da OP.0070 e prioridades de OM.]</textarea>
                 </div>
             </div>
@@ -1598,23 +1791,63 @@
         <div class="signatures-grid">
             <div class="sig-block">
                 <label>Elaborado por</label>
-                <input type="text" value="">
+                <input type="text" id="sig-elab" value="">
                 <div class="sig-line"></div>
             </div>
             <div class="sig-block">
                 <label>Verificado por</label>
-                <input type="text" value="">
+                <input type="text" id="sig-verif" value="">
                 <div class="sig-line"></div>
             </div>
             <div class="sig-block">
                 <label>Aprovado por</label>
-                <input type="text" value="">
+                <input type="text" id="sig-aprov" value="">
                 <div class="sig-line"></div>
             </div>
             <div class="sig-block">
                 <label>Data</label>
-                <input type="date" value="2026-07-13">
+                <input type="date" id="sig-data" value="2026-07-13">
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- EDITOR DE FORMAS (ANOTAÇÃO EM IMAGENS) -->
+<div class="annot-overlay" id="annotOverlay">
+    <div class="annot-bar">
+        <span class="lbl">FORMAS:</span>
+        <button class="annot-tool active" data-tool="rect" onclick="annotSetTool('rect')" title="Retângulo">▭</button>
+        <button class="annot-tool" data-tool="ellipse" onclick="annotSetTool('ellipse')" title="Círculo">◯</button>
+        <button class="annot-tool" data-tool="arrow" onclick="annotSetTool('arrow')" title="Seta">➜</button>
+        <button class="annot-tool" data-tool="line" onclick="annotSetTool('line')" title="Linha">╱</button>
+        <button class="annot-tool" data-tool="text" onclick="annotSetTool('text')" title="Texto">T</button>
+        <button class="annot-tool" data-tool="erase" onclick="annotSetTool('erase')" title="Apagar forma (clique sobre ela)">⌫</button>
+        <span style="width:10px;"></span>
+        <button class="annot-color active" data-color="#EF4444" style="background:#EF4444" onclick="annotSetColor('#EF4444')"></button>
+        <button class="annot-color" data-color="#FACC15" style="background:#FACC15" onclick="annotSetColor('#FACC15')"></button>
+        <button class="annot-color" data-color="#22C55E" style="background:#22C55E" onclick="annotSetColor('#22C55E')"></button>
+        <button class="annot-color" data-color="#3B82F6" style="background:#3B82F6" onclick="annotSetColor('#3B82F6')"></button>
+        <button class="annot-color" data-color="#F97316" style="background:#F97316" onclick="annotSetColor('#F97316')"></button>
+        <button class="annot-color" data-color="#FFFFFF" style="background:#FFFFFF" onclick="annotSetColor('#FFFFFF')"></button>
+        <button class="annot-color" data-color="#111827" style="background:#111827" onclick="annotSetColor('#111827')"></button>
+        <span class="lbl" style="margin-left:10px;">Espessura:</span>
+        <select id="annotWidth" onchange="annotState.width = parseInt(this.value)">
+            <option value="2">Fina (2)</option>
+            <option value="4" selected>Média (4)</option>
+            <option value="7">Grossa (7)</option>
+            <option value="11">Extra (11)</option>
+        </select>
+        <div style="margin-left:auto;display:flex;gap:8px;">
+            <button class="annot-btn annot-undo" onclick="annotUndo()">↩ Desfazer</button>
+            <button class="annot-btn annot-clear" onclick="annotClear()">🗑 Limpar</button>
+        </div>
+    </div>
+    <div class="annot-canvas-wrap"><canvas id="annotCanvas"></canvas></div>
+    <div class="annot-foot">
+        <span class="hint">Clique e arraste para desenhar · Duplo-clique para desfazer o último · Ferramenta “T” abre a caixa de texto · “⌫” apaga a forma clicada</span>
+        <div style="display:flex;gap:10px;">
+            <button class="annot-btn annot-cancel" onclick="annotClose()">✕ Cancelar</button>
+            <button class="annot-btn annot-apply" onclick="annotApply()">✓ Aplicar</button>
         </div>
     </div>
 </div>
@@ -2086,6 +2319,424 @@ function addNorma() {
     row.innerHTML = `<input type="text" class="norma-input" value="" placeholder="Digite a referência normativa..."><button class="btn-remove" onclick="this.parentElement.remove()" style="margin-left:8px;">✕</button>`;
     container.appendChild(row);
     row.querySelector('input').focus();
+}
+
+// ============================
+// GERADOR DE CONCLUSÃO (linguagem técnica — Engenharia)
+// ============================
+function fmtBalizas(nums) {
+    const arr = [...new Set(nums)].sort((a, b) => a - b);
+    if (!arr.length) return '';
+    const faixas = [];
+    let ini = arr[0], ant = arr[0];
+    for (let i = 1; i <= arr.length; i++) {
+        if (arr[i] === ant + 1) { ant = arr[i]; continue; }
+        faixas.push(ini === ant ? pad2(ini) : (ant === ini + 1 ? pad2(ini) + ' e ' + pad2(ant) : pad2(ini) + ' a ' + pad2(ant)));
+        ini = arr[i]; ant = arr[i];
+    }
+    if (faixas.length === 1) return faixas[0];
+    return faixas.slice(0, -1).join(', ') + ' e ' + faixas[faixas.length - 1];
+}
+
+function fmtLista(itens) {
+    if (!itens.length) return '';
+    if (itens.length === 1) return itens[0];
+    return itens.slice(0, -1).join(', ') + ' e ' + itens[itens.length - 1];
+}
+
+// Prazos-alvo por severidade (dias corridos a partir da data da inspeção)
+const PRAZO_SEV = { 4: 30, 3: 60, 2: 90, 1: 180 };
+
+function dataAlvo(baseISO, dias) {
+    const d = /^\d{4}-\d{2}-\d{2}$/.test(baseISO) ? new Date(baseISO + 'T12:00:00') : new Date();
+    d.setDate(d.getDate() + dias);
+    return d.toLocaleDateString('pt-BR');
+}
+
+function lerNotas() {
+    return [...document.querySelectorAll('#notasTableBody tr')].map(tr => ({
+        n: tr.cells[0].textContent.trim(),
+        data: tr.cells[1].textContent.trim(),
+        tipo: tr.cells[2].textContent.trim(),
+        desc: tr.cells[3].textContent.trim(),
+        trecho: tr.cells[4].textContent.trim(),
+        st: tr.cells[5].textContent.trim()
+    })).filter(x => x.n);
+}
+
+function gerarRecomendacoes() {
+    const val = id => (document.getElementById(id) || {}).value || '';
+    const dataIns = val('inp-data');
+    const notas = lerNotas();
+    const abertas = notas.filter(x => !/conclu|encerr|atendid/i.test(x.st));
+    const sev = [0, 0, 0, 0, 0];
+    anomalies.forEach(a => sev[a.sev]++);
+    const criticas = anomalies.filter(a => a.sev >= 3);
+    const compTroca = anomalies.reduce((s, a) => s + (a.qtd || 1), 0);
+    const cond = val('inp-limpeza');
+    const temSujidade = cond !== 'conforme' || anomalies.some(a => /sujidade|vegeta|contamina|drenagem/i.test(a.tipo || ''));
+    // Só conta como medição realizada quando há trecho ou valor medido (linhas-modelo vazias não contam)
+    const medicoes = [...document.querySelectorAll('#topoTableBody tr')]
+        .map(tr => ({ trecho: tr.cells[0].textContent.trim(), param: tr.cells[2].textContent.trim(), medido: tr.cells[3].textContent.trim(), sit: tr.cells[6].textContent.trim() }))
+        .filter(m => m.trecho || m.medido);
+    const topoNaoConf = medicoes.filter(m => /n[ãa]o conforme|reprov|fora/i.test(m.sit));
+    const temTopo = !!val('topo-doc') || medicoes.length > 0;
+
+    // ── 14.1 ENGENHARIA ──
+    const eng = [];
+    if (criticas.length) {
+        const itensCriticos = [...new Set(criticas.map(a => (getItem(a.item) || {}).nome).filter(Boolean))];
+        eng.push(`Abrir nota YE para avaliação estrutural das não conformidades classificadas como Alto e Muito Alto (${criticas.length} ${criticas.length === 1 ? 'ocorrência' : 'ocorrências'}), com foco em ${fmtLista(itensCriticos.map(i => i.toLowerCase()))}, verificando o impacto na capacidade de fixação e na estabilidade da superestrutura.`);
+    }
+    if (anomalies.some(a => a.item === 'TIRANTES')) {
+        const bal = anomalies.filter(a => a.item === 'TIRANTES').map(a => a.baliza);
+        eng.push(`Avaliar o efeito da ausência/degradação dos tirantes sobre a manutenção da bitola ${new Set(bal).size === 1 ? 'na baliza' : 'nas balizas'} ${fmtBalizas(bal)}, definindo a especificação e o padrão de reinstalação dos elementos.`);
+    }
+    if (abertas.length) {
+        eng.push(`Analisar a causa raiz da reincidência das anomalias associadas às notas ${fmtLista(abertas.map(x => x.n))}, ainda pendentes de tratativa, avaliando a eficácia das intervenções anteriormente executadas.`);
+    }
+    if (topoNaoConf.length) {
+        eng.push(`Definir o plano de correção geométrica da via a partir dos desvios topográficos identificados (${fmtLista(topoNaoConf.map(m => m.param.toLowerCase() + (m.trecho ? ' — balizas ' + m.trecho : '')))}), estabelecendo tolerâncias de aceitação para a liberação do trecho.`);
+    } else if (!temTopo) {
+        eng.push(`Contratar/programar levantamento topográfico da via para verificação de nivelamento, alinhamento e bitola, subsidiando a análise de causa raiz das anomalias de lastro e fixação.`);
+    }
+    if (temSujidade) {
+        eng.push(`Avaliar a necessidade de desguarnecimento e substituição do lastro nos trechos com colmatação, bem como revisar o sistema de drenagem e as fontes de derramamento de material ao longo da via.`);
+    }
+    if (!eng.length) eng.push(`Não há demandas de engenharia decorrentes desta inspeção. Manter o acompanhamento periódico conforme o plano de manutenção.`);
+
+    // ── 14.2 INSPEÇÃO ──
+    const insp = [];
+    if (notas.length) {
+        const relacionadas = notas.map(x => `${x.n}${x.trecho ? ' (balizas ' + x.trecho + ')' : ''}${x.desc ? ' — ' + x.desc.toLowerCase() : ''}${x.st ? ' — ' + x.st.toLowerCase() : ''}`);
+        insp.push(`Acompanhar as notas cadastradas na carteira do ativo referentes às não conformidades identificadas: ${fmtLista(relacionadas)}.`);
+        if (abertas.length) insp.push(`Verificar, junto ao planejamento, a programação ${abertas.length === 1 ? 'da nota pendente' : `das ${abertas.length} notas pendentes`} de tratativa e atualizar o status após a execução dos serviços.`);
+    } else {
+        insp.push(`Cadastrar na carteira do ativo as notas correspondentes às não conformidades identificadas nesta inspeção, vinculando-as às respectivas balizas.`);
+    }
+    if (criticas.length) {
+        const balCrit = criticas.map(a => a.baliza);
+        insp.push(`Reinspecionar os trechos críticos (${new Set(balCrit).size === 1 ? 'baliza' : 'balizas'} ${fmtBalizas(balCrit)}) após a execução das correções, confirmando o atendimento aos padrões de fixação e de geometria da via.`);
+    }
+    if (temSujidade) insp.push(`Reinspecionar os trechos com sujidade após a limpeza, uma vez que o acúmulo de material impede a avaliação visual completa dos componentes e pode mascarar anomalias.`);
+    if (!temTopo) insp.push(`Realizar levantamento dimensional de nivelamento, alinhamento e bitola nos trechos com maior concentração de anomalias.`);
+    insp.push(`Programar reinspeção geral do ativo em ${criticas.length ? '90' : '180'} dias, ou imediatamente após a conclusão das intervenções corretivas${dataIns ? ` (data-alvo: ${dataAlvo(dataIns, criticas.length ? 90 : 180)})` : ''}.`);
+
+    // ── 14.3 MANUTENÇÃO ──
+    const manut = [];
+    if (anomalies.length) {
+        // Ações agrupadas por item + severidade máxima → prazo
+        const porItem = {};
+        anomalies.forEach(a => {
+            const it = getItem(a.item);
+            const nome = it ? it.nome : (a.item || 'Outros');
+            if (!porItem[nome]) porItem[nome] = { qtd: 0, sev: 0, bal: [] };
+            porItem[nome].qtd += (a.qtd || 1);
+            porItem[nome].sev = Math.max(porItem[nome].sev, a.sev);
+            porItem[nome].bal.push(a.baliza);
+        });
+        Object.entries(porItem)
+            .sort((a, b) => b[1].sev - a[1].sev)
+            .forEach(([nome, d]) => {
+                const dias = PRAZO_SEV[d.sev] || 180;
+                manut.push(
+                    `${nome.charAt(0) + nome.slice(1).toLowerCase()} — executar substituição/correção de ${d.qtd} ${d.qtd === 1 ? 'unidade' : 'unidades'} ` +
+                    `${new Set(d.bal).size === 1 ? 'na baliza' : 'nas balizas'} ${fmtBalizas(d.bal)}; ` +
+                    `severidade ${getSeverityLabel(d.sev)}, prazo de ${dias} dias${dataIns ? `, conclusão desejada até ${dataAlvo(dataIns, dias)}` : ''}.`
+                );
+            });
+        manut.push(`Total de ${compTroca} ${compTroca === 1 ? 'componente previsto' : 'componentes previstos'} para substituição/recuperação, conforme quantitativo da seção 8.0.`);
+    }
+    if (temSujidade) {
+        manut.push(`Limpeza da via — remover material acumulado, suprimir vegetação e desobstruir a drenagem antes das demais intervenções; prazo de 30 dias${dataIns ? `, conclusão desejada até ${dataAlvo(dataIns, 30)}` : ''}.`);
+    }
+    if (notas.length) {
+        manut.push(`Vincular as ordens de manutenção às notas ${fmtLista(notas.map(x => x.n))}, informando a data de conclusão de cada serviço para baixa na carteira do ativo.`);
+    }
+    if (criticas.length) {
+        manut.push(`Priorizar as ordens corretivas dos itens classificados como Alto e Muito Alto, restringindo a operação nos trechos afetados até a conclusão dos serviços, caso identificado risco à segurança operacional.`);
+    }
+    if (!manut.length) manut.push(`Não há intervenções corretivas decorrentes desta inspeção. Manter a rotina de limpeza e conservação da via.`);
+
+    const num = arr => arr.map((t, i) => `${i + 1}. ${t}`).join('\n');
+    const set = (id, txt) => { const el = document.getElementById(id); if (el) { el.value = txt; el.dispatchEvent(new Event('input', { bubbles: true })); } };
+    set('txt-eng', num(eng));
+    set('txt-insp', num(insp));
+    set('txt-manut', num(manut));
+}
+
+function gerarConclusao(comRecomendacoes) {
+    const ta = document.getElementById('txt-conclusao');
+    if (!ta) return;
+    if (ta.value.trim() && !confirm('Substituir o texto atual da conclusão e das recomendações pelo texto gerado automaticamente?')) return;
+    if (comRecomendacoes !== false) { try { gerarRecomendacoes(); } catch (e) { console.warn('Recomendações:', e); } }
+
+    const val = id => (document.getElementById(id) || {}).value || '';
+    const localSel = val('inp-local');
+    const denom = val('inp-area');
+    const local = localSel ? `do local de instalação ${localSel}` : 'do ativo (local de instalação não informado)';
+    const plano = val('inp-plano');
+    const dataIns = val('inp-data');
+    const dataFmt = /^\d{4}-\d{2}-\d{2}$/.test(dataIns) ? dataIns.split('-').reverse().join('/') : dataIns;
+    const inspetor = val('inp-inspetor');
+    const totalPos = NUM_BALIZAS * 2;
+
+    const ldSet = new Set(anomalies.filter(a => a.lado === 'LD' || a.lado === 'LD+LE').map(a => a.baliza));
+    const leSet = new Set(anomalies.filter(a => a.lado === 'LE' || a.lado === 'LD+LE').map(a => a.baliza));
+    const bothSet = new Set([...ldSet].filter(b => leSet.has(b)));
+    const balizasAfetadas = new Set(anomalies.map(a => a.baliza));
+    const posAfetadas = ldSet.size + leSet.size;
+    const pct = totalPos ? Math.round(posAfetadas / totalPos * 100) : 0;
+    const sev = [0, 0, 0, 0, 0];
+    anomalies.forEach(a => sev[a.sev]++);
+    const criticas = sev[3] + sev[4];
+    const compTroca = anomalies.reduce((s, a) => s + (a.qtd || 1), 0);
+
+    const P = [];
+
+    // 1. Escopo
+    P.push(
+        `A presente inspeção estrutural foi realizada na via de rolamento ${local}` +
+        (denom && localSel ? ` (${denom})` : '') + (plano ? `, plano de manutenção ${plano}` : '') +
+        (dataFmt ? `, em ${dataFmt}` : '') + (inspetor ? `, sob responsabilidade técnica de ${inspetor}` : '') +
+        `. O escopo contemplou as balizas ${pad2(0)} a ${pad2(NUM_BALIZAS - 1)} nas duas vias — Lado Direito (LD) e Lado Esquerdo (LE) —, totalizando ${totalPos} posições avaliadas, ` +
+        `conforme os itens da Lista de Tarefas Passo a Passo OP.0070: dormentes, grampos de fixação, lastro da via, trilho (boleto), cordão de solda, fixação das palmilhas, batente de fim de curso e tirantes. ` +
+        `Cada vão entre balizas é composto por 19 dormentes, 38 almofadas, 19 grampos e 2 tirantes, referência adotada para o quantitativo de componentes.`
+    );
+
+    // 2. Resultado quantitativo
+    if (anomalies.length === 0) {
+        P.push(
+            `Não foram identificadas não conformidades nos itens inspecionados. A via de rolamento apresenta-se em condição adequada de operação, ` +
+            `recomendando-se a manutenção da periodicidade de inspeção prevista no plano.`
+        );
+    } else {
+        P.push(
+            `Foram registradas ${anomalies.length} não conformidades, distribuídas em ${balizasAfetadas.size} das ${NUM_BALIZAS} balizas da via, ` +
+            `o que corresponde a ${posAfetadas} das ${totalPos} posições avaliadas (${pct}%). ` +
+            `No Lado Direito foram identificadas ocorrências em ${ldSet.size} balizas e, no Lado Esquerdo, em ${leSet.size} balizas` +
+            (bothSet.size ? `, sendo ${bothSet.size} ${bothSet.size === 1 ? 'baliza afetada' : 'balizas afetadas'} simultaneamente em ambos os lados` : '') + `. ` +
+            `Quanto à severidade, ${sev[4]} ${sev[4] === 1 ? 'ocorrência foi classificada' : 'ocorrências foram classificadas'} como Muito Alto, ${sev[3]} como Alto, ${sev[2]} como Médio e ${sev[1]} como Baixo` +
+            (criticas ? `, concentrando ${criticas} ${criticas === 1 ? 'apontamento crítico' : 'apontamentos críticos'} (Alto e Muito Alto) que demandam tratativa prioritária.` : '.')
+        );
+
+        // 3. Não conformidades por item
+        const porItem = [];
+        ITEMS.forEach(it => {
+            const rel = anomalies.filter(a => a.item === it.op);
+            if (!rel.length) return;
+            const bal = rel.map(a => a.baliza);
+            const tipos = [...new Set(rel.map(a => (a.tipo || '').toLowerCase()).filter(Boolean))];
+            const maxSev = Math.max(...rel.map(a => a.sev));
+            const nBal = new Set(bal).size;
+            const comps = [...new Set(rel.filter(a => a.comp).map(a => a.comp.replace(/\s\d+$/, '')))];
+            porItem.push(
+                `${it.nome.toLowerCase().replace(/^\w/, c => c.toUpperCase())} — ${rel.length} ${rel.length === 1 ? 'ocorrência' : 'ocorrências'} ` +
+                `${tipos.length ? 'de ' + fmtLista(tipos) + ' ' : ''}` +
+                `${comps.length ? 'identificadas em ' + fmtLista(comps.map(c => c.toLowerCase() + (rel.length > 1 ? 's' : ''))) + ', ' : ''}` +
+                `${nBal === 1 ? 'na baliza' : 'nas balizas'} ${fmtBalizas(bal)}, com severidade máxima classificada como ${getSeverityLabel(maxSev)}`
+            );
+        });
+        if (porItem.length) {
+            P.push(`Por item da lista de tarefas, as não conformidades identificadas foram: ${porItem.join('; ')}.`);
+        }
+
+        // 4. Trechos críticos
+        const porGrupo = GROUPS.map(g => ({ g, n: anomalies.filter(a => a.baliza >= g.start && a.baliza <= g.end).length }))
+            .filter(x => x.n > 0).sort((a, b) => b.n - a.n);
+        if (porGrupo.length) {
+            const top = porGrupo.slice(0, 3);
+            P.push(
+                `A maior concentração de apontamentos ocorre ${top.length > 1 ? 'nos trechos compreendidos entre as' : 'no trecho compreendido entre as'} ` +
+                fmtLista(top.map(t => `balizas ${t.g.label.replace(' A ', ' e ')} (${t.n} ${t.n === 1 ? 'ocorrência' : 'ocorrências'})`)) + `, ` +
+                `${top.length > 1 ? 'que devem ser priorizados' : 'que deve ser priorizado'} na programação das intervenções corretivas. ` +
+                `O quantitativo de componentes previstos para substituição/recuperação totaliza ${compTroca} ${compTroca === 1 ? 'unidade' : 'unidades'}.`
+            );
+        }
+    }
+
+    // 4b. Sujidades / condição de limpeza da via
+    (() => {
+        const sujAnom = anomalies.filter(a => /sujidade|vegeta|contamina|drenagem|limpeza/i.test((a.tipo || '') + ' ' + (a.desc || '')));
+        const balSuj = sujAnom.map(a => a.baliza);
+        const cond = val('inp-limpeza');
+        const trechos = val('inp-limpeza-trechos').trim();
+        const ondeTxt = balSuj.length ? `nas balizas ${fmtBalizas(balSuj)}` : (trechos ? `nos trechos das balizas ${trechos}` : '');
+
+        if (cond === 'conforme' && !sujAnom.length) {
+            P.push(
+                `Quanto às condições de limpeza, a via de rolamento apresenta-se desobstruída ao longo de toda a sua extensão, sem acúmulo de minério, ` +
+                `vegetação ou material estranho que comprometa a drenagem do lastro, a inspeção visual dos componentes ou o funcionamento do sistema de fixação.`
+            );
+            return;
+        }
+
+        const intensidade = {
+            pontual: 'sujidade localizada',
+            generalizada: 'sujidade generalizada',
+            critica: 'sujidade em condição crítica, com colmatação do lastro e obstrução da drenagem'
+        }[cond] || 'sujidade';
+
+        P.push(
+            `Foi constatada ${intensidade} ao longo da via de rolamento${ondeTxt ? `, ${ondeTxt}` : ''}, caracterizada por acúmulo de minério, ` +
+            `material particulado e presença de vegetação sobre o lastro e entre os dormentes` +
+            (sujAnom.length ? ` (${sujAnom.length} ${sujAnom.length === 1 ? 'registro específico' : 'registros específicos'} lançados no item Lastro da Via)` : '') + `. ` +
+            `A sujidade compromete a drenagem e a capacidade de acomodação do lastro, favorece a colmatação e a retenção de umidade — acelerando a corrosão dos elementos de fixação e a degradação dos dormentes — ` +
+            `e impede a inspeção visual adequada de grampos, palmilhas, tirantes e cordões de solda, podendo mascarar anomalias existentes. ` +
+            `Recomenda-se a execução de limpeza da via com remoção do material acumulado e supressão da vegetação, seguida de reinspeção dos trechos afetados para confirmação das condições reais dos componentes` +
+            (cond === 'critica' ? `, além da avaliação de engenharia quanto à necessidade de desguarnecimento e substituição do lastro colmatado.` : `.`)
+        );
+    })();
+
+    // 5. Carteira de notas
+    const notas = lerNotas();
+    if (notas.length) {
+        const abertas = notas.filter(x => !/conclu|encerr|atendid/i.test(x.st));
+        P.push(
+            `Quanto ao histórico da carteira do ativo, constam ${notas.length} ${notas.length === 1 ? 'nota registrada' : 'notas registradas'} em inspeções anteriores ` +
+            `(${fmtLista(notas.map(x => x.n))})` +
+            (abertas.length
+                ? `, das quais ${abertas.length} ${abertas.length === 1 ? 'permanece pendente de tratativa' : 'permanecem pendentes de tratativa'}. ` +
+                  `Verifica-se, portanto, reincidência de anomalias associadas à superestrutura da via, o que indica que as ações corretivas anteriores não foram concluídas ou não se mostraram eficazes. ` +
+                  `Recomenda-se o acompanhamento das notas em aberto e a atualização do respectivo status junto à carteira do ativo.`
+                : `, todas com tratativa concluída.`)
+        );
+    } else {
+        P.push(`Não há notas anteriores registradas na carteira do ativo para o local de instalação inspecionado, ou o histórico não foi disponibilizado até a emissão deste relatório.`);
+    }
+
+    // 6. Relatório topográfico
+    const temPrancha = !!document.querySelector('#topoGallery .drawing-upload-area.has-image');
+    const medicoes = [...document.querySelectorAll('#topoTableBody tr')]
+        .map(tr => ({ trecho: tr.cells[0].textContent.trim(), param: tr.cells[2].textContent.trim(), medido: tr.cells[3].textContent.trim(), sit: tr.cells[6].textContent.trim() }))
+        .filter(m => m.trecho || m.medido);
+    const naoConf = medicoes.filter(m => /n[ãa]o conforme|reprov|fora/i.test(m.sit));
+    const topoDoc = val('topo-doc'), topoEmp = val('topo-empresa'), topoData = val('topo-data');
+    const topoDataFmt = /^\d{4}-\d{2}-\d{2}$/.test(topoData) ? topoData.split('-').reverse().join('/') : topoData;
+
+    if (temPrancha || medicoes.length || topoDoc) {
+        P.push(
+            `O relatório topográfico${topoDoc ? ` (documento ${topoDoc})` : ''}${topoEmp ? `, executado por ${topoEmp}` : ''}${topoDataFmt ? `, com levantamento em ${topoDataFmt}` : ''} ` +
+            `integra este documento na seção 12.0` + (temPrancha ? `, com as respectivas pranchas anexadas` : '') + `. ` +
+            (medicoes.length
+                ? (naoConf.length
+                    ? `Do total de ${medicoes.length} ${medicoes.length === 1 ? 'medição realizada' : 'medições realizadas'}, ${naoConf.length} ${naoConf.length === 1 ? 'apresentou desvio' : 'apresentaram desvios'} acima da tolerância de projeto ` +
+                      `(${fmtLista(naoConf.map(m => `${m.param.toLowerCase()}${m.trecho ? ' — balizas ' + m.trecho : ''}`))}), demandando correção geométrica da via.`
+                    : `As ${medicoes.length} ${medicoes.length === 1 ? 'medição realizada atende' : 'medições realizadas atendem'} às tolerâncias de projeto quanto a nivelamento, alinhamento e bitola.`)
+                : `Os resultados devem ser analisados em conjunto com as não conformidades estruturais apontadas neste relatório.`)
+        );
+    } else {
+        P.push(
+            `Não foi realizado levantamento topográfico da via nesta campanha. Considerando os desvios geométricos usualmente associados às anomalias de lastro, dormentes e fixação, ` +
+            `recomenda-se a execução de levantamento topográfico para verificação de nivelamento, alinhamento e bitola, subsidiando a definição das correções geométricas necessárias.`
+        );
+    }
+
+    // 7. Parecer final
+    if (anomalies.length === 0) {
+        P.push(`Diante do exposto, o ativo encontra-se apto à operação nas condições atuais, mantendo-se o plano de inspeção vigente.`);
+    } else {
+        const grave = criticas > 0;
+        P.push(
+            `Diante do exposto, conclui-se que ${grave
+                ? 'a via de rolamento apresenta não conformidades que comprometem a integridade do sistema de fixação e a estabilidade da superestrutura, permanecendo apta à operação de forma condicionada à execução das ações corretivas indicadas na seção 14.0 e à reinspeção após a conclusão dos serviços'
+                : 'a via de rolamento apresenta não conformidades de baixa a média severidade, sem impacto imediato à operação, devendo as correções ser incorporadas à programação de manutenção preventiva'}. ` +
+            `Recomenda-se a abertura das notas de manutenção correspondentes, a execução da limpeza da via como condição prévia à inspeção detalhada e às intervenções, ` +
+            `a análise de engenharia quanto à causa raiz das ocorrências reincidentes e a reinspeção do ativo em até ${grave ? '90' : '180'} dias após a conclusão das intervenções.`
+        );
+    }
+
+    ta.value = P.join('\n\n');
+    ta.dispatchEvent(new Event('input', { bubbles: true }));
+    showToast('✨ Conclusão gerada a partir dos dados do relatório');
+    if (ta.scrollIntoView) ta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ============================
+// NOTAS DA CARTEIRA DO ATIVO
+// ============================
+function notaRowHTML(nota, data, tipo, desc, trecho, status) {
+    return `
+        <td contenteditable="true" style="font-family:JetBrains Mono,monospace;">${nota || ''}</td>
+        <td contenteditable="true">${data || ''}</td>
+        <td contenteditable="true">${tipo || 'YE'}</td>
+        <td contenteditable="true">${desc || ''}</td>
+        <td contenteditable="true">${trecho || ''}</td>
+        <td contenteditable="true">${status || 'Em tratativa'}</td>
+        <td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td>`;
+}
+
+function addNotaRow(nota, data, tipo, desc, trecho, status) {
+    const tbody = document.getElementById('notasTableBody');
+    const tr = document.createElement('tr');
+    tr.innerHTML = notaRowHTML(nota, data, tipo, desc, trecho, status);
+    tbody.appendChild(tr);
+    if (!nota) tr.cells[0].focus();
+    return tr;
+}
+
+function colarNotas() {
+    const txt = prompt('Cole os números das notas (separados por espaço, vírgula, ponto e vírgula ou hífen):');
+    if (!txt) return;
+    const nums = txt.split(/[\s,;|]+|\s-\s/).map(s => s.trim().replace(/[^0-9]/g, '')).filter(s => s.length >= 6);
+    if (!nums.length) return showToast('Nenhum número de nota identificado');
+    nums.forEach(n => addNotaRow(n, '', 'YE', '', '', 'Em tratativa'));
+    showToast(`📋 ${nums.length} nota(s) inserida(s)`);
+}
+
+// ============================
+// TOPOGRAFIA
+// ============================
+let topoCounter = 0;
+
+function addTopoRow(trecho, lado, param, medido, tol, desvio, situacao) {
+    const tbody = document.getElementById('topoTableBody');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td contenteditable="true">${trecho || ''}</td>
+        <td contenteditable="true">${lado || 'LD'}</td>
+        <td contenteditable="true">${param || 'Nivelamento'}</td>
+        <td contenteditable="true">${medido || ''}</td>
+        <td contenteditable="true">${tol || ''}</td>
+        <td contenteditable="true">${desvio || ''}</td>
+        <td contenteditable="true">${situacao || 'Conforme'}</td>
+        <td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td>`;
+    tbody.appendChild(tr);
+    if (!trecho) tr.cells[0].focus();
+    return tr;
+}
+
+function addTopoSlot(title, description) {
+    topoCounter++;
+    const id = 'topo-' + topoCounter;
+    const gallery = document.getElementById('topoGallery');
+    if (!gallery) return;
+    const div = document.createElement('div');
+    div.className = 'drawing-card';
+    div.id = id + '-card';
+    div.innerHTML = `
+        <div class="drawing-card-header">
+            <input type="text" value="${title || 'Prancha ' + topoCounter + ': Levantamento Topográfico'}" placeholder="Título da prancha...">
+            <div style="display:flex;gap:8px;">
+                <button class="btn-add" style="padding:8px 14px;font-size:0.82em;background:var(--accent-green);" onclick="abrirFormas('${id}-img')">✏️ Formas</button>
+                <button class="btn-add" style="padding:8px 14px;font-size:0.82em;" onclick="document.getElementById('${id}-file').click()">📎 Trocar Imagem</button>
+                <button class="btn-remove" onclick="if(confirm('Remover esta prancha?')) this.closest('.drawing-card').remove()">✕ Remover</button>
+            </div>
+        </div>
+        <div class="drawing-upload-area" onclick="document.getElementById('${id}-file').click()">
+            <input type="file" id="${id}-file" accept="image/*,.pdf" style="display:none;" onchange="handleDrawingUpload(this, '${id}-img')">
+            <img id="${id}-img" alt="">
+            <div class="drawing-ph">
+                <div class="ph-icon">📐</div>
+                <div class="ph-title">Clique para inserir a prancha / planilha topográfica</div>
+                <div class="ph-sub">Imagens (JPG, PNG) — para PDF, exporte a página como imagem</div>
+            </div>
+        </div>
+        <div class="drawing-card-footer">
+            <textarea placeholder="Observações do levantamento...">${description || ''}</textarea>
+        </div>`;
+    gallery.appendChild(div);
+    return id;
 }
 
 function addMaterialRow() {
@@ -2587,7 +3238,7 @@ function fmtKB(str) {
 async function otimizarImagens(silencioso) {
     const alvos = [];
     document.querySelectorAll('#evidenceSections .evidence-card img').forEach(i => alvos.push({ img: i, max: 1600, q: 0.82 }));
-    document.querySelectorAll('.drawing-upload-area img').forEach(i => alvos.push({ img: i, max: 2400, q: 0.88 }));
+    document.querySelectorAll('.drawing-upload-area img').forEach(i => alvos.push({ img: i, max: 2400, q: 0.88 })); // inclui pranchas topográficas
     let orig = 0, comp = 0, n = 0;
     for (const t of alvos) {
         const src = t.img.getAttribute('src') || '';
@@ -2600,6 +3251,176 @@ async function otimizarImagens(silencioso) {
     const pct = orig ? Math.round((1 - comp / orig) * 100) : 0;
     if (!silencioso) showToast(n ? `🗜️ ${n} imagem(ns) otimizada(s) — ${pct}% mais leve` : '✅ Imagens já otimizadas');
     return { n, pct };
+}
+
+// ============================
+// EDITOR DE FORMAS (ANOTAÇÃO EM IMAGENS)
+// ============================
+const annotState = { imgEl: null, base: null, shapes: [], tool: 'rect', color: '#EF4444', width: 4, drawing: false, sx: 0, sy: 0, cx: 0, cy: 0 };
+
+function abrirFormas(imgId) {
+    const el = document.getElementById(imgId);
+    if (!el || !el.src || !el.src.startsWith('data:')) return showToast('Adicione uma imagem antes de usar as formas');
+    annotState.imgEl = el;
+    annotState.shapes = [];
+    const base = new Image();
+    base.onload = () => {
+        annotState.base = base;
+        const cv = document.getElementById('annotCanvas');
+        const s = Math.min(1, 1700 / Math.max(base.width, base.height));
+        cv.width = Math.round(base.width * s);
+        cv.height = Math.round(base.height * s);
+        document.getElementById('annotOverlay').classList.add('open');
+        annotRedraw();
+    };
+    base.onerror = () => showToast('⚠ Não foi possível abrir a imagem');
+    base.src = el.src;
+}
+
+function annotSetTool(t) {
+    annotState.tool = t;
+    document.querySelectorAll('.annot-tool').forEach(b => b.classList.toggle('active', b.dataset.tool === t));
+}
+function annotSetColor(c) {
+    annotState.color = c;
+    document.querySelectorAll('.annot-color').forEach(b => b.classList.toggle('active', b.dataset.color === c));
+}
+function annotUndo() { annotState.shapes.pop(); annotRedraw(); }
+function annotClear() { annotState.shapes = []; annotRedraw(); }
+function annotClose() { document.getElementById('annotOverlay').classList.remove('open'); annotState.imgEl = null; }
+
+function annotApply() {
+    const cv = document.getElementById('annotCanvas');
+    if (annotState.imgEl && cv) {
+        try {
+            annotState.imgEl.src = cv.toDataURL('image/jpeg', 0.9);
+            showToast('✅ Formas aplicadas à imagem');
+        } catch (e) { showToast('⚠ Erro ao aplicar formas'); }
+    }
+    annotClose();
+}
+
+function annotDrawShape(ctx, s) {
+    ctx.save();
+    ctx.strokeStyle = s.color;
+    ctx.fillStyle = s.color;
+    ctx.lineWidth = s.w;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    const dx = s.x2 - s.x1, dy = s.y2 - s.y1;
+    if (s.t === 'rect') {
+        ctx.strokeRect(s.x1, s.y1, dx, dy);
+    } else if (s.t === 'ellipse') {
+        ctx.beginPath();
+        ctx.ellipse(s.x1 + dx / 2, s.y1 + dy / 2, Math.abs(dx / 2), Math.abs(dy / 2), 0, 0, Math.PI * 2);
+        ctx.stroke();
+    } else if (s.t === 'line' || s.t === 'arrow') {
+        ctx.beginPath();
+        ctx.moveTo(s.x1, s.y1);
+        ctx.lineTo(s.x2, s.y2);
+        ctx.stroke();
+        if (s.t === 'arrow') {
+            const ang = Math.atan2(dy, dx), h = Math.max(14, s.w * 4);
+            ctx.beginPath();
+            ctx.moveTo(s.x2, s.y2);
+            ctx.lineTo(s.x2 - h * Math.cos(ang - Math.PI / 7), s.y2 - h * Math.sin(ang - Math.PI / 7));
+            ctx.lineTo(s.x2 - h * Math.cos(ang + Math.PI / 7), s.y2 - h * Math.sin(ang + Math.PI / 7));
+            ctx.closePath();
+            ctx.fill();
+        }
+    } else if (s.t === 'text') {
+        const size = Math.max(18, s.w * 7);
+        ctx.font = `700 ${size}px 'IBM Plex Sans', sans-serif`;
+        ctx.textBaseline = 'top';
+        const m = ctx.measureText(s.txt);
+        ctx.fillStyle = 'rgba(0,0,0,0.45)';
+        ctx.fillRect(s.x1 - 5, s.y1 - 4, m.width + 10, size + 8);
+        ctx.fillStyle = s.color;
+        ctx.fillText(s.txt, s.x1, s.y1);
+    }
+    ctx.restore();
+}
+
+function annotRedraw(preview) {
+    const cv = document.getElementById('annotCanvas');
+    if (!cv || !annotState.base) return;
+    const ctx = cv.getContext('2d');
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.drawImage(annotState.base, 0, 0, cv.width, cv.height);
+    annotState.shapes.forEach(s => annotDrawShape(ctx, s));
+    if (preview) annotDrawShape(ctx, preview);
+}
+
+function annotPos(e) {
+    const cv = document.getElementById('annotCanvas');
+    const r = cv.getBoundingClientRect();
+    const p = (e.touches && e.touches[0]) ? e.touches[0] : e;
+    return { x: (p.clientX - r.left) * (cv.width / (r.width || 1)), y: (p.clientY - r.top) * (cv.height / (r.height || 1)) };
+}
+
+function annotHitTest(x, y) {
+    for (let i = annotState.shapes.length - 1; i >= 0; i--) {
+        const s = annotState.shapes[i];
+        const x1 = Math.min(s.x1, s.x2) - 12, x2 = Math.max(s.x1, s.x2) + 12;
+        const y1 = Math.min(s.y1, s.y2) - 12, y2 = Math.max(s.y1, s.y2) + 12;
+        if (x >= x1 && x <= x2 && y >= y1 && y <= y2) return i;
+    }
+    return -1;
+}
+
+function annotInit() {
+    const cv = document.getElementById('annotCanvas');
+    if (!cv) return;
+
+    const down = e => {
+        e.preventDefault();
+        const p = annotPos(e);
+        if (annotState.tool === 'erase') {
+            const i = annotHitTest(p.x, p.y);
+            if (i >= 0) { annotState.shapes.splice(i, 1); annotRedraw(); }
+            return;
+        }
+        if (annotState.tool === 'text') {
+            const txt = prompt('Texto a inserir na imagem:');
+            if (txt && txt.trim()) {
+                annotState.shapes.push({ t: 'text', txt: txt.trim(), x1: p.x, y1: p.y, x2: p.x, y2: p.y, color: annotState.color, w: annotState.width });
+                annotRedraw();
+            }
+            return;
+        }
+        annotState.drawing = true;
+        annotState.sx = p.x; annotState.sy = p.y;
+        annotState.cx = p.x; annotState.cy = p.y;
+    };
+    const move = e => {
+        if (!annotState.drawing) return;
+        e.preventDefault();
+        const p = annotPos(e);
+        annotState.cx = p.x; annotState.cy = p.y;
+        annotRedraw({ t: annotState.tool, x1: annotState.sx, y1: annotState.sy, x2: p.x, y2: p.y, color: annotState.color, w: annotState.width });
+    };
+    const up = () => {
+        if (!annotState.drawing) return;
+        annotState.drawing = false;
+        const x2 = annotState.cx, y2 = annotState.cy;
+        if (Math.abs(x2 - annotState.sx) < 4 && Math.abs(y2 - annotState.sy) < 4) return annotRedraw();
+        annotState.shapes.push({ t: annotState.tool, x1: annotState.sx, y1: annotState.sy, x2, y2, color: annotState.color, w: annotState.width });
+        annotRedraw();
+    };
+
+    cv.addEventListener('mousedown', down);
+    cv.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+    cv.addEventListener('touchstart', down, { passive: false });
+    cv.addEventListener('touchmove', move, { passive: false });
+    cv.addEventListener('touchend', up);
+    cv.addEventListener('dblclick', annotUndo);
+    document.addEventListener('keydown', e => {
+        const ov = document.getElementById('annotOverlay');
+        if (!ov || !ov.classList.contains('open')) return;
+        if (e.key === 'Escape') annotClose();
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); annotUndo(); }
+    });
 }
 
 // ============================
@@ -2616,7 +3437,7 @@ function renderEvidenceSections() {
         return `
         <div class="evidence-section" id="evSection-${gi}" data-group="${gi}" style="margin-bottom:22px;">
             <div class="ev-section-header" style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;padding:9px 16px;background:${cor}14;border-left:4px solid ${cor};border-radius:0 8px 8px 0;">
-                <div style="font-weight:700;color:${cor};font-size:1em;">10.${gi + 1} Balizas ${g.label} <span class="ev-count" style="font-weight:500;font-size:0.82em;color:var(--text-muted);"></span></div>
+                <div style="font-weight:700;color:${cor};font-size:1em;">11.${gi + 1} Balizas ${g.label} <span class="ev-count" style="font-weight:500;font-size:0.82em;color:var(--text-muted);"></span></div>
                 <div style="display:flex;gap:8px;">
                     <button class="btn-add" style="padding:6px 14px;font-size:0.82em;" onclick="document.getElementById('multiFotos-${gi}').click()">📷 Fotos</button>
                     <input type="file" id="multiFotos-${gi}" accept="image/*" multiple style="display:none;" onchange="handleMultiUpload(this, ${gi})">
@@ -2665,10 +3486,11 @@ function addEvidenceSlot(imgDataUrl, groupIndex) {
     div.className = 'evidence-card';
     div.setAttribute('data-group', gi);
     div.innerHTML = `
-        <div class="evidence-upload" onclick="document.getElementById('${id}-file').click()">
+        <div class="evidence-upload" onclick="if(!event.target.classList.contains('btn-formas')) document.getElementById('${id}-file').click()">
             <input type="file" id="${id}-file" accept="image/*" style="display:none;" onchange="handleEvUpload(this,'${id}-img')">
             <img id="${id}-img" alt="">
             <div class="upload-ph"><div class="ico">📷</div><div>Clique para adicionar foto</div></div>
+            <button class="btn-formas" onclick="event.stopPropagation(); abrirFormas('${id}-img')">✏️ Formas</button>
         </div>
         <div class="evidence-meta">
             <select onchange="onEvBalizaChange(this)">${buildEvidenceBalizaOptions(gi)}</select>
@@ -2751,6 +3573,7 @@ function addDrawingSlot(title, description) {
         <div class="drawing-card-header">
             <input type="text" value="${title || 'Figura ' + drawingCounter + ': Desenho de Referência'}" placeholder="Título do desenho...">
             <div style="display:flex;gap:8px;">
+                <button class="btn-add" style="padding:8px 14px;font-size:0.82em;background:var(--accent-green);" onclick="abrirFormas('${id}-img')">✏️ Formas</button>
                 <button class="btn-add" style="padding:8px 14px;font-size:0.82em;" onclick="document.getElementById('${id}-file').click()">📎 Trocar Imagem</button>
                 <button class="btn-remove" onclick="removeDrawing('${id}-card')">✕ Remover</button>
             </div>
@@ -2848,6 +3671,27 @@ async function gerarPDF() {
     // Lista de Tarefas não vai para o PDF
     document.getElementById('tab-tarefas').style.display = 'none';
 
+    // Oculta a aba de topografia se não houver nenhum dado preenchido
+    (() => {
+        const temPrancha = !!document.querySelector('#topoGallery .drawing-upload-area.has-image');
+        const temMedicao = [...document.querySelectorAll('#topoTableBody tr')].some(tr => tr.cells[0].textContent.trim() || tr.cells[3].textContent.trim());
+        const temInfo = ['topo-empresa', 'topo-resp', 'topo-data', 'topo-doc'].some(id => (document.getElementById(id) || {}).value);
+        if (!temPrancha && !temMedicao && !temInfo) {
+            const t = document.getElementById('tab-topografia');
+            t.setAttribute('data-print-hidden', 'true');
+            t.style.display = 'none';
+        }
+    })();
+
+    // Oculta a seção de notas se estiver vazia
+    (() => {
+        const temNota = [...document.querySelectorAll('#notasTableBody tr')].some(tr => tr.cells[0].textContent.trim());
+        if (!temNota) {
+            const card = document.getElementById('notasTable') ? document.getElementById('notasTable').closest('.card') : null;
+            if (card) { card.setAttribute('data-print-hidden', 'true'); card.style.display = 'none'; }
+        }
+    })();
+
     // Oculta subseções de evidências sem fotos (e a seção inteira, se nenhuma tiver)
     document.querySelectorAll('.evidence-section').forEach(sec => {
         if (!sec.querySelector('.evidence-upload.has-image')) {
@@ -2861,11 +3705,17 @@ async function gerarPDF() {
         ev.style.display = 'none';
     }
 
-    // Textos longos: expandir para mostrar todo o conteúdo (sem rolagem/corte)
+    // Textos longos: trocar a caixa por texto corrido, que flui e quebra entre páginas
     document.querySelectorAll('textarea').forEach(t => {
-        t.setAttribute('data-prev-h', t.style.height || '');
-        t.style.height = 'auto';
-        t.style.height = (t.scrollHeight + 4) + 'px';
+        let box = t.previousElementSibling;
+        if (!box || !box.classList || !box.classList.contains('print-text')) {
+            box = document.createElement('div');
+            box.className = 'print-text';
+            t.parentNode.insertBefore(box, t);
+        }
+        box.textContent = t.value;
+        t.setAttribute('data-print-swap', 'true');
+        t.style.display = 'none';
     });
 
     // Evidências: substituir o seletor pelo rótulo impresso da baliza
@@ -2905,9 +3755,9 @@ async function gerarPDF() {
         window.print();
         setTimeout(() => {
             document.title = originalTitle;
-            document.querySelectorAll('textarea').forEach(t => {
-                t.style.height = t.getAttribute('data-prev-h') || '';
-                t.removeAttribute('data-prev-h');
+            document.querySelectorAll('textarea[data-print-swap]').forEach(t => {
+                t.style.display = '';
+                t.removeAttribute('data-print-swap');
             });
             document.querySelectorAll('.tab-content').forEach(t => { t.style.display = ''; });
             document.querySelectorAll('[data-print-hidden]').forEach(el => {
@@ -3242,21 +4092,116 @@ function collectFullState() {
         }
     });
 
+    // Pranchas topográficas
+    const topografia = [];
+    document.querySelectorAll('#topoGallery .drawing-card').forEach(card => {
+        const img = card.querySelector('img');
+        const titleInput = card.querySelector('.drawing-card-header input');
+        const descTA = card.querySelector('.drawing-card-footer textarea');
+        if (img && img.src && img.src.startsWith('data:')) {
+            topografia.push({ src: img.src, title: titleInput ? titleInput.value : '', desc: descTA ? descTA.value : '' });
+        }
+    });
+
+    const val = id => document.getElementById(id) ? document.getElementById(id).value : '';
+    const linhas = sel => [...document.querySelectorAll(sel + ' tr')].map(tr => [...tr.cells].slice(0, -1).map(c => c.textContent.trim()));
+
     const textos = {
-        conclusao: document.getElementById('txt-conclusao') ? document.getElementById('txt-conclusao').value : '',
-        engenharia: document.getElementById('txt-eng') ? document.getElementById('txt-eng').value : '',
-        inspecao: document.getElementById('txt-insp') ? document.getElementById('txt-insp').value : '',
-        manutencao: document.getElementById('txt-manut') ? document.getElementById('txt-manut').value : '',
+        conclusao: val('txt-conclusao'),
+        engenharia: val('txt-eng'),
+        inspecao: val('txt-insp'),
+        manutencao: val('txt-manut'),
+        notas: val('txt-notas'),
+        topografia: val('txt-topo'),
     };
 
-    return { anomalies, evidencias, desenhos, textos };
+    const topoInfo = {
+        empresa: val('topo-empresa'), resp: val('topo-resp'), data: val('topo-data'),
+        equip: val('topo-equip'), doc: val('topo-doc'), rn: val('topo-rn'),
+        medicoes: linhas('#topoTableBody'),
+    };
+
+    const notas = linhas('#notasTableBody');
+    const limpeza = { cond: val('inp-limpeza'), trechos: val('inp-limpeza-trechos') };
+
+    // Cabeçalho (campos editáveis diretamente no texto)
+    const txt = sel => { const el = document.querySelector(sel); return el ? el.textContent.trim() : ''; };
+    const cabecalho = {
+        subtitulo: txt('.header-subtitle'),
+        meta: document.querySelector('.header-meta') ? document.querySelector('.header-meta').innerHTML : '',
+        revisao: txt('#revBadge'),
+    };
+
+    // 1.0 Informações gerais
+    const infoGerais = {
+        local: val('inp-local'), area: val('inp-area'), data: val('inp-data'),
+        inspetor: val('inp-inspetor'), ordemSap: val('inp-ordem-sap'), plano: val('inp-plano'),
+    };
+
+    // Revisões, normas, materiais e assinaturas
+    const revisoes = linhas('#revisionTableBody');
+    const materiais = linhas('#materialTableBody');
+    const normas = [...document.querySelectorAll('#normasContainer .norma-input')].map(i => i.value);
+    const assinaturas = {
+        elaborado: val('sig-elab'), verificado: val('sig-verif'),
+        aprovado: val('sig-aprov'), data: val('sig-data'),
+    };
+
+    textos.objetivo = val('txt-objetivo');
+
+    return { anomalies, evidencias, desenhos, textos, topografia, topoInfo, notas, limpeza,
+             cabecalho, infoGerais, revisoes, materiais, normas, assinaturas };
 }
 
 function restoreFullState(data) {
+    const setv = (id, v) => { const el = document.getElementById(id); if (el && v !== undefined && v !== null) el.value = v; };
+
     if (data.anomalias && Array.isArray(data.anomalias)) {
         anomalies = data.anomalias;
     } else if (data.anomalies && Array.isArray(data.anomalies)) {
         anomalies = data.anomalies;
+    }
+
+    // Cabeçalho
+    if (data.cabecalho) {
+        const sub = document.querySelector('.header-subtitle'), meta = document.querySelector('.header-meta'), rev = document.getElementById('revBadge');
+        if (sub && data.cabecalho.subtitulo) sub.textContent = data.cabecalho.subtitulo;
+        if (meta && data.cabecalho.meta) meta.innerHTML = data.cabecalho.meta;
+        if (rev && data.cabecalho.revisao) rev.textContent = data.cabecalho.revisao;
+    }
+
+    // 1.0 Informações gerais
+    if (data.infoGerais) {
+        const g = data.infoGerais;
+        setv('inp-local', g.local); setv('inp-area', g.area); setv('inp-data', g.data);
+        setv('inp-inspetor', g.inspetor); setv('inp-ordem-sap', g.ordemSap); setv('inp-plano', g.plano);
+    }
+
+    // Revisões
+    if (Array.isArray(data.revisoes) && data.revisoes.length) {
+        const tb = document.getElementById('revisionTableBody');
+        if (tb) {
+            tb.innerHTML = data.revisoes.map(r => `<tr>${r.map(c => `<td contenteditable="true">${c}</td>`).join('')}<td><button class="btn-remove" onclick="this.closest('tr').remove(); syncRevBadge();" style="padding:4px 8px;">✕</button></td></tr>`).join('');
+            syncRevBadge();
+        }
+    }
+
+    // 3.0 Normas
+    if (Array.isArray(data.normas) && data.normas.length) {
+        const c = document.getElementById('normasContainer');
+        if (c) c.innerHTML = data.normas.map(v => `<div class="norma-row"><input type="text" class="norma-input" value="${String(v).replace(/"/g, '&quot;')}"><button class="btn-remove" onclick="this.parentElement.remove()" style="margin-left:8px;">✕</button></div>`).join('');
+    }
+
+    // 4.0 Materiais
+    if (Array.isArray(data.materiais) && data.materiais.length) {
+        const tb = document.getElementById('materialTableBody');
+        if (tb) tb.innerHTML = data.materiais.map(r => `<tr>${r.map(c => `<td contenteditable="true">${c}</td>`).join('')}<td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td></tr>`).join('');
+    }
+
+    // Assinaturas
+    if (data.assinaturas) {
+        setv('sig-elab', data.assinaturas.elaborado); setv('sig-verif', data.assinaturas.verificado);
+        setv('sig-aprov', data.assinaturas.aprovado); setv('sig-data', data.assinaturas.data);
     }
 
     if (data.evidencias && Array.isArray(data.evidencias)) {
@@ -3294,10 +4239,47 @@ function restoreFullState(data) {
     }
 
     if (data.textos) {
-        if (data.textos.conclusao && document.getElementById('txt-conclusao')) document.getElementById('txt-conclusao').value = data.textos.conclusao;
-        if (data.textos.engenharia && document.getElementById('txt-eng')) document.getElementById('txt-eng').value = data.textos.engenharia;
-        if (data.textos.inspecao && document.getElementById('txt-insp')) document.getElementById('txt-insp').value = data.textos.inspecao;
-        if (data.textos.manutencao && document.getElementById('txt-manut')) document.getElementById('txt-manut').value = data.textos.manutencao;
+        setv('txt-objetivo', data.textos.objetivo);
+        setv('txt-conclusao', data.textos.conclusao);
+        setv('txt-eng', data.textos.engenharia);
+        setv('txt-insp', data.textos.inspecao);
+        setv('txt-manut', data.textos.manutencao);
+        setv('txt-notas', data.textos.notas);
+        setv('txt-topo', data.textos.topografia);
+    }
+
+    // Condição de limpeza / sujidades
+    if (data.limpeza) {
+        const c = document.getElementById('inp-limpeza'), tr = document.getElementById('inp-limpeza-trechos');
+        if (c && data.limpeza.cond) c.value = data.limpeza.cond;
+        if (tr && data.limpeza.trechos !== undefined) tr.value = data.limpeza.trechos;
+    }
+
+    // Notas da carteira do ativo
+    if (data.notas && Array.isArray(data.notas)) {
+        const tb = document.getElementById('notasTableBody');
+        if (tb) { tb.innerHTML = ''; data.notas.forEach(n => addNotaRow(...n)); }
+    }
+
+    // Topografia — dados, medições e pranchas
+    if (data.topoInfo) {
+        const setv = (id, v) => { const el = document.getElementById(id); if (el && v !== undefined) el.value = v; };
+        setv('topo-empresa', data.topoInfo.empresa); setv('topo-resp', data.topoInfo.resp);
+        setv('topo-data', data.topoInfo.data); setv('topo-equip', data.topoInfo.equip);
+        setv('topo-doc', data.topoInfo.doc); setv('topo-rn', data.topoInfo.rn);
+        const tb = document.getElementById('topoTableBody');
+        if (tb && Array.isArray(data.topoInfo.medicoes)) { tb.innerHTML = ''; data.topoInfo.medicoes.forEach(m => addTopoRow(...m)); }
+    }
+    if (data.topografia && Array.isArray(data.topografia)) {
+        const g = document.getElementById('topoGallery');
+        if (g) {
+            g.innerHTML = ''; topoCounter = 0;
+            data.topografia.forEach(t => {
+                const id = addTopoSlot(t.title, t.desc);
+                const img = document.getElementById(id + '-img');
+                if (img && t.src) { img.src = t.src; img.closest('.drawing-upload-area').classList.add('has-image'); }
+            });
+        }
     }
 
     renderAnomalyTable();
@@ -3330,13 +4312,13 @@ function exportarJSON() {
     const state = collectFullState();
     const data = {
         relatorio: 'Via de Rolamento em Máquinas de Pátio — Inspeção Estrutural — OP.0070',
+        versao_formato: 2,
         data_export: new Date().toISOString(),
         total_balizas: NUM_BALIZAS,
         itens_op0070: ITEMS,
+        // Estado completo do relatório (todas as seções)
+        ...(() => { const s = { ...state }; delete s.anomalies; return s; })(),
         anomalias: state.anomalies,
-        evidencias: state.evidencias,
-        desenhos: state.desenhos,
-        textos: state.textos,
         resumo: {
             total_anomalias: anomalies.length,
             balizas_afetadas: new Set(anomalies.map(a => a.baliza)).size,
@@ -3361,8 +4343,10 @@ function importarJSON(input) {
         try {
             const data = JSON.parse(e.target.result);
             restoreFullState(data);
-            const nFotos = (data.evidencias ? data.evidencias.length : 0) + (data.desenhos ? data.desenhos.length : 0);
-            showToast(`📥 Importado: ${anomalies.length} anomalias + ${nFotos} fotos carregadas!`);
+            const nFotos = (data.evidencias ? data.evidencias.length : 0);
+            const nDes = (data.desenhos ? data.desenhos.length : 0) + (data.topografia ? data.topografia.length : 0);
+            const nNotas = data.notas ? data.notas.filter(r => r[0]).length : 0;
+            showToast(`📥 Importado: ${anomalies.length} anomalias · ${nFotos} fotos · ${nDes} desenhos/pranchas · ${nNotas} notas`);
         } catch(err) {
             showToast('⚠ Erro ao ler JSON: ' + err.message);
         }
@@ -3409,11 +4393,19 @@ function init() {
         } catch(e) { console.warn('Restore error:', e); }
     }
 
+    annotInit();
+
     if (!loadedFromStorage) {
         renderDiagram();
         renderAnomalyTable();
         updateKPIs();
         renderHeatmaps();
+        // Linhas de exemplo para preenchimento
+        addNotaRow('', '', 'YE', '', '', 'Em tratativa');
+        addTopoRow('', 'LD', 'Nivelamento longitudinal', '', '± 3 mm', '', 'Conforme');
+        addTopoRow('', 'LD', 'Alinhamento horizontal', '', '± 3 mm', '', 'Conforme');
+        addTopoRow('', 'LD+LE', 'Bitola', '', '± 3 mm', '', 'Conforme');
+        addTopoSlot('Prancha 1: Planta de Nivelamento / Alinhamento', '');
         addDrawingSlot('Figura 1: Cadastral / Arranjo Geral da Via de Rolamento — Balizas 00 a 73', 'Desenho cadastral de referência com o arranjo geral da via de rolamento e a numeração das balizas.');
         addDrawingSlot('Figura 2: Detalhe Típico de Fixação — Dormentes, Grampos e Palmilhas', 'Detalhe típico do sistema de fixação trilho-dormente (grampos, palmilhas e placas de apoio).');
         addDrawingSlot('Figura 3: Vista Panorâmica / Foto de Campo', '');
