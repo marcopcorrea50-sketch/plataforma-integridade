@@ -945,6 +945,19 @@
         color: var(--text-secondary);
     }
     .task-item .ti-name .ti-op { color: var(--accent-green); font-weight: 700; }
+    .task-item-extra { border-left-color: var(--accent-cyan); }
+    .task-item .ti-tag {
+        font-size: 0.66em;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--accent-cyan);
+        background: rgba(8,145,178,0.10);
+        border: 1px solid rgba(8,145,178,0.25);
+        border-radius: 20px;
+        padding: 2px 8px;
+        margin-left: 8px;
+    }
 
     /* HEATMAP POR ITEM */
     .hm-item-container {
@@ -1104,6 +1117,7 @@
 
         /* Textos longos: bloco fluido que quebra entre páginas sem cortar */
         textarea { display: none !important; }
+        .print-text:empty { display: none !important; }
         .print-text {
             display: block !important;
             white-space: pre-wrap;
@@ -1452,7 +1466,7 @@
         <div class="card">
             <div class="section-title">6.0 LISTA DE TAREFAS PASSO A PASSO — OP.0070</div>
             <p style="color:var(--text-secondary);font-size:0.9em;margin-bottom:16px;">
-                Itens de inspeção aplicáveis a cada grupo de balizas, em ambos os lados (LD e LE). Use o botão <strong>+ Registrar</strong> para lançar uma anomalia já vinculada ao item.
+                Itens de inspeção aplicáveis a cada grupo de balizas, em ambos os lados (LD e LE): os <strong>7 itens do plano OP.0070</strong> e os <strong>itens complementares</strong> avaliados em campo (tirantes, base de apoio dos trilhos, vegetação e outros). Use o botão <strong>+ Registrar</strong> para lançar uma anomalia já vinculada ao item.
             </p>
             <div class="tl-banner">▶ LISTA DE TAREFAS PASSO A PASSO OP.0070</div>
             <div class="tl-controls">
@@ -1745,7 +1759,7 @@
 
             <div style="margin-top:20px;">
                 <label style="display:block;font-size:0.78em;font-weight:600;color:var(--accent-blue);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">12.3 Conclusão do Levantamento Topográfico</label>
-                <textarea id="txt-topo" style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;color:var(--text-primary);font-family:inherit;min-height:90px;">[Descrever os desvios de nivelamento, alinhamento, bitola e superelevação identificados, os trechos críticos e a necessidade de correção geométrica da via.]</textarea>
+                <textarea id="txt-topo" style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;color:var(--text-primary);font-family:inherit;min-height:90px;" placeholder="Descreva os desvios de nivelamento, alinhamento, bitola e superelevação identificados, os trechos críticos e a necessidade de correção geométrica da via."></textarea>
             </div>
         </div>
     </div>
@@ -1761,11 +1775,7 @@
                 Monta o texto a partir das anomalias registradas, das notas da carteira do ativo e do relatório topográfico. O texto gerado é editável.
             </p>
             <div class="form-field">
-                <textarea style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;color:var(--text-primary);font-family:inherit;min-height:120px;" id="txt-conclusao">Foram inspecionadas as balizas 00 a 73 da via de rolamento (LD e LE), contemplando os 7 itens da Lista de Tarefas OP.0070: dormentes, grampos de fixação, lastro da via, trilho (boleto), cordão de solda, fixação das palmilhas e batente fim de curso.
-
-[Descrever o resumo das não conformidades por item e por trecho de balizas.]
-
-[Descrever a condição geral da via e a aptidão operacional do equipamento.]</textarea>
+                <textarea style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:14px;color:var(--text-primary);font-family:inherit;min-height:120px;" id="txt-conclusao" placeholder="Use o botão “Gerar Conclusão e Recomendações” ou descreva aqui a conclusão da inspeção."></textarea>
             </div>
         </div>
 
@@ -1774,15 +1784,15 @@
             <div style="display:grid;gap:16px;">
                 <div>
                     <div style="color:var(--accent-green);font-weight:600;margin-bottom:8px;">14.1 Engenharia</div>
-                    <textarea style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;color:var(--text-primary);font-family:inherit;min-height:70px;" id="txt-eng">1. [Avaliações estruturais / notas YE necessárias.]</textarea>
+                    <textarea style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;color:var(--text-primary);font-family:inherit;min-height:70px;" id="txt-eng" placeholder="Avaliações estruturais e notas YE necessárias."></textarea>
                 </div>
                 <div>
                     <div style="color:var(--accent-green);font-weight:600;margin-bottom:8px;">14.2 Inspeção</div>
-                    <textarea style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;color:var(--text-primary);font-family:inherit;min-height:70px;" id="txt-insp">1. [Trechos pendentes, levantamentos dimensionais, prazo de reinspeção.]</textarea>
+                    <textarea style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;color:var(--text-primary);font-family:inherit;min-height:70px;" id="txt-insp" placeholder="Trechos pendentes, levantamentos dimensionais e prazo de reinspeção."></textarea>
                 </div>
                 <div>
                     <div style="color:var(--accent-green);font-weight:600;margin-bottom:8px;">14.3 Manutenção</div>
-                    <textarea style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;color:var(--text-primary);font-family:inherit;min-height:70px;" id="txt-manut">1. [Substituições/correções por item da OP.0070 e prioridades de OM.]</textarea>
+                    <textarea style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;color:var(--text-primary);font-family:inherit;min-height:70px;" id="txt-manut" placeholder="Substituições/correções por item e prioridades de OM."></textarea>
                 </div>
             </div>
         </div>
@@ -1885,6 +1895,9 @@ const ITEMS = [
     { num: '06', op: 'OP.00200', nome: 'FIXAÇÃO DAS PALMILHAS' },
     { num: '07', op: 'OP.00220', nome: 'BATENTE FIM DE CURSO' },
     { num: '08', op: 'TIRANTES', nome: 'TIRANTES', extra: true },
+    { num: '09', op: 'BASE-APOIO', nome: 'BASE DE APOIO DOS TRILHOS', extra: true },
+    { num: '10', op: 'VEGETACAO', nome: 'VEGETAÇÃO', extra: true },
+    { num: '11', op: 'OUTROS', nome: 'OUTROS', extra: true },
 ];
 
 // Composição de cada vão entre balizas (por via/lado)
@@ -1996,19 +2009,19 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 // ============================
 function renderTaskList() {
     const c = document.getElementById('taskListContainer');
-    const opItems = ITEMS.filter(i => !i.extra); // lista OP.0070 original (7 itens)
     c.innerHTML = GROUPS.map((g, gi) => `
         <div class="task-group" id="tg-${gi}">
             <div class="task-group-header" onclick="toggleGroup(${gi})">
                 <span class="tg-arrow">▶</span>
                 <span class="tg-title">BALIZA ${g.label}</span>
-                <span class="tg-count">${opItems.length} itens</span>
+                <span class="tg-count">${ITEMS.length} itens</span>
             </div>
             <div class="task-group-body">
-                ${opItems.map(it => `
-                    <div class="task-item">
+                ${ITEMS.map(it => `
+                    <div class="task-item${it.extra ? ' task-item-extra' : ''}">
                         <span class="ti-num">${it.num}</span>
-                        <span class="ti-name"><span class="ti-op">${it.op}</span> — ${it.nome}</span>
+                        <span class="ti-name">${it.extra ? it.nome : `<span class="ti-op">${it.op}</span> — ${it.nome}`}</span>
+                        ${it.extra ? '<span class="ti-tag">complementar</span>' : ''}
                         <button class="btn-add btn-registrar" style="margin-left:auto;padding:5px 12px;font-size:0.78em;" onclick="registerFromTask(${gi},'${it.op}')">+ Registrar</button>
                     </div>`).join('')}
             </div>
@@ -2227,7 +2240,7 @@ function renderGroupChips() {
     gsel.innerHTML = GROUPS.map((g, gi) => `<option value="${gi}">${g.label}</option>`).join('');
 
     const isel = document.getElementById('inp-item');
-    isel.innerHTML = ITEMS.map(it => `<option value="${it.op}">${it.num} · ${it.op === it.nome ? it.nome : it.op + ' — ' + it.nome}</option>`).join('');
+    isel.innerHTML = ITEMS.map(it => `<option value="${it.op}">${it.num} · ${it.extra ? it.nome : it.op + ' — ' + it.nome}</option>`).join('');
 
     // Componentes do vão (opcional)
     const csel = document.getElementById('inp-comp');
@@ -2808,7 +2821,7 @@ function renderAnomalyTable() {
     }
     tbody.innerHTML = anomalies.map((a, i) => {
         const it = getItem(a.item);
-        const opLabel = it && it.op !== it.nome ? `<span style="color:var(--accent-green);font-weight:700;">${it.op}</span> ` : '';
+        const opLabel = it && !it.extra ? `<span style="color:var(--accent-green);font-weight:700;">${it.op}</span> ` : '';
         const compLabel = a.comp ? ` <span style="color:var(--accent-purple);font-weight:600;font-size:0.9em;">· ${a.comp}</span>` : '';
         return `
         <tr>
@@ -3962,7 +3975,7 @@ async function exportarPPTX() {
             { text: pad2(a.baliza), options: { fontSize: 8, bold: true } },
             { text: getGroup(a.baliza).label, options: { fontSize: 8 } },
             { text: a.lado, options: { fontSize: 8, bold: true } },
-            { text: getItem(a.item) ? (getItem(a.item).num + ' ' + getItem(a.item).nome) : (a.item || '—'), options: { fontSize: 8 } },
+            { text: getItem(a.item) ? (getItem(a.item).num + ' · ' + getItem(a.item).nome) : (a.item || '—'), options: { fontSize: 8 } },
             { text: a.tipo || '—', options: { fontSize: 8 } },
             { text: a.desc, options: { fontSize: 8 } },
             { text: getSeverityLabel(a.sev), options: { fontSize: 8, bold: true, color: ['059669','D97706','EA580C','DC2626','B91C1C'][a.sev] || C.gray } },
