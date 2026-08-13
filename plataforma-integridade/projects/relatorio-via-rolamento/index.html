@@ -7,6 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
 
@@ -1601,7 +1602,7 @@
 
             <div class="anomaly-panel">
                 <div style="font-weight:600;color:var(--accent-cyan);margin-bottom:14px;">Adicionar Anomalia</div>
-                <div class="anomaly-form-row" style="grid-template-columns: 105px 80px 85px 195px 165px 125px 100px 75px auto;">
+                <div class="anomaly-form-row" style="grid-template-columns: 100px 78px 82px 180px 155px 120px 95px 70px 120px auto;">
                     <div><label>Grupo</label>
                         <select id="inp-grupo" onchange="onGroupSelectChange()"></select>
                     </div>
@@ -1640,6 +1641,7 @@
                         </select>
                     </div>
                     <div><label>Qtd. Comp.</label><input type="number" id="inp-qtd" min="1" value="1"></div>
+                    <div><label>Nº Nota SAP</label><input type="text" id="inp-nota" placeholder="Opcional"></div>
                     <div style="grid-column: 1 / -2;"><label>Descrição da Anomalia</label><input type="text" id="inp-desc" placeholder="Ex: Dormente trincado, grampo ausente, desgaste lateral do boleto..."></div>
                     <div><button class="btn-add" onclick="addAnomaly()">+ Adicionar</button></div>
                 </div>
@@ -1657,6 +1659,7 @@
                         <th>Descrição</th>
                         <th>Severidade</th>
                         <th>Qtd.</th>
+                        <th>Nº Nota</th>
                         <th>Ação</th>
                     </tr>
                 </thead>
@@ -1790,10 +1793,6 @@
                     <div style="color:var(--accent-green);font-weight:600;margin-bottom:8px;">14.2 Inspeção</div>
                     <textarea style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;color:var(--text-primary);font-family:inherit;min-height:70px;" id="txt-insp" placeholder="Trechos pendentes, levantamentos dimensionais e prazo de reinspeção."></textarea>
                 </div>
-                <div>
-                    <div style="color:var(--accent-green);font-weight:600;margin-bottom:8px;">14.3 Manutenção</div>
-                    <textarea style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;color:var(--text-primary);font-family:inherit;min-height:70px;" id="txt-manut" placeholder="Substituições/correções por item e prioridades de OM."></textarea>
-                </div>
             </div>
         </div>
 
@@ -1876,6 +1875,7 @@
     <button class="fab fab-secondary" onclick="document.getElementById('jsonImportInput').click()" title="Importar JSON">📥 Importar</button>
     <input type="file" id="jsonImportInput" accept=".json" style="display:none;" onchange="importarJSON(this)">
     <button class="fab fab-export" style="background:linear-gradient(135deg,#EA580C,#C2410C);box-shadow:0 4px 20px rgba(234,88,12,0.25);" onclick="exportarPPTX()" title="Exportar PowerPoint">📊 PPTX</button>
+    <button class="fab fab-export" style="background:linear-gradient(135deg,#2B579A,#1B3A6B);box-shadow:0 4px 20px rgba(43,87,154,0.28);" onclick="exportarWord()" title="Exportar Word (.docx)">📝 WORD</button>
     <button class="fab fab-primary" onclick="gerarPDF()" title="Gerar PDF">📄 PDF</button>
 </div>
 <script>
@@ -2395,87 +2395,59 @@ function gerarRecomendacoes() {
     const topoNaoConf = medicoes.filter(m => /n[ãa]o conforme|reprov|fora/i.test(m.sit));
     const temTopo = !!val('topo-doc') || medicoes.length > 0;
 
-    // ── 14.1 ENGENHARIA ──
+    // ── 14.1 ENGENHARIA — nota YE apenas quando realmente necessário ──
     const eng = [];
-    if (criticas.length) {
-        const itensCriticos = [...new Set(criticas.map(a => (getItem(a.item) || {}).nome).filter(Boolean))];
-        eng.push(`Abrir nota YE para avaliação estrutural das não conformidades classificadas como Alto e Muito Alto (${criticas.length} ${criticas.length === 1 ? 'ocorrência' : 'ocorrências'}), com foco em ${fmtLista(itensCriticos.map(i => i.toLowerCase()))}, verificando o impacto na capacidade de fixação e na estabilidade da superestrutura.`);
-    }
-    if (anomalies.some(a => a.item === 'TIRANTES')) {
-        const bal = anomalies.filter(a => a.item === 'TIRANTES').map(a => a.baliza);
-        eng.push(`Avaliar o efeito da ausência/degradação dos tirantes sobre a manutenção da bitola ${new Set(bal).size === 1 ? 'na baliza' : 'nas balizas'} ${fmtBalizas(bal)}, definindo a especificação e o padrão de reinstalação dos elementos.`);
+    const muitoAlto = anomalies.filter(a => a.sev === 4);
+    const precisaYE = muitoAlto.length > 0 || abertas.length > 0 || topoNaoConf.length > 0;
+
+    if (muitoAlto.length) {
+        const itensYE = [...new Set(muitoAlto.map(a => (getItem(a.item) || {}).nome).filter(Boolean))].map(i => i.toLowerCase());
+        eng.push(`Abrir nota YE para avaliação estrutural das ocorrências de severidade Muito Alto: ${fmtLista(itensYE)}, ${new Set(muitoAlto.map(a => a.baliza)).size === 1 ? 'na baliza' : 'nas balizas'} ${fmtBalizas(muitoAlto.map(a => a.baliza))}.`);
     }
     if (abertas.length) {
-        eng.push(`Analisar a causa raiz da reincidência das anomalias associadas às notas ${fmtLista(abertas.map(x => x.n))}, ainda pendentes de tratativa, avaliando a eficácia das intervenções anteriormente executadas.`);
+        eng.push(`Analisar a causa raiz da reincidência das anomalias, considerando que ${abertas.length === 1 ? 'a nota' : 'as notas'} ${fmtLista(abertas.map(x => x.n))} ${abertas.length === 1 ? 'continua' : 'continuam'} sem tratativa concluída.`);
     }
     if (topoNaoConf.length) {
-        eng.push(`Definir o plano de correção geométrica da via a partir dos desvios topográficos identificados (${fmtLista(topoNaoConf.map(m => m.param.toLowerCase() + (m.trecho ? ' — balizas ' + m.trecho : '')))}), estabelecendo tolerâncias de aceitação para a liberação do trecho.`);
-    } else if (!temTopo) {
-        eng.push(`Contratar/programar levantamento topográfico da via para verificação de nivelamento, alinhamento e bitola, subsidiando a análise de causa raiz das anomalias de lastro e fixação.`);
+        eng.push(`Definir o plano de correção geométrica da via, considerando os desvios topográficos fora da tolerância: ${fmtLista(topoNaoConf.map(m => m.param.toLowerCase() + (m.trecho ? ' (balizas ' + m.trecho + ')' : '')))}.`);
     }
-    if (temSujidade) {
-        eng.push(`Avaliar a necessidade de desguarnecimento e substituição do lastro nos trechos com colmatação, bem como revisar o sistema de drenagem e as fontes de derramamento de material ao longo da via.`);
+    if (!precisaYE) {
+        eng.push(`Não há demanda de engenharia nesta inspeção. As não conformidades identificadas não requerem abertura de nota YE.`);
     }
-    if (!eng.length) eng.push(`Não há demandas de engenharia decorrentes desta inspeção. Manter o acompanhamento periódico conforme o plano de manutenção.`);
 
     // ── 14.2 INSPEÇÃO ──
     const insp = [];
-    if (notas.length) {
-        const relacionadas = notas.map(x => `${x.n}${x.trecho ? ' (balizas ' + x.trecho + ')' : ''}${x.desc ? ' — ' + x.desc.toLowerCase() : ''}${x.st ? ' — ' + x.st.toLowerCase() : ''}`);
-        insp.push(`Acompanhar as notas cadastradas na carteira do ativo referentes às não conformidades identificadas: ${fmtLista(relacionadas)}.`);
-        if (abertas.length) insp.push(`Verificar, junto ao planejamento, a programação ${abertas.length === 1 ? 'da nota pendente' : `das ${abertas.length} notas pendentes`} de tratativa e atualizar o status após a execução dos serviços.`);
-    } else {
-        insp.push(`Cadastrar na carteira do ativo as notas correspondentes às não conformidades identificadas nesta inspeção, vinculando-as às respectivas balizas.`);
-    }
-    if (criticas.length) {
-        const balCrit = criticas.map(a => a.baliza);
-        insp.push(`Reinspecionar os trechos críticos (${new Set(balCrit).size === 1 ? 'baliza' : 'balizas'} ${fmtBalizas(balCrit)}) após a execução das correções, confirmando o atendimento aos padrões de fixação e de geometria da via.`);
-    }
-    if (temSujidade) insp.push(`Reinspecionar os trechos com sujidade após a limpeza, uma vez que o acúmulo de material impede a avaliação visual completa dos componentes e pode mascarar anomalias.`);
-    if (!temTopo) insp.push(`Realizar levantamento dimensional de nivelamento, alinhamento e bitola nos trechos com maior concentração de anomalias.`);
-    insp.push(`Programar reinspeção geral do ativo em ${criticas.length ? '90' : '180'} dias, ou imediatamente após a conclusão das intervenções corretivas${dataIns ? ` (data-alvo: ${dataAlvo(dataIns, criticas.length ? 90 : 180)})` : ''}.`);
 
-    // ── 14.3 MANUTENÇÃO ──
-    const manut = [];
-    if (anomalies.length) {
-        // Ações agrupadas por item + severidade máxima → prazo
-        const porItem = {};
-        anomalies.forEach(a => {
-            const it = getItem(a.item);
-            const nome = it ? it.nome : (a.item || 'Outros');
-            if (!porItem[nome]) porItem[nome] = { qtd: 0, sev: 0, bal: [] };
-            porItem[nome].qtd += (a.qtd || 1);
-            porItem[nome].sev = Math.max(porItem[nome].sev, a.sev);
-            porItem[nome].bal.push(a.baliza);
-        });
-        Object.entries(porItem)
-            .sort((a, b) => b[1].sev - a[1].sev)
-            .forEach(([nome, d]) => {
-                const dias = PRAZO_SEV[d.sev] || 180;
-                manut.push(
-                    `${nome.charAt(0) + nome.slice(1).toLowerCase()} — executar substituição/correção de ${d.qtd} ${d.qtd === 1 ? 'unidade' : 'unidades'} ` +
-                    `${new Set(d.bal).size === 1 ? 'na baliza' : 'nas balizas'} ${fmtBalizas(d.bal)}; ` +
-                    `severidade ${getSeverityLabel(d.sev)}, prazo de ${dias} dias${dataIns ? `, conclusão desejada até ${dataAlvo(dataIns, dias)}` : ''}.`
-                );
-            });
-        manut.push(`Total de ${compTroca} ${compTroca === 1 ? 'componente previsto' : 'componentes previstos'} para substituição/recuperação, conforme quantitativo da seção 8.0.`);
-    }
-    if (temSujidade) {
-        manut.push(`Limpeza da via — remover material acumulado, suprimir vegetação e desobstruir a drenagem antes das demais intervenções; prazo de 30 dias${dataIns ? `, conclusão desejada até ${dataAlvo(dataIns, 30)}` : ''}.`);
+    // Notas lançadas nesta inspeção, vinculadas a cada não conformidade
+    const notasNC = {};
+    anomalies.filter(a => a.nota && a.nota.trim()).forEach(a => {
+        const n = a.nota.trim();
+        if (!notasNC[n]) notasNC[n] = { itens: new Set(), bal: [] };
+        const it = getItem(a.item);
+        notasNC[n].itens.add(it ? it.nome.toLowerCase() : (a.item || 'não conformidade'));
+        notasNC[n].bal.push(a.baliza);
+    });
+    const listaNotasNC = Object.entries(notasNC).map(([n, d]) =>
+        `${n} — ${fmtLista([...d.itens])} ${new Set(d.bal).size === 1 ? 'na baliza' : 'nas balizas'} ${fmtBalizas(d.bal)}`);
+
+    const semNota = anomalies.filter(a => !a.nota || !a.nota.trim()).length;
+
+    if (listaNotasNC.length) {
+        insp.push(`Foram cadastradas as notas das não conformidades identificadas nesta inspeção: ${fmtLista(listaNotasNC)}.`);
+        if (semNota) insp.push(`Cadastrar as notas das demais não conformidades identificadas (${semNota} ${semNota === 1 ? 'ocorrência ainda sem nota vinculada' : 'ocorrências ainda sem nota vinculada'}).`);
+    } else if (anomalies.length) {
+        insp.push(`Cadastrar as notas referentes às ${anomalies.length} não conformidades identificadas nesta inspeção, vinculando cada nota à respectiva baliza e item.`);
     }
     if (notas.length) {
-        manut.push(`Vincular as ordens de manutenção às notas ${fmtLista(notas.map(x => x.n))}, informando a data de conclusão de cada serviço para baixa na carteira do ativo.`);
+        insp.push(`Acompanhar as notas de inspeções anteriores registradas na carteira do ativo: nº ${notas.map(x => x.n).join(', ')}.`);
     }
-    if (criticas.length) {
-        manut.push(`Priorizar as ordens corretivas dos itens classificados como Alto e Muito Alto, restringindo a operação nos trechos afetados até a conclusão dos serviços, caso identificado risco à segurança operacional.`);
-    }
-    if (!manut.length) manut.push(`Não há intervenções corretivas decorrentes desta inspeção. Manter a rotina de limpeza e conservação da via.`);
+    if (temSujidade) insp.push(`Cadastrar notas de limpeza e reinspecionar os trechos com sujidade após a execução dos serviços, pois o acúmulo de material impede a avaliação completa dos componentes.`);
+    if (!temTopo) insp.push(`Realizar levantamento topográfico de nivelamento, alinhamento e bitola.`);
+    insp.push(`Realizar inspeção de acordo com o plano sistemático.`);
 
     const num = arr => arr.map((t, i) => `${i + 1}. ${t}`).join('\n');
     const set = (id, txt) => { const el = document.getElementById(id); if (el) { el.value = txt; el.dispatchEvent(new Event('input', { bubbles: true })); } };
     set('txt-eng', num(eng));
     set('txt-insp', num(insp));
-    set('txt-manut', num(manut));
 }
 
 function gerarConclusao(comRecomendacoes) {
@@ -2505,120 +2477,11 @@ function gerarConclusao(comRecomendacoes) {
     const criticas = sev[3] + sev[4];
     const compTroca = anomalies.reduce((s, a) => s + (a.qtd || 1), 0);
 
-    const P = [];
-
-    // 1. Escopo
-    P.push(
-        `A presente inspeção estrutural foi realizada na via de rolamento ${local}` +
-        (denom && localSel ? ` (${denom})` : '') + (plano ? `, plano de manutenção ${plano}` : '') +
-        (dataFmt ? `, em ${dataFmt}` : '') + (inspetor ? `, sob responsabilidade técnica de ${inspetor}` : '') +
-        `. O escopo contemplou as balizas ${pad2(0)} a ${pad2(NUM_BALIZAS - 1)} nas duas vias — Lado Direito (LD) e Lado Esquerdo (LE) —, totalizando ${totalPos} posições avaliadas, ` +
-        `conforme os itens da Lista de Tarefas Passo a Passo OP.0070: dormentes, grampos de fixação, lastro da via, trilho (boleto), cordão de solda, fixação das palmilhas, batente de fim de curso e tirantes. ` +
-        `Cada vão entre balizas é composto por 19 dormentes, 38 almofadas, 19 grampos e 2 tirantes, referência adotada para o quantitativo de componentes.`
-    );
-
-    // 2. Resultado quantitativo
-    if (anomalies.length === 0) {
-        P.push(
-            `Não foram identificadas não conformidades nos itens inspecionados. A via de rolamento apresenta-se em condição adequada de operação, ` +
-            `recomendando-se a manutenção da periodicidade de inspeção prevista no plano.`
-        );
-    } else {
-        P.push(
-            `Foram registradas ${anomalies.length} não conformidades, distribuídas em ${balizasAfetadas.size} das ${NUM_BALIZAS} balizas da via, ` +
-            `o que corresponde a ${posAfetadas} das ${totalPos} posições avaliadas (${pct}%). ` +
-            `No Lado Direito foram identificadas ocorrências em ${ldSet.size} balizas e, no Lado Esquerdo, em ${leSet.size} balizas` +
-            (bothSet.size ? `, sendo ${bothSet.size} ${bothSet.size === 1 ? 'baliza afetada' : 'balizas afetadas'} simultaneamente em ambos os lados` : '') + `. ` +
-            `Quanto à severidade, ${sev[4]} ${sev[4] === 1 ? 'ocorrência foi classificada' : 'ocorrências foram classificadas'} como Muito Alto, ${sev[3]} como Alto, ${sev[2]} como Médio e ${sev[1]} como Baixo` +
-            (criticas ? `, concentrando ${criticas} ${criticas === 1 ? 'apontamento crítico' : 'apontamentos críticos'} (Alto e Muito Alto) que demandam tratativa prioritária.` : '.')
-        );
-
-        // 3. Não conformidades por item
-        const porItem = [];
-        ITEMS.forEach(it => {
-            const rel = anomalies.filter(a => a.item === it.op);
-            if (!rel.length) return;
-            const bal = rel.map(a => a.baliza);
-            const tipos = [...new Set(rel.map(a => (a.tipo || '').toLowerCase()).filter(Boolean))];
-            const maxSev = Math.max(...rel.map(a => a.sev));
-            const nBal = new Set(bal).size;
-            const comps = [...new Set(rel.filter(a => a.comp).map(a => a.comp.replace(/\s\d+$/, '')))];
-            porItem.push(
-                `${it.nome.toLowerCase().replace(/^\w/, c => c.toUpperCase())} — ${rel.length} ${rel.length === 1 ? 'ocorrência' : 'ocorrências'} ` +
-                `${tipos.length ? 'de ' + fmtLista(tipos) + ' ' : ''}` +
-                `${comps.length ? 'identificadas em ' + fmtLista(comps.map(c => c.toLowerCase() + (rel.length > 1 ? 's' : ''))) + ', ' : ''}` +
-                `${nBal === 1 ? 'na baliza' : 'nas balizas'} ${fmtBalizas(bal)}, com severidade máxima classificada como ${getSeverityLabel(maxSev)}`
-            );
-        });
-        if (porItem.length) {
-            P.push(`Por item da lista de tarefas, as não conformidades identificadas foram: ${porItem.join('; ')}.`);
-        }
-
-        // 4. Trechos críticos
-        const porGrupo = GROUPS.map(g => ({ g, n: anomalies.filter(a => a.baliza >= g.start && a.baliza <= g.end).length }))
-            .filter(x => x.n > 0).sort((a, b) => b.n - a.n);
-        if (porGrupo.length) {
-            const top = porGrupo.slice(0, 3);
-            P.push(
-                `A maior concentração de apontamentos ocorre ${top.length > 1 ? 'nos trechos compreendidos entre as' : 'no trecho compreendido entre as'} ` +
-                fmtLista(top.map(t => `balizas ${t.g.label.replace(' A ', ' e ')} (${t.n} ${t.n === 1 ? 'ocorrência' : 'ocorrências'})`)) + `, ` +
-                `${top.length > 1 ? 'que devem ser priorizados' : 'que deve ser priorizado'} na programação das intervenções corretivas. ` +
-                `O quantitativo de componentes previstos para substituição/recuperação totaliza ${compTroca} ${compTroca === 1 ? 'unidade' : 'unidades'}.`
-            );
-        }
-    }
-
-    // 4b. Sujidades / condição de limpeza da via
-    (() => {
-        const sujAnom = anomalies.filter(a => /sujidade|vegeta|contamina|drenagem|limpeza/i.test((a.tipo || '') + ' ' + (a.desc || '')));
-        const balSuj = sujAnom.map(a => a.baliza);
-        const cond = val('inp-limpeza');
-        const trechos = val('inp-limpeza-trechos').trim();
-        const ondeTxt = balSuj.length ? `nas balizas ${fmtBalizas(balSuj)}` : (trechos ? `nos trechos das balizas ${trechos}` : '');
-
-        if (cond === 'conforme' && !sujAnom.length) {
-            P.push(
-                `Quanto às condições de limpeza, a via de rolamento apresenta-se desobstruída ao longo de toda a sua extensão, sem acúmulo de minério, ` +
-                `vegetação ou material estranho que comprometa a drenagem do lastro, a inspeção visual dos componentes ou o funcionamento do sistema de fixação.`
-            );
-            return;
-        }
-
-        const intensidade = {
-            pontual: 'sujidade localizada',
-            generalizada: 'sujidade generalizada',
-            critica: 'sujidade em condição crítica, com colmatação do lastro e obstrução da drenagem'
-        }[cond] || 'sujidade';
-
-        P.push(
-            `Foi constatada ${intensidade} ao longo da via de rolamento${ondeTxt ? `, ${ondeTxt}` : ''}, caracterizada por acúmulo de minério, ` +
-            `material particulado e presença de vegetação sobre o lastro e entre os dormentes` +
-            (sujAnom.length ? ` (${sujAnom.length} ${sujAnom.length === 1 ? 'registro específico' : 'registros específicos'} lançados no item Lastro da Via)` : '') + `. ` +
-            `A sujidade compromete a drenagem e a capacidade de acomodação do lastro, favorece a colmatação e a retenção de umidade — acelerando a corrosão dos elementos de fixação e a degradação dos dormentes — ` +
-            `e impede a inspeção visual adequada de grampos, palmilhas, tirantes e cordões de solda, podendo mascarar anomalias existentes. ` +
-            `Recomenda-se a execução de limpeza da via com remoção do material acumulado e supressão da vegetação, seguida de reinspeção dos trechos afetados para confirmação das condições reais dos componentes` +
-            (cond === 'critica' ? `, além da avaliação de engenharia quanto à necessidade de desguarnecimento e substituição do lastro colmatado.` : `.`)
-        );
-    })();
-
-    // 5. Carteira de notas
+    // Notas da carteira do ativo
     const notas = lerNotas();
-    if (notas.length) {
-        const abertas = notas.filter(x => !/conclu|encerr|atendid/i.test(x.st));
-        P.push(
-            `Quanto ao histórico da carteira do ativo, constam ${notas.length} ${notas.length === 1 ? 'nota registrada' : 'notas registradas'} em inspeções anteriores ` +
-            `(${fmtLista(notas.map(x => x.n))})` +
-            (abertas.length
-                ? `, das quais ${abertas.length} ${abertas.length === 1 ? 'permanece pendente de tratativa' : 'permanecem pendentes de tratativa'}. ` +
-                  `Verifica-se, portanto, reincidência de anomalias associadas à superestrutura da via, o que indica que as ações corretivas anteriores não foram concluídas ou não se mostraram eficazes. ` +
-                  `Recomenda-se o acompanhamento das notas em aberto e a atualização do respectivo status junto à carteira do ativo.`
-                : `, todas com tratativa concluída.`)
-        );
-    } else {
-        P.push(`Não há notas anteriores registradas na carteira do ativo para o local de instalação inspecionado, ou o histórico não foi disponibilizado até a emissão deste relatório.`);
-    }
+    const abertas = notas.filter(x => !/conclu|encerr|atendid/i.test(x.st));
 
-    // 6. Relatório topográfico
+    // Levantamento topográfico
     const temPrancha = !!document.querySelector('#topoGallery .drawing-upload-area.has-image');
     const medicoes = [...document.querySelectorAll('#topoTableBody tr')]
         .map(tr => ({ trecho: tr.cells[0].textContent.trim(), param: tr.cells[2].textContent.trim(), medido: tr.cells[3].textContent.trim(), sit: tr.cells[6].textContent.trim() }))
@@ -2627,35 +2490,113 @@ function gerarConclusao(comRecomendacoes) {
     const topoDoc = val('topo-doc'), topoEmp = val('topo-empresa'), topoData = val('topo-data');
     const topoDataFmt = /^\d{4}-\d{2}-\d{2}$/.test(topoData) ? topoData.split('-').reverse().join('/') : topoData;
 
-    if (temPrancha || medicoes.length || topoDoc) {
-        P.push(
-            `O relatório topográfico${topoDoc ? ` (documento ${topoDoc})` : ''}${topoEmp ? `, executado por ${topoEmp}` : ''}${topoDataFmt ? `, com levantamento em ${topoDataFmt}` : ''} ` +
-            `integra este documento na seção 12.0` + (temPrancha ? `, com as respectivas pranchas anexadas` : '') + `. ` +
-            (medicoes.length
-                ? (naoConf.length
-                    ? `Do total de ${medicoes.length} ${medicoes.length === 1 ? 'medição realizada' : 'medições realizadas'}, ${naoConf.length} ${naoConf.length === 1 ? 'apresentou desvio' : 'apresentaram desvios'} acima da tolerância de projeto ` +
-                      `(${fmtLista(naoConf.map(m => `${m.param.toLowerCase()}${m.trecho ? ' — balizas ' + m.trecho : ''}`))}), demandando correção geométrica da via.`
-                    : `As ${medicoes.length} ${medicoes.length === 1 ? 'medição realizada atende' : 'medições realizadas atendem'} às tolerâncias de projeto quanto a nivelamento, alinhamento e bitola.`)
-                : `Os resultados devem ser analisados em conjunto com as não conformidades estruturais apontadas neste relatório.`)
-        );
+    const P = [];
+
+    // 1. O que foi inspecionado
+    P.push(
+        `Foi realizada inspeção estrutural na via de rolamento ${local}` +
+        (denom && localSel ? ` — ${denom}` : '') + (plano ? `, plano ${plano}` : '') +
+        (dataFmt ? `, em ${dataFmt}` : '') + `. ` +
+        `Foram verificadas as balizas 00 a 73 nos dois lados da via (LD e LE), totalizando ${totalPos} posições, ` +
+        `conforme os itens da lista de tarefas OP.0070.`
+    );
+
+    // 2. Resultado geral
+    if (anomalies.length === 0) {
+        P.push(`Não foram encontradas não conformidades. A via está em condição adequada de operação.`);
     } else {
         P.push(
-            `Não foi realizado levantamento topográfico da via nesta campanha. Considerando os desvios geométricos usualmente associados às anomalias de lastro, dormentes e fixação, ` +
-            `recomenda-se a execução de levantamento topográfico para verificação de nivelamento, alinhamento e bitola, subsidiando a definição das correções geométricas necessárias.`
+            `Foram encontradas ${anomalies.length} não conformidades em ${balizasAfetadas.size} balizas (${pct}% das posições verificadas): ` +
+            `${ldSet.size} no lado direito e ${leSet.size} no lado esquerdo` +
+            (bothSet.size ? `, sendo ${bothSet.size} ${bothSet.size === 1 ? 'baliza afetada' : 'balizas afetadas'} nos dois lados` : '') + `. ` +
+            (criticas ? `Destas, ${criticas} ${criticas === 1 ? 'é crítica' : 'são críticas'} (severidade Alto ou Muito Alto) e ${criticas === 1 ? 'exige' : 'exigem'} correção prioritária.`
+                      : `Nenhuma foi classificada como crítica.`)
         );
+
+        // 3. O que foi encontrado, item por item (frases curtas)
+        const linhas = [];
+        ITEMS.forEach(it => {
+            const rel = anomalies.filter(a => a.item === it.op);
+            if (!rel.length) return;
+            const bal = rel.map(a => a.baliza);
+            const nBal = new Set(bal).size;
+            const tipos = [...new Set(rel.map(a => (a.tipo || '').toLowerCase()).filter(Boolean))];
+            const qtd = rel.reduce((s, a) => s + (a.qtd || 1), 0);
+            linhas.push(
+                `${it.nome.charAt(0) + it.nome.slice(1).toLowerCase()}: ${tipos.length ? fmtLista(tipos) : 'não conformidade'} ` +
+                `${nBal === 1 ? 'na baliza' : 'nas balizas'} ${fmtBalizas(bal)} — ${qtd} ${qtd === 1 ? 'unidade' : 'unidades'}, severidade ${getSeverityLabel(Math.max(...rel.map(a => a.sev)))}.`
+            );
+        });
+        if (linhas.length) P.push(`O que foi encontrado:\n` + linhas.map(l => '• ' + l).join('\n'));
+
+        // 4. Onde está pior
+        const porGrupo = GROUPS.map(g => ({ g, n: anomalies.filter(a => a.baliza >= g.start && a.baliza <= g.end).length }))
+            .filter(x => x.n > 0).sort((a, b) => b.n - a.n).slice(0, 3);
+        if (porGrupo.length) {
+            P.push(
+                `Os trechos mais afetados são ${fmtLista(porGrupo.map(t => `balizas ${t.g.label.replace(' A ', ' a ')} (${t.n})`))}. ` +
+                `No total, ${compTroca} ${compTroca === 1 ? 'componente precisa' : 'componentes precisam'} ser substituídos ou recuperados.`
+            );
+        }
     }
 
-    // 7. Parecer final
+    // 5. Limpeza da via
+    (() => {
+        const sujAnom = anomalies.filter(a => /sujidade|vegeta|contamina|drenagem|limpeza/i.test((a.tipo || '') + ' ' + (a.desc || '')));
+        const cond = val('inp-limpeza');
+        const trechos = val('inp-limpeza-trechos').trim();
+        const nBalSuj = new Set(sujAnom.map(a => a.baliza)).size;
+        const onde = sujAnom.length
+            ? `${nBalSuj === 1 ? 'na baliza' : 'nas balizas'} ${fmtBalizas(sujAnom.map(a => a.baliza))}`
+            : (trechos ? `nas balizas ${trechos}` : '');
+
+        if (cond === 'conforme' && !sujAnom.length) {
+            P.push(`A via está limpa, sem acúmulo de material ou vegetação que prejudique a drenagem ou a inspeção.`);
+            return;
+        }
+        const nivel = { pontual: 'sujidade em pontos localizados', generalizada: 'sujidade em toda a extensão da via', critica: 'sujidade crítica, com lastro colmatado e drenagem obstruída' }[cond] || 'sujidade';
+        P.push(
+            `Foi constatada ${nivel}${onde ? `, ${onde}` : ''}, com acúmulo de minério e vegetação sobre o lastro. ` +
+            `Isso prejudica a drenagem, acelera a corrosão das fixações e impede a inspeção visual completa — ou seja, pode haver anomalias não identificadas nesses trechos. ` +
+            `É necessário limpar a via e reinspecionar os trechos afetados` +
+            (cond === 'critica' ? `, além de avaliar a substituição do lastro colmatado.` : `.`)
+        );
+    })();
+
+    // 6. Notas anteriores
+    if (notas.length) {
+        P.push(
+            `Na carteira do ativo constam ${notas.length} ${notas.length === 1 ? 'nota' : 'notas'} de inspeções anteriores (${fmtLista(notas.map(x => x.n))})` +
+            (abertas.length ? `, ${abertas.length === 1 ? 'sendo 1 ainda sem tratativa concluída' : `sendo ${abertas.length} ainda sem tratativa concluída`}. Isso indica reincidência: as correções anteriores não foram feitas ou não resolveram o problema.`
+                            : `, todas já concluídas.`)
+        );
+    } else {
+        P.push(`Não há notas de inspeções anteriores registradas na carteira deste ativo.`);
+    }
+
+    // 7. Topografia
+    if (temPrancha || medicoes.length || topoDoc) {
+        P.push(
+            `O levantamento topográfico${topoDoc ? ` (documento ${topoDoc})` : ''}${topoEmp ? `, feito por ${topoEmp}` : ''}${topoDataFmt ? ` em ${topoDataFmt}` : ''} está na seção 12.0. ` +
+            (medicoes.length
+                ? (naoConf.length
+                    ? `De ${medicoes.length} ${medicoes.length === 1 ? 'medição' : 'medições'}, ${naoConf.length} ${naoConf.length === 1 ? 'está' : 'estão'} fora da tolerância de projeto: ${fmtLista(naoConf.map(m => m.param.toLowerCase() + (m.trecho ? ' (balizas ' + m.trecho + ')' : '')))}. A geometria da via precisa ser corrigida.`
+                    : `As ${medicoes.length} ${medicoes.length === 1 ? 'medição está' : 'medições estão'} dentro da tolerância de projeto.`)
+                : `Os resultados devem ser analisados junto com as não conformidades deste relatório.`)
+        );
+    } else {
+        P.push(`Não foi feito levantamento topográfico nesta campanha. Recomenda-se realizá-lo para verificar nivelamento, alinhamento e bitola, já que as anomalias de lastro e fixação costumam vir acompanhadas de desvios geométricos.`);
+    }
+
+    // 8. Conclusão final
     if (anomalies.length === 0) {
-        P.push(`Diante do exposto, o ativo encontra-se apto à operação nas condições atuais, mantendo-se o plano de inspeção vigente.`);
+        P.push(`Conclusão: o ativo está apto à operação. Manter o plano de inspeção vigente.`);
     } else {
         const grave = criticas > 0;
         P.push(
-            `Diante do exposto, conclui-se que ${grave
-                ? 'a via de rolamento apresenta não conformidades que comprometem a integridade do sistema de fixação e a estabilidade da superestrutura, permanecendo apta à operação de forma condicionada à execução das ações corretivas indicadas na seção 14.0 e à reinspeção após a conclusão dos serviços'
-                : 'a via de rolamento apresenta não conformidades de baixa a média severidade, sem impacto imediato à operação, devendo as correções ser incorporadas à programação de manutenção preventiva'}. ` +
-            `Recomenda-se a abertura das notas de manutenção correspondentes, a execução da limpeza da via como condição prévia à inspeção detalhada e às intervenções, ` +
-            `a análise de engenharia quanto à causa raiz das ocorrências reincidentes e a reinspeção do ativo em até ${grave ? '90' : '180'} dias após a conclusão das intervenções.`
+            grave
+                ? `Conclusão: a via apresenta não conformidades que comprometem a fixação e a estabilidade da superestrutura. Pode continuar operando, desde que as correções da seção 14.0 sejam executadas e o ativo seja reinspecionado depois. A limpeza da via deve ser feita antes das demais intervenções.`
+                : `Conclusão: as não conformidades encontradas são de baixa a média severidade e não impedem a operação. As correções devem entrar na programação de manutenção preventiva.`
         );
     }
 
@@ -2795,8 +2736,11 @@ function addAnomaly() {
         comp = c ? c.nome + ' ' + compNum : compVal;
     }
 
-    anomalies.push({ id: Date.now(), baliza, lado, item, tipo, desc, sev, qtd, compTipo, compNum, comp });
+    const nota = (document.getElementById('inp-nota') || {}).value ? document.getElementById('inp-nota').value.trim() : '';
+
+    anomalies.push({ id: Date.now(), baliza, lado, item, tipo, desc, sev, qtd, compTipo, compNum, comp, nota });
     document.getElementById('inp-desc').value = '';
+    if (document.getElementById('inp-nota')) document.getElementById('inp-nota').value = '';
     if (document.getElementById('inp-comp')) document.getElementById('inp-comp').value = '';
     renderAnomalyTable();
     updateKPIs();
@@ -2816,7 +2760,7 @@ function removeAnomaly(id) {
 function renderAnomalyTable() {
     const tbody = document.getElementById('anomalyTableBody');
     if (anomalies.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text-muted);padding:30px;">Nenhuma anomalia registrada. Use o formulário acima, o diagrama, os mapas de calor ou a lista de tarefas.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--text-muted);padding:30px;">Nenhuma anomalia registrada. Use o formulário acima, o diagrama, os mapas de calor ou a lista de tarefas.</td></tr>';
         return;
     }
     tbody.innerHTML = anomalies.map((a, i) => {
@@ -2834,6 +2778,7 @@ function renderAnomalyTable() {
             <td style="max-width:260px;">${a.desc}</td>
             <td><span class="severity-badge ${getSeverityClass(a.sev)}">${getSeverityLabel(a.sev)}</span></td>
             <td style="font-family:JetBrains Mono,monospace;font-weight:700;color:var(--accent-red);">${a.qtd || 1}</td>
+            <td style="font-family:JetBrains Mono,monospace;font-size:0.92em;color:var(--accent-purple);">${a.nota || '—'}</td>
             <td><button class="btn-remove" onclick="removeAnomaly(${a.id})">✕</button></td>
         </tr>`;
     }).join('');
@@ -3788,6 +3733,318 @@ async function gerarPDF() {
 }
 
 // ============================
+// EXPORTAÇÃO PARA WORD (.docx nativo, editável)
+// ============================
+function svgParaPNG(svgEl, largura, altura) {
+    return new Promise(resolve => {
+        try {
+            const dados = new XMLSerializer().serializeToString(svgEl);
+            const url = URL.createObjectURL(new Blob([dados], { type: 'image/svg+xml;charset=utf-8' }));
+            const canvas = document.createElement('canvas');
+            canvas.width = largura; canvas.height = altura;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, largura, altura);
+            const img = new Image();
+            const t = setTimeout(() => resolve(null), 6000);
+            img.onload = () => { clearTimeout(t); ctx.drawImage(img, 0, 0, largura, altura); URL.revokeObjectURL(url); resolve(canvas.toDataURL('image/png')); };
+            img.onerror = () => { clearTimeout(t); resolve(null); };
+            img.src = url;
+        } catch (e) { resolve(null); }
+    });
+}
+
+function imagemValida(dataUrl) {
+    return typeof dataUrl === 'string' && /^data:image\/(png|jpeg|jpg|gif);base64,/.test(dataUrl) && dataUrl.length > 120;
+}
+
+function dataUrlParaBytes(dataUrl) {
+    try {
+        const b64 = String(dataUrl).split(',')[1] || '';
+        const bin = atob(b64);
+        const arr = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        return arr;
+    } catch (e) { return null; }
+}
+
+async function exportarWord() {
+    if (typeof docx === 'undefined') return showToast('⚠ Biblioteca Word não carregou. Verifique a conexão com a internet.');
+    showToast('📝 Gerando documento Word...');
+
+    try {
+        await Promise.race([otimizarImagens(true), new Promise(r => setTimeout(r, 30000))]);
+
+        const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell,
+                WidthType, BorderStyle, ImageRun, PageBreak, Footer, PageNumber } = docx;
+
+        const val = id => (document.getElementById(id) || {}).value || '';
+        const AZUL = '1F4E79', CINZA = '595959', VERDE = '2E7D32';
+
+        // ── helpers ──
+        const P = (texto, o = {}) => new Paragraph({
+            alignment: o.align || AlignmentType.JUSTIFIED,
+            spacing: { after: o.after !== undefined ? o.after : 120, line: 276 },
+            children: [new TextRun({ text: texto, bold: o.bold, italics: o.italic, size: o.size || 20, color: o.color || '1A1A1A', font: 'Calibri' })]
+        });
+        const H1 = t => new Paragraph({
+            heading: HeadingLevel.HEADING_1, spacing: { before: 320, after: 160 },
+            children: [new TextRun({ text: t, bold: true, size: 28, color: AZUL, font: 'Calibri' })]
+        });
+        const H2 = t => new Paragraph({
+            heading: HeadingLevel.HEADING_2, spacing: { before: 220, after: 120 },
+            children: [new TextRun({ text: t, bold: true, size: 24, color: AZUL, font: 'Calibri' })]
+        });
+        const celula = (txt, o = {}) => new TableCell({
+            shading: o.header ? { fill: AZUL } : (o.zebra ? { fill: 'F2F5F9' } : undefined),
+            margins: { top: 60, bottom: 60, left: 90, right: 90 },
+            children: [new Paragraph({
+                alignment: o.align || AlignmentType.LEFT, spacing: { after: 0 },
+                children: [new TextRun({ text: String(txt === undefined || txt === null ? '' : txt), bold: o.header || o.bold, size: o.size || 17, color: o.header ? 'FFFFFF' : (o.color || '1A1A1A'), font: 'Calibri' })]
+            })]
+        });
+        const tabela = (cabecalho, linhas, larguras) => new Table({
+            width: { size: 100, type: WidthType.PERCENTAGE },
+            columnWidths: larguras,
+            borders: {
+                top: { style: BorderStyle.SINGLE, size: 2, color: 'BFC7D5' }, bottom: { style: BorderStyle.SINGLE, size: 2, color: 'BFC7D5' },
+                left: { style: BorderStyle.SINGLE, size: 2, color: 'BFC7D5' }, right: { style: BorderStyle.SINGLE, size: 2, color: 'BFC7D5' },
+                insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: 'DDE3EC' }, insideVertical: { style: BorderStyle.SINGLE, size: 1, color: 'DDE3EC' }
+            },
+            rows: [
+                new TableRow({ tableHeader: true, children: cabecalho.map(c => celula(c, { header: true, align: AlignmentType.CENTER })) }),
+                ...linhas.map((l, i) => new TableRow({ children: l.map((c, j) => celula(c, { zebra: i % 2 === 1, align: j === 0 ? AlignmentType.LEFT : AlignmentType.CENTER })) }))
+            ]
+        });
+        // Retorna null quando a imagem não é válida — o bloco é simplesmente omitido
+        const imagem = (dataUrl, larg, alt) => {
+            if (!imagemValida(dataUrl)) return null;
+            try {
+                return new Paragraph({
+                    alignment: AlignmentType.CENTER, spacing: { after: 160 },
+                    children: [new ImageRun({ data: String(dataUrl).split(',')[1], transformation: { width: larg, height: alt } })]
+                });
+            } catch (e) { return null; }
+        };
+        const push = (...itens) => itens.forEach(i => { if (i) filhos.push(i); });
+        const paragrafos = txt => (txt || '').split('\n').filter(l => l.trim()).map(l => P(l));
+
+        const filhos = [];
+
+        // ── CAPA ──
+        filhos.push(
+            new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 1600, after: 200 },
+                children: [new TextRun({ text: 'RELATÓRIO DE INSPEÇÃO ESTRUTURAL', bold: true, size: 44, color: AZUL, font: 'Calibri' })] }),
+            new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 120 },
+                children: [new TextRun({ text: (document.querySelector('.header-subtitle') || {}).textContent || '', size: 28, color: CINZA, font: 'Calibri' })] }),
+            new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 800 },
+                children: [new TextRun({ text: 'Lista de Tarefas Passo a Passo OP.0070 · Balizas 00 a 73 · Lados LD e LE', size: 20, color: CINZA, font: 'Calibri' })] }),
+            P('Local de Instalação: ' + (val('inp-local') || '—'), { align: AlignmentType.CENTER, bold: true, after: 60 }),
+            P('Denominação: ' + (val('inp-area') || '—'), { align: AlignmentType.CENTER, after: 60 }),
+            P('Plano de Manutenção: ' + (val('inp-plano') || '—') + '   ·   Ordem SAP: ' + (val('inp-ordem-sap') || '—'), { align: AlignmentType.CENTER, after: 60 }),
+            P('Data da Inspeção: ' + (val('inp-data') ? val('inp-data').split('-').reverse().join('/') : '—') + '   ·   Revisão: ' + ((document.getElementById('revBadge') || {}).textContent || '0'), { align: AlignmentType.CENTER, after: 60 }),
+            P('Inspetor Responsável: ' + (val('inp-inspetor') || '—'), { align: AlignmentType.CENTER, after: 1200 }),
+            P('GER Integridade Estrutural · Vale S.A. · Canaã dos Carajás – PA', { align: AlignmentType.CENTER, italic: true, color: CINZA }),
+            new Paragraph({ children: [new PageBreak()] })
+        );
+
+        // ── REVISÕES ──
+        const revs = [...document.querySelectorAll('#revisionTableBody tr')].map(tr => [...tr.cells].slice(0, -1).map(c => c.textContent.trim()));
+        if (revs.length) {
+            filhos.push(H1('REVISÕES'), tabela(['Rev.', 'TE', 'Descrição', 'Por', 'Ver.', 'Apr.', 'Data'], revs, [700, 600, 5200, 800, 800, 800, 1300]), P(''));
+        }
+
+        // ── 1.0 INFORMAÇÕES GERAIS ──
+        filhos.push(H1('1.0 INFORMAÇÕES GERAIS'),
+            tabela(['Campo', 'Informação'], [
+                ['Local de Instalação', val('inp-local')], ['Área / Localização', val('inp-area')],
+                ['Data da Inspeção', val('inp-data') ? val('inp-data').split('-').reverse().join('/') : ''],
+                ['Inspetor Responsável', val('inp-inspetor')], ['Nº Ordem SAP', val('inp-ordem-sap')], ['Nº Plano', val('inp-plano')],
+                ['Condição de Limpeza', (document.getElementById('inp-limpeza') || {}).selectedOptions ? document.getElementById('inp-limpeza').selectedOptions[0].textContent : ''],
+                ['Trechos com Sujidade', val('inp-limpeza-trechos')],
+            ], [3200, 6800]), P(''));
+
+        // ── 2.0 OBJETIVO / 3.0 NORMAS ──
+        const obj = val('txt-objetivo');
+        if (obj.trim()) filhos.push(H1('2.0 OBJETIVO'), ...paragrafos(obj));
+        const normas = [...document.querySelectorAll('#normasContainer .norma-input')].map(i => i.value).filter(Boolean);
+        if (normas.length) filhos.push(H1('3.0 NORMAS E REFERÊNCIAS'), ...normas.map(n => P('•  ' + n, { after: 60 })));
+
+        // ── 4.0 MATERIAIS ──
+        const mats = [...document.querySelectorAll('#materialTableBody tr')].map(tr => [...tr.cells].slice(0, -1).map(c => c.textContent.trim())).filter(r => r[1]);
+        if (mats.length) filhos.push(H1('4.0 LISTA DE MATERIAIS (Referência)'),
+            tabela(['Item', 'Descrição', 'Un.', 'Por Vão', 'Por Via (73 vãos)', 'Total (LD + LE)'], mats, [700, 4000, 800, 1300, 1900, 1800]), P(''));
+
+        // ── 5.0 CARTEIRA DO ATIVO ──
+        const notasT = [...document.querySelectorAll('#notasTableBody tr')].map(tr => [...tr.cells].slice(0, -1).map(c => c.textContent.trim())).filter(r => r[0]);
+        if (notasT.length) {
+            filhos.push(H1('5.0 CARTEIRA DO ATIVO — NOTAS DAS ÚLTIMAS INSPEÇÕES'),
+                tabela(['Nº Nota SAP', 'Data', 'Tipo', 'Descrição / Anomalia', 'Baliza / Trecho', 'Status'], notasT, [1800, 1200, 900, 3400, 1500, 1700]));
+            if (val('txt-notas').trim()) filhos.push(P(''), ...paragrafos(val('txt-notas')));
+        }
+
+        // ── 7.0 DESENHO DE ARRANJO ──
+        const svgArranjo = document.querySelector('#railDiagram svg');
+        if (svgArranjo) {
+            const png = await svgParaPNG(svgArranjo, 2400, 630);
+            push(new Paragraph({ children: [new PageBreak()] }), H1('7.0 DESENHO DE ARRANJO — MAPEAMENTO DE ANOMALIAS'), imagem(png, 640, 168));
+        }
+
+        // ── 8.0 MAPA DE CALOR ──
+        const svgMapa = document.querySelector('#heatmapGeneral svg');
+        if (svgMapa) {
+            const png = await svgParaPNG(svgMapa, 2400, 630);
+            push(H1('8.0 MAPA DE CALOR — SEVERIDADE POR BALIZA'), imagem(png, 640, 168));
+        }
+        const grupos = [...document.querySelectorAll('#groupTableBody tr')].map(tr => [...tr.cells].map(c => c.textContent.trim()));
+        if (grupos.length) filhos.push(H2('8.1 Quantitativo por Grupo de Balizas e Lado'),
+            tabela(['Grupo', 'Balizas', 'Anomalias LD', 'Anomalias LE', '% LD', '% LE', 'Comp. p/ Troca'], grupos, [2400, 1100, 1600, 1600, 900, 900, 1700]), P(''));
+
+        // ── 9.0 REGISTRO DE ANOMALIAS ──
+        if (anomalies.length) {
+            const linhas = anomalies.map((a, i) => {
+                const it = getItem(a.item);
+                return [String(i + 1), pad2(a.baliza), getGroup(a.baliza).label, a.lado,
+                    (it ? (it.extra ? it.nome : it.op + ' — ' + it.nome) : (a.item || '')) + (a.comp ? ' · ' + a.comp : ''),
+                    a.tipo || '', a.desc || '', getSeverityLabel(a.sev), String(a.qtd || 1), a.nota || '—'];
+            });
+            filhos.push(new Paragraph({ children: [new PageBreak()] }), H1('9.0 REGISTRO DE ANOMALIAS'),
+                tabela(['#', 'Baliza', 'Grupo', 'Lado', 'Item', 'Tipo', 'Descrição', 'Severidade', 'Qtd.', 'Nº Nota'], linhas,
+                    [450, 750, 1000, 700, 2300, 1200, 2200, 1200, 620, 1380]), P(''));
+        }
+
+        // ── 10.0 ANÁLISE GRÁFICA ──
+        const graficos = [
+            ['Anomalias por Grupo de Balizas (LD vs LE)', 'chartLdLe'], ['Distribuição por Severidade', 'chartSeverity'],
+            ['Anomalias por Item', 'chartItem'], ['Anomalias por Tipo', 'chartType'],
+            ['Anomalias Totais por Grupo', 'chartGroup'], ['Componentes p/ Troca por Grupo', 'chartComp'],
+            ['Perfil de Anomalias ao Longo da Via', 'chartProfile'],
+        ];
+        const comGrafico = graficos.filter(([, id]) => { const c = document.getElementById(id); return c && c.width > 0; });
+        if (comGrafico.length) {
+            filhos.push(new Paragraph({ children: [new PageBreak()] }), H1('10.0 ANÁLISE GRÁFICA'));
+            for (const [titulo, id] of comGrafico) {
+                try {
+                    const png = document.getElementById(id).toDataURL('image/png');
+                    const bloco = imagem(png, id === 'chartProfile' ? 620 : 430, id === 'chartProfile' ? 220 : 215);
+                    if (bloco) push(H2(titulo), bloco);
+                } catch (e) { /* gráfico ainda não renderizado */ }
+            }
+        }
+
+        // ── 11.0 EVIDÊNCIAS FOTOGRÁFICAS ──
+        const secoesComFoto = GROUPS.map((g, gi) => ({ g, gi, cards: [...document.querySelectorAll('#evidenceGrid-' + gi + ' .evidence-card')].filter(c => c.querySelector('.evidence-upload.has-image')) })).filter(s => s.cards.length);
+        if (secoesComFoto.length) {
+            filhos.push(new Paragraph({ children: [new PageBreak()] }), H1('11.0 EVIDÊNCIAS FOTOGRÁFICAS'));
+            secoesComFoto.forEach(({ g, gi, cards }) => {
+                filhos.push(H2(`11.${gi + 1} Balizas ${g.label} — ${cards.length} foto(s)`));
+                for (let i = 0; i < cards.length; i += 2) {
+                    const par = cards.slice(i, i + 2);
+                    filhos.push(new Table({
+                        width: { size: 100, type: WidthType.PERCENTAGE },
+                        borders: { top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE }, insideHorizontal: { style: BorderStyle.NONE }, insideVertical: { style: BorderStyle.NONE } },
+                        rows: [new TableRow({
+                            children: par.map(card => {
+                                const img = card.querySelector('img');
+                                const sel = card.querySelector('.evidence-meta select');
+                                const legenda = sel && sel.value !== '' ? 'Baliza ' + pad2(parseInt(sel.value)) : '';
+                                const conteudo = [];
+                                const foto = imagem(img.src, 300, 225);
+                                if (foto) conteudo.push(foto);
+                                conteudo.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 160 }, children: [new TextRun({ text: legenda, size: 16, italics: true, color: CINZA, font: 'Calibri' })] }));
+                                return new TableCell({ margins: { top: 40, bottom: 40, left: 40, right: 40 }, children: conteudo });
+                            }).concat(par.length === 1 ? [new TableCell({ children: [new Paragraph('')] })] : [])
+                        })]
+                    }));
+                }
+            });
+        }
+
+        // ── 12.0 TOPOGRAFIA ──
+        const medicoes = [...document.querySelectorAll('#topoTableBody tr')].map(tr => [...tr.cells].slice(0, -1).map(c => c.textContent.trim())).filter(r => r[0] || r[3]);
+        if (val('topo-doc') || medicoes.length || val('txt-topo').trim()) {
+            filhos.push(new Paragraph({ children: [new PageBreak()] }), H1('12.0 RELATÓRIO TOPOGRÁFICO'),
+                tabela(['Campo', 'Informação'], [
+                    ['Empresa / Equipe', val('topo-empresa')], ['Responsável Técnico', val('topo-resp')],
+                    ['Data do Levantamento', val('topo-data') ? val('topo-data').split('-').reverse().join('/') : ''],
+                    ['Equipamento', val('topo-equip')], ['Nº do Documento / Laudo', val('topo-doc')], ['Referência de Nível (RN)', val('topo-rn')],
+                ], [3200, 6800]), P(''));
+            if (medicoes.length) filhos.push(H2('12.1 Resultados por Trecho'),
+                tabela(['Baliza / Trecho', 'Lado', 'Parâmetro', 'Medido', 'Tolerância', 'Desvio', 'Situação'], medicoes, [1600, 800, 2600, 1300, 1400, 1200, 1400]), P(''));
+            if (val('txt-topo').trim()) filhos.push(H2('12.2 Conclusão do Levantamento Topográfico'), ...paragrafos(val('txt-topo')));
+        }
+
+        // ── 13.0 CONCLUSÃO / 14.0 RECOMENDAÇÕES ──
+        if (val('txt-conclusao').trim()) filhos.push(new Paragraph({ children: [new PageBreak()] }), H1('13.0 CONCLUSÃO'), ...paragrafos(val('txt-conclusao')));
+        const recs = [['14.1 Engenharia', 'txt-eng'], ['14.2 Inspeção', 'txt-insp']].filter(([, id]) => val(id).trim());
+        if (recs.length) {
+            filhos.push(H1('14.0 RECOMENDAÇÕES'));
+            recs.forEach(([titulo, id]) => filhos.push(H2(titulo), ...paragrafos(val(id))));
+        }
+
+        // ── ASSINATURAS ──
+        filhos.push(new Paragraph({ spacing: { before: 700 }, children: [] }),
+            new Table({
+                width: { size: 100, type: WidthType.PERCENTAGE },
+                borders: { top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE }, insideHorizontal: { style: BorderStyle.NONE }, insideVertical: { style: BorderStyle.NONE } },
+                rows: [new TableRow({
+                    children: [['Elaborado por', 'sig-elab'], ['Verificado por', 'sig-verif'], ['Aprovado por', 'sig-aprov'], ['Data', 'sig-data']].map(([rot, id]) => {
+                        let v = val(id);
+                        if (id === 'sig-data' && /^\d{4}-\d{2}-\d{2}$/.test(v)) v = v.split('-').reverse().join('/');
+                        return new TableCell({
+                            margins: { top: 60, bottom: 60, left: 80, right: 80 },
+                            children: [
+                                new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 240 }, children: [new TextRun({ text: v || ' ', size: 18, font: 'Calibri' })] }),
+                                new Paragraph({ alignment: AlignmentType.CENTER, border: { top: { style: BorderStyle.SINGLE, size: 6, color: '808080' } }, spacing: { after: 40 }, children: [] }),
+                                new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: rot.toUpperCase(), size: 15, bold: true, color: CINZA, font: 'Calibri' })] }),
+                            ]
+                        });
+                    })
+                })]
+            }));
+
+        // ── DOCUMENTO ──
+        const doc = new Document({
+            creator: 'GER Integridade Estrutural — Vale S.A.',
+            title: 'Relatório de Inspeção Estrutural — Via de Rolamento',
+            description: 'Inspeção da via de rolamento em máquinas de pátio — OP.0070',
+            styles: { default: { document: { run: { font: 'Calibri', size: 20 } } } },
+            sections: [{
+                properties: { page: { margin: { top: 850, right: 850, bottom: 950, left: 850 } } },
+                footers: {
+                    default: new Footer({
+                        children: [new Paragraph({
+                            alignment: AlignmentType.CENTER, border: { top: { style: BorderStyle.SINGLE, size: 4, color: 'BFC7D5' } },
+                            children: [new TextRun({ text: 'RELATÓRIO DE INSPEÇÃO ESTRUTURAL — Via de Rolamento em Máquinas de Pátio · OP.0070 · GER Integridade Estrutural · Vale S.A.   |   Página ', size: 14, color: CINZA, font: 'Calibri' }),
+                                       new TextRun({ children: [PageNumber.CURRENT], size: 14, color: CINZA, font: 'Calibri' })]
+                        })]
+                    })
+                },
+                children: filhos
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        let local = val('inp-local');
+        if (local.includes('PY_')) local = local.split('PY_')[1] || local;
+        local = (local || 'Via_Rolamento').replace(/[\\\/:*?"<>|]+/g, '-').replace(/\s+/g, '_');
+        const dt = val('inp-data');
+        const mm = /^\d{4}-\d{2}/.test(dt) ? dt.slice(5, 7) : String(new Date().getMonth() + 1).padStart(2, '0');
+        const aaaa = /^\d{4}/.test(dt) ? dt.slice(0, 4) : String(new Date().getFullYear());
+
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `RL_${local}_${mm}_${aaaa}.docx`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+        showToast('📝 Documento Word gerado com sucesso!');
+
+    } catch (err) {
+        console.error('Word:', err);
+        showToast('⚠ Erro ao gerar Word: ' + err.message);
+    }
+}
+
+// ============================
 // PPTX EXPORT
 // ============================
 async function exportarPPTX() {
@@ -3969,7 +4226,7 @@ async function exportarPPTX() {
 
         const topAnomalies = anomalies.slice(0, 18);
         const ah = t => ({ text: t, options: { fill: { color: C.blue }, color: C.white, bold: true, fontSize: 9 } });
-        const aHeader = [ah('#'), ah('Baliza'), ah('Grupo'), ah('Lado'), ah('Item OP.0070'), ah('Tipo'), ah('Descrição'), ah('Sev.')];
+        const aHeader = [ah('#'), ah('Baliza'), ah('Grupo'), ah('Lado'), ah('Item OP.0070'), ah('Tipo'), ah('Descrição'), ah('Sev.'), ah('Nota')];
         const aRows = topAnomalies.map((a, i) => [
             { text: String(i + 1), options: { fontSize: 8 } },
             { text: pad2(a.baliza), options: { fontSize: 8, bold: true } },
@@ -3979,8 +4236,9 @@ async function exportarPPTX() {
             { text: a.tipo || '—', options: { fontSize: 8 } },
             { text: a.desc, options: { fontSize: 8 } },
             { text: getSeverityLabel(a.sev), options: { fontSize: 8, bold: true, color: ['059669','D97706','EA580C','DC2626','B91C1C'][a.sev] || C.gray } },
+            { text: a.nota || '—', options: { fontSize: 8 } },
         ]);
-        s7.addTable([aHeader, ...aRows], { x: 0.3, y: 0.9, w: 9.4, colW: [0.35, 0.55, 0.8, 0.5, 1.7, 0.9, 3.7, 0.9], border: { pt: 0.5, color: 'D0D0D0' }, rowH: 0.25 });
+        s7.addTable([aHeader, ...aRows], { x: 0.3, y: 0.9, w: 9.4, colW: [0.3, 0.5, 0.7, 0.45, 1.5, 0.8, 3.0, 0.85, 1.3], border: { pt: 0.5, color: 'D0D0D0' }, rowH: 0.25 });
 
         if (anomalies.length > 18) {
             s7.addText(`+ ${anomalies.length - 18} anomalias adicionais — veja relatório completo`, { x: 0.5, y: 5.0, w: 9, h: 0.3, fontSize: 9, color: C.gray, italic: true, align: 'center' });
@@ -4123,7 +4381,6 @@ function collectFullState() {
         conclusao: val('txt-conclusao'),
         engenharia: val('txt-eng'),
         inspecao: val('txt-insp'),
-        manutencao: val('txt-manut'),
         notas: val('txt-notas'),
         topografia: val('txt-topo'),
     };
@@ -4256,7 +4513,6 @@ function restoreFullState(data) {
         setv('txt-conclusao', data.textos.conclusao);
         setv('txt-eng', data.textos.engenharia);
         setv('txt-insp', data.textos.inspecao);
-        setv('txt-manut', data.textos.manutencao);
         setv('txt-notas', data.textos.notas);
         setv('txt-topo', data.textos.topografia);
     }
