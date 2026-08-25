@@ -1013,7 +1013,11 @@
     #groupChips .zone-name { font-size: 0.85em; margin-bottom: 2px; }
     #groupChips .zone-range { font-size: 0.7em; }
 
-    .print-footer, .ev-print-label, .print-text { display: none; }
+    .print-footer, .ev-print-label, .print-text, .topo-print-cap, .topo-print-param { display: none; }
+    .badge-risco { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 0.82em; font-weight: 700; white-space: nowrap; }
+    .topo-param { width: 100%; background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: 6px;
+                  padding: 5px 7px; color: var(--text-primary); font-family: inherit; font-size: 0.88em; }
+    .topo-tol { font-size: 0.86em; color: var(--text-secondary); }
     #numerosPagina, .num-pagina { display: none; }
 
     /* ===== EDITOR DE FORMAS (ANOTAÇÃO EM FOTOS) ===== */
@@ -1290,9 +1294,17 @@
         .legend-item { font-size: 0.8em !important; }
 
         /* Elementos de interação ocultos no PDF */
+        .topo-print-param { display: block !important; font-size: 0.9em !important; }
+        #topoTableBody .topo-param { display: none !important; }
+        .badge-risco { padding: 1px 6px !important; font-size: 0.85em !important; border: 0.5px solid rgba(0,0,0,0.15) !important; }
         .task-group, .tl-controls, .tl-banner, .btn-registrar, #groupChips,
         .btn-formas, .annot-overlay, .btn-gerar-conclusao, .hint-gerador,
-        .btn-word-mapa, .btn-planta, #topoAnexos { display: none !important; }
+        .btn-word-mapa, .btn-planta { display: none !important; }
+        #topoAnexos .btn-add, #topoAnexos .hint-anexo { display: none !important; }
+        #topoAnexos:not(:has(.drawing-upload-area.has-image)) { display: none !important; }
+        .topo-print-cap { display: block !important; text-align: center !important; font-size: 0.8em !important;
+            font-style: italic !important; color: #555 !important; padding: 4px 0 2px !important; }
+        .topo-print-cap:empty { display: none !important; }
         #topoGallery .drawing-card:has(.drawing-upload-area:not(.has-image)) { display: none !important; }
         /* Sem barras laterais coloridas nos cartões do relatório impresso */
         .card[style*="border-left"] { border-left: 1px solid #D8DBE2 !important; }
@@ -1580,6 +1592,7 @@
             <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
                 <div class="section-title" style="flex:1;min-width:240px;margin-bottom:12px;">8.0 MAPA DE CALOR — SEVERIDADE POR BALIZA</div>
                 <button class="btn-add btn-word-mapa" style="background:linear-gradient(135deg,#2B579A,#1B3A6B);" onclick="exportarWordMapa()">📝 Exportar só o Mapa de Calor (Word)</button>
+                <button class="btn-add btn-word-mapa" style="background:linear-gradient(135deg,#B91C1C,#7F1D1D);" onclick="exportarPDFMapa()">📄 Salvar o Mapa de Calor em PDF</button>
             </div>
             <p style="color:var(--text-secondary);font-size:0.9em;margin-bottom:20px;">
                 <strong>8.1 Visão Geral — Planta da Via:</strong> severidade máxima registrada em cada baliza (00–73) sobreposta à planta das vias LD e LE, conforme o cadastral. Clique em uma baliza para registrar anomalia.
@@ -1663,7 +1676,11 @@
     <!-- TAB 5: REGISTRO -->
     <div class="tab-content" id="tab-registro">
         <div class="card">
-            <div class="section-title">9.0 REGISTRO DE ANOMALIAS</div>
+            <div class="section-title">9.0 REGISTRO DE ANOMALIAS E CONFORMIDADES</div>
+            <p style="color:var(--text-secondary);font-size:0.86em;margin:-6px 0 14px;">
+                Lance as não conformidades e também as <strong>condições conformes</strong> — basta escolher a severidade
+                <em>Conforme (sem anomalia)</em>. Os registros conformes comprovam a verificação do item e não entram nas contagens de anomalia.
+            </p>
 
             <!-- GROUP CHIPS -->
             <div id="groupChips"></div>
@@ -1702,6 +1719,7 @@
                     </div>
                     <div><label>Severidade</label>
                         <select id="inp-sev">
+                            <option value="0">Conforme (sem anomalia)</option>
                             <option value="1">Baixo</option>
                             <option value="2">Médio</option>
                             <option value="3" selected>Alto</option>
@@ -1715,7 +1733,26 @@
                 </div>
             </div>
 
-            <table class="data-table" style="margin-top:20px;">
+            <div class="card-title" style="margin:22px 0 8px;"><span class="icon">✅</span> 9.1 Resumo de Conformidade por Item</div>
+            <p style="color:var(--text-secondary);font-size:0.84em;margin-bottom:10px;">
+                Consolidado automático do que foi verificado em cada item da lista de tarefas, com o percentual de conformidade sobre as 148 posições da via.
+            </p>
+            <table class="data-table" id="conformidadeTable">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th style="width:110px;">Verificações</th>
+                        <th style="width:110px;">Conformes</th>
+                        <th style="width:130px;">Não Conformes</th>
+                        <th style="width:120px;">Balizas c/ NC</th>
+                        <th style="width:110px;">% Conforme</th>
+                        <th style="width:130px;">Situação</th>
+                    </tr>
+                </thead>
+                <tbody id="conformidadeTableBody"></tbody>
+            </table>
+
+            <table class="data-table" style="margin-top:22px;">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -1802,16 +1839,20 @@
             </div>
 
             <div class="card-title" style="margin:20px 0 10px;"><span class="icon">📐</span> 12.1 Resultados por Trecho</div>
+            <p style="color:var(--text-secondary);font-size:0.86em;margin:-4px 0 10px;">
+                Selecione o parâmetro conforme a <strong>FEM Seção II — Tabela 24</strong>. A tolerância é preenchida
+                automaticamente e a situação é classificada pelo desvio informado (em módulo).
+            </p>
             <table class="data-table" id="topoTable">
                 <thead>
                     <tr>
-                        <th style="width:120px;">Baliza / Trecho</th>
-                        <th style="width:80px;">Lado</th>
-                        <th>Parâmetro</th>
-                        <th style="width:100px;">Medido</th>
-                        <th style="width:110px;">Tolerância</th>
-                        <th style="width:100px;">Desvio</th>
-                        <th style="width:110px;">Situação</th>
+                        <th style="width:110px;">Baliza / Trecho</th>
+                        <th style="width:70px;">Lado</th>
+                        <th style="min-width:230px;">Parâmetro (FEM Seção II)</th>
+                        <th style="width:90px;">Medido</th>
+                        <th style="width:170px;">Tolerância FEM</th>
+                        <th style="width:90px;">Desvio</th>
+                        <th style="width:130px;">Classificação</th>
                         <th style="width:40px;"></th>
                     </tr>
                 </thead>
@@ -1819,17 +1860,112 @@
             </table>
             <button class="btn-add" style="margin-top:10px;" onclick="addTopoRow()">+ Inserir Medição</button>
 
+            <div class="card-title" style="margin:26px 0 10px;"><span class="icon">📊</span> 12.2 Levantamento Transversal (LD × LE) — Classificação Automática</div>
+            <p style="color:var(--text-secondary);font-size:0.86em;margin:-4px 0 12px;">
+                Importe o relatório topográfico em PDF ou cole a planilha de campo. O sistema extrai os pontos, calcula a
+                diferença de nível entre os trilhos (LD − LE) e classifica automaticamente pelo critério FEM escolhido. Colunas aceitas:
+                <em>Ponto · Baliza · Módulo · Distância · Lado Norte (LE) · Lado Sul (LD) · Dif.</em> — a baliza é
+                repetida nos pontos seguintes até aparecer a próxima.
+            </p>
+
+            <div class="form-grid">
+                <div class="form-field"><label>Trilho / Identificação do Levantamento</label><input type="text" id="trans-id" value="" placeholder="Ex: Trilho da EP-2091KS-05 — Sentido CCI — Leste"></div>
+                <div class="form-field"><label>Sentido</label><input type="text" id="trans-sentido" value="" placeholder="Ex: Sentido CCI"></div>
+                <div class="form-field"><label>Data da Leitura</label><input type="date" id="trans-data" value=""></div>
+                <div class="form-field"><label>Hora Inicial</label><input type="time" id="trans-hora-ini" value=""></div>
+                <div class="form-field"><label>Hora Final</label><input type="time" id="trans-hora-fim" value=""></div>
+                <div class="form-field">
+                    <label>Critério de Classificação</label>
+                    <select id="trans-param" onchange="renderTransversal()">
+                        <option value="dif-nivel" selected>Diferença de nível entre trilhos LD × LE — 10 mm / máx. 40 mm</option>
+                        <option value="nivel-vao">6.2.4.5 — Nível relativo entre trilhos ao longo do vão (10 / máx. 20 mm)</option>
+                        <option value="nivel-secao">6.2.4.5 — Nível relativo entre trilhos na mesma seção (1,5 / máx. 5 mm)</option>
+                        <option value="altura-4p">6.2.4.5 — Altura em 4 pontos (± 7 / máx. 21 mm)</option>
+                        <option value="custom">Personalizado — informar tolerância do fabricante</option>
+                    </select>
+                </div>
+                <div class="form-field"><label>Tolerância personalizada (mm)</label><input type="text" id="trans-tol" value="" placeholder="Ex: 15" oninput="renderTransversal()"></div>
+                <div class="form-field"><label>Máximo personalizado (mm)</label><input type="text" id="trans-max" value="" placeholder="Ex: 30" oninput="renderTransversal()"></div>
+            </div>
+            <p id="trans-criterio" style="color:var(--accent-blue);font-size:0.84em;font-weight:600;margin:6px 0 12px;"></p>
+
+            <textarea id="trans-paste" style="width:100%;min-height:90px;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;color:var(--text-primary);font-family:ui-monospace,Consolas,monospace;font-size:0.84em;" placeholder="Cole aqui as linhas copiadas do Excel (Ctrl+C no intervalo de dados → Ctrl+V aqui)"></textarea>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 14px;">
+                <button class="btn-add" onclick="processarColagemTransversal()">📥 Processar Colagem</button>
+                <input type="file" id="trans-pdf" accept="application/pdf,.pdf" multiple style="display:none;" onchange="importarPDFTransversal(this)">
+                <button class="btn-add" style="background:linear-gradient(135deg,#B91C1C,#7F1D1D);" onclick="document.getElementById('trans-pdf').click()">📄 Importar do PDF Topográfico</button>
+                <button class="btn-add" style="background:linear-gradient(135deg,#64748B,#475569);" onclick="limparTransversal()">🗑️ Limpar Pontos</button>
+            </div>
+            <p id="transResumo" style="color:var(--text-secondary);font-size:0.9em;margin-bottom:10px;"></p>
+            <div style="max-height:420px;overflow:auto;border:1px solid var(--border-subtle);border-radius:8px;">
+                <table class="data-table" id="transTable" style="margin:0;">
+                    <thead>
+                        <tr>
+                            <th style="width:70px;">Ponto</th>
+                            <th style="width:70px;">Baliza</th>
+                            <th style="width:80px;">Módulo</th>
+                            <th style="width:100px;">Distância</th>
+                            <th style="width:110px;">LE (Norte)</th>
+                            <th style="width:110px;">LD (Sul)</th>
+                            <th style="width:100px;">Dif. (LD−LE)</th>
+                            <th style="width:140px;">Classificação</th>
+                            <th style="width:40px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="transTableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="card-title" style="margin:26px 0 10px;"><span class="icon">⚠️</span> 12.3 Classificação de Risco Topográfico (Consolidado)</div>
+            <p id="topoRiscoResumo" style="color:var(--text-secondary);font-size:0.9em;margin-bottom:10px;"></p>
+            <table class="data-table" id="topoRiscoTable">
+                <thead>
+                    <tr>
+                        <th style="width:150px;">Nível de Risco</th>
+                        <th style="width:90px;">Medições</th>
+                        <th style="width:70px;">%</th>
+                        <th>Parâmetros</th>
+                        <th style="width:180px;">Trechos / Balizas</th>
+                    </tr>
+                </thead>
+                <tbody id="topoRiscoBody"></tbody>
+            </table>
+
+            <div class="card-title" style="margin:24px 0 10px;"><span class="icon">📋</span> 12.4 Critérios de Classificação — FEM Seção II (Tabela 24)</div>
+            <p style="color:var(--text-secondary);font-size:0.86em;margin:-4px 0 10px;">
+                Faixas derivadas da tolerância de instalação e do limite máximo antes do realinhamento:
+                até a tolerância o trilho está <strong>conforme</strong>; entre a tolerância e o limite máximo há
+                <strong>risco baixo</strong> e <strong>médio</strong>; acima do máximo, <strong>risco alto</strong>;
+                acima de 1,5 × o máximo, <strong>risco muito alto</strong>.
+            </p>
+            <table class="data-table" id="femTable">
+                <thead>
+                    <tr>
+                        <th style="width:70px;">FEM</th>
+                        <th>Parâmetro</th>
+                        <th style="width:170px;">Tolerância (instalação · máx.)</th>
+                        <th style="width:80px;">Conforme</th>
+                        <th style="width:80px;">Baixo</th>
+                        <th style="width:80px;">Médio</th>
+                        <th style="width:80px;">Alto</th>
+                        <th style="width:90px;">Muito Alto</th>
+                        <th style="width:150px;">Método de Medição</th>
+                    </tr>
+                </thead>
+                <tbody id="femTableBody"></tbody>
+            </table>
+
             <div id="topoAnexos">
-                <div class="card-title" style="margin:24px 0 10px;"><span class="icon">📎</span> 12.2 Pranchas / Anexos do Levantamento</div>
+                <div class="card-title" style="margin:24px 0 10px;"><span class="icon">📎</span> 12.5 Pranchas / Anexos do Levantamento</div>
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                    <span style="color:var(--text-muted);font-size:0.8em;">Uso interno — não é impresso no PDF</span>
+                    <span class="hint-anexo" style="color:var(--text-muted);font-size:0.8em;">As pranchas anexadas são incluídas no PDF e nos relatórios em Word</span>
                     <button class="btn-add" onclick="addTopoSlot()">+ Adicionar Prancha</button>
                 </div>
                 <div id="topoGallery"></div>
             </div>
 
             <div style="margin-top:20px;">
-                <label style="display:block;font-size:0.78em;font-weight:600;color:var(--accent-blue);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">12.3 Conclusão do Levantamento Topográfico</label>
+                <label style="display:block;font-size:0.78em;font-weight:600;color:var(--accent-blue);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">12.6 Conclusão do Levantamento Topográfico</label>
                 <textarea id="txt-topo" style="width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:8px;padding:12px;color:var(--text-primary);font-family:inherit;min-height:90px;" placeholder="Descreva os desvios de nivelamento, alinhamento, bitola e superelevação identificados, os trechos críticos e a necessidade de correção geométrica da via."></textarea>
             </div>
         </div>
@@ -2089,6 +2225,11 @@ function renderInspetoresSelect() {
 renderInspetoresSelect();
 
 let anomalies = []; // { id, baliza, lado, item(op), tipo, desc, sev, qtd }
+
+// Registros de anomalia (severidade > 0). Os lançamentos "Conforme" (sev 0)
+// comprovam a verificação do item e não entram nas contagens de não conformidade.
+function naoConformidades() { return anomalies.filter(a => a.sev > 0); }
+function registrosConformes() { return anomalies.filter(a => a.sev === 0); }
 let evidenceCounter = 0;
 let chartInstances = {};
 
@@ -2511,23 +2652,26 @@ function gerarRecomendacoes() {
     const dataIns = val('inp-data');
     const notas = lerNotas();
     const abertas = notas.filter(x => !/conclu|encerr|atendid/i.test(x.st));
+    const nc = naoConformidades();
     const sev = [0, 0, 0, 0, 0];
-    anomalies.forEach(a => sev[a.sev]++);
-    const criticas = anomalies.filter(a => a.sev >= 3);
-    const compTroca = anomalies.reduce((s, a) => s + (a.qtd || 1), 0);
+    nc.forEach(a => sev[a.sev]++);
+    const criticas = nc.filter(a => a.sev >= 3);
+    const compTroca = nc.reduce((s, a) => s + (a.qtd || 1), 0);
     const cond = val('inp-limpeza');
-    const temSujidade = cond !== 'conforme' || anomalies.some(a => /sujidade|vegeta|contamina|drenagem/i.test(a.tipo || ''));
+    const temSujidade = cond !== 'conforme' || nc.some(a => /sujidade|vegeta|contamina|drenagem/i.test(a.tipo || ''));
     // Só conta como medição realizada quando há trecho ou valor medido (linhas-modelo vazias não contam)
-    const medicoes = [...document.querySelectorAll('#topoTableBody tr')]
-        .map(tr => ({ trecho: tr.cells[0].textContent.trim(), param: tr.cells[2].textContent.trim(), medido: tr.cells[3].textContent.trim(), sit: tr.cells[6].textContent.trim() }))
-        .filter(m => m.trecho || m.medido);
-    const topoNaoConf = medicoes.filter(m => /n[ãa]o conforme|reprov|fora/i.test(m.sit));
+    const medicoes = medicoesTopo();
+    const transR = pontosTransClassificados();
+    const topoNaoConf = medicoes.filter(m => m.risco && m.risco.n >= 2);   // médio, alto ou muito alto
+    const topoCritico = medicoes.filter(m => m.risco && m.risco.n >= 3);   // acima do máximo FEM
+    const balTransCriticas = [...new Set(transR.filter(x => x.risco.n >= 3).map(x => x.baliza).filter(Boolean))].sort();
+    const balTransMedias = [...new Set(transR.filter(x => x.risco.n === 2).map(x => x.baliza).filter(Boolean))].sort();
     const temTopo = !!val('topo-doc') || medicoes.length > 0;
 
     // ── 14.1 ENGENHARIA — nota YE apenas quando realmente necessário ──
     const eng = [];
-    const muitoAlto = anomalies.filter(a => a.sev === 4);
-    const precisaYE = muitoAlto.length > 0 || abertas.length > 0 || topoNaoConf.length > 0;
+    const muitoAlto = nc.filter(a => a.sev === 4);
+    const precisaYE = muitoAlto.length > 0 || abertas.length > 0 || topoNaoConf.length > 0 || balTransCriticas.length > 0;
 
     if (muitoAlto.length) {
         const itensYE = [...new Set(muitoAlto.map(a => (getItem(a.item) || {}).nome).filter(Boolean))].map(i => i.toLowerCase());
@@ -2536,8 +2680,22 @@ function gerarRecomendacoes() {
     if (abertas.length) {
         eng.push(`Analisar a causa raiz da reincidência das anomalias, considerando que ${abertas.length === 1 ? 'a nota' : 'as notas'} ${fmtLista(abertas.map(x => x.n))} ${abertas.length === 1 ? 'continua' : 'continuam'} sem tratativa concluída.`);
     }
-    if (topoNaoConf.length) {
-        eng.push(`Definir o plano de correção geométrica da via, considerando os desvios topográficos fora da tolerância: ${fmtLista(topoNaoConf.map(m => m.param.toLowerCase() + (m.trecho ? ' (balizas ' + m.trecho + ')' : '')))}.`);
+    if (topoCritico.length) {
+        eng.push(`Programar o realinhamento da via: ${fmtLista(topoCritico.map(m => m.param.toLowerCase() + ' — desvio de ' + fmtNum(m.risco.desvio) + ' ' + m.un + (m.trecho ? ' nas balizas ' + m.trecho : '') + ' (' + m.risco.label.toLowerCase() + ')'))}. ` +
+            `Esses valores ultrapassam o máximo admitido antes do realinhamento pela FEM Seção II, Tabela 24.`);
+    }
+    if (balTransCriticas.length) {
+        eng.push(`Programar o nivelamento transversal da via ${balTransCriticas.length === 1 ? 'na baliza' : 'nas balizas'} ${fmtLista(balTransCriticas)}: ` +
+            `a diferença de nível entre os trilhos ultrapassa o máximo admitido antes do realinhamento pela FEM Seção II, Tabela 24.`);
+    }
+    if (balTransMedias.length) {
+        eng.push(`Acompanhar a diferença de nível entre os trilhos ${balTransMedias.length === 1 ? 'na baliza' : 'nas balizas'} ${fmtLista(balTransMedias)}, ` +
+            `hoje classificada como risco médio, para evitar que evolua até o limite de realinhamento.`);
+    }
+    if (topoNaoConf.length > topoCritico.length) {
+        const atencao = topoNaoConf.filter(m => m.risco.n === 2);
+        eng.push(`Acompanhar a evolução dos desvios geométricos classificados como risco médio: ${fmtLista(atencao.map(m => m.param.toLowerCase() + (m.trecho ? ' (balizas ' + m.trecho + ')' : '')))}. ` +
+            `Ainda estão dentro do limite máximo da FEM, mas acima da tolerância de instalação.`);
     }
     if (!precisaYE) {
         eng.push(`Não há demanda de engenharia nesta inspeção. As não conformidades identificadas não requerem abertura de nota YE.`);
@@ -2548,7 +2706,7 @@ function gerarRecomendacoes() {
 
     // Notas lançadas nesta inspeção, vinculadas a cada não conformidade
     const notasNC = {};
-    anomalies.filter(a => a.nota && a.nota.trim()).forEach(a => {
+    nc.filter(a => a.nota && a.nota.trim()).forEach(a => {
         const n = a.nota.trim();
         if (!notasNC[n]) notasNC[n] = { itens: new Set(), bal: [] };
         const it = getItem(a.item);
@@ -2558,13 +2716,13 @@ function gerarRecomendacoes() {
     const listaNotasNC = Object.entries(notasNC).map(([n, d]) =>
         `${n} — ${fmtLista([...d.itens])} ${new Set(d.bal).size === 1 ? 'na baliza' : 'nas balizas'} ${fmtBalizas(d.bal)}`);
 
-    const semNota = anomalies.filter(a => !a.nota || !a.nota.trim()).length;
+    const semNota = nc.filter(a => !a.nota || !a.nota.trim()).length;
 
     if (listaNotasNC.length) {
         insp.push(`Foram cadastradas as notas das não conformidades identificadas nesta inspeção: ${fmtLista(listaNotasNC)}.`);
         if (semNota) insp.push(`Cadastrar as notas das demais não conformidades identificadas (${semNota} ${semNota === 1 ? 'ocorrência ainda sem nota vinculada' : 'ocorrências ainda sem nota vinculada'}).`);
-    } else if (anomalies.length) {
-        insp.push(`Cadastrar as notas referentes às ${anomalies.length} não conformidades identificadas nesta inspeção, vinculando cada nota à respectiva baliza e item.`);
+    } else if (nc.length) {
+        insp.push(`Cadastrar as notas referentes às ${nc.length} não conformidades identificadas nesta inspeção, vinculando cada nota à respectiva baliza e item.`);
     }
     if (notas.length) {
         insp.push(`Acompanhar as notas de inspeções anteriores registradas na carteira do ativo: nº ${notas.map(x => x.n).join(', ')}.`);
@@ -2595,16 +2753,18 @@ function gerarConclusao(comRecomendacoes) {
     const inspetor = val('inp-inspetor');
     const totalPos = NUM_BALIZAS * 2;
 
-    const ldSet = new Set(anomalies.filter(a => a.lado === 'LD' || a.lado === 'LD+LE').map(a => a.baliza));
-    const leSet = new Set(anomalies.filter(a => a.lado === 'LE' || a.lado === 'LD+LE').map(a => a.baliza));
+    const nc = naoConformidades();
+    const conformes = registrosConformes();
+    const ldSet = new Set(nc.filter(a => a.lado === 'LD' || a.lado === 'LD+LE').map(a => a.baliza));
+    const leSet = new Set(nc.filter(a => a.lado === 'LE' || a.lado === 'LD+LE').map(a => a.baliza));
     const bothSet = new Set([...ldSet].filter(b => leSet.has(b)));
-    const balizasAfetadas = new Set(anomalies.map(a => a.baliza));
+    const balizasAfetadas = new Set(nc.map(a => a.baliza));
     const posAfetadas = ldSet.size + leSet.size;
     const pct = totalPos ? Math.round(posAfetadas / totalPos * 100) : 0;
     const sev = [0, 0, 0, 0, 0];
-    anomalies.forEach(a => sev[a.sev]++);
+    nc.forEach(a => sev[a.sev]++);
     const criticas = sev[3] + sev[4];
-    const compTroca = anomalies.reduce((s, a) => s + (a.qtd || 1), 0);
+    const compTroca = nc.reduce((s, a) => s + (a.qtd || 1), 0);
 
     // Notas da carteira do ativo
     const notas = lerNotas();
@@ -2612,10 +2772,9 @@ function gerarConclusao(comRecomendacoes) {
 
     // Levantamento topográfico
     const temPrancha = !!document.querySelector('#topoGallery .drawing-upload-area.has-image');
-    const medicoes = [...document.querySelectorAll('#topoTableBody tr')]
-        .map(tr => ({ trecho: tr.cells[0].textContent.trim(), param: tr.cells[2].textContent.trim(), medido: tr.cells[3].textContent.trim(), sit: tr.cells[6].textContent.trim() }))
-        .filter(m => m.trecho || m.medido);
-    const naoConf = medicoes.filter(m => /n[ãa]o conforme|reprov|fora/i.test(m.sit));
+    const medicoes = medicoesTopo();
+    const naoConf = medicoes.filter(m => m.risco && m.risco.n >= 2);
+    const piorRisco = medicoes.filter(m => m.risco).reduce((a, m) => (!a || m.risco.n > a.risco.n ? m : a), null);
     const topoDoc = val('topo-doc'), topoEmp = val('topo-empresa'), topoData = val('topo-data');
     const topoDataFmt = /^\d{4}-\d{2}-\d{2}$/.test(topoData) ? topoData.split('-').reverse().join('/') : topoData;
 
@@ -2636,11 +2795,11 @@ function gerarConclusao(comRecomendacoes) {
     );
 
     // 2. Resultado geral
-    if (anomalies.length === 0) {
+    if (nc.length === 0) {
         P.push(`Não foram encontradas não conformidades. A via está em condição adequada de operação.`);
     } else {
         P.push(
-            `Foram encontradas ${anomalies.length} não conformidades em ${balizasAfetadas.size} balizas (${pct}% das posições verificadas): ` +
+            `Foram encontradas ${nc.length} não conformidades em ${balizasAfetadas.size} balizas (${pct}% das posições verificadas): ` +
             `${ldSet.size} no lado direito e ${leSet.size} no lado esquerdo` +
             (bothSet.size ? `, sendo ${bothSet.size} ${bothSet.size === 1 ? 'baliza afetada' : 'balizas afetadas'} nos dois lados` : '') + `. ` +
             (criticas ? `Destas, ${criticas} ${criticas === 1 ? 'é crítica' : 'são críticas'} (severidade Alto ou Muito Alto) e ${criticas === 1 ? 'exige' : 'exigem'} correção prioritária.`
@@ -2650,7 +2809,7 @@ function gerarConclusao(comRecomendacoes) {
         // 3. O que foi encontrado, item por item (frases curtas)
         const linhas = [];
         ITEMS.forEach(it => {
-            const rel = anomalies.filter(a => a.item === it.op);
+            const rel = nc.filter(a => a.item === it.op);
             if (!rel.length) return;
             const bal = rel.map(a => a.baliza);
             const nBal = new Set(bal).size;
@@ -2664,7 +2823,7 @@ function gerarConclusao(comRecomendacoes) {
         if (linhas.length) P.push(`O que foi encontrado:\n` + linhas.map(l => '• ' + l).join('\n'));
 
         // 4. Onde está pior
-        const porGrupo = GROUPS.map(g => ({ g, n: anomalies.filter(a => a.baliza >= g.start && a.baliza <= g.end).length }))
+        const porGrupo = GROUPS.map(g => ({ g, n: nc.filter(a => a.baliza >= g.start && a.baliza <= g.end).length }))
             .filter(x => x.n > 0).sort((a, b) => b.n - a.n).slice(0, 3);
         if (porGrupo.length) {
             P.push(
@@ -2676,7 +2835,7 @@ function gerarConclusao(comRecomendacoes) {
 
     // 5. Limpeza da via
     (() => {
-        const sujAnom = anomalies.filter(a => /sujidade|vegeta|contamina|drenagem|limpeza/i.test((a.tipo || '') + ' ' + (a.desc || '')));
+        const sujAnom = nc.filter(a => /sujidade|vegeta|contamina|drenagem|limpeza/i.test((a.tipo || '') + ' ' + (a.desc || '')));
         const cond = val('inp-limpeza');
         const trechos = val('inp-limpeza-trechos').trim();
         const nBalSuj = new Set(sujAnom.map(a => a.baliza)).size;
@@ -2709,21 +2868,49 @@ function gerarConclusao(comRecomendacoes) {
     }
 
     // 7. Topografia
-    if (temPrancha || medicoes.length || topoDoc) {
+    const trans = pontosTransClassificados();
+    if (temPrancha || medicoes.length || topoDoc || trans.length) {
         P.push(
             `O levantamento topográfico${topoDoc ? ` (documento ${topoDoc})` : ''}${topoEmp ? `, feito por ${topoEmp}` : ''}${topoDataFmt ? ` em ${topoDataFmt}` : ''} está na seção 12.0. ` +
             (medicoes.length
                 ? (naoConf.length
-                    ? `De ${medicoes.length} ${medicoes.length === 1 ? 'medição' : 'medições'}, ${naoConf.length} ${naoConf.length === 1 ? 'está' : 'estão'} fora da tolerância de projeto: ${fmtLista(naoConf.map(m => m.param.toLowerCase() + (m.trecho ? ' (balizas ' + m.trecho + ')' : '')))}. A geometria da via precisa ser corrigida.`
-                    : `As ${medicoes.length} ${medicoes.length === 1 ? 'medição está' : 'medições estão'} dentro da tolerância de projeto.`)
+                    ? `As medições foram classificadas pelos critérios da FEM Seção II (Tabela 24). De ${medicoes.length} ${medicoes.length === 1 ? 'medição' : 'medições'}, ` +
+                      `${naoConf.length} ${naoConf.length === 1 ? 'apresenta desvio' : 'apresentam desvios'} acima da tolerância de instalação: ` +
+                      `${fmtLista(naoConf.map(m => m.param.toLowerCase() + ' com ' + fmtNum(m.risco.desvio) + ' ' + m.un + (m.trecho ? ' nas balizas ' + m.trecho : '') + ' — ' + m.risco.label.toLowerCase()))}. ` +
+                      (piorRisco && piorRisco.risco.n >= 3
+                        ? `O pior caso é ${piorRisco.risco.label.toLowerCase()}, acima do máximo admitido antes do realinhamento, e exige correção geométrica programada.`
+                        : `Os desvios ainda estão abaixo do máximo admitido antes do realinhamento, mas precisam ser acompanhados.`)
+                    : `As ${medicoes.length} ${medicoes.length === 1 ? 'medição está conforme' : 'medições estão conformes'} aos critérios da FEM Seção II (Tabela 24).`)
                 : `Os resultados devem ser analisados junto com as não conformidades deste relatório.`)
         );
     } else {
         P.push(`Não foi feito levantamento topográfico nesta campanha. Recomenda-se realizá-lo para verificar nivelamento, alinhamento e bitola, já que as anomalias de lastro e fixação costumam vir acompanhadas de desvios geométricos.`);
     }
 
+    // 7.1 Levantamento transversal (LD × LE)
+    if (trans.length) {
+        const pTrans = paramTransversal() || { un: 'mm', fem: '', ref: '' };
+        const piorT = trans.reduce((a, x) => (x.risco.n > a.risco.n ? x : a), trans[0]);
+        const foraT = trans.filter(x => x.risco.n >= 2);
+        const mediaT = trans.reduce((s, x) => s + Math.abs(x.dif), 0) / trans.length;
+        const maxT = Math.max(...trans.map(x => Math.abs(x.dif)));
+        const balCriticas = [...new Set(trans.filter(x => x.risco.n >= 3).map(x => x.baliza).filter(Boolean))].sort();
+        P.push(
+            `No levantamento transversal foram medidos ${trans.length} pontos ao longo da via, comparando o nível do trilho ` +
+            `do lado direito com o do lado esquerdo. A diferença média entre os trilhos é de ${fmtNum(mediaT)} ${pTrans.un} e a maior ` +
+            `diferença registrada é de ${fmtNum(maxT)} ${pTrans.un}. Pelo critério da FEM Seção II (${pTrans.ref}), ` +
+            (foraT.length
+                ? `${foraT.length} ponto(s) estão acima da tolerância — a pior condição é ${piorT.risco.label.toLowerCase()}` +
+                  `${piorT.baliza ? ' na baliza ' + piorT.baliza : ''}. ` +
+                  (balCriticas.length
+                    ? `${balCriticas.length === 1 ? 'A baliza' : 'As balizas'} ${fmtLista(balCriticas)} ${balCriticas.length === 1 ? 'ultrapassa' : 'ultrapassam'} o limite máximo admitido antes do realinhamento e ${balCriticas.length === 1 ? 'precisa' : 'precisam'} de correção geométrica programada.`
+                    : `Os desvios ainda estão abaixo do limite máximo antes do realinhamento, mas exigem acompanhamento.`)
+                : `todos os pontos estão dentro da tolerância.`)
+        );
+    }
+
     // 8. Conclusão final
-    if (anomalies.length === 0) {
+    if (nc.length === 0) {
         P.push(`Conclusão: o ativo está apto à operação. Manter o plano de inspeção vigente.`);
     } else {
         const grave = criticas > 0;
@@ -2868,19 +3055,584 @@ function lerNotas() {
 // ============================
 let topoCounter = 0;
 
+// ============================================================
+// TOPOGRAFIA — TOLERÂNCIAS FEM SEÇÃO II (Tabela 24)
+// Classificação automática de risco por parâmetro medido.
+// ============================================================
+const TOLERANCIAS_FEM = [
+    { id: 'bitola',        fem: '6.2.4.2', nome: 'Tolerância de bitola (vão entre trilhos)',        un: 'mm', tol: 10,  max: 40,  ref: '± 10 mm (instalação) · máx. ± 40 mm', metodo: 'Trena' },
+    { id: 'retilineidade', fem: '6.2.4.4', nome: 'Retilineidade horizontal (em 30 m)',              un: 'mm', tol: 6,   max: 12,  ref: '± 6 mm em 30 m · máx. ± 12 mm',      metodo: 'Teodolito ou corda de piano' },
+    { id: 'nivel-secao',   fem: '6.2.4.5', nome: 'Nível relativo entre trilhos — mesma seção',      un: 'mm', tol: 1.5, max: 5,   ref: '1,5 mm · máx. 5 mm',                 metodo: 'Teodolito ou nível' },
+    { id: 'nivel-vao',     fem: '6.2.4.5', nome: 'Nível relativo entre trilhos — ao longo do vão',  un: 'mm', tol: 10,  max: 20,  ref: '10 mm · máx. 20 mm',                 metodo: 'Teodolito ou nível' },
+    { id: 'altura-4p',     fem: '6.2.4.5', nome: 'Tolerância de altura em 4 pontos (7 m + 7 m)',    un: 'mm', tol: 7,   max: 21,  ref: '± 7 mm · máx. 21 mm',                metodo: 'Teodolito ou corda de piano' },
+    { id: 'curvatura',     fem: '6.2.4.5', nome: 'Curvatura local do trilho — vertical (em 30 m)',  un: 'mm', tol: 6,   max: 12,  ref: '± 6 mm em 30 m · máx. ± 12 mm',      metodo: 'Teodolito ou corda de piano' },
+    { id: 'inclinacao',    fem: '6.2.4.5', nome: 'Inclinação do trilho',                            un: '%',  tol: 0.1, max: 0.3, ref: '± 0,1 % · máx. ± 0,3 %',             metodo: 'Teodolito ou nível' },
+];
+
+const RISCOS_TOPO = [
+    { n: 0, label: 'Conforme',         cor: '#059669', fundo: 'rgba(5,150,105,0.14)' },
+    { n: 1, label: 'Risco Baixo',      cor: '#65A30D', fundo: 'rgba(101,163,13,0.14)' },
+    { n: 2, label: 'Risco Médio',      cor: '#D97706', fundo: 'rgba(217,119,6,0.16)' },
+    { n: 3, label: 'Risco Alto',       cor: '#DC2626', fundo: 'rgba(220,38,38,0.16)' },
+    { n: 4, label: 'Risco Muito Alto', cor: '#7F1D1D', fundo: 'rgba(127,29,29,0.20)' },
+];
+
+function getFEM(idOuNome) {
+    if (!idOuNome) return null;
+    const k = String(idOuNome).trim().toLowerCase();
+    return TOLERANCIAS_FEM.find(p => p.id === k) ||
+           TOLERANCIAS_FEM.find(p => p.nome.toLowerCase() === k) || null;
+}
+
+// Faixas de classificação a partir da tolerância de instalação e do máximo antes do realinhamento
+function faixasFEM(p) {
+    const baixo = Math.min(2 * p.tol, (p.tol + p.max) / 2);
+    return { conforme: p.tol, baixo, medio: p.max, alto: 1.5 * p.max };
+}
+
+function numTopo(v) {
+    if (v === null || v === undefined) return NaN;
+    const t = String(v).replace(/[^\d,.\-]/g, '').replace(',', '.');
+    return t === '' ? NaN : parseFloat(t);
+}
+
+// Retorna { n, label, cor, fundo, desvio, faixa } ou null quando não há como classificar
+function classificarRiscoTopo(param, desvio, medido) {
+    const p = getFEM(param);
+    if (!p) return null;
+    let d = numTopo(desvio);
+    if (isNaN(d)) d = numTopo(medido);
+    if (isNaN(d)) return null;
+    d = Math.abs(d);
+    const f = faixasFEM(p);
+    let n = 4;
+    if (d <= f.conforme) n = 0;
+    else if (d <= f.baixo) n = 1;
+    else if (d <= f.medio) n = 2;
+    else if (d <= f.alto) n = 3;
+    return { ...RISCOS_TOPO[n], desvio: d, param: p, faixas: f };
+}
+
+function fmtNum(v) {
+    return Number(v).toLocaleString('pt-BR', { maximumFractionDigits: 2 });
+}
+
+// Descreve as faixas de um parâmetro: "≤10 · 10–20 · 20–40 · 40–60 · >60 mm"
+function descreverFaixas(p) {
+    const f = faixasFEM(p);
+    return `Conforme ≤ ${fmtNum(f.conforme)} · Baixo ≤ ${fmtNum(f.baixo)} · Médio ≤ ${fmtNum(f.medio)} · ` +
+           `Alto ≤ ${fmtNum(f.alto)} · Muito Alto > ${fmtNum(f.alto)} ${p.un}`;
+}
+
+// Lê as medições da tabela de topografia já classificadas
+function medicoesTopo() {
+    return [...document.querySelectorAll('#topoTableBody tr')].map(tr => {
+        const sel = tr.querySelector('.topo-param');
+        const cel = i => (tr.cells[i] ? tr.cells[i].textContent.trim() : '');
+        const paramId = sel ? sel.value : '';
+        const p = getFEM(paramId);
+        const m = {
+            trecho: cel(0), lado: cel(1),
+            paramId, param: p ? p.nome : (sel ? (sel.selectedOptions[0] || {}).textContent || '' : cel(2)),
+            fem: p ? p.fem : '', un: p ? p.un : '',
+            medido: cel(3), tolerancia: cel(4), desvio: cel(5),
+        };
+        m.risco = classificarRiscoTopo(paramId, m.desvio, m.medido);
+        m.situacao = m.risco ? m.risco.label : cel(6);
+        return m;
+    }).filter(m => m.trecho || m.medido || m.desvio);
+}
+
+// Recalcula tolerância e situação de uma linha quando o usuário edita
+function atualizarRiscoTopo(el) {
+    const tr = el && el.closest ? el.closest('tr') : null;
+    if (!tr) return;
+    const sel = tr.querySelector('.topo-param');
+    const p = getFEM(sel ? sel.value : '');
+    if (p) {
+        tr.cells[4].textContent = p.ref;
+        tr.cells[4].title = descreverFaixas(p);
+    }
+    const r = classificarRiscoTopo(sel ? sel.value : '', tr.cells[5].textContent, tr.cells[3].textContent);
+    const cel = tr.cells[6];
+    if (r) {
+        cel.innerHTML = `<span class="badge-risco" style="background:${r.fundo};color:${r.cor};">${r.label}</span>`;
+        cel.setAttribute('data-risco', r.n);
+    } else {
+        cel.innerHTML = '<span class="badge-risco" style="background:rgba(148,163,184,0.16);color:#64748B;">Informe o desvio</span>';
+        cel.removeAttribute('data-risco');
+    }
+    renderResumoRiscoTopo();
+}
+
+// ============================================================
+// LEVANTAMENTO TRANSVERSAL (LD × LE) — colagem da planilha de campo
+// Calcula a diferença de nível entre os trilhos em cada ponto e
+// classifica automaticamente pelo critério FEM escolhido.
+// ============================================================
+let pontosTransversais = [];
+
+// Converte "286.845", "286845", "-41,5" em número
+function numPlanilha(v) {
+    if (v === null || v === undefined) return NaN;
+    let t = String(v).replace(/\s| /g, '').replace(/[^\d.,\-+]/g, '');
+    if (t === '' || t === '-' || t === '+') return NaN;
+    if (/^[-+]?\d{1,3}(\.\d{3})+(,\d+)?$/.test(t)) t = t.replace(/\./g, '').replace(',', '.');
+    else if (/^[-+]?\d+,\d+$/.test(t)) t = t.replace(',', '.');
+    else if (/^[-+]?\d{1,3}(,\d{3})+(\.\d+)?$/.test(t)) t = t.replace(/,/g, '');
+    const n = parseFloat(t);
+    return isNaN(n) ? NaN : n;
+}
+
+function paramTransversal() {
+    const sel = document.getElementById('trans-param');
+    const id = sel ? sel.value : 'dif-nivel';
+    // Critério adotado em campo para a diferença de nível entre os trilhos:
+    // 10 mm de tolerância e 40 mm como máximo antes do realinhamento.
+    if (id === 'dif-nivel') {
+        return { id: 'dif-nivel', fem: 'Critério de campo', nome: 'Diferença de nível entre trilhos (LD × LE)',
+                 un: 'mm', tol: 10, max: 40, ref: '± 10 mm · máx. ± 40 mm', metodo: 'Nivelamento topográfico' };
+    }
+    if (id === 'custom') {
+        const tol = numPlanilha((document.getElementById('trans-tol') || {}).value);
+        const max = numPlanilha((document.getElementById('trans-max') || {}).value);
+        if (isNaN(tol) || isNaN(max) || max <= 0) return null;
+        return { id: 'custom', fem: 'Personalizado', nome: 'Critério personalizado do equipamento', un: 'mm',
+                 tol, max, ref: `± ${fmtNum(tol)} mm · máx. ± ${fmtNum(max)} mm`, metodo: 'Conforme manual do fabricante' };
+    }
+    return getFEM(id);
+}
+
+function classificarDif(dif) {
+    const p = paramTransversal();
+    if (!p || isNaN(dif)) return null;
+    const d = Math.abs(dif);
+    const f = faixasFEM(p);
+    let n = 4;
+    if (d <= f.conforme) n = 0;
+    else if (d <= f.baixo) n = 1;
+    else if (d <= f.medio) n = 2;
+    else if (d <= f.alto) n = 3;
+    return { ...RISCOS_TOPO[n], desvio: d, param: p, faixas: f };
+}
+
+// ============================================================
+// IMPORTAÇÃO DO RELATÓRIO TOPOGRÁFICO EM PDF
+// Extrai o texto do PDF preservando as linhas e colunas da planilha.
+// ============================================================
+let pdfjsCarregando = null;
+
+function carregarPdfJs() {
+    if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+    if (pdfjsCarregando) return pdfjsCarregando;
+    pdfjsCarregando = new Promise((ok, erro) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+        s.onload = () => {
+            if (!window.pdfjsLib) return erro(new Error('biblioteca de leitura de PDF não carregou'));
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            ok(window.pdfjsLib);
+        };
+        s.onerror = () => erro(new Error('sem conexão para carregar a biblioteca de PDF'));
+        document.head.appendChild(s);
+    });
+    return pdfjsCarregando;
+}
+
+// Agrupa os fragmentos de texto do PDF em linhas (mesma altura) e colunas (espaço horizontal)
+function agruparItensPDF(itens, tolLinha = 3, tolColuna = 6) {
+    const frags = itens
+        .filter(i => i.str && i.str.trim())
+        .map(i => ({
+            txt: i.str.trim(),
+            x: i.transform ? i.transform[4] : (i.x || 0),
+            y: i.transform ? i.transform[5] : (i.y || 0),
+            w: i.width || (i.str.trim().length * 4),
+        }));
+    if (!frags.length) return [];
+
+    // agrupa por linha, do topo para a base
+    const linhas = [];
+    frags.sort((a, b) => b.y - a.y || a.x - b.x);
+    frags.forEach(f => {
+        const linha = linhas.find(l => Math.abs(l.y - f.y) <= tolLinha);
+        if (linha) { linha.frags.push(f); linha.y = (linha.y + f.y) / 2; }
+        else linhas.push({ y: f.y, frags: [f] });
+    });
+
+    // dentro da linha, junta fragmentos colados e separa colunas
+    const linhasCel = linhas.map(l => {
+        l.frags.sort((a, b) => a.x - b.x);
+        const cols = [];
+        let atual = null;
+        l.frags.forEach(f => {
+            if (atual && f.x - (atual.x + atual.w) <= tolColuna) {
+                atual.txt += (f.x - (atual.x + atual.w) > 0.8 ? ' ' : '') + f.txt;
+                atual.w = f.x + f.w - atual.x;
+            } else {
+                atual = { txt: f.txt, x: f.x, w: f.w };
+                cols.push(atual);
+            }
+        });
+        return cols;
+    }).filter(c => c.length);
+
+    // No PDF a célula vazia não gera texto: as colunas seguintes "sobem" e desalinham a linha.
+    // Quando existe uma linha de cabeçalho, cada valor é encaixado na coluna mais próxima dele.
+    const cabecalho = linhasCel.find(l => l.length >= 4 &&
+        /ponto|baliza|dist[âa]ncia|lado|dif\b/i.test(l.map(c => c.txt).join(' ')));
+    if (cabecalho) {
+        const centros = cabecalho.map(c => c.x + c.w / 2);
+        return linhasCel.map(l => {
+            const saida = new Array(centros.length).fill('');
+            l.forEach(c => {
+                const cx = c.x + c.w / 2;
+                let idx = 0, menor = Infinity;
+                centros.forEach((cc, i) => { const d = Math.abs(cc - cx); if (d < menor) { menor = d; idx = i; } });
+                saida[idx] = saida[idx] ? saida[idx] + ' ' + c.txt : c.txt;
+            });
+            return saida;
+        });
+    }
+    return linhasCel.map(l => l.map(c => c.txt.trim()));
+}
+
+// Lê um ou mais PDFs do levantamento topográfico
+async function importarPDFTransversal(input) {
+    const arquivos = [...(input.files || [])];
+    input.value = '';
+    if (!arquivos.length) return;
+
+    showToast('📄 Lendo o relatório topográfico...');
+    let pdfjsLib;
+    try { pdfjsLib = await carregarPdfJs(); }
+    catch (e) { return showToast('⚠ ' + e.message + '. Cole os dados manualmente.'); }
+
+    let totalNovos = 0, totalIgnoradas = 0, totalPaginas = 0, textoBruto = '';
+    let balizaEntrePaginas = '';
+    for (const arq of arquivos) {
+        try {
+            const buf = await arq.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+            for (let n = 1; n <= pdf.numPages; n++) {
+                const pagina = await pdf.getPage(n);
+                const conteudo = await pagina.getTextContent();
+                const linhasCol = agruparItensPDF(conteudo.items);
+                totalPaginas++;
+                textoBruto += linhasCol.map(c => c.join('\t')).join('\n') + '\n';
+                const r = interpretarLinhasTransversais(linhasCol, balizaEntrePaginas);
+                balizaEntrePaginas = r.balizaFinal;
+                pontosTransversais = pontosTransversais.concat(r.novos);
+                totalNovos += r.novos.length;
+                totalIgnoradas += r.ignoradas;
+            }
+            // aproveita o cabeçalho do PDF para preencher a identificação, quando ainda vazia
+            preencherCabecalhoTransversal(textoBruto);
+        } catch (e) {
+            console.error('PDF topográfico:', e);
+            showToast('⚠ Não foi possível ler "' + arq.name + '": ' + e.message);
+        }
+    }
+
+    renderTransversal();
+    if (totalNovos) {
+        showToast(`✓ ${totalNovos} ponto(s) lidos de ${totalPaginas} página(s)${totalIgnoradas ? ` · ${totalIgnoradas} linha(s) ignorada(s)` : ''}`);
+    } else if (textoBruto.trim()) {
+        const ta = document.getElementById('trans-paste');
+        if (ta) ta.value = textoBruto.trim().slice(0, 20000);
+        showToast('⚠ Não identifiquei as colunas automaticamente. O texto do PDF foi colocado no campo abaixo para ajuste manual.');
+    } else {
+        showToast('⚠ O PDF não tem texto selecionável (parece digitalizado). Peça o arquivo em Excel ou um PDF pesquisável.');
+    }
+}
+
+// Preenche identificação, data e horários a partir do cabeçalho do PDF
+function preencherCabecalhoTransversal(texto) {
+    const setSeVazio = (id, v) => {
+        const el = document.getElementById(id);
+        if (el && !el.value && v) el.value = v;
+    };
+    const mTrilho = texto.match(/TRILHO[^\n]{0,120}/i);
+    if (mTrilho) setSeVazio('trans-id', mTrilho[0].replace(/\t+/g, ' ').replace(/\s{2,}/g, ' ').trim());
+    const mSentido = texto.match(/SENTIDO\s+([A-ZÀ-Ú0-9\- ]{2,30})/i);
+    if (mSentido) setSeVazio('trans-sentido', 'Sentido ' + mSentido[1].trim());
+    const mData = texto.match(/(\d{2})[\/.](\d{2})[\/.](\d{4})/);
+    if (mData) setSeVazio('trans-data', `${mData[3]}-${mData[2]}-${mData[1]}`);
+    const horas = texto.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/g);
+    if (horas && horas.length >= 1) setSeVazio('trans-hora-ini', horas[0].padStart(5, '0'));
+    if (horas && horas.length >= 2) setSeVazio('trans-hora-fim', horas[1].padStart(5, '0'));
+}
+
+// Interpreta linhas já separadas em colunas (vindas da colagem ou do PDF)
+// Uma baliza válida tem 1 ou 2 dígitos, está dentro da faixa da via e não dá saltos:
+// assim a distância (2000, 4000…) e leituras espúrias não são confundidas com baliza.
+function balizaValida(txt, atual) {
+    if (!/^\d{1,2}$/.test(String(txt).trim())) return null;
+    const n = parseInt(txt, 10);
+    if (isNaN(n) || n < 0 || n >= NUM_BALIZAS) return null;
+    if (atual !== '' && Math.abs(n - parseInt(atual, 10)) > 5) return null;   // salto incoerente
+    return String(n).padStart(2, '0');
+}
+
+function interpretarLinhasTransversais(linhasCol, balizaInicial) {
+    const novos = [];
+    let balizaAtual = balizaInicial || '', ignoradas = 0;
+
+    linhasCol.forEach(colBruto => {
+        const col = colBruto.map(c => String(c == null ? '' : c).trim());
+        const linha = col.join(' ');
+        // descarta cabeçalhos e linhas de título
+        if (/ponto|baliza|dist[âa]ncia|lado|dif\b|leitura|hora|data|linha\s*[12]|trilho|levantamento|sentido|p[áa]gina/i.test(linha) &&
+            col.filter(c => !isNaN(numPlanilha(c))).length < 3) { ignoradas++; return; }
+
+        // Localiza o par de leituras LE/LD: duas colunas numéricas vizinhas, de mesma ordem de
+        // grandeza e próximas entre si. Assim a leitura funciona com ou sem as colunas Módulo e Dif.
+        const nums = col.map(numPlanilha);
+        let iLE = -1, melhor = -Infinity;
+        for (let i = 0; i < col.length - 1; i++) {
+            const a = nums[i], b = nums[i + 1];
+            if (isNaN(a) || isNaN(b)) continue;
+            const escala = Math.max(Math.abs(a), Math.abs(b));
+            if (escala === 0) continue;
+            if (Math.abs(a - b) > 0.2 * escala) continue;      // distância × leitura não formam par
+            if (escala > melhor) { melhor = escala; iLE = i; }
+        }
+        if (iLE < 0) { ignoradas++; return; }
+
+        let ponto = '', baliza = '', modulo = '', dist = '';
+        const le = nums[iLE], ld = nums[iLE + 1];
+        let dif = iLE + 2 < col.length ? numPlanilha(col[iLE + 2]) : NaN;
+        if (iLE >= 2) { ponto = col[0]; baliza = col[1]; }
+        else if (iLE === 1) { baliza = col[0]; }
+        if (iLE - 1 >= 2) dist = col[iLE - 1];
+        if (iLE - 2 >= 2) modulo = col[iLE - 2];
+
+        if (isNaN(dif)) dif = ld - le;
+        if (isNaN(dif)) { ignoradas++; return; }
+
+        const bal = balizaValida(baliza, balizaAtual);
+        if (bal !== null) balizaAtual = bal;
+        novos.push({ ponto, baliza: balizaAtual, modulo, dist, le, ld, dif });
+    });
+
+    return { novos, ignoradas, balizaFinal: balizaAtual };
+}
+
+// Lê a colagem da planilha de campo
+function processarColagemTransversal() {
+    const ta = document.getElementById('trans-paste');
+    if (!ta) return;
+    const bruto = ta.value.trim();
+    if (!bruto) return showToast('Cole os dados da planilha antes de processar');
+
+    const linhasCol = bruto.split(/\r?\n/).map(l => l.replace(/\s+$/, '')).filter(l => l.trim())
+        .map(l => l.includes('\t') ? l.split('\t') : l.includes(';') ? l.split(';') : l.split(/\s{2,}|\s+/));
+
+    const ultima = pontosTransversais.length ? pontosTransversais[pontosTransversais.length - 1].baliza : '';
+    const { novos, ignoradas } = interpretarLinhasTransversais(linhasCol, ultima);
+    if (!novos.length) return showToast('⚠ Não foi possível ler nenhum ponto — confira as colunas coladas');
+    pontosTransversais = pontosTransversais.concat(novos);
+    ta.value = '';
+    renderTransversal();
+    showToast(`✓ ${novos.length} ponto(s) importado(s)${ignoradas ? ` · ${ignoradas} linha(s) ignorada(s)` : ''}`);
+}
+
+function limparTransversal() {
+    if (!pontosTransversais.length) return;
+    if (!confirm('Remover todos os pontos do levantamento transversal?')) return;
+    pontosTransversais = [];
+    renderTransversal();
+}
+
+// Pontos já classificados
+function pontosTransClassificados() {
+    return pontosTransversais.map(p => ({ ...p, risco: classificarDif(p.dif) })).filter(p => p.risco);
+}
+
+// Pior risco por baliza (usado no resumo consolidado)
+function riscoPorBaliza() {
+    const mapa = {};
+    pontosTransClassificados().forEach(p => {
+        if (!p.baliza) return;
+        if (!mapa[p.baliza] || p.risco.n > mapa[p.baliza].risco.n) mapa[p.baliza] = p;
+        mapa[p.baliza].qtd = (mapa[p.baliza].qtd || 0) + 1;
+    });
+    return mapa;
+}
+
+function renderTransversal() {
+    const tbody = document.getElementById('transTableBody');
+    if (!tbody) return;
+    const p = paramTransversal();
+    const crit = document.getElementById('trans-criterio');
+    if (crit) crit.textContent = p ? `${p.fem} · ${p.ref} — ${descreverFaixas(p)}` : 'Informe a tolerância e o máximo do critério personalizado.';
+
+    const pontos = pontosTransversais.map(x => ({ ...x, risco: classificarDif(x.dif) }));
+    if (!pontos.length) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:16px;">Cole a planilha do levantamento transversal para classificar os pontos automaticamente.</td></tr>';
+    } else {
+        tbody.innerHTML = pontos.map((x, i) => {
+            const r = x.risco;
+            return `<tr${r && r.n > 0 ? ` style="background:${r.fundo};"` : ''}>
+                <td>${x.ponto || i + 1}</td>
+                <td style="text-align:center;">${x.baliza || '—'}</td>
+                <td style="text-align:center;">${x.modulo || '—'}</td>
+                <td style="text-align:center;">${x.dist || '—'}</td>
+                <td style="text-align:center;">${isNaN(x.le) ? '—' : fmtNum(x.le)}</td>
+                <td style="text-align:center;">${isNaN(x.ld) ? '—' : fmtNum(x.ld)}</td>
+                <td style="text-align:center;font-weight:700;">${fmtNum(x.dif)}</td>
+                <td>${r ? `<span class="badge-risco" style="background:${r.fundo};color:${r.cor};">${r.label}</span>` : '—'}</td>
+                <td><button class="btn-remove" onclick="pontosTransversais.splice(${i},1);renderTransversal();" style="padding:4px 8px;">✕</button></td>
+            </tr>`;
+        }).join('');
+    }
+
+    const cls = pontos.filter(x => x.risco);
+    const resumo = document.getElementById('transResumo');
+    if (resumo) {
+        if (!cls.length) resumo.textContent = '';
+        else {
+            const pior = cls.reduce((a, x) => (x.risco.n > a.risco.n ? x : a), cls[0]);
+            const fora = cls.filter(x => x.risco.n >= 2);
+            resumo.innerHTML = `<strong>${cls.length}</strong> ponto(s) medido(s) · diferença média ` +
+                `<strong>${fmtNum(cls.reduce((s, x) => s + Math.abs(x.dif), 0) / cls.length)} ${(paramTransversal() || {}).un || 'mm'}</strong> · ` +
+                `máxima <strong>${fmtNum(Math.max(...cls.map(x => Math.abs(x.dif))))}</strong> ` +
+                `<span class="badge-risco" style="background:${pior.risco.fundo};color:${pior.risco.cor};">${pior.risco.label}</span>` +
+                (fora.length ? ` · <strong>${fora.length}</strong> ponto(s) acima da tolerância.` : ' · todos dentro da tolerância.');
+        }
+    }
+    renderResumoRiscoTopo();
+}
+
+// Blocos prontos do levantamento transversal para Word e PDF
+// Em levantamentos longos, a tabela completa dá lugar aos pontos que exigem tratativa.
+function blocosTransversal() {
+    const cls = pontosTransClassificados();
+    if (!cls.length) return null;
+    const val = id => (document.getElementById(id) || {}).value || '';
+    const p = paramTransversal() || { fem: '', ref: '', un: 'mm' };
+    const pior = cls.reduce((a, x) => (x.risco.n > a.risco.n ? x : a), cls[0]);
+    const fora = cls.filter(x => x.risco.n >= 2);
+    const media = cls.reduce((s, x) => s + Math.abs(x.dif), 0) / cls.length;
+    const maxDif = Math.max(...cls.map(x => Math.abs(x.dif)));
+
+    const resumoNivel = RISCOS_TOPO.map(r => {
+        const doNivel = cls.filter(x => x.risco.n === r.n);
+        const bal = [...new Set(doNivel.map(x => x.baliza).filter(Boolean))];
+        return [r.label, String(doNivel.length), Math.round(doNivel.length / cls.length * 100) + '%',
+                bal.length ? fmtLista(bal.slice(0, 12)) + (bal.length > 12 ? ' …' : '') : '—'];
+    });
+
+    const porBaliza = riscoPorBaliza();
+    const linhasBaliza = Object.keys(porBaliza).sort().map(b => {
+        const x = porBaliza[b];
+        const doBal = cls.filter(y => y.baliza === b);
+        return [b, String(doBal.length),
+                fmtNum(Math.max(...doBal.map(y => Math.abs(y.dif)))) + ' ' + p.un,
+                fmtNum(doBal.reduce((s, y) => s + Math.abs(y.dif), 0) / doBal.length) + ' ' + p.un,
+                x.risco.label];
+    });
+
+    const detalhar = cls.length <= 120 ? cls : fora;
+    const linhasPontos = detalhar.map((x, i) => [
+        String(x.ponto || i + 1), x.baliza || '—', x.dist || '—',
+        isNaN(x.le) ? '—' : fmtNum(x.le), isNaN(x.ld) ? '—' : fmtNum(x.ld),
+        fmtNum(x.dif), x.risco.label]);
+
+    const dataFmt = /^\d{4}-\d{2}-\d{2}$/.test(val('trans-data')) ? val('trans-data').split('-').reverse().join('/') : val('trans-data');
+    const identificacao = [val('trans-id'), val('trans-sentido'), dataFmt,
+        (val('trans-hora-ini') || val('trans-hora-fim')) ? `${val('trans-hora-ini') || '—'} às ${val('trans-hora-fim') || '—'}` : ''
+    ].filter(Boolean).join('   ·   ');
+
+    const intro = `${identificacao ? identificacao + '. ' : ''}` +
+        `Foram medidos ${cls.length} pontos, com diferença média de ${fmtNum(media)} ${p.un} entre os trilhos e máxima de ${fmtNum(maxDif)} ${p.un}. ` +
+        `Critério aplicado: ${p.fem} — ${p.ref}. ` +
+        (fora.length ? `${fora.length} ponto(s) estão acima da tolerância; a pior condição é ${pior.risco.label.toLowerCase()}${pior.baliza ? ' na baliza ' + pior.baliza : ''}.`
+                     : 'Todos os pontos estão dentro da tolerância.');
+    const nota = cls.length > 120
+        ? `Levantamento com ${cls.length} pontos: a tabela detalhada abaixo lista apenas os ${fora.length} ponto(s) que exigem tratativa. O conjunto completo está na seção 12.2 do relatório eletrônico.`
+        : '';
+
+    return { cls, pior, fora, media, maxDif, param: p, intro, nota, resumoNivel, linhasBaliza, linhasPontos, detalhouTudo: cls.length <= 120 };
+}
+
+// 12.3 — Resumo da classificação de risco topográfico
+function renderResumoRiscoTopo() {
+    const tbody = document.getElementById('topoRiscoBody');
+    const resumo = document.getElementById('topoRiscoResumo');
+    if (!tbody) return;
+    // consolida as medições por trecho (12.1) e os pontos do levantamento transversal (12.2)
+    const meds = medicoesTopo().filter(m => m.risco).concat(
+        (typeof pontosTransClassificados === 'function' ? pontosTransClassificados() : []).map(x => ({
+            trecho: x.baliza ? 'Baliza ' + x.baliza : (x.dist ? 'Distância ' + x.dist : ''),
+            param: 'Nível relativo entre trilhos (levantamento transversal)',
+            un: (x.risco.param || {}).un || 'mm', risco: x.risco,
+        })));
+    if (!meds.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:14px;">Nenhuma medição classificada — selecione o parâmetro e informe o desvio na tabela 12.1.</td></tr>';
+        if (resumo) resumo.textContent = '';
+        return;
+    }
+    tbody.innerHTML = RISCOS_TOPO.map(r => {
+        const doNivel = meds.filter(m => m.risco.n === r.n);
+        const trechos = [...new Set(doNivel.map(m => m.trecho).filter(Boolean))];
+        const params = [...new Set(doNivel.map(m => m.param))];
+        return `<tr${doNivel.length ? ` style="background:${r.fundo};"` : ''}>
+            <td><span class="badge-risco" style="background:${r.fundo};color:${r.cor};">${r.label}</span></td>
+            <td style="text-align:center;font-weight:700;">${doNivel.length}</td>
+            <td style="text-align:center;">${meds.length ? Math.round(doNivel.length / meds.length * 100) : 0}%</td>
+            <td>${params.join(', ') || '—'}</td>
+            <td>${trechos.join(', ') || '—'}</td>
+        </tr>`;
+    }).join('');
+    const pior = meds.reduce((a, m) => (m.risco.n > a.risco.n ? m : a), meds[0]);
+    const fora = meds.filter(m => m.risco.n >= 2);
+    if (resumo) {
+        resumo.innerHTML = `<strong>${meds.length}</strong> medição(ões) classificada(s) · pior condição: ` +
+            `<span class="badge-risco" style="background:${pior.risco.fundo};color:${pior.risco.cor};">${pior.risco.label}</span>` +
+            (fora.length ? ` · <strong>${fora.length}</strong> acima da tolerância de instalação exigem tratativa.` :
+                           ' · todas as medições dentro da faixa aceitável.');
+    }
+}
+
+// Preenche a tabela de critérios (12.3) com a Tabela 24 da FEM
+function renderCriteriosFEM() {
+    const tbody = document.getElementById('femTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = TOLERANCIAS_FEM.map(p => {
+        const f = faixasFEM(p);
+        return `<tr>
+            <td>${p.fem}</td>
+            <td>${p.nome}</td>
+            <td style="text-align:center;">${p.ref}</td>
+            <td style="text-align:center;">≤ ${fmtNum(f.conforme)}</td>
+            <td style="text-align:center;">≤ ${fmtNum(f.baixo)}</td>
+            <td style="text-align:center;">≤ ${fmtNum(f.medio)}</td>
+            <td style="text-align:center;">≤ ${fmtNum(f.alto)}</td>
+            <td style="text-align:center;">&gt; ${fmtNum(f.alto)}</td>
+            <td>${p.metodo}</td>
+        </tr>`;
+    }).join('');
+}
+
 function addTopoRow(trecho, lado, param, medido, tol, desvio, situacao) {
     const tbody = document.getElementById('topoTableBody');
     const tr = document.createElement('tr');
+    const pSel = getFEM(param) || TOLERANCIAS_FEM[0];
+    const opcoes = TOLERANCIAS_FEM.map(x =>
+        `<option value="${x.id}"${x.id === pSel.id ? ' selected' : ''}>${x.fem} — ${x.nome}</option>`).join('');
     tr.innerHTML = `
         <td contenteditable="true">${trecho || ''}</td>
         <td contenteditable="true">${lado || 'LD'}</td>
-        <td contenteditable="true">${param || 'Nivelamento'}</td>
-        <td contenteditable="true">${medido || ''}</td>
-        <td contenteditable="true">${tol || ''}</td>
-        <td contenteditable="true">${desvio || ''}</td>
-        <td contenteditable="true">${situacao || 'Conforme'}</td>
-        <td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td>`;
+        <td><select class="topo-param" onchange="atualizarRiscoTopo(this)">${opcoes}</select></td>
+        <td contenteditable="true" oninput="atualizarRiscoTopo(this)">${medido || ''}</td>
+        <td class="topo-tol">${tol || pSel.ref}</td>
+        <td contenteditable="true" oninput="atualizarRiscoTopo(this)">${desvio || ''}</td>
+        <td class="topo-sit"></td>
+        <td><button class="btn-remove" onclick="const t=this.closest('tr');t.remove();renderResumoRiscoTopo();" style="padding:4px 8px;">✕</button></td>`;
     tbody.appendChild(tr);
+    atualizarRiscoTopo(tr.querySelector('.topo-param'));
     if (!trecho) tr.cells[0].focus();
     return tr;
 }
@@ -2948,7 +3700,7 @@ function addAnomaly() {
     const qtd = parseInt(document.getElementById('inp-qtd').value) || 1;
 
     if (isNaN(baliza) || baliza < 0 || baliza > NUM_BALIZAS - 1) return showToast('Baliza deve ser entre 00 e ' + pad2(NUM_BALIZAS - 1));
-    if (!desc) return showToast('Descrição é obrigatória');
+    if (!desc && sev > 0) return showToast('Descrição é obrigatória');
 
     // Componente do vão (opcional)
     const compVal = document.getElementById('inp-comp') ? document.getElementById('inp-comp').value : '';
@@ -2963,7 +3715,8 @@ function addAnomaly() {
 
     const nota = (document.getElementById('inp-nota') || {}).value ? document.getElementById('inp-nota').value.trim() : '';
 
-    anomalies.push({ id: Date.now(), baliza, lado, item, tipo, desc, sev, qtd, compTipo, compNum, comp, nota });
+    const descFinal = desc || (sev === 0 ? 'Item verificado — condição conforme' : desc);
+    anomalies.push({ id: Date.now(), baliza, lado, item, tipo: sev === 0 ? 'Conforme' : tipo, desc: descFinal, sev, qtd: sev === 0 ? 0 : qtd, compTipo, compNum, comp, nota });
     document.getElementById('inp-desc').value = '';
     if (document.getElementById('inp-nota')) document.getElementById('inp-nota').value = '';
     if (document.getElementById('inp-comp')) document.getElementById('inp-comp').value = '';
@@ -2985,15 +3738,16 @@ function removeAnomaly(id) {
 function renderAnomalyTable() {
     const tbody = document.getElementById('anomalyTableBody');
     if (anomalies.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--text-muted);padding:30px;">Nenhuma anomalia registrada. Use o formulário acima, o diagrama, os mapas de calor ou a lista de tarefas.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--text-muted);padding:30px;">Nenhum registro lançado. Use o formulário acima, o diagrama, os mapas de calor ou a lista de tarefas.</td></tr>';
         return;
     }
     tbody.innerHTML = anomalies.map((a, i) => {
         const it = getItem(a.item);
         const opLabel = it && !it.extra ? `<span style="color:var(--accent-green);font-weight:700;">${it.op}</span> ` : '';
         const compLabel = a.comp ? ` <span style="color:var(--accent-purple);font-weight:600;font-size:0.9em;">· ${a.comp}</span>` : '';
+        const ehConforme = a.sev === 0;
         return `
-        <tr>
+        <tr style="${ehConforme ? 'background:rgba(5,150,105,0.06);' : ''}">
             <td style="font-family:JetBrains Mono,monospace;font-weight:600;">${i+1}</td>
             <td style="font-family:JetBrains Mono,monospace;font-weight:700;color:var(--accent-cyan);">${pad2(a.baliza)}</td>
             <td>${getGroup(a.baliza).label}</td>
@@ -3002,7 +3756,7 @@ function renderAnomalyTable() {
             <td>${a.tipo}</td>
             <td style="max-width:260px;">${a.desc}</td>
             <td><span class="severity-badge ${getSeverityClass(a.sev)}">${getSeverityLabel(a.sev)}</span></td>
-            <td style="font-family:JetBrains Mono,monospace;font-weight:700;color:var(--accent-red);">${a.qtd || 1}</td>
+            <td style="font-family:JetBrains Mono,monospace;font-weight:700;color:${ehConforme ? 'var(--accent-green)' : 'var(--accent-red)'};">${ehConforme ? '—' : (a.qtd || 1)}</td>
             <td style="font-family:JetBrains Mono,monospace;font-size:0.92em;color:var(--accent-purple);">${a.nota || '—'}</td>
             <td><button class="btn-remove" onclick="removeAnomaly(${a.id})">✕</button></td>
         </tr>`;
@@ -3010,15 +3764,60 @@ function renderAnomalyTable() {
 }
 
 // ============================
+// RESUMO DE CONFORMIDADE POR ITEM
+// ============================
+function renderConformidade() {
+    const tbody = document.getElementById('conformidadeTableBody');
+    if (!tbody) return;
+    const totalPos = NUM_BALIZAS * 2;
+    const nc = naoConformidades();
+    const conf = registrosConformes();
+
+    const linhas = ITEMS.map(it => {
+        const ncItem = nc.filter(a => a.item === it.op);
+        const confItem = conf.filter(a => a.item === it.op);
+        // cada registro cobre as posições do lado indicado
+        const peso = a => (a.lado === 'LD+LE' ? 2 : 1);
+        const posNC = ncItem.reduce((s, a) => s + peso(a), 0);
+        const posConf = confItem.reduce((s, a) => s + peso(a), 0);
+        const verificadas = posNC + posConf;
+        const balizasNC = new Set(ncItem.map(a => a.baliza));
+        // sem lançamento explícito de conformidade, considera-se verificada toda a via (rota da OP.0070)
+        const base = posConf > 0 ? verificadas : totalPos;
+        const conformes = Math.max(0, base - posNC);
+        const pct = base ? Math.round(conformes / base * 100) : 100;
+        const situacao = posNC === 0 ? 'Conforme' : (Math.max(...ncItem.map(a => a.sev)) >= 3 ? 'Não conforme (crítico)' : 'Não conforme');
+        return { it, verificadas: base, conformes, posNC, nBalNC: balizasNC.size, pct, situacao, explicito: posConf > 0 };
+    });
+
+    tbody.innerHTML = linhas.map(l => {
+        const cor = l.posNC === 0 ? 'var(--accent-green)' : (l.situacao.includes('crítico') ? 'var(--accent-red)' : 'var(--accent-orange)');
+        return `<tr>
+            <td style="font-weight:600;">${l.it.extra ? '' : '<span style="color:var(--accent-green);font-weight:700;">' + l.it.op + '</span> '}${l.it.nome}</td>
+            <td style="text-align:center;">${l.verificadas}${l.explicito ? '' : ' *'}</td>
+            <td style="text-align:center;color:var(--accent-green);font-weight:600;">${l.conformes}</td>
+            <td style="text-align:center;color:${l.posNC ? 'var(--accent-red)' : 'var(--text-muted)'};font-weight:600;">${l.posNC || '—'}</td>
+            <td style="text-align:center;">${l.nBalNC || '—'}</td>
+            <td style="text-align:center;font-weight:700;">${l.pct}%</td>
+            <td><span class="severity-badge" style="background:${cor}22;color:${cor};">${l.situacao}</span></td>
+        </tr>`;
+    }).join('') +
+    `<tr><td colspan="7" style="color:var(--text-muted);font-size:0.86em;font-style:italic;">
+        * Itens sem lançamento explícito de conformidade: considera-se verificada toda a extensão da via (${totalPos} posições), conforme a rota da OP.0070.
+    </td></tr>`;
+}
+
+// ============================
 // KPIs
 // ============================
 function updateKPIs() {
     const totalPos = NUM_BALIZAS * 2;
-    const ldPositions = new Set(anomalies.filter(a => a.lado === 'LD' || a.lado === 'LD+LE').map(a => a.baliza));
-    const lePositions = new Set(anomalies.filter(a => a.lado === 'LE' || a.lado === 'LD+LE').map(a => a.baliza));
+    const nc = naoConformidades();
+    const ldPositions = new Set(nc.filter(a => a.lado === 'LD' || a.lado === 'LD+LE').map(a => a.baliza));
+    const lePositions = new Set(nc.filter(a => a.lado === 'LE' || a.lado === 'LD+LE').map(a => a.baliza));
     const bothPositions = new Set([...ldPositions].filter(p => lePositions.has(p)));
     const posComAnomalia = ldPositions.size + lePositions.size;
-    const compTroca = anomalies.reduce((sum, a) => sum + (a.qtd || 1), 0);
+    const compTroca = nc.reduce((sum, a) => sum + (a.qtd || 1), 0);
 
     document.getElementById('kpi-total').textContent = totalPos;
     document.getElementById('kpi-ok').textContent = totalPos - posComAnomalia;
@@ -3029,6 +3828,7 @@ function updateKPIs() {
     document.getElementById('kpi-comp').textContent = compTroca;
 
     renderGroupTable();
+    renderConformidade();
 }
 
 function renderGroupTable() {
@@ -3037,9 +3837,10 @@ function renderGroupTable() {
     const rows = GROUPS.map(g => {
         const count = g.end - g.start + 1;
         const inG = a => a.baliza >= g.start && a.baliza <= g.end;
-        const ldA = new Set(anomalies.filter(a => inG(a) && (a.lado === 'LD' || a.lado === 'LD+LE')).map(a => a.baliza)).size;
-        const leA = new Set(anomalies.filter(a => inG(a) && (a.lado === 'LE' || a.lado === 'LD+LE')).map(a => a.baliza)).size;
-        const comp = anomalies.filter(inG).reduce((sum, a) => sum + (a.qtd || 1), 0);
+        const ncG = naoConformidades();
+        const ldA = new Set(ncG.filter(a => inG(a) && (a.lado === 'LD' || a.lado === 'LD+LE')).map(a => a.baliza)).size;
+        const leA = new Set(ncG.filter(a => inG(a) && (a.lado === 'LE' || a.lado === 'LD+LE')).map(a => a.baliza)).size;
+        const comp = ncG.filter(inG).reduce((sum, a) => sum + (a.qtd || 1), 0);
         const nNotas = new Set(anomalies.filter(a => inG(a) && a.nota && String(a.nota).trim()).map(a => String(a.nota).trim())).size;
         tLd += ldA; tLe += leA; tComp += comp; tNotas += nNotas;
         return `<tr>
@@ -3236,11 +4037,12 @@ function updateCharts() {
 
     // Chart 1: LD vs LE por grupo
     destroyChart('chartLdLe');
+    const ncG = naoConformidades();
     const ldLeData = GROUPS.map(g => {
         const inG = a => a.baliza >= g.start && a.baliza <= g.end;
         return {
-            ld: new Set(anomalies.filter(a => inG(a) && (a.lado === 'LD' || a.lado === 'LD+LE')).map(a => a.baliza)).size,
-            le: new Set(anomalies.filter(a => inG(a) && (a.lado === 'LE' || a.lado === 'LD+LE')).map(a => a.baliza)).size,
+            ld: new Set(ncG.filter(a => inG(a) && (a.lado === 'LD' || a.lado === 'LD+LE')).map(a => a.baliza)).size,
+            le: new Set(ncG.filter(a => inG(a) && (a.lado === 'LE' || a.lado === 'LD+LE')).map(a => a.baliza)).size,
         };
     });
     chartInstances['chartLdLe'] = new Chart(document.getElementById('chartLdLe'), {
@@ -3259,7 +4061,7 @@ function updateCharts() {
     // Chart 2: Severidade
     destroyChart('chartSeverity');
     const sevCounts = [0,0,0,0,0];
-    anomalies.forEach(a => sevCounts[a.sev]++);
+    ncG.forEach(a => sevCounts[a.sev]++);
     chartInstances['chartSeverity'] = new Chart(document.getElementById('chartSeverity'), {
         type: 'doughnut',
         data: {
@@ -3284,7 +4086,7 @@ function updateCharts() {
     // Chart 3: Por item da lista OP.0070
     destroyChart('chartItem');
     const itemColors = ['#2563EB', '#06B6D4', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#F97316'];
-    const itemCounts = ITEMS.map(it => anomalies.filter(a => a.item === it.op).length);
+    const itemCounts = ITEMS.map(it => ncG.filter(a => a.item === it.op).length);
     chartInstances['chartItem'] = new Chart(document.getElementById('chartItem'), {
         type: 'bar',
         data: {
@@ -3298,7 +4100,7 @@ function updateCharts() {
     // Chart 4: Por tipo (rosca — padronizado com o de severidade)
     destroyChart('chartType');
     const types = {};
-    anomalies.forEach(a => { types[a.tipo] = (types[a.tipo] || 0) + 1; });
+    ncG.forEach(a => { types[a.tipo] = (types[a.tipo] || 0) + 1; });
     const typeLabels = Object.keys(types);
     chartInstances['chartType'] = new Chart(document.getElementById('chartType'), {
         type: 'doughnut',
@@ -3319,7 +4121,7 @@ function updateCharts() {
 
     // Chart 5: Anomalias totais por grupo
     destroyChart('chartGroup');
-    const groupCounts = GROUPS.map(g => anomalies.filter(a => a.baliza >= g.start && a.baliza <= g.end).length);
+    const groupCounts = GROUPS.map(g => ncG.filter(a => a.baliza >= g.start && a.baliza <= g.end).length);
     chartInstances['chartGroup'] = new Chart(document.getElementById('chartGroup'), {
         type: 'bar',
         data: {
@@ -3332,7 +4134,7 @@ function updateCharts() {
 
     // Chart 6: Componentes p/ troca por grupo
     destroyChart('chartComp');
-    const compCounts = GROUPS.map(g => anomalies.filter(a => a.baliza >= g.start && a.baliza <= g.end).reduce((s, a) => s + (a.qtd || 1), 0));
+    const compCounts = GROUPS.map(g => ncG.filter(a => a.baliza >= g.start && a.baliza <= g.end).reduce((s, a) => s + (a.qtd || 1), 0));
     chartInstances['chartComp'] = new Chart(document.getElementById('chartComp'), {
         type: 'bar',
         data: {
@@ -3985,7 +4787,7 @@ async function gerarPDF() {
     // Oculta a aba de topografia se não houver nenhum dado preenchido
     (() => {
         const temPrancha = !!document.querySelector('#topoGallery .drawing-upload-area.has-image');
-        const temMedicao = [...document.querySelectorAll('#topoTableBody tr')].some(tr => tr.cells[0].textContent.trim() || tr.cells[3].textContent.trim());
+        const temMedicao = medicoesTopo().length > 0;
         const temInfo = ['topo-empresa', 'topo-resp', 'topo-data', 'topo-doc'].some(id => (document.getElementById(id) || {}).value);
         if (!temPrancha && !temMedicao && !temInfo) {
             const t = document.getElementById('tab-topografia');
@@ -4029,6 +4831,19 @@ async function gerarPDF() {
         t.style.display = 'none';
     });
 
+    // Topografia: substituir a lista suspensa do parâmetro pelo texto impresso
+    document.querySelectorAll('#topoTableBody .topo-param').forEach(sel => {
+        const td = sel.parentNode;
+        let lbl = td.querySelector('.topo-print-param');
+        if (!lbl) {
+            lbl = document.createElement('div');
+            lbl.className = 'topo-print-param';
+            td.insertBefore(lbl, sel);
+        }
+        const p = getFEM(sel.value);
+        lbl.textContent = p ? p.fem + ' — ' + p.nome : (sel.selectedOptions[0] || {}).textContent || '';
+    });
+
     // Evidências: substituir o seletor pelo rótulo impresso da baliza
     document.querySelectorAll('#evidenceGrid .evidence-card').forEach(card => {
         const sel = card.querySelector('.evidence-meta select');
@@ -4049,6 +4864,21 @@ async function gerarPDF() {
             card.style.display = 'none';
         }
     });
+
+    // Pranchas topográficas: legenda numerada abaixo de cada anexo
+    [...document.querySelectorAll('#topoGallery .drawing-card')]
+        .filter(c => c.querySelector('.drawing-upload-area.has-image'))
+        .forEach((card, i) => {
+            const tit = card.querySelector('.drawing-card-header input');
+            let cap = card.querySelector('.topo-print-cap');
+            if (!cap) {
+                cap = document.createElement('div');
+                cap.className = 'topo-print-cap';
+                card.appendChild(cap);
+            }
+            const nome = (tit && tit.value.trim()) || 'Levantamento Topográfico';
+            cap.textContent = `Prancha 12.${i + 1} – ${nome.replace(/^Prancha\s*\d+\s*:\s*/i, '')}`;
+        });
 
     document.querySelectorAll('.evidence-card').forEach(card => {
         const area = card.querySelector('.evidence-upload');
@@ -4222,7 +5052,443 @@ function cabecalhoVale(tituloDoc) {
     return new Header({ children: [topo, base, new Paragraph({ spacing: { after: 120 }, children: [] })] });
 }
 
+// ============================================================
+// PDF DO MAPA DE CALOR — mesmo conteúdo e layout do Word
+// Monta um documento A4 paisagem paginado e abre a impressão,
+// onde o usuário escolhe "Salvar como PDF".
+// ============================================================
+async function exportarPDFMapa() {
+    showToast('📄 Montando o PDF do Mapa de Calor...');
+    try {
+        const val = id => (document.getElementById(id) || {}).value || '';
+        const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+        // ── dados de cabeçalho ──
+        const local = val('inp-local') || '—';
+        const denom = val('inp-area');
+        const plano = val('inp-plano');
+        const ordemSap = val('inp-ordem-sap');
+        const patio = val('inp-patio');
+        const equip = val('inp-equip');
+        const rev = (document.getElementById('revBadge') || {}).textContent || '0';
+        const dataIns = val('inp-data') ? val('inp-data').split('-').reverse().join('/') : '';
+        const numDoc = val('inp-doc-num') || montarNumeroDocumento(val('inp-local'), denom);
+        const infoLinhas = [
+            'OPERAÇÃO – MANUTENÇÃO   ·   GER INTEGRIDADE ESTRUTURAL',
+            'VIA DE ROLAMENTO EM MÁQUINAS DE PÁTIO   ·   PLANO ' + (plano || '—'),
+            (patio || equip ? (patio ? patio.toUpperCase() : '') + (patio && equip ? '   ·   ' : '') + (equip ? 'EQUIPAMENTO – ' + equip : '') : ''),
+            'LOCAL DE INSTALAÇÃO – ' + local,
+            (denom ? 'DENOMINAÇÃO – ' + denom : ''),
+            'RELATÓRIO TÉCNICO – MAPA DE CALOR' + (dataIns ? '   ·   ' + dataIns : ''),
+        ].filter(Boolean);
+
+        const cabecalhoHTML = `
+            <div class="cab">
+                <div class="cab-topo">
+                    <div class="cab-logo"><img src="data:image/jpeg;base64,${LOGO_VALE}" alt="Vale"></div>
+                    <div class="cab-c"><b>INTEGRIDADE ESTRUTURAL</b><br><b>USO INTERNO</b></div>
+                    <div class="cab-c"><b>PROJETO FERRO</b><br><b>S11D</b></div>
+                </div>
+                <div class="cab-base">
+                    <div class="cab-info">${infoLinhas.map(l => `<div>${esc(l)}</div>`).join('')}</div>
+                    <div class="cab-dir">
+                        <div class="cab-cel"><b>Nº ORDEM${ordemSap ? ' - ' + esc(ordemSap) : ''}</b></div>
+                        <div class="cab-cel"><span class="rot">Nº</span><b>${esc(numDoc || '—')}</b></div>
+                    </div>
+                    <div class="cab-dir">
+                        <div class="cab-cel"><span class="rot">PÁGINA</span><b class="pg"></b></div>
+                        <div class="cab-cel"><span class="rot">REV.</span><b>${esc(rev)}</b></div>
+                    </div>
+                </div>
+            </div>`;
+
+        // ── janela de impressão ──
+        const w = window.open('', '_blank');
+        if (!w) return showToast('⚠ Permita janelas pop-up para gerar o PDF');
+        w.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
+            <title>MAPA_CALOR_${esc(local)}</title>
+            <style>
+                @page { size: 297mm 210mm; margin: 0; }
+                * { box-sizing: border-box; }
+                body { margin: 0; font-family: Calibri, Carlito, Arial, sans-serif; color: #1A1A1A; background: #E8EAEE; }
+                .folha { width: 294mm; height: 203mm; padding: 5mm 7mm 4mm; background: #fff; margin: 0 auto 6mm;
+                         display: flex; flex-direction: column; overflow: hidden; }
+                .corpo { flex: 1; overflow: hidden; }
+                .rodape { border-top: 0.6pt solid #BFC7D5; padding-top: 1.2mm; display: flex; justify-content: space-between;
+                          font-size: 9pt; color: #595959; }
+                .cab { border: 0.9pt solid #404040; margin-bottom: 3mm; }
+                .cab-topo, .cab-base { display: flex; }
+                .cab-topo > div, .cab-info, .cab-dir { border-right: 0.9pt solid #404040; }
+                .cab-topo > div:last-child, .cab-base > div:last-child { border-right: 0; }
+                .cab-base { border-top: 0.9pt solid #404040; }
+                .cab-logo { width: 33%; padding: 1.4mm 2mm; display: flex; align-items: center; }
+                .cab-logo img { height: 12mm; }
+                .cab-topo .cab-c { width: 44%; padding: 1.4mm 2mm; display: flex; flex-direction: column;
+                                   align-items: center; justify-content: center; font-size: 11.5pt; text-align: center; }
+                .cab-topo .cab-c:last-child { width: 23%; font-size: 10.5pt; }
+                .cab-info { width: 33%; padding: 1.2mm 2mm; font-size: 8.8pt; font-weight: 700; line-height: 1.35; }
+                .cab-dir { width: 44%; display: flex; flex-direction: column; }
+                .cab-dir:last-child { width: 23%; }
+                .cab-cel { flex: 1; padding: 1mm 2mm; text-align: center; font-size: 10pt; display: flex;
+                           flex-direction: column; align-items: center; justify-content: center; }
+                .cab-dir .cab-cel + .cab-cel { border-top: 0.9pt solid #404040; }
+                .rot { font-size: 8.2pt; color: #595959; }
+                h1.t { font-size: 19pt; color: #1F4E79; text-align: center; margin: 0 0 2mm; }
+                h2.s { font-size: 15pt; color: #1F4E79; margin: 0 0 2.4mm; }
+                .sub { text-align: center; font-size: 11.5pt; color: #595959; margin: 0 0 4mm; }
+                table.d { width: 100%; border-collapse: collapse; font-size: 10.4pt; margin-bottom: 3mm; }
+                table.d th { background: #1F4E79; color: #fff; font-weight: 700; padding: 1.4mm 1.8mm; border: 0.5pt solid #BFC7D5; text-align: center; }
+                table.d td { padding: 1.3mm 1.8mm; border: 0.5pt solid #DDE3EC; }
+                table.d tbody tr:nth-child(even) td { background: #F2F5F9; }
+                table.d td:first-child { text-align: left; }
+                table.d td:not(:first-child) { text-align: center; }
+                .cap { text-align: center; font-size: 10pt; font-style: italic; color: #595959; margin: 1.2mm 0 2mm; }
+                .cap b { color: #1F4E79; font-style: normal; }
+                .fotos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2mm 3mm; }
+                .fotos figure { margin: 0; text-align: center; }
+                .fotos img { width: 100%; height: 42mm; object-fit: cover; border: 0.5pt solid #C9D2DE; }
+                .fotos figcaption { font-size: 9.4pt; font-style: italic; color: #595959; margin-top: 0.8mm; }
+                .graf { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm 6mm; }
+                .graf .g { text-align: center; }
+                .graf .g b { display: block; font-size: 11pt; color: #1F4E79; margin-bottom: 1mm; }
+                .graf img, .largo img { max-width: 100%; }
+                .largo { text-align: center; }
+                .largo b { display: block; font-size: 11pt; color: #1F4E79; margin-bottom: 1mm; }
+                p.tx { font-size: 11.5pt; text-align: justify; line-height: 1.5; margin: 0 0 2.4mm; }
+                h3.sub2 { font-size: 12pt; color: #1F4E79; margin: 2.5mm 0 1.5mm; }
+                .aviso { position: fixed; top: 8px; left: 50%; transform: translateX(-50%); z-index: 99;
+                         background: #1F4E79; color: #fff; padding: 8px 18px; border-radius: 8px; font-size: 13px; }
+                @media print {
+                    html, body { background: #fff; margin: 0; padding: 0; }
+                    #paginas { margin: 0; padding: 0; }
+                    .folha { margin: 0 auto; break-after: page; page-break-after: always; break-inside: avoid; page-break-inside: avoid; }
+                    .folha:last-child { break-after: auto; page-break-after: auto; }
+                    .aviso { display: none; }
+                }
+            </style></head><body>
+            <div class="aviso">Na janela de impressão: <b>Salvar como PDF</b> · Layout <b>Paisagem</b> · Margens <b>Nenhuma</b> · Escala <b>100%</b></div>
+            <div id="paginas"></div></body></html>`);
+        w.document.close();
+
+        const wd = w.document, cont = wd.getElementById('paginas');
+        let folha = null, corpo = null;
+        const novaFolha = () => {
+            folha = wd.createElement('div');
+            folha.className = 'folha';
+            folha.innerHTML = cabecalhoHTML + '<div class="corpo"></div>' +
+                '<div class="rodape"><span>GER Integridade Estrutural · Vale S.A. · Uso Interno</span><span class="pgr"></span></div>';
+            cont.appendChild(folha);
+            corpo = folha.querySelector('.corpo');
+            return corpo;
+        };
+        const cabe = () => corpo.scrollHeight <= corpo.clientHeight;
+        // Insere o bloco; se não couber, abre nova folha
+        const bloco = html => {
+            if (!corpo) novaFolha();
+            const d = wd.createElement('div');
+            d.innerHTML = html;
+            corpo.appendChild(d);
+            if (!cabe() && corpo.children.length > 1) { corpo.removeChild(d); novaFolha(); corpo.appendChild(d); }
+            return d;
+        };
+        // Texto corrido: cada parágrafo é medido isoladamente, então nada sai cortado
+        const fluido = (titulo, partes) => {
+            if (!partes.length) return;
+            if (!corpo) novaFolha();
+            let primeiro = true;
+            const abrirTitulo = cont => {
+                if (!titulo) return;
+                const t = wd.createElement('h2');
+                t.className = 's';
+                t.textContent = titulo + (cont ? ' (continuação)' : '');
+                corpo.appendChild(t);
+                if (!cabe() && corpo.children.length > 1) { corpo.removeChild(t); novaFolha(); corpo.appendChild(t); }
+            };
+            abrirTitulo(false);
+            for (let i = 0; i < partes.length; i++) {
+                const d = wd.createElement('div');
+                d.innerHTML = partes[i];
+                corpo.appendChild(d);
+                if (!cabe() && corpo.children.length > 1) {
+                    corpo.removeChild(d);
+                    novaFolha();
+                    if (!primeiro) abrirTitulo(true);
+                    corpo.appendChild(d);
+                }
+                primeiro = false;
+            }
+        };
+
+        // Tabela que se divide entre folhas repetindo o cabeçalho
+        const tabela = (titulo, cabs, linhas) => {
+            if (!linhas.length) return;
+            if (!corpo) novaFolha();
+            let i = 0;
+            while (i < linhas.length) {
+                const d = wd.createElement('div');
+                d.innerHTML = (titulo ? `<h2 class="s">${esc(titulo)}${i ? ' (continuação)' : ''}</h2>` : '') +
+                    `<table class="d"><thead><tr>${cabs.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody></tbody></table>`;
+                corpo.appendChild(d);
+                if (!cabe() && corpo.children.length > 1) { corpo.removeChild(d); novaFolha(); corpo.appendChild(d); }
+                const tb = d.querySelector('tbody');
+                let inseriu = 0;
+                while (i < linhas.length) {
+                    const tr = wd.createElement('tr');
+                    tr.innerHTML = linhas[i].map(c => `<td>${esc(c)}</td>`).join('');
+                    tb.appendChild(tr);
+                    if (!cabe()) { tb.removeChild(tr); break; }
+                    i++; inseriu++;
+                }
+                if (!inseriu) { i++; }          // linha isolada maior que a folha: evita laço infinito
+                if (i < linhas.length) novaFolha();
+            }
+        };
+
+        novaFolha();
+
+        // ── 1. Título e informações gerais ──
+        bloco(`<h1 class="t">MAPA DE CALOR — SEVERIDADE POR BALIZA</h1>
+               <p class="sub">Via de Rolamento em Máquinas de Pátio · OP.0070 · Balizas 00 a 73</p>`);
+        tabela('', ['Campo', 'Informação'], [
+            ['Local de Instalação', local], ['Denominação', denom], ['Nº Plano', plano],
+            ['Data da Inspeção', dataIns], ['Pátio', patio], ['Equipamento (EP / RC)', equip],
+            ['Transportador (TR)', val('inp-tr')],
+            ['Notas na Carteira do Ativo', lerNotas().length + ' nota(s) de inspeções anteriores'],
+        ].filter(l => l[1] !== ''));
+
+        // ── 2. Planta da via com a faixa de notas ──
+        const svgEl = document.querySelector('#heatmapGeneral svg');
+        if (svgEl) {
+            const png = await svgParaPNG(svgEl, 3200, 921);
+            if (imagemValida(png)) {
+                bloco(`<div class="largo"><img src="${png}" style="width:266mm;height:76.6mm"></div>
+                       <p class="cap">Legenda de severidade: 0 Conforme · 1 Baixo · 2 Médio · 3 Alto · 4 Muito Alto.
+                       A faixa inferior indica a quantidade de notas SAP cadastradas em cada baliza.</p>`);
+            }
+        }
+
+        // ── 3. Planta de localização ──
+        const pl = document.getElementById('planta-img');
+        if (pl && imagemValida(pl.src)) {
+            const prop = (pl.naturalHeight && pl.naturalWidth) ? pl.naturalHeight / pl.naturalWidth : 0.599;
+            const larg = Math.min(196, 138 / prop);
+            novaFolha();
+            bloco(`<h2 class="s">Planta de Localização</h2>
+                   <div class="largo"><img src="${pl.src}" style="width:${larg}mm;height:${(larg * prop).toFixed(1)}mm"></div>
+                   <p class="cap"><b>Figura 1</b> – ${esc(legendaPlanta())}</p>`);
+        }
+
+        // ── 4. Notas associadas às balizas ──
+        const porNota = {};
+        anomalies.filter(a => a.nota && String(a.nota).trim()).forEach(a => {
+            const n = String(a.nota).trim();
+            if (!porNota[n]) porNota[n] = { itens: new Set(), bal: [], lados: new Set(), sev: 0 };
+            const it = getItem(a.item);
+            porNota[n].itens.add(it ? it.nome : (a.item || '—'));
+            porNota[n].bal.push(a.baliza);
+            porNota[n].lados.add(a.lado);
+            porNota[n].sev = Math.max(porNota[n].sev, a.sev);
+        });
+        const linhasNota = Object.entries(porNota).map(([n, d]) => [
+            n, fmtBalizas(d.bal), [...d.lados].join(' / '), [...d.itens].join(', '), getSeverityLabel(d.sev), String(d.bal.length)]);
+        novaFolha();
+        if (linhasNota.length) {
+            tabela('Notas Associadas às Balizas', ['Nº Nota SAP', 'Baliza(s)', 'Lado', 'Item', 'Severidade', 'Ocorrências'], linhasNota);
+        } else {
+            bloco('<h2 class="s">Notas Associadas às Balizas</h2><p class="tx"><i>Nenhuma nota SAP vinculada às não conformidades desta inspeção.</i></p>');
+        }
+
+        // ── 5. Notas por baliza ──
+        const balComNota = [];
+        for (let b = 0; b < NUM_BALIZAS; b++) {
+            const ns = notasDaBaliza(b);
+            if (!ns.length) continue;
+            balComNota.push([pad2(b), getGroup(b).label, String(ns.length), ns.join(', '),
+                getSeverityLabel(Math.max(getMaxSeverity(b, 'LD'), getMaxSeverity(b, 'LE')))]);
+        }
+        tabela('Quantidade de Notas por Baliza', ['Baliza', 'Grupo', 'Qtd. Notas', 'Nº das Notas', 'Severidade'], balComNota);
+
+        // ── 6. Quantitativo por grupo ──
+        const grupos = [...document.querySelectorAll('#groupTableBody tr')].map(tr => [...tr.cells].map(c => c.textContent.trim()));
+        tabela('Quantitativo por Grupo de Balizas',
+            ['Grupo', 'Balizas', 'Anomalias LD', 'Anomalias LE', '% LD', '% LE', 'Comp. p/ Troca', 'Notas'], grupos);
+
+        // ── 7. Carteira do ativo ──
+        const notasCarteira = [...document.querySelectorAll('#notasTableBody tr')]
+            .map(tr => [...tr.cells].slice(0, -1).map(c => c.textContent.trim())).filter(r => r[2] || r[1]);
+        tabela(`Carteira do Ativo — Notas das Últimas Inspeções (${notasCarteira.length})`,
+            ['Prior.', 'Ordem', 'Nota', 'Loc. Instalação', 'Descrição', 'Concl. Desejada', 'CenTrab', 'Notificador'], notasCarteira);
+
+        // ── 8. Gráficos (4 por folha, como no Word) ──
+        const abaGraf = document.getElementById('tab-graficos');
+        const displayAnterior = abaGraf ? abaGraf.style.display : null;
+        if (abaGraf) abaGraf.style.display = 'block';
+        try { updateCharts(); } catch (e) { console.warn('Gráficos:', e); }
+        await new Promise(r => setTimeout(r, 600));
+        const capturar = id => {
+            try { const cv = document.getElementById(id); if (!cv || !cv.width) return null;
+                  const png = cv.toDataURL('image/png'); return imagemValida(png) ? png : null; } catch (e) { return null; }
+        };
+        const propGraf = id => { const cv = document.getElementById(id); return (cv && cv.width && cv.height) ? cv.height / cv.width : 0.5; };
+        const gHTML = (t, id, larg) => {
+            const png = capturar(id);
+            if (!png) return '';
+            return `<div class="g"><b>${esc(t)}</b><img src="${png}" style="width:${larg}mm;height:${(larg * propGraf(id)).toFixed(1)}mm"></div>`;
+        };
+        const quatro = [
+            ['Anomalias por Grupo de Balizas (LD vs LE)', 'chartLdLe'], ['Distribuição por Severidade', 'chartSeverity'],
+            ['Anomalias por Item', 'chartItem'], ['Anomalias por Tipo', 'chartType'],
+        ].map(([t, id]) => gHTML(t, id, 118)).filter(Boolean).join('');
+        const doisRest = [['Anomalias Totais por Grupo', 'chartGroup'], ['Componentes p/ Troca por Grupo', 'chartComp']]
+            .map(([t, id]) => gHTML(t, id, 118)).filter(Boolean).join('');
+        if (quatro) { novaFolha(); bloco(`<h2 class="s">Análise Gráfica</h2><div class="graf">${quatro}</div>`); }
+        if (doisRest) { novaFolha(); bloco(`<div class="graf">${doisRest}</div>`); }
+        const perfil = capturar('chartProfile');
+        if (perfil) bloco(`<div class="largo"><b>Perfil de Anomalias ao Longo da Via (Baliza 00–73)</b>
+                           <img src="${perfil}" style="width:262mm;height:${(262 * propGraf('chartProfile')).toFixed(1)}mm"></div>`);
+        if (abaGraf) abaGraf.style.display = displayAnterior;
+
+        // ── 9. Evidências fotográficas — 8 por folha ──
+        const secoesFoto = GROUPS.map((g, gi) => ({ g, gi,
+            cards: [...document.querySelectorAll('#evidenceGrid-' + gi + ' .evidence-card')]
+                .filter(c => c.querySelector('.evidence-upload.has-image')) })).filter(s => s.cards.length);
+        if (secoesFoto.length) {
+            secoesFoto.forEach(({ g, gi, cards }) => {
+                let nPrancha = 0;
+                for (let i = 0; i < cards.length; i += 8) {
+                    const pagina = cards.slice(i, i + 8);
+                    nPrancha++;
+                    novaFolha();
+                    const figs = pagina.map(card => {
+                        const img = card.querySelector('img');
+                        const sel = card.querySelector('.evidence-meta select');
+                        const leg = sel && sel.value !== '' ? 'Baliza ' + pad2(parseInt(sel.value)) : '';
+                        return `<figure><img src="${img.src}"><figcaption>${esc(leg)}</figcaption></figure>`;
+                    }).join('');
+                    bloco(`<h2 class="s">Evidências Fotográficas — Balizas ${esc(g.label)}</h2>
+                           <div class="fotos">${figs}</div>
+                           <p class="cap"><b>Figura ${gi + 1}.${nPrancha}</b> – Balizas ${esc(g.label.replace(' A ', ' a '))} — ${esc(descricaoGrupoPDF(g))}</p>`);
+                }
+            });
+        }
+
+        // ── 9.05 Levantamento transversal (LD × LE) ──
+        const btPDF = blocosTransversal();
+        if (btPDF) {
+            novaFolha();
+            const partes = [`<p class="tx">${esc(btPDF.intro)}</p>`];
+            if (btPDF.nota) partes.push(`<p class="tx" style="font-style:italic;">${esc(btPDF.nota)}</p>`);
+            fluido('Levantamento Transversal (LD × LE)', partes);
+            tabela('', ['Nível de Risco', 'Pontos', '%', 'Balizas'], btPDF.resumoNivel);
+            tabela('Resumo por Baliza', ['Baliza', 'Pontos', 'Maior Diferença', 'Diferença Média', 'Classificação'], btPDF.linhasBaliza);
+            tabela(btPDF.detalhouTudo ? 'Pontos Medidos' : 'Pontos Acima da Tolerância',
+                ['Ponto', 'Baliza', 'Distância', 'LE (Norte)', 'LD (Sul)', 'Dif. (LD−LE)', 'Classificação'], btPDF.linhasPontos);
+        }
+
+        // ── 9.1 Topografia — classificação de risco (FEM Seção II) ──
+        const medsPDF = medicoesTopo().filter(m => m.risco);
+        if (medsPDF.length) {
+            const pior = medsPDF.reduce((a, m) => (m.risco.n > a.risco.n ? m : a), medsPDF[0]);
+            novaFolha();
+            fluido('Topografia — Classificação de Risco (FEM Seção II, Tabela 24)',
+                [`<p class="tx">Foram classificadas ${medsPDF.length} medição(ões). Pior condição registrada: <b>${esc(pior.risco.label)}</b>` +
+                 `${pior.trecho ? ' nas balizas ' + esc(pior.trecho) : ''}.</p>`]);
+            tabela('', ['Baliza / Trecho', 'Lado', 'Parâmetro', 'Medido', 'Tolerância FEM', 'Desvio', 'Classificação'],
+                medsPDF.map(m => [m.trecho, m.lado, m.fem + ' — ' + m.param, m.medido, m.tolerancia, m.desvio, m.situacao]));
+            tabela('Resumo por Nível de Risco', ['Nível de Risco', 'Medições', '%', 'Parâmetros', 'Trechos / Balizas'],
+                RISCOS_TOPO.map(r => {
+                    const doNivel = medsPDF.filter(m => m.risco.n === r.n);
+                    return [r.label, String(doNivel.length), Math.round(doNivel.length / medsPDF.length * 100) + '%',
+                        [...new Set(doNivel.map(m => m.param))].join(', ') || '—',
+                        [...new Set(doNivel.map(m => m.trecho).filter(Boolean))].join(', ') || '—'];
+                }));
+        }
+
+        // ── 10. Anexos topográficos — um por folha ──
+        pranchasTopo().forEach((pr, i) => {
+            novaFolha();
+            let larg = 246, alt = larg * pr.prop;
+            if (alt > 132) { alt = 132; larg = alt / pr.prop; }
+            bloco(`${i === 0 ? '<h2 class="s">Anexos do Levantamento Topográfico</h2>' : ''}
+                   <div class="largo"><img src="${pr.src}" style="width:${larg.toFixed(1)}mm;height:${alt.toFixed(1)}mm"></div>
+                   <p class="cap"><b>Prancha ${i + 1}</b> – ${esc(pr.titulo)}${pr.obs ? ' — ' + esc(pr.obs) : ''}</p>`);
+        });
+
+        // ── 11. Conclusão e recomendações ──
+        const par = txt => (txt || '').split('\n').filter(l => l.trim()).map(l => `<p class="tx">${esc(l)}</p>`);
+        if (val('txt-conclusao').trim()) { novaFolha(); fluido('Conclusão', par(val('txt-conclusao'))); }
+        const recs = [['Engenharia', 'txt-eng'], ['Inspeção', 'txt-insp']].filter(([, id]) => val(id).trim());
+        if (recs.length) {
+            const partes = [];
+            recs.forEach(([t, id]) => {
+                partes.push(`<h3 class="sub2">${esc(t)}</h3>`);
+                partes.push(...par(val(id)));
+            });
+            fluido('Recomendações', partes);
+        }
+
+        // ── numeração ──
+        const folhas = [...wd.querySelectorAll('.folha')];
+        folhas.forEach((f, i) => {
+            f.querySelector('.pg').textContent = (i + 1) + '/' + folhas.length;
+            f.querySelector('.pgr').textContent = 'Página ' + (i + 1) + ' de ' + folhas.length;
+        });
+
+        showToast(`📄 ${folhas.length} páginas prontas — escolha "Salvar como PDF"`);
+        setTimeout(() => { try { w.focus(); w.print(); } catch (e) { /* usuário imprime manualmente */ } }, 800);
+
+    } catch (err) {
+        console.error('PDF (mapa):', err);
+        showToast('⚠ Erro ao gerar o PDF: ' + err.message);
+    }
+}
+
+// Descrição automática das anomalias de um grupo (mesma redação do Word)
+function descricaoGrupoPDF(g) {
+    const rel = naoConformidades().filter(a => a.baliza >= g.start && a.baliza <= g.end);
+    if (!rel.length) return 'registro fotográfico do trecho, sem não conformidade registrada.';
+    const porItem = {};
+    rel.forEach(a => {
+        const it = getItem(a.item);
+        const nome = it ? it.nome.toLowerCase() : (a.item || 'item');
+        const chave = nome + '|' + (a.tipo || '').toLowerCase();
+        if (!porItem[chave]) porItem[chave] = { nome, tipo: (a.tipo || '').toLowerCase(), qtd: 0, bal: [] };
+        porItem[chave].qtd += (a.qtd || 1);
+        porItem[chave].bal.push(a.baliza);
+    });
+    const SUBST = {
+        'ausente/faltante': 'ausência', 'quebra': 'quebra', 'trinca': 'trinca', 'fissura': 'fissura',
+        'desgaste': 'desgaste', 'frouxo': 'afrouxamento', 'corrosão': 'corrosão', 'recalque': 'recalque',
+        'deformação': 'deformação', 'desnivelamento': 'desnivelamento', 'contaminação do lastro': 'contaminação',
+        'sujidade / acúmulo de material': 'acúmulo de material', 'vegetação': 'presença de vegetação',
+        'obstrução de drenagem': 'obstrução da drenagem', 'outro': 'não conformidade',
+    };
+    const partes = Object.values(porItem).map(d => {
+        const nBal = new Set(d.bal).size;
+        const subst = SUBST[d.tipo] || d.tipo || 'não conformidade';
+        return `${subst} em ${d.qtd} ${d.nome} ${nBal === 1 ? 'na baliza' : 'nas balizas'} ${fmtBalizas(d.bal)}`;
+    });
+    return `ocorrências identificadas: ${fmtLista(partes)}, conforme registro de anomalias.`;
+}
+
 // Exporta apenas a seção do Mapa de Calor, com as notas associadas
+// Pranchas topográficas anexadas (apenas as que têm imagem carregada)
+function pranchasTopo() {
+    return [...document.querySelectorAll('#topoGallery .drawing-card')].map(card => {
+        const img = card.querySelector('.drawing-upload-area.has-image img');
+        if (!img || !imagemValida(img.src)) return null;
+        const tit = card.querySelector('.drawing-card-header input');
+        const obs = card.querySelector('.drawing-card-footer textarea');
+        const prop = (img.naturalWidth && img.naturalHeight) ? img.naturalHeight / img.naturalWidth : 0.7;
+        return {
+            src: img.src,
+            titulo: ((tit && tit.value.trim()) || 'Levantamento Topográfico').replace(/^Prancha\s*\d+\s*:\s*/i, ''),
+            obs: obs ? obs.value.trim() : '',
+            prop
+        };
+    }).filter(Boolean);
+}
+
 async function exportarWordMapa() {
     if (typeof docx === 'undefined') return showToast('⚠ Biblioteca Word não carregou. Verifique a conexão com a internet.');
     showToast('📝 Gerando Mapa de Calor em Word...');
@@ -4237,7 +5503,8 @@ async function exportarWordMapa() {
             alignment: o.align || AlignmentType.LEFT, spacing: { after: o.after !== undefined ? o.after : 120, line: 276 },
             children: [new TextRun({ text: t, bold: o.bold, italics: o.italic, size: o.size || 26, color: o.color || '1A1A1A', font: 'Calibri' })]
         });
-        const H1 = t => new Paragraph({ heading: HeadingLevel.HEADING_1, spacing: { before: 260, after: 150 },
+        const H1 = (t, o = {}) => new Paragraph({ heading: HeadingLevel.HEADING_1, pageBreakBefore: !!o.novaPagina,
+            spacing: { before: o.novaPagina ? 0 : 260, after: 150 },
             children: [new TextRun({ text: t, bold: true, size: 36, color: AZUL, font: 'Calibri' })] });
         const H2 = t => new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before: 220, after: 120 },
             children: [new TextRun({ text: t, bold: true, size: 31, color: AZUL, font: 'Calibri' })] });
@@ -4401,7 +5668,6 @@ async function exportarWordMapa() {
         if (abaGraf) abaGraf.style.display = displayAnterior;
 
         // ── EVIDÊNCIAS FOTOGRÁFICAS — 8 fotos por página (4 × 2) ──
-        const { PageBreak } = docx;
         const secoesFoto = GROUPS.map((g, gi) => ({
             g, gi,
             cards: [...document.querySelectorAll('#evidenceGrid-' + gi + ' .evidence-card')]
@@ -4410,7 +5676,7 @@ async function exportarWordMapa() {
 
         // Descrição automática das anomalias de um grupo, para a legenda da prancha
         const descricaoGrupo = g => {
-            const rel = anomalies.filter(a => a.baliza >= g.start && a.baliza <= g.end);
+            const rel = naoConformidades().filter(a => a.baliza >= g.start && a.baliza <= g.end);
             if (!rel.length) return 'registro fotográfico do trecho, sem não conformidade registrada.';
             const porItem = {};
             rel.forEach(a => {
@@ -4439,13 +5705,21 @@ async function exportarWordMapa() {
         };
 
         if (secoesFoto.length) {
-            filhos.push(new Paragraph({ children: [new PageBreak()] }), H1('Evidências Fotográficas'));
+            filhos.push(H1('Evidências Fotográficas', { novaPagina: true }));
             secoesFoto.forEach(({ g, gi, cards }, iSec) => {
-                filhos.push(H2(`Balizas ${g.label}`));
                 let nPrancha = 0;
+                const tituloGrupo = () => H2(`Balizas ${g.label}`);
+                if (iSec === 0) filhos.push(tituloGrupo());
                 for (let i = 0; i < cards.length; i += 8) {
                     const pagina = cards.slice(i, i + 8);
                     nPrancha++;
+                    // quebra antes da prancha (exceto a primeira do documento): como é
+                    // propriedade do parágrafo, o Word não gera folha em branco
+                    if (!(iSec === 0 && i === 0)) {
+                        filhos.push(new Paragraph({ pageBreakBefore: true, spacing: { before: 0, after: 0, line: 1 },
+                            children: [new TextRun({ text: '', size: 2, font: 'Calibri' })] }));
+                        if (i === 0) filhos.push(tituloGrupo());
+                    }
                     // duas linhas de até quatro fotos
                     for (let l = 0; l < 2; l++) {
                         const linha = pagina.slice(l * 4, l * 4 + 4);
@@ -4479,17 +5753,66 @@ async function exportarWordMapa() {
                         ]
                     }));
 
-                    // nova página a cada 8 fotos (menos na última prancha do documento)
-                    const ultimaPagina = (i + 8 >= cards.length) && (iSec === secoesFoto.length - 1);
-                    if (!ultimaPagina) filhos.push(new Paragraph({ children: [new PageBreak()] }));
                 }
+            });
+        }
+
+        // ── TOPOGRAFIA — CLASSIFICAÇÃO DE RISCO (FEM SEÇÃO II) ──
+        const btMapa = blocosTransversal();
+        if (btMapa) {
+            filhos.push(H1('Levantamento Transversal (LD × LE)', { novaPagina: true }), P(btMapa.intro));
+            if (btMapa.nota) filhos.push(P(btMapa.nota, { italic: true, size: 20, color: CINZA }));
+            filhos.push(
+                tab(['Nível de Risco', 'Pontos', '%', 'Balizas'], btMapa.resumoNivel, [2400, 1200, 900, 5500]), P(''),
+                H2('Resumo por Baliza'),
+                tab(['Baliza', 'Pontos', 'Maior Diferença', 'Diferença Média', 'Classificação'],
+                    btMapa.linhasBaliza, [1300, 1300, 2500, 2500, 2600]), P(''),
+                H2(btMapa.detalhouTudo ? 'Pontos Medidos' : 'Pontos Acima da Tolerância'),
+                tab(['Ponto', 'Baliza', 'Distância', 'LE (Norte)', 'LD (Sul)', 'Dif. (LD−LE)', 'Classificação'],
+                    btMapa.linhasPontos, [1000, 1000, 1600, 1800, 1800, 1600, 1900]), P(''));
+        }
+
+        const medsMapa = medicoesTopo().filter(m => m.risco);
+        if (medsMapa.length) {
+            const pior = medsMapa.reduce((a, m) => (m.risco.n > a.risco.n ? m : a), medsMapa[0]);
+            filhos.push(H1('Topografia — Classificação de Risco', { novaPagina: true }),
+                P(`Medições classificadas pelos critérios da FEM Seção II, Tabela 24. Pior condição: ${pior.risco.label}` +
+                  `${pior.trecho ? ' (balizas ' + pior.trecho + ')' : ''}.`),
+                tab(['Baliza / Trecho', 'Lado', 'Parâmetro', 'Medido', 'Tolerância FEM', 'Desvio', 'Classificação'],
+                    medsMapa.map(m => [m.trecho, m.lado, m.fem + ' — ' + m.param, m.medido, m.tolerancia, m.desvio, m.situacao]),
+                    [1500, 800, 3000, 1000, 2100, 1000, 1800]), P(''),
+                tab(['Nível de Risco', 'Medições', '%', 'Parâmetros', 'Trechos / Balizas'],
+                    RISCOS_TOPO.map(r => {
+                        const doNivel = medsMapa.filter(m => m.risco.n === r.n);
+                        return [r.label, String(doNivel.length), Math.round(doNivel.length / medsMapa.length * 100) + '%',
+                            [...new Set(doNivel.map(m => m.param))].join(', ') || '—',
+                            [...new Set(doNivel.map(m => m.trecho).filter(Boolean))].join(', ') || '—'];
+                    }), [2200, 1200, 900, 4000, 2900]), P(''));
+        }
+
+        // ── ANEXOS DO LEVANTAMENTO TOPOGRÁFICO ──
+        const pranchas = pranchasTopo();
+        if (pranchas.length) {
+            filhos.push(H1('Anexos do Levantamento Topográfico', { novaPagina: true }));
+            pranchas.forEach((pr, i) => {
+                // escala proporcional: encaixa na página sem deformar a prancha
+                const MAX_L = 860, MAX_A = 470;
+                let larg = MAX_L, alt = Math.round(MAX_L * pr.prop);
+                if (alt > MAX_A) { alt = MAX_A; larg = Math.round(MAX_A / pr.prop); }
+                try {
+                    filhos.push(new Paragraph({ alignment: AlignmentType.CENTER, pageBreakBefore: i > 0, spacing: { after: 60 },
+                        children: [new ImageRun({ data: String(pr.src).split(',')[1], transformation: { width: larg, height: alt } })] }));
+                } catch (e) { return; }
+                filhos.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 120 },
+                    children: [new TextRun({ text: `Prancha ${i + 1} – ${pr.titulo}`, size: 21, italics: true, color: CINZA, font: 'Calibri' })] }));
+                if (pr.obs) filhos.push(P(pr.obs, { align: AlignmentType.CENTER, size: 21, color: CINZA, italic: true }));
             });
         }
 
         // ── CONCLUSÃO E RECOMENDAÇÕES ──
         const paragrafos = txt => (txt || '').split('\n').filter(l => l.trim()).map(l => P(l, { align: AlignmentType.JUSTIFIED }));
         if (val('txt-conclusao').trim()) {
-            filhos.push(new Paragraph({ children: [new PageBreak()] }), H1('Conclusão'), ...paragrafos(val('txt-conclusao')));
+            filhos.push(H1('Conclusão', { novaPagina: true }), ...paragrafos(val('txt-conclusao')));
         }
         const recs = [['Engenharia', 'txt-eng'], ['Inspeção', 'txt-insp']].filter(([, id]) => val(id).trim());
         if (recs.length) {
@@ -4559,7 +5882,7 @@ async function exportarWord() {
         await Promise.race([otimizarImagens(true), new Promise(r => setTimeout(r, 30000))]);
 
         const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell,
-                WidthType, BorderStyle, ImageRun, PageBreak, Footer, PageNumber } = docx;
+                WidthType, BorderStyle, ImageRun, Footer, PageNumber } = docx;
 
         const val = id => (document.getElementById(id) || {}).value || '';
         const AZUL = '1F4E79', CINZA = '595959', VERDE = '2E7D32';
@@ -4570,8 +5893,9 @@ async function exportarWord() {
             spacing: { after: o.after !== undefined ? o.after : 120, line: 276 },
             children: [new TextRun({ text: texto, bold: o.bold, italics: o.italic, size: o.size || 26, color: o.color || '1A1A1A', font: 'Calibri' })]
         });
-        const H1 = t => new Paragraph({
-            heading: HeadingLevel.HEADING_1, spacing: { before: 320, after: 160 },
+        const H1 = (t, o = {}) => new Paragraph({
+            heading: HeadingLevel.HEADING_1, pageBreakBefore: !!o.novaPagina,
+            spacing: { before: o.novaPagina ? 0 : 320, after: 160 },
             children: [new TextRun({ text: t, bold: true, size: 36, color: AZUL, font: 'Calibri' })]
         });
         const H2 = t => new Paragraph({
@@ -4600,11 +5924,11 @@ async function exportarWord() {
             ]
         });
         // Retorna null quando a imagem não é válida — o bloco é simplesmente omitido
-        const imagem = (dataUrl, larg, alt) => {
+        const imagem = (dataUrl, larg, alt, o = {}) => {
             if (!imagemValida(dataUrl)) return null;
             try {
                 return new Paragraph({
-                    alignment: AlignmentType.CENTER, spacing: { after: 160 },
+                    alignment: AlignmentType.CENTER, pageBreakBefore: !!o.novaPagina, spacing: { after: 160 },
                     children: [new ImageRun({ data: String(dataUrl).split(',')[1], transformation: { width: larg, height: alt } })]
                 });
             } catch (e) { return null; }
@@ -4627,18 +5951,17 @@ async function exportarWord() {
             P('Plano de Manutenção: ' + (val('inp-plano') || '—') + '   ·   Ordem SAP: ' + (val('inp-ordem-sap') || '—'), { align: AlignmentType.CENTER, after: 60 }),
             P('Data da Inspeção: ' + (val('inp-data') ? val('inp-data').split('-').reverse().join('/') : '—') + '   ·   Revisão: ' + ((document.getElementById('revBadge') || {}).textContent || '0'), { align: AlignmentType.CENTER, after: 60 }),
             P('Inspetor Responsável: ' + (val('inp-inspetor') || '—'), { align: AlignmentType.CENTER, after: 1200 }),
-            P('GER Integridade Estrutural · Vale S.A. · Canaã dos Carajás – PA', { align: AlignmentType.CENTER, italic: true, color: CINZA }),
-            new Paragraph({ children: [new PageBreak()] })
+            P('GER Integridade Estrutural · Vale S.A. · Canaã dos Carajás – PA', { align: AlignmentType.CENTER, italic: true, color: CINZA })
         );
 
         // ── REVISÕES ──
         const revs = [...document.querySelectorAll('#revisionTableBody tr')].map(tr => [...tr.cells].slice(0, -1).map(c => c.textContent.trim()));
         if (revs.length) {
-            filhos.push(H1('REVISÕES'), tabela(['Rev.', 'TE', 'Descrição', 'Por', 'Ver.', 'Apr.', 'Data'], revs, [700, 600, 5200, 800, 800, 800, 1300]), P(''));
+            filhos.push(H1('REVISÕES', { novaPagina: true }), tabela(['Rev.', 'TE', 'Descrição', 'Por', 'Ver.', 'Apr.', 'Data'], revs, [700, 600, 5200, 800, 800, 800, 1300]), P(''));
         }
 
         // ── 1.0 INFORMAÇÕES GERAIS ──
-        filhos.push(H1('1.0 INFORMAÇÕES GERAIS'),
+        filhos.push(H1('1.0 INFORMAÇÕES GERAIS', { novaPagina: !revs.length }),
             tabela(['Campo', 'Informação'], [
                 ['Local de Instalação', val('inp-local')], ['Área / Localização', val('inp-area')],
                 ['Data da Inspeção', val('inp-data') ? val('inp-data').split('-').reverse().join('/') : ''],
@@ -4673,7 +5996,7 @@ async function exportarWord() {
         const svgArranjo = document.querySelector('#railDiagram svg');
         if (svgArranjo) {
             const png = await svgParaPNG(svgArranjo, 3000, 765);
-            push(new Paragraph({ children: [new PageBreak()] }), H1('7.0 DESENHO DE ARRANJO — MAPEAMENTO DE ANOMALIAS'), imagem(png, 690, 176));
+            push(H1('7.0 DESENHO DE ARRANJO — MAPEAMENTO DE ANOMALIAS', { novaPagina: true }), imagem(png, 690, 176));
             const pl = document.getElementById('planta-img');
             if (pl && imagemValida(pl.src)) {
                 const prop = (pl.naturalHeight && pl.naturalWidth) ? pl.naturalHeight / pl.naturalWidth : 0.599;
@@ -4693,16 +6016,29 @@ async function exportarWord() {
         if (grupos.length) filhos.push(H2('8.1 Quantitativo por Grupo de Balizas e Lado'),
             tabela(['Grupo', 'Balizas', 'Anomalias LD', 'Anomalias LE', '% LD', '% LE', 'Comp. p/ Troca', 'Notas'], grupos, [2200, 1000, 1450, 1450, 800, 800, 1500, 900]), P(''));
 
-        // ── 9.0 REGISTRO DE ANOMALIAS ──
+        // ── 9.0 REGISTRO DE ANOMALIAS E CONFORMIDADES ──
         if (anomalies.length) {
+            // 9.1 — resumo de conformidade por item, lido da tabela já calculada na tela
+            const trsConf = [...document.querySelectorAll('#conformidadeTableBody tr')].filter(tr => tr.cells.length >= 7);
+            if (trsConf.length) {
+                filhos.push(H1('9.0 REGISTRO DE ANOMALIAS E CONFORMIDADES', { novaPagina: true }),
+                    P('A tabela abaixo consolida, para cada item da Lista de Tarefas OP.0070, quantas posições da via foram verificadas, quantas estão conformes e quantas apresentaram não conformidade nesta inspeção.'),
+                    H2('9.1 Resumo de Conformidade por Item'),
+                    tabela(['Item', 'Verificações', 'Conformes', 'Não Conformes', 'Balizas c/ NC', '% Conforme', 'Situação'],
+                        trsConf.map(tr => [...tr.cells].map(c => c.textContent.trim().replace(/\s*\*$/, ''))),
+                        [3000, 1400, 1300, 1500, 1400, 1250, 1950]),
+                    P('Itens sem lançamento explícito de conformidade são considerados verificados em toda a extensão da via, conforme a rota de inspeção da OP.0070.',
+                        { italic: true, size: 21, color: CINZA }), P(''));
+                filhos.push(H2('9.2 Registros Detalhados'));
+            }
             const linhas = anomalies.map((a, i) => {
                 const it = getItem(a.item);
                 return [String(i + 1), pad2(a.baliza), getGroup(a.baliza).label, a.lado,
                     (it ? (it.extra ? it.nome : it.op + ' — ' + it.nome) : (a.item || '')) + (a.comp ? ' · ' + a.comp : ''),
                     a.tipo || '', a.desc || '', getSeverityLabel(a.sev), String(a.qtd || 1), a.nota || '—'];
             });
-            filhos.push(new Paragraph({ children: [new PageBreak()] }), H1('9.0 REGISTRO DE ANOMALIAS'),
-                tabela(['#', 'Baliza', 'Grupo', 'Lado', 'Item', 'Tipo', 'Descrição', 'Severidade', 'Qtd.', 'Nº Nota'], linhas,
+            if (!trsConf.length) filhos.push(H1('9.0 REGISTRO DE ANOMALIAS E CONFORMIDADES', { novaPagina: true }));
+            filhos.push(tabela(['#', 'Baliza', 'Grupo', 'Lado', 'Item', 'Tipo', 'Descrição', 'Severidade', 'Qtd.', 'Nº Nota'], linhas,
                     [450, 750, 1000, 700, 2300, 1200, 2200, 1200, 620, 1380]), P(''));
         }
 
@@ -4715,7 +6051,7 @@ async function exportarWord() {
         ];
         const comGrafico = graficos.filter(([, id]) => { const c = document.getElementById(id); return c && c.width > 0; });
         if (comGrafico.length) {
-            filhos.push(new Paragraph({ children: [new PageBreak()] }), H1('10.0 ANÁLISE GRÁFICA'));
+            filhos.push(H1('10.0 ANÁLISE GRÁFICA', { novaPagina: true }));
             for (const [titulo, id] of comGrafico) {
                 try {
                     const cv = document.getElementById(id);
@@ -4731,7 +6067,7 @@ async function exportarWord() {
         // ── 11.0 EVIDÊNCIAS FOTOGRÁFICAS ──
         const secoesComFoto = GROUPS.map((g, gi) => ({ g, gi, cards: [...document.querySelectorAll('#evidenceGrid-' + gi + ' .evidence-card')].filter(c => c.querySelector('.evidence-upload.has-image')) })).filter(s => s.cards.length);
         if (secoesComFoto.length) {
-            filhos.push(new Paragraph({ children: [new PageBreak()] }), H1('11.0 EVIDÊNCIAS FOTOGRÁFICAS'));
+            filhos.push(H1('11.0 EVIDÊNCIAS FOTOGRÁFICAS', { novaPagina: true }));
             secoesComFoto.forEach(({ g, gi, cards }) => {
                 filhos.push(H2(`11.${gi + 1} Balizas ${g.label}`));
                 for (let i = 0; i < cards.length; i += 2) {
@@ -4757,21 +6093,74 @@ async function exportarWord() {
         }
 
         // ── 12.0 TOPOGRAFIA ──
-        const medicoes = [...document.querySelectorAll('#topoTableBody tr')].map(tr => [...tr.cells].slice(0, -1).map(c => c.textContent.trim())).filter(r => r[0] || r[3]);
-        if (val('topo-doc') || medicoes.length || val('txt-topo').trim()) {
-            filhos.push(new Paragraph({ children: [new PageBreak()] }), H1('12.0 RELATÓRIO TOPOGRÁFICO'),
+        const medsTopo = medicoesTopo();
+        const medicoes = medsTopo.map(m => [m.trecho, m.lado, m.fem + ' — ' + m.param, m.medido, m.tolerancia, m.desvio, m.situacao]);
+        if (val('topo-doc') || medicoes.length || val('txt-topo').trim() || pranchasTopo().length || pontosTransClassificados().length) {
+            filhos.push(H1('12.0 RELATÓRIO TOPOGRÁFICO', { novaPagina: true }),
                 tabela(['Campo', 'Informação'], [
                     ['Empresa / Equipe', val('topo-empresa')], ['Responsável Técnico', val('topo-resp')],
                     ['Data do Levantamento', val('topo-data') ? val('topo-data').split('-').reverse().join('/') : ''],
                     ['Equipamento', val('topo-equip')], ['Nº do Documento / Laudo', val('topo-doc')], ['Referência de Nível (RN)', val('topo-rn')],
                 ], [3200, 6800]), P(''));
-            if (medicoes.length) filhos.push(H2('12.1 Resultados por Trecho'),
-                tabela(['Baliza / Trecho', 'Lado', 'Parâmetro', 'Medido', 'Tolerância', 'Desvio', 'Situação'], medicoes, [1600, 800, 2600, 1300, 1400, 1200, 1400]), P(''));
-            if (val('txt-topo').trim()) filhos.push(H2('12.2 Conclusão do Levantamento Topográfico'), ...paragrafos(val('txt-topo')));
+            if (medicoes.length) filhos.push(H2('12.1 Resultados por Trecho — FEM Seção II (Tabela 24)'),
+                tabela(['Baliza / Trecho', 'Lado', 'Parâmetro', 'Medido', 'Tolerância FEM', 'Desvio', 'Classificação'], medicoes,
+                    [1300, 700, 2700, 900, 1900, 900, 1600]), P(''));
+            const bt = blocosTransversal();
+            if (bt) {
+                filhos.push(H2('12.2 Levantamento Transversal (LD × LE)'), P(bt.intro));
+                if (bt.nota) filhos.push(P(bt.nota, { italic: true, size: 20, color: CINZA }));
+                filhos.push(
+                    tabela(['Nível de Risco', 'Pontos', '%', 'Balizas'], bt.resumoNivel, [2400, 1200, 900, 5500]), P(''),
+                    H2('12.2.1 Resumo por Baliza'),
+                    tabela(['Baliza', 'Pontos', 'Maior Diferença', 'Diferença Média', 'Classificação'],
+                        bt.linhasBaliza, [1200, 1200, 2400, 2400, 2800]), P(''),
+                    H2(bt.detalhouTudo ? '12.2.2 Pontos Medidos' : '12.2.2 Pontos Acima da Tolerância'),
+                    tabela(['Ponto', 'Baliza', 'Distância', 'LE (Norte)', 'LD (Sul)', 'Dif. (LD−LE)', 'Classificação'],
+                        bt.linhasPontos, [900, 900, 1500, 1700, 1700, 1500, 1800]), P(''));
+            }
+            const classificadas = medsTopo.filter(m => m.risco);
+            if (classificadas.length) {
+                const resumo = RISCOS_TOPO.map(r => {
+                    const doNivel = classificadas.filter(m => m.risco.n === r.n);
+                    return [r.label, String(doNivel.length), Math.round(doNivel.length / classificadas.length * 100) + '%',
+                        [...new Set(doNivel.map(m => m.param))].join(', ') || '—',
+                        [...new Set(doNivel.map(m => m.trecho).filter(Boolean))].join(', ') || '—'];
+                });
+                const pior = classificadas.reduce((a, m) => (m.risco.n > a.risco.n ? m : a), classificadas[0]);
+                filhos.push(H2('12.3 Classificação de Risco Topográfico (Consolidado)'),
+                    P(`Foram classificadas ${classificadas.length} medição(ões) pelos critérios da FEM Seção II, Tabela 24. ` +
+                      `Pior condição registrada: ${pior.risco.label}${pior.trecho ? ' (balizas ' + pior.trecho + ')' : ''}.`),
+                    tabela(['Nível de Risco', 'Medições', '%', 'Parâmetros', 'Trechos / Balizas'], resumo, [2000, 1100, 800, 3800, 2300]),
+                    P(''),
+                    H2('12.4 Critérios de Classificação — FEM Seção II (Tabela 24)'),
+                    tabela(['FEM', 'Parâmetro', 'Tolerância (instalação · máx.)', 'Conforme', 'Baixo', 'Médio', 'Alto', 'Muito Alto'],
+                        TOLERANCIAS_FEM.map(x => { const f = faixasFEM(x);
+                            return [x.fem, x.nome, x.ref, '≤ ' + fmtNum(f.conforme), '≤ ' + fmtNum(f.baixo),
+                                    '≤ ' + fmtNum(f.medio), '≤ ' + fmtNum(f.alto), '> ' + fmtNum(f.alto)]; }),
+                        [900, 3000, 2200, 900, 900, 900, 900, 1000]),
+                    P('Faixas derivadas da tolerância de instalação e do limite máximo antes do realinhamento; acima de 1,5 × o máximo a condição é classificada como risco muito alto.',
+                      { italic: true, size: 19, color: CINZA }), P(''));
+            }
+            const pranchasT = pranchasTopo();
+            if (pranchasT.length) {
+                filhos.push(H2('12.5 Pranchas / Anexos do Levantamento'));
+                pranchasT.forEach((pr, i) => {
+                    const MAX_L = 620, MAX_A = 700;
+                    let larg = MAX_L, alt = Math.round(MAX_L * pr.prop);
+                    if (alt > MAX_A) { alt = MAX_A; larg = Math.round(MAX_A / pr.prop); }
+                    const bloco = imagem(pr.src, larg, alt, { novaPagina: i > 0 });
+                    if (!bloco) return;
+                    filhos.push(bloco, new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 140 },
+                        children: [new TextRun({ text: `Prancha 12.5.${i + 1} – ${pr.titulo}`, size: 19, italics: true, color: CINZA, font: 'Calibri' })] }));
+                    if (pr.obs) filhos.push(P(pr.obs, { align: AlignmentType.CENTER, size: 19, italic: true, color: CINZA }));
+                });
+                filhos.push(P(''));
+            }
+            if (val('txt-topo').trim()) filhos.push(H2('12.6 Conclusão do Levantamento Topográfico'), ...paragrafos(val('txt-topo')));
         }
 
         // ── 13.0 CONCLUSÃO / 14.0 RECOMENDAÇÕES ──
-        if (val('txt-conclusao').trim()) filhos.push(new Paragraph({ children: [new PageBreak()] }), H1('13.0 CONCLUSÃO'), ...paragrafos(val('txt-conclusao')));
+        if (val('txt-conclusao').trim()) filhos.push(H1('13.0 CONCLUSÃO', { novaPagina: true }), ...paragrafos(val('txt-conclusao')));
         const recs = [['14.1 Engenharia', 'txt-eng'], ['14.2 Inspeção', 'txt-insp']].filter(([, id]) => val(id).trim());
         if (recs.length) {
             filhos.push(H1('14.0 RECOMENDAÇÕES'));
@@ -5053,7 +6442,7 @@ async function exportarPPTX() {
 
         // ── 9. EVIDÊNCIAS FOTOGRÁFICAS (6 por slide) ──
         const descricaoGrupo = g => {
-            const rel = anomalies.filter(a => a.baliza >= g.start && a.baliza <= g.end);
+            const rel = naoConformidades().filter(a => a.baliza >= g.start && a.baliza <= g.end);
             if (!rel.length) return 'registro fotográfico do trecho, sem não conformidade registrada.';
             const SUBST = { 'ausente/faltante': 'ausência', 'quebra': 'quebra', 'trinca': 'trinca', 'fissura': 'fissura',
                 'desgaste': 'desgaste', 'frouxo': 'afrouxamento', 'corrosão': 'corrosão', 'recalque': 'recalque',
@@ -5196,7 +6585,11 @@ function collectFullState() {
     });
 
     const val = id => document.getElementById(id) ? document.getElementById(id).value : '';
-    const linhas = sel => [...document.querySelectorAll(sel + ' tr')].map(tr => [...tr.cells].slice(0, -1).map(c => c.textContent.trim()));
+    // Lê o valor real da célula: select/input têm value; as demais, o texto
+    const linhas = sel => [...document.querySelectorAll(sel + ' tr')].map(tr => [...tr.cells].slice(0, -1).map(c => {
+        const campo = c.querySelector('select, input, textarea');
+        return campo ? String(campo.value).trim() : c.textContent.trim();
+    }));
 
     const textos = {
         conclusao: val('txt-conclusao'),
@@ -5210,6 +6603,14 @@ function collectFullState() {
         empresa: val('topo-empresa'), resp: val('topo-resp'), data: val('topo-data'),
         equip: val('topo-equip'), doc: val('topo-doc'), rn: val('topo-rn'),
         medicoes: linhas('#topoTableBody'),
+    };
+
+    // Levantamento transversal (LD × LE)
+    const transversal = {
+        id: val('trans-id'), sentido: val('trans-sentido'), data: val('trans-data'),
+        horaIni: val('trans-hora-ini'), horaFim: val('trans-hora-fim'),
+        criterio: val('trans-param'), tol: val('trans-tol'), max: val('trans-max'),
+        pontos: pontosTransversais,
     };
 
     const notas = linhas('#notasTableBody');
@@ -5243,7 +6644,7 @@ function collectFullState() {
 
     textos.objetivo = val('txt-objetivo');
 
-    return { anomalies, evidencias, desenhos, textos, topografia, topoInfo, notas, limpeza, planta,
+    return { anomalies, evidencias, desenhos, textos, topografia, topoInfo, transversal, notas, limpeza, planta,
              cabecalho, infoGerais, revisoes, materiais, normas, assinaturas };
 }
 
@@ -5380,7 +6781,21 @@ function restoreFullState(data) {
         setv('topo-data', data.topoInfo.data); setv('topo-equip', data.topoInfo.equip);
         setv('topo-doc', data.topoInfo.doc); setv('topo-rn', data.topoInfo.rn);
         const tb = document.getElementById('topoTableBody');
-        if (tb && Array.isArray(data.topoInfo.medicoes)) { tb.innerHTML = ''; data.topoInfo.medicoes.forEach(m => addTopoRow(...m)); }
+        if (tb && Array.isArray(data.topoInfo.medicoes)) {
+            tb.innerHTML = '';
+            data.topoInfo.medicoes.forEach(m => addTopoRow(...m));
+            renderResumoRiscoTopo();
+        }
+    }
+    // Levantamento transversal
+    if (data.transversal) {
+        const setv = (id, v) => { const el = document.getElementById(id); if (el && v !== undefined && v !== null) el.value = v; };
+        setv('trans-id', data.transversal.id); setv('trans-sentido', data.transversal.sentido);
+        setv('trans-data', data.transversal.data); setv('trans-hora-ini', data.transversal.horaIni);
+        setv('trans-hora-fim', data.transversal.horaFim); setv('trans-param', data.transversal.criterio);
+        setv('trans-tol', data.transversal.tol); setv('trans-max', data.transversal.max);
+        pontosTransversais = Array.isArray(data.transversal.pontos) ? data.transversal.pontos : [];
+        renderTransversal();
     }
     if (data.topografia && Array.isArray(data.topografia)) {
         const g = document.getElementById('topoGallery');
@@ -5432,11 +6847,12 @@ function exportarJSON() {
         ...(() => { const s = { ...state }; delete s.anomalies; return s; })(),
         anomalias: state.anomalies,
         resumo: {
-            total_anomalias: anomalies.length,
-            balizas_afetadas: new Set(anomalies.map(a => a.baliza)).size,
-            anomalias_ld: anomalies.filter(a => a.lado === 'LD' || a.lado === 'LD+LE').length,
-            anomalias_le: anomalies.filter(a => a.lado === 'LE' || a.lado === 'LD+LE').length,
-            componentes_troca: anomalies.reduce((s, a) => s + (a.qtd || 1), 0),
+            total_anomalias: naoConformidades().length,
+            registros_conformes: registrosConformes().length,
+            balizas_afetadas: new Set(naoConformidades().map(a => a.baliza)).size,
+            anomalias_ld: naoConformidades().filter(a => a.lado === 'LD' || a.lado === 'LD+LE').length,
+            anomalias_le: naoConformidades().filter(a => a.lado === 'LE' || a.lado === 'LD+LE').length,
+            componentes_troca: naoConformidades().reduce((s, a) => s + (a.qtd || 1), 0),
         }
     };
     const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
@@ -5515,14 +6931,19 @@ function init() {
         renderHeatmaps();
         // Linhas de exemplo para preenchimento
         addNotaRow();
-        addTopoRow('', 'LD', 'Nivelamento longitudinal', '', '± 3 mm', '', 'Conforme');
-        addTopoRow('', 'LD', 'Alinhamento horizontal', '', '± 3 mm', '', 'Conforme');
-        addTopoRow('', 'LD+LE', 'Bitola', '', '± 3 mm', '', 'Conforme');
+        addTopoRow('', 'LD+LE', 'bitola', '', '', '', '');
+        addTopoRow('', 'LD', 'retilineidade', '', '', '', '');
+        addTopoRow('', 'LD+LE', 'nivel-secao', '', '', '', '');
+        renderCriteriosFEM();
+        renderResumoRiscoTopo();
         addTopoSlot('Prancha 1: Planta de Nivelamento / Alinhamento', '');
         addDrawingSlot('Figura 1: Cadastral / Arranjo Geral da Via de Rolamento — Balizas 00 a 73', 'Desenho cadastral de referência com o arranjo geral da via de rolamento e a numeração das balizas.');
         addDrawingSlot('Figura 2: Detalhe Típico de Fixação — Dormentes, Grampos e Palmilhas', 'Detalhe típico do sistema de fixação trilho-dormente (grampos, palmilhas e placas de apoio).');
         addDrawingSlot('Figura 3: Vista Panorâmica / Foto de Campo', '');
     }
+
+    renderCriteriosFEM();
+    renderTransversal();
 
     // Abre o primeiro grupo da lista de tarefas como exemplo
     toggleGroup(0);
