@@ -5053,61 +5053,24 @@ function cabecalhoVale(tituloDoc) {
 }
 
 // ============================================================
-// PDF DO MAPA DE CALOR — mesmo conteúdo e layout do Word
-// Monta um documento A4 paisagem paginado e abre a impressão,
-// onde o usuário escolhe "Salvar como PDF".
+// CRITÉRIOS FEM SEÇÃO II (TABELA 24) — conteúdo compartilhado
+// pelos relatórios em Word e PDF
 // ============================================================
-async function exportarPDFMapa() {
-    showToast('📄 Montando o PDF do Mapa de Calor...');
-    try {
-        const val = id => (document.getElementById(id) || {}).value || '';
-        const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const TEXTO_CRITERIOS = 'Faixas derivadas da tolerância de instalação e do limite máximo antes do realinhamento: ' +
+    'até a tolerância o trilho está conforme; entre a tolerância e o limite máximo há risco baixo e médio; ' +
+    'acima do máximo, risco alto; acima de 1,5 × o máximo, risco muito alto. Os valores são comparados sempre em módulo.';
 
-        // ── dados de cabeçalho ──
-        const local = val('inp-local') || '—';
-        const denom = val('inp-area');
-        const plano = val('inp-plano');
-        const ordemSap = val('inp-ordem-sap');
-        const patio = val('inp-patio');
-        const equip = val('inp-equip');
-        const rev = (document.getElementById('revBadge') || {}).textContent || '0';
-        const dataIns = val('inp-data') ? val('inp-data').split('-').reverse().join('/') : '';
-        const numDoc = val('inp-doc-num') || montarNumeroDocumento(val('inp-local'), denom);
-        const infoLinhas = [
-            'OPERAÇÃO – MANUTENÇÃO   ·   GER INTEGRIDADE ESTRUTURAL',
-            'VIA DE ROLAMENTO EM MÁQUINAS DE PÁTIO   ·   PLANO ' + (plano || '—'),
-            (patio || equip ? (patio ? patio.toUpperCase() : '') + (patio && equip ? '   ·   ' : '') + (equip ? 'EQUIPAMENTO – ' + equip : '') : ''),
-            'LOCAL DE INSTALAÇÃO – ' + local,
-            (denom ? 'DENOMINAÇÃO – ' + denom : ''),
-            'RELATÓRIO TÉCNICO – MAPA DE CALOR' + (dataIns ? '   ·   ' + dataIns : ''),
-        ].filter(Boolean);
+function linhasCriteriosFEM() {
+    return TOLERANCIAS_FEM.map(x => {
+        const f = faixasFEM(x);
+        return [x.fem, x.nome, x.ref, '≤ ' + fmtNum(f.conforme), '≤ ' + fmtNum(f.baixo),
+                '≤ ' + fmtNum(f.medio), '≤ ' + fmtNum(f.alto), '> ' + fmtNum(f.alto), x.metodo];
+    });
+}
 
-        const cabecalhoHTML = `
-            <div class="cab">
-                <div class="cab-topo">
-                    <div class="cab-logo"><img src="data:image/jpeg;base64,${LOGO_VALE}" alt="Vale"></div>
-                    <div class="cab-c"><b>INTEGRIDADE ESTRUTURAL</b><br><b>USO INTERNO</b></div>
-                    <div class="cab-c"><b>PROJETO FERRO</b><br><b>S11D</b></div>
-                </div>
-                <div class="cab-base">
-                    <div class="cab-info">${infoLinhas.map(l => `<div>${esc(l)}</div>`).join('')}</div>
-                    <div class="cab-dir">
-                        <div class="cab-cel"><b>Nº ORDEM${ordemSap ? ' - ' + esc(ordemSap) : ''}</b></div>
-                        <div class="cab-cel"><span class="rot">Nº</span><b>${esc(numDoc || '—')}</b></div>
-                    </div>
-                    <div class="cab-dir">
-                        <div class="cab-cel"><span class="rot">PÁGINA</span><b class="pg"></b></div>
-                        <div class="cab-cel"><span class="rot">REV.</span><b>${esc(rev)}</b></div>
-                    </div>
-                </div>
-            </div>`;
-
-        // ── janela de impressão ──
-        const w = window.open('', '_blank');
-        if (!w) return showToast('⚠ Permita janelas pop-up para gerar o PDF');
-        w.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
-            <title>MAPA_CALOR_${esc(local)}</title>
-            <style>
+// CSS da folha usada nos PDFs gerados pelo relatório
+function cssFolhaPDF() {
+    return `
                 @page { size: 297mm 210mm; margin: 0; }
                 * { box-sizing: border-box; }
                 body { margin: 0; font-family: Calibri, Carlito, Arial, sans-serif; color: #1A1A1A; background: #E8EAEE; }
@@ -5165,7 +5128,88 @@ async function exportarPDFMapa() {
                     .folha:last-child { break-after: auto; page-break-after: auto; }
                     .aviso { display: none; }
                 }
-            </style></head><body>
+            `;
+}
+
+// Cabeçalho padrão Vale em HTML, para as janelas de impressão
+function cabecalhoValeHTML(tituloDoc) {
+    const val = id => (document.getElementById(id) || {}).value || '';
+    const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const local = val('inp-local') || '—';
+    const denom = val('inp-area');
+    const plano = val('inp-plano');
+    const ordemSap = val('inp-ordem-sap');
+    const patio = val('inp-patio');
+    const equip = val('inp-equip');
+    const rev = (document.getElementById('revBadge') || {}).textContent || '0';
+    const numDoc = val('inp-doc-num') || montarNumeroDocumento(val('inp-local'), denom);
+    const infoLinhas = [
+        'OPERAÇÃO – MANUTENÇÃO   ·   GER INTEGRIDADE ESTRUTURAL',
+        'VIA DE ROLAMENTO EM MÁQUINAS DE PÁTIO   ·   PLANO ' + (plano || '—'),
+        (patio || equip ? (patio ? patio.toUpperCase() : '') + (patio && equip ? '   ·   ' : '') + (equip ? 'EQUIPAMENTO – ' + equip : '') : ''),
+        'LOCAL DE INSTALAÇÃO – ' + local,
+        (denom ? 'DENOMINAÇÃO – ' + denom : ''),
+        tituloDoc || 'RELATÓRIO TÉCNICO – INSPEÇÃO ESTRUTURAL',
+    ].filter(Boolean);
+    return `
+        <div class="cab">
+            <div class="cab-topo">
+                <div class="cab-logo"><img src="data:image/jpeg;base64,${LOGO_VALE}" alt="Vale"></div>
+                <div class="cab-c"><b>INTEGRIDADE ESTRUTURAL</b><br><b>USO INTERNO</b></div>
+                <div class="cab-c"><b>PROJETO FERRO</b><br><b>S11D</b></div>
+            </div>
+            <div class="cab-base">
+                <div class="cab-info">${infoLinhas.map(l => `<div>${esc(l)}</div>`).join('')}</div>
+                <div class="cab-dir">
+                    <div class="cab-cel"><b>Nº ORDEM${ordemSap ? ' - ' + esc(ordemSap) : ''}</b></div>
+                    <div class="cab-cel"><span class="rot">Nº</span><b>${esc(numDoc || '—')}</b></div>
+                </div>
+                <div class="cab-dir">
+                    <div class="cab-cel"><span class="rot">PÁGINA</span><b class="pg"></b></div>
+                    <div class="cab-cel"><span class="rot">REV.</span><b>${esc(rev)}</b></div>
+                </div>
+            </div>
+        </div>`;
+}
+
+// ============================================================
+// PDF DO MAPA DE CALOR — mesmo conteúdo e layout do Word
+// Monta um documento A4 paisagem paginado e abre a impressão,
+// onde o usuário escolhe "Salvar como PDF".
+// ============================================================
+async function exportarPDFMapa() {
+    showToast('📄 Montando o PDF do Mapa de Calor...');
+    try {
+        const val = id => (document.getElementById(id) || {}).value || '';
+        const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+        // ── dados de cabeçalho ──
+        const local = val('inp-local') || '—';
+        const denom = val('inp-area');
+        const plano = val('inp-plano');
+        const ordemSap = val('inp-ordem-sap');
+        const patio = val('inp-patio');
+        const equip = val('inp-equip');
+        const rev = (document.getElementById('revBadge') || {}).textContent || '0';
+        const dataIns = val('inp-data') ? val('inp-data').split('-').reverse().join('/') : '';
+        const numDoc = val('inp-doc-num') || montarNumeroDocumento(val('inp-local'), denom);
+        const infoLinhas = [
+            'OPERAÇÃO – MANUTENÇÃO   ·   GER INTEGRIDADE ESTRUTURAL',
+            'VIA DE ROLAMENTO EM MÁQUINAS DE PÁTIO   ·   PLANO ' + (plano || '—'),
+            (patio || equip ? (patio ? patio.toUpperCase() : '') + (patio && equip ? '   ·   ' : '') + (equip ? 'EQUIPAMENTO – ' + equip : '') : ''),
+            'LOCAL DE INSTALAÇÃO – ' + local,
+            (denom ? 'DENOMINAÇÃO – ' + denom : ''),
+            'RELATÓRIO TÉCNICO – MAPA DE CALOR' + (dataIns ? '   ·   ' + dataIns : ''),
+        ].filter(Boolean);
+
+        const cabecalhoHTML = cabecalhoValeHTML('RELATÓRIO TÉCNICO – MAPA DE CALOR' + (dataIns ? '   ·   ' + dataIns : ''));
+
+        // ── janela de impressão ──
+        const w = window.open('', '_blank');
+        if (!w) return showToast('⚠ Permita janelas pop-up para gerar o PDF');
+        w.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
+            <title>MAPA_CALOR_${esc(local)}</title>
+            <style>${cssFolhaPDF()}</style></head><body>
             <div class="aviso">Na janela de impressão: <b>Salvar como PDF</b> · Layout <b>Paisagem</b> · Margens <b>Nenhuma</b> · Escala <b>100%</b></div>
             <div id="paginas"></div></body></html>`);
         w.document.close();
@@ -5402,6 +5446,17 @@ async function exportarPDFMapa() {
                         [...new Set(doNivel.map(m => m.param))].join(', ') || '—',
                         [...new Set(doNivel.map(m => m.trecho).filter(Boolean))].join(', ') || '—'];
                 }));
+        }
+
+        // ── 9.2 Critérios de classificação (FEM Seção II, Tabela 24) ──
+        // Tabela de referência: sai sempre, mesmo sem medição topográfica lançada.
+        {
+            novaFolha();
+            fluido('Critérios de Classificação — FEM Seção II (Tabela 24)',
+                [`<p class="tx">${esc(TEXTO_CRITERIOS)}</p>`]);
+            tabela('', ['FEM', 'Parâmetro', 'Tolerância (instalação · máx.)', 'Conforme', 'Baixo', 'Médio', 'Alto', 'Muito Alto', 'Método de Medição'],
+                linhasCriteriosFEM());
+            bloco('<p class="cap">Níveis de classificação: Conforme · Risco Baixo · Risco Médio · Risco Alto · Risco Muito Alto.</p>');
         }
 
         // ── 10. Anexos topográficos — um por folha ──
@@ -5788,6 +5843,17 @@ async function exportarWordMapa() {
                             [...new Set(doNivel.map(m => m.param))].join(', ') || '—',
                             [...new Set(doNivel.map(m => m.trecho).filter(Boolean))].join(', ') || '—'];
                     }), [2200, 1200, 900, 4000, 2900]), P(''));
+        }
+
+        // ── CRITÉRIOS DE CLASSIFICAÇÃO (FEM SEÇÃO II, TABELA 24) ──
+        // Tabela de referência: sai sempre, mesmo sem medição topográfica lançada.
+        {
+            filhos.push(H1('Critérios de Classificação — FEM Seção II (Tabela 24)', { novaPagina: true }),
+                P(TEXTO_CRITERIOS),
+                tab(['FEM', 'Parâmetro', 'Tolerância (instalação · máx.)', 'Conforme', 'Baixo', 'Médio', 'Alto', 'Muito Alto', 'Método de Medição'],
+                    linhasCriteriosFEM(), [900, 3000, 2100, 950, 900, 900, 900, 1000, 2350]),
+                P('Níveis de classificação: Conforme · Risco Baixo · Risco Médio · Risco Alto · Risco Muito Alto.',
+                  { italic: true, size: 20, color: CINZA }), P(''));
         }
 
         // ── ANEXOS DO LEVANTAMENTO TOPOGRÁFICO ──
