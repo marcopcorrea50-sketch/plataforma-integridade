@@ -2625,7 +2625,10 @@ function fmtBalizas(nums) {
     let ini = arr[0], ant = arr[0];
     for (let i = 1; i <= arr.length; i++) {
         if (arr[i] === ant + 1) { ant = arr[i]; continue; }
-        faixas.push(ini === ant ? pad2(ini) : (ant === ini + 1 ? pad2(ini) + ' e ' + pad2(ant) : pad2(ini) + ' a ' + pad2(ant)));
+        // pares consecutivos entram separados, senão o "e" interno conflita com o "e" da lista
+        if (ini === ant) faixas.push(pad2(ini));
+        else if (ant === ini + 1) { faixas.push(pad2(ini)); faixas.push(pad2(ant)); }
+        else faixas.push(pad2(ini) + ' a ' + pad2(ant));
         ini = arr[i]; ant = arr[i];
     }
     if (faixas.length === 1) return faixas[0];
@@ -2666,7 +2669,8 @@ function gerarRecomendacoes() {
     const topoCritico = medicoes.filter(m => m.risco && m.risco.n >= 3);   // acima do máximo FEM
     const balTransCriticas = [...new Set(transR.filter(x => x.risco.n >= 3).map(x => x.baliza).filter(Boolean))].sort();
     const balTransMedias = [...new Set(transR.filter(x => x.risco.n === 2).map(x => x.baliza).filter(Boolean))].sort();
-    const temTopo = !!val('topo-doc') || medicoes.length > 0;
+    const temPranchaTopo = !!document.querySelector('#topoGallery .drawing-upload-area.has-image');
+    const temTopo = !!val('topo-doc') || medicoes.length > 0 || temPranchaTopo || transR.length > 0;
 
     // ── 14.1 ENGENHARIA — nota YE apenas quando realmente necessário ──
     const eng = [];
@@ -2728,7 +2732,11 @@ function gerarRecomendacoes() {
         insp.push(`Acompanhar as notas de inspeções anteriores registradas na carteira do ativo: nº ${notas.map(x => x.n).join(', ')}.`);
     }
     if (temSujidade) insp.push(`Cadastrar notas de limpeza e reinspecionar os trechos com sujidade após a execução dos serviços, pois o acúmulo de material impede a avaliação completa dos componentes.`);
-    if (!temTopo) insp.push(`Realizar levantamento topográfico de nivelamento, alinhamento e bitola.`);
+    if (!temTopo) {
+        insp.push(`Realizar levantamento topográfico de nivelamento, alinhamento e bitola.`);
+    } else if (!medicoes.length && !transR.length) {
+        insp.push(`Lançar na seção 12.0 as medições do levantamento topográfico anexado, para que os desvios sejam classificados pelos critérios da FEM Seção II (Tabela 24).`);
+    }
     insp.push(`Realizar inspeção de acordo com o plano sistemático.`);
 
     const num = arr => arr.map((t, i) => `${i + 1}. ${t}`).join('\n');
@@ -2760,6 +2768,8 @@ function gerarConclusao(comRecomendacoes) {
     const bothSet = new Set([...ldSet].filter(b => leSet.has(b)));
     const balizasAfetadas = new Set(nc.map(a => a.baliza));
     const posAfetadas = ldSet.size + leSet.size;
+    const ncLD = nc.filter(a => a.lado === 'LD' || a.lado === 'LD+LE').length;
+    const ncLE = nc.filter(a => a.lado === 'LE' || a.lado === 'LD+LE').length;
     const pct = totalPos ? Math.round(posAfetadas / totalPos * 100) : 0;
     const sev = [0, 0, 0, 0, 0];
     nc.forEach(a => sev[a.sev]++);
@@ -2799,11 +2809,12 @@ function gerarConclusao(comRecomendacoes) {
         P.push(`Não foram encontradas não conformidades. A via está em condição adequada de operação.`);
     } else {
         P.push(
-            `Foram encontradas ${nc.length} não conformidades em ${balizasAfetadas.size} balizas (${pct}% das posições verificadas): ` +
-            `${ldSet.size} no lado direito e ${leSet.size} no lado esquerdo` +
-            (bothSet.size ? `, sendo ${bothSet.size} ${bothSet.size === 1 ? 'baliza afetada' : 'balizas afetadas'} nos dois lados` : '') + `. ` +
+            `Foram encontradas ${nc.length} não conformidades, distribuídas em ${balizasAfetadas.size} ${balizasAfetadas.size === 1 ? 'baliza' : 'balizas'} ` +
+            `— ${posAfetadas} das ${totalPos} posições verificadas (${pct}%). ` +
+            `${ncLD} ${ncLD === 1 ? 'ocorrência atinge' : 'ocorrências atingem'} o lado direito e ${ncLE} o lado esquerdo` +
+            (bothSet.size ? `, com ${bothSet.size} ${bothSet.size === 1 ? 'baliza afetada' : 'balizas afetadas'} nos dois lados` : '') + `. ` +
             (criticas ? `Destas, ${criticas} ${criticas === 1 ? 'é crítica' : 'são críticas'} (severidade Alto ou Muito Alto) e ${criticas === 1 ? 'exige' : 'exigem'} correção prioritária.`
-                      : `Nenhuma foi classificada como crítica.`)
+                      : `Nenhuma anomalia estrutural foi classificada como crítica (severidade Alto ou Muito Alto).`)
         );
 
         // 3. O que foi encontrado, item por item (frases curtas)
@@ -2815,8 +2826,11 @@ function gerarConclusao(comRecomendacoes) {
             const nBal = new Set(bal).size;
             const tipos = [...new Set(rel.map(a => (a.tipo || '').toLowerCase()).filter(Boolean))];
             const qtd = rel.reduce((s, a) => s + (a.qtd || 1), 0);
+            // não repete o tipo quando ele apenas ecoa o nome do item (ex.: "Vegetação: vegetação")
+            const nomeItem = it.nome.toLowerCase();
+            const tiposUteis = tipos.filter(t => t !== nomeItem);
             linhas.push(
-                `${it.nome.charAt(0) + it.nome.slice(1).toLowerCase()}: ${tipos.length ? fmtLista(tipos) : 'não conformidade'} ` +
+                `${it.nome.charAt(0) + it.nome.slice(1).toLowerCase()}: ${tiposUteis.length ? fmtLista(tiposUteis) : (tipos.length ? 'presença identificada' : 'não conformidade')} ` +
                 `${nBal === 1 ? 'na baliza' : 'nas balizas'} ${fmtBalizas(bal)} — ${qtd} ${qtd === 1 ? 'unidade' : 'unidades'}, severidade ${getSeverityLabel(Math.max(...rel.map(a => a.sev)))}.`
             );
         });
@@ -2834,9 +2848,11 @@ function gerarConclusao(comRecomendacoes) {
     }
 
     // 5. Limpeza da via
+    let viaComSujidade = false;
     (() => {
         const sujAnom = nc.filter(a => /sujidade|vegeta|contamina|drenagem|limpeza/i.test((a.tipo || '') + ' ' + (a.desc || '')));
         const cond = val('inp-limpeza');
+        viaComSujidade = cond !== 'conforme' || sujAnom.length > 0;
         const trechos = val('inp-limpeza-trechos').trim();
         const nBalSuj = new Set(sujAnom.map(a => a.baliza)).size;
         const onde = sujAnom.length
@@ -2859,7 +2875,7 @@ function gerarConclusao(comRecomendacoes) {
     // 6. Notas anteriores
     if (notas.length) {
         P.push(
-            `Na carteira do ativo constam ${notas.length} ${notas.length === 1 ? 'nota' : 'notas'} de inspeções anteriores (${fmtLista(notas.map(x => x.n))})` +
+            `Na carteira do ativo ${notas.length === 1 ? 'consta 1 nota' : 'constam ' + notas.length + ' notas'} de inspeções anteriores (${fmtLista(notas.map(x => x.n))})` +
             (abertas.length ? `, ${abertas.length === 1 ? 'sendo 1 ainda sem tratativa concluída' : `sendo ${abertas.length} ainda sem tratativa concluída`}. Isso indica reincidência: as correções anteriores não foram feitas ou não resolveram o problema.`
                             : `, todas já concluídas.`)
         );
@@ -2869,6 +2885,7 @@ function gerarConclusao(comRecomendacoes) {
 
     // 7. Topografia
     const trans = pontosTransClassificados();
+    const nPranchasTopo = document.querySelectorAll('#topoGallery .drawing-upload-area.has-image').length;
     if (temPrancha || medicoes.length || topoDoc || trans.length) {
         P.push(
             `O levantamento topográfico${topoDoc ? ` (documento ${topoDoc})` : ''}${topoEmp ? `, feito por ${topoEmp}` : ''}${topoDataFmt ? ` em ${topoDataFmt}` : ''} está na seção 12.0. ` +
@@ -2880,8 +2897,11 @@ function gerarConclusao(comRecomendacoes) {
                       (piorRisco && piorRisco.risco.n >= 3
                         ? `O pior caso é ${piorRisco.risco.label.toLowerCase()}, acima do máximo admitido antes do realinhamento, e exige correção geométrica programada.`
                         : `Os desvios ainda estão abaixo do máximo admitido antes do realinhamento, mas precisam ser acompanhados.`)
-                    : `As ${medicoes.length} ${medicoes.length === 1 ? 'medição está conforme' : 'medições estão conformes'} aos critérios da FEM Seção II (Tabela 24).`)
-                : `Os resultados devem ser analisados junto com as não conformidades deste relatório.`)
+                    : `${medicoes.length === 1 ? 'A medição lançada está conforme' : 'As ' + medicoes.length + ' medições lançadas estão conformes'} aos critérios da FEM Seção II (Tabela 24).`)
+                : (nPranchasTopo
+                    ? `${nPranchasTopo === 1 ? 'Está anexada 1 prancha' : 'Estão anexadas ' + nPranchasTopo + ' pranchas'} do levantamento. As leituras ainda não foram lançadas na tabela de medições, ` +
+                      `portanto os desvios não estão classificados pelos critérios da FEM Seção II (Tabela 24) — recomenda-se fazê-lo para dimensionar a necessidade de correção geométrica.`
+                    : `Os resultados devem ser analisados junto com as não conformidades deste relatório.`))
         );
     } else {
         P.push(`Não foi feito levantamento topográfico nesta campanha. Recomenda-se realizá-lo para verificar nivelamento, alinhamento e bitola, já que as anomalias de lastro e fixação costumam vir acompanhadas de desvios geométricos.`);
@@ -2890,36 +2910,71 @@ function gerarConclusao(comRecomendacoes) {
     // 7.1 Levantamento transversal (LD × LE)
     if (trans.length) {
         const pTrans = paramTransversal() || { un: 'mm', fem: '', ref: '' };
-        const piorT = trans.reduce((a, x) => (x.risco.n > a.risco.n ? x : a), trans[0]);
+        const piorT = trans.reduce((a, x) => (x.risco.n > a.risco.n || (x.risco.n === a.risco.n && Math.abs(x.dif) > Math.abs(a.dif)) ? x : a), trans[0]);
         const foraT = trans.filter(x => x.risco.n >= 2);
         const mediaT = trans.reduce((s, x) => s + Math.abs(x.dif), 0) / trans.length;
         const maxT = Math.max(...trans.map(x => Math.abs(x.dif)));
         const balCriticas = [...new Set(trans.filter(x => x.risco.n >= 3).map(x => x.baliza).filter(Boolean))].sort();
+        const nTransMedio = trans.filter(x => x.risco.n === 2).length;
+        const nTransAlto = trans.filter(x => x.risco.n === 3).length;
+        const nTransMuito = trans.filter(x => x.risco.n === 4).length;
         P.push(
             `No levantamento transversal foram medidos ${trans.length} pontos ao longo da via, comparando o nível do trilho ` +
             `do lado direito com o do lado esquerdo. A diferença média entre os trilhos é de ${fmtNum(mediaT)} ${pTrans.un} e a maior ` +
-            `diferença registrada é de ${fmtNum(maxT)} ${pTrans.un}. Pelo critério da FEM Seção II (${pTrans.ref}), ` +
+            `diferença registrada é de ${fmtNum(maxT)} ${pTrans.un}. Critério aplicado: ${pTrans.fem === 'Critério de campo' ? 'diferença de nível entre trilhos' : 'FEM Seção II ' + pTrans.fem} (${pTrans.ref}). ` +
             (foraT.length
-                ? `${foraT.length} ponto(s) estão acima da tolerância — a pior condição é ${piorT.risco.label.toLowerCase()}` +
-                  `${piorT.baliza ? ' na baliza ' + piorT.baliza : ''}. ` +
+                ? `${foraT.length} ${foraT.length === 1 ? 'ponto está' : 'pontos estão'} acima da tolerância: ` +
+                  `${nTransMedio} em risco médio e ${nTransAlto + nTransMuito} acima do limite máximo antes do realinhamento` +
+                  `${nTransMuito ? ` (sendo ${nTransMuito} em risco muito alto)` : ''}. ` +
                   (balCriticas.length
-                    ? `${balCriticas.length === 1 ? 'A baliza' : 'As balizas'} ${fmtLista(balCriticas)} ${balCriticas.length === 1 ? 'ultrapassa' : 'ultrapassam'} o limite máximo admitido antes do realinhamento e ${balCriticas.length === 1 ? 'precisa' : 'precisam'} de correção geométrica programada.`
+                    ? `${balCriticas.length === 1 ? 'A baliza' : 'As balizas'} ${fmtBalizas(balCriticas.map(b => parseInt(b, 10)))} ` +
+                      `${balCriticas.length === 1 ? 'está' : 'estão'} nessa condição e ${balCriticas.length === 1 ? 'precisa' : 'precisam'} de correção geométrica programada. ` +
+                      `A pior leitura é de ${fmtNum(Math.abs(piorT.dif))} ${pTrans.un}${piorT.baliza ? ' na baliza ' + piorT.baliza : ''} — ${piorT.risco.label.toLowerCase()}.`
                     : `Os desvios ainda estão abaixo do limite máximo antes do realinhamento, mas exigem acompanhamento.`)
                 : `todos os pontos estão dentro da tolerância.`)
         );
     }
 
-    // 8. Conclusão final
-    if (nc.length === 0) {
-        P.push(`Conclusão: o ativo está apto à operação. Manter o plano de inspeção vigente.`);
-    } else {
-        const grave = criticas > 0;
-        P.push(
-            grave
-                ? `Conclusão: a via apresenta não conformidades que comprometem a fixação e a estabilidade da superestrutura. Pode continuar operando, desde que as correções da seção 14.0 sejam executadas e o ativo seja reinspecionado depois. A limpeza da via deve ser feita antes das demais intervenções.`
-                : `Conclusão: as não conformidades encontradas são de baixa a média severidade e não impedem a operação. As correções devem entrar na programação de manutenção preventiva.`
-        );
-    }
+    // 8. Conclusão final — pesa as anomalias estruturais e o risco geométrico
+    (() => {
+        // pior nível de risco topográfico (medições por trecho + levantamento transversal)
+        const riscosTopo = medicoes.filter(m => m.risco).map(m => m.risco.n).concat(trans.map(x => x.risco.n));
+        const piorTopo = riscosTopo.length ? Math.max(...riscosTopo) : -1;
+        const balGeo = [...new Set(trans.filter(x => x.risco.n >= 3).map(x => x.baliza).filter(Boolean))];
+        const geoAcimaMax = piorTopo >= 3;
+        const geoAtencao = piorTopo === 2;
+
+        const partes = [];
+        if (nc.length === 0) {
+            partes.push(`Conclusão: não foram identificadas não conformidades estruturais na via.`);
+        } else if (criticas > 0) {
+            partes.push(`Conclusão: a via apresenta não conformidades que comprometem a fixação e a estabilidade da superestrutura. ` +
+                `Pode continuar operando desde que as correções da seção 14.0 sejam executadas e o ativo seja reinspecionado depois.`);
+        } else {
+            partes.push(`Conclusão: as não conformidades estruturais são de baixa a média severidade e, isoladamente, não impedem a operação.`);
+        }
+
+        if (geoAcimaMax) {
+            partes.push(`No entanto, a geometria da via é o ponto mais crítico desta inspeção: ` +
+                (balGeo.length
+                    ? `${balGeo.length === 1 ? 'a baliza' : 'as balizas'} ${fmtBalizas(balGeo.map(b => parseInt(b, 10)))} ${balGeo.length === 1 ? 'está' : 'estão'} acima do limite máximo admitido antes do realinhamento`
+                    : `há desvios acima do limite máximo admitido antes do realinhamento`) +
+                `, condição classificada como risco alto. O realinhamento desses trechos deve ser programado e tratado com prioridade sobre as demais correções, ` +
+                `pois o desnivelamento entre os trilhos acelera o desgaste das rodas, das fixações e da própria estrutura do equipamento.`);
+        } else if (geoAtencao) {
+            partes.push(`A geometria da via apresenta desvios acima da tolerância de instalação, ainda dentro do limite máximo antes do realinhamento (risco médio). ` +
+                `Esses trechos devem ser monitorados no próximo levantamento para que não evoluam até a necessidade de realinhamento.`);
+        }
+
+        if (viaComSujidade) {
+            partes.push(`A limpeza da via deve anteceder as demais intervenções, para permitir a inspeção completa dos componentes hoje encobertos.`);
+        }
+        partes.push(nc.length || geoAcimaMax
+            ? `As demais correções devem entrar na programação de manutenção preventiva, conforme a seção 14.0.`
+            : `Manter o plano de inspeção vigente.`);
+
+        P.push(partes.join(' '));
+    })();
 
     ta.value = P.join('\n\n');
     ta.dispatchEvent(new Event('input', { bubbles: true }));
@@ -3386,8 +3441,9 @@ function interpretarLinhasTransversais(linhasCol, balizaInicial) {
         if (/ponto|baliza|dist[âa]ncia|lado|dif\b|leitura|hora|data|linha\s*[12]|trilho|levantamento|sentido|p[áa]gina/i.test(linha) &&
             col.filter(c => !isNaN(numPlanilha(c))).length < 3) { ignoradas++; return; }
 
-        // Localiza o par de leituras LE/LD: duas colunas numéricas vizinhas, de mesma ordem de
-        // grandeza e próximas entre si. Assim a leitura funciona com ou sem as colunas Módulo e Dif.
+        // Localiza o par de leituras LE/LD: duas colunas numéricas vizinhas e muito próximas
+        // entre si. A coluna seguinte, quando traz a diferença, confirma o par escolhido —
+        // é o que evita confundir "distância + LE" com "LE + LD" quando LD é menor que LE.
         const nums = col.map(numPlanilha);
         let iLE = -1, melhor = -Infinity;
         for (let i = 0; i < col.length - 1; i++) {
@@ -3395,20 +3451,39 @@ function interpretarLinhasTransversais(linhasCol, balizaInicial) {
             if (isNaN(a) || isNaN(b)) continue;
             const escala = Math.max(Math.abs(a), Math.abs(b));
             if (escala === 0) continue;
-            if (Math.abs(a - b) > 0.2 * escala) continue;      // distância × leitura não formam par
-            if (escala > melhor) { melhor = escala; iLE = i; }
+            const relativa = Math.abs(a - b) / escala;
+            if (relativa > 0.2) continue;                       // distância × leitura não formam par
+            let nota = (1 - relativa) * 100;                    // quanto mais próximas, melhor
+            const seguinte = nums[i + 2];
+            if (!isNaN(seguinte) && Math.abs(seguinte - (b - a)) <= 1) nota += 1000;   // coluna DIF confirma
+            nota += escala / 1e9;                               // desempate por ordem de grandeza
+            if (nota > melhor) { melhor = nota; iLE = i; }
         }
-        if (iLE < 0) { ignoradas++; return; }
+        let ponto = '', baliza = '', modulo = '', dist = '', le = NaN, ld = NaN, dif = NaN;
 
-        let ponto = '', baliza = '', modulo = '', dist = '';
-        const le = nums[iLE], ld = nums[iLE + 1];
-        let dif = iLE + 2 < col.length ? numPlanilha(col[iLE + 2]) : NaN;
-        if (iLE >= 2) { ponto = col[0]; baliza = col[1]; }
-        else if (iLE === 1) { baliza = col[0]; }
-        if (iLE - 1 >= 2) dist = col[iLE - 1];
-        if (iLE - 2 >= 2) modulo = col[iLE - 2];
+        if (iLE >= 0) {
+            le = nums[iLE]; ld = nums[iLE + 1];
+            dif = iLE + 2 < col.length ? numPlanilha(col[iLE + 2]) : NaN;
+            if (iLE >= 2) { ponto = col[0]; baliza = col[1]; }
+            else if (iLE === 1) { baliza = col[0]; }
+            if (iLE - 1 >= 2) dist = col[iLE - 1];
+            if (iLE - 2 >= 2) modulo = col[iLE - 2];
+            if (isNaN(dif)) dif = ld - le;
+        } else {
+            // Leitura incompleta: sem o par de níveis, aproveita a diferença já apurada em campo
+            // (é o caso das linhas em que o levantamento não registrou LE e LD).
+            let iDist = -1;
+            for (let i = col.length - 1; i >= 0; i--) { if (!isNaN(nums[i]) && Math.abs(nums[i]) >= 100) { iDist = i; break; } }
+            if (iDist < 0) { ignoradas++; return; }
+            for (let i = iDist + 1; i < col.length; i++) {
+                if (!isNaN(nums[i]) && Math.abs(nums[i]) <= 999) { dif = nums[i]; break; }
+            }
+            if (isNaN(dif)) { ignoradas++; return; }
+            ponto = col[0];
+            if (iDist >= 2) baliza = col[1];
+            dist = col[iDist];
+        }
 
-        if (isNaN(dif)) dif = ld - le;
         if (isNaN(dif)) { ignoradas++; return; }
 
         const bal = balizaValida(baliza, balizaAtual);
@@ -3493,7 +3568,7 @@ function renderTransversal() {
     if (resumo) {
         if (!cls.length) resumo.textContent = '';
         else {
-            const pior = cls.reduce((a, x) => (x.risco.n > a.risco.n ? x : a), cls[0]);
+            const pior = cls.reduce((a, x) => (x.risco.n > a.risco.n || (x.risco.n === a.risco.n && Math.abs(x.dif) > Math.abs(a.dif)) ? x : a), cls[0]);
             const fora = cls.filter(x => x.risco.n >= 2);
             resumo.innerHTML = `<strong>${cls.length}</strong> ponto(s) medido(s) · diferença média ` +
                 `<strong>${fmtNum(cls.reduce((s, x) => s + Math.abs(x.dif), 0) / cls.length)} ${(paramTransversal() || {}).un || 'mm'}</strong> · ` +
@@ -3512,7 +3587,7 @@ function blocosTransversal() {
     if (!cls.length) return null;
     const val = id => (document.getElementById(id) || {}).value || '';
     const p = paramTransversal() || { fem: '', ref: '', un: 'mm' };
-    const pior = cls.reduce((a, x) => (x.risco.n > a.risco.n ? x : a), cls[0]);
+    const pior = cls.reduce((a, x) => (x.risco.n > a.risco.n || (x.risco.n === a.risco.n && Math.abs(x.dif) > Math.abs(a.dif)) ? x : a), cls[0]);
     const fora = cls.filter(x => x.risco.n >= 2);
     const media = cls.reduce((s, x) => s + Math.abs(x.dif), 0) / cls.length;
     const maxDif = Math.max(...cls.map(x => Math.abs(x.dif)));
@@ -5258,6 +5333,35 @@ async function exportarPDFMapa() {
                     novaFolha();
                     if (!primeiro) abrirTitulo(true);
                     corpo.appendChild(d);
+                }
+                // Parágrafo maior que a folha: divide por palavras para nada ser cortado
+                if (!cabe()) {
+                    const modelo = d.firstElementChild || d;
+                    const classe = modelo.className || 'tx';
+                    const tag = (modelo.tagName || 'P').toLowerCase();
+                    const palavras = (d.textContent || '').split(/\s+/).filter(Boolean);
+                    corpo.removeChild(d);
+                    let par = null, dentro = 0;
+                    const novoParagrafo = () => {
+                        par = wd.createElement(tag);
+                        par.className = classe;
+                        par.textContent = '';
+                        corpo.appendChild(par);
+                        dentro = 0;
+                    };
+                    novoParagrafo();
+                    for (let k = 0; k < palavras.length; k++) {
+                        const anterior = par.textContent;
+                        par.textContent = anterior ? anterior + ' ' + palavras[k] : palavras[k];
+                        if (!cabe()) {
+                            par.textContent = anterior;
+                            if (dentro === 0) break;          // nem uma palavra cabe: evita laço infinito
+                            novaFolha();
+                            novoParagrafo();
+                            par.textContent = palavras[k];
+                        }
+                        dentro++;
+                    }
                 }
                 primeiro = false;
             }
