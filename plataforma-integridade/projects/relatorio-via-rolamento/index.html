@@ -1863,7 +1863,9 @@
             <div class="card-title" style="margin:26px 0 10px;"><span class="icon">📊</span> 12.2 Levantamento Transversal (LD × LE) — Classificação Automática</div>
             <p style="color:var(--text-secondary);font-size:0.86em;margin:-4px 0 12px;">
                 Importe o relatório topográfico em PDF ou cole a planilha de campo. O sistema extrai os pontos, calcula a
-                diferença de nível entre os trilhos (LD − LE) e classifica automaticamente pelo critério FEM escolhido. Colunas aceitas:
+                diferença de nível entre os trilhos (LD − LE) e classifica cada ponto pelo critério selecionado. O critério padrão
+                é a <strong>faixa de criticidade definida pela equipe de Engenharia</strong>: Risco Baixo ≤ 20 mm · Risco Médio
+                &gt; 20 até 40 mm · Risco Alto &gt; 40 até 100 mm · Risco Muito Alto &gt; 100 mm. Colunas aceitas:
                 <em>Ponto · Baliza · Módulo · Distância · Lado Norte (LE) · Lado Sul (LD) · Dif.</em> — a baliza é
                 repetida nos pontos seguintes até aparecer a próxima.
             </p>
@@ -1877,7 +1879,7 @@
                 <div class="form-field">
                     <label>Critério de Classificação</label>
                     <select id="trans-param" onchange="renderTransversal()">
-                        <option value="dif-nivel" selected>Diferença de nível entre trilhos LD × LE — 10 mm / máx. 40 mm</option>
+                        <option value="dif-nivel" selected>Diferença de nível entre trilhos (LD − LE) — critério de criticidade da Engenharia (20 / 40 / 100 mm)</option>
                         <option value="nivel-vao">6.2.4.5 — Nível relativo entre trilhos ao longo do vão (10 / máx. 20 mm)</option>
                         <option value="nivel-secao">6.2.4.5 — Nível relativo entre trilhos na mesma seção (1,5 / máx. 5 mm)</option>
                         <option value="altura-4p">6.2.4.5 — Altura em 4 pontos (± 7 / máx. 21 mm)</option>
@@ -1954,6 +1956,7 @@
                 </thead>
                 <tbody id="femTableBody"></tbody>
             </table>
+            <p id="femNota" style="color:var(--text-muted);font-size:0.82em;font-style:italic;margin:8px 0 0;"></p>
 
             <div id="topoAnexos">
                 <div class="card-title" style="margin:24px 0 10px;"><span class="icon">📎</span> 12.5 Pranchas / Anexos do Levantamento</div>
@@ -2921,7 +2924,7 @@ function gerarConclusao(comRecomendacoes) {
         P.push(
             `No levantamento transversal foram medidos ${trans.length} pontos ao longo da via, comparando o nível do trilho ` +
             `do lado direito com o do lado esquerdo. A diferença média entre os trilhos é de ${fmtNum(mediaT)} ${pTrans.un} e a maior ` +
-            `diferença registrada é de ${fmtNum(maxT)} ${pTrans.un}. Critério aplicado: ${pTrans.fem === 'Critério de campo' ? 'diferença de nível entre trilhos' : 'FEM Seção II ' + pTrans.fem} (${pTrans.ref}). ` +
+            `diferença registrada é de ${fmtNum(maxT)} ${pTrans.un}. Critério aplicado: ${pTrans.id === 'dif-nivel' ? 'diferença de nível entre trilhos, definido pela equipe de Engenharia' : (pTrans.id === 'custom' ? 'critério personalizado do equipamento' : 'FEM Seção II ' + pTrans.fem)} (${pTrans.ref}). ` +
             (foraT.length
                 ? `${foraT.length} ${foraT.length === 1 ? 'ponto está' : 'pontos estão'} acima da tolerância: ` +
                   `${nTransMedio} em risco médio e ${nTransAlto + nTransMuito} acima do limite máximo antes do realinhamento` +
@@ -3115,14 +3118,23 @@ let topoCounter = 0;
 // Classificação automática de risco por parâmetro medido.
 // ============================================================
 const TOLERANCIAS_FEM = [
-    { id: 'bitola',        fem: '6.2.4.2', nome: 'Tolerância de bitola (vão entre trilhos)',        un: 'mm', tol: 10,  max: 40,  ref: '± 10 mm (instalação) · máx. ± 40 mm', metodo: 'Trena' },
-    { id: 'retilineidade', fem: '6.2.4.4', nome: 'Retilineidade horizontal (em 30 m)',              un: 'mm', tol: 6,   max: 12,  ref: '± 6 mm em 30 m · máx. ± 12 mm',      metodo: 'Teodolito ou corda de piano' },
-    { id: 'nivel-secao',   fem: '6.2.4.5', nome: 'Nível relativo entre trilhos — mesma seção',      un: 'mm', tol: 1.5, max: 5,   ref: '1,5 mm · máx. 5 mm',                 metodo: 'Teodolito ou nível' },
-    { id: 'nivel-vao',     fem: '6.2.4.5', nome: 'Nível relativo entre trilhos — ao longo do vão',  un: 'mm', tol: 10,  max: 20,  ref: '10 mm · máx. 20 mm',                 metodo: 'Teodolito ou nível' },
-    { id: 'altura-4p',     fem: '6.2.4.5', nome: 'Tolerância de altura em 4 pontos (7 m + 7 m)',    un: 'mm', tol: 7,   max: 21,  ref: '± 7 mm · máx. 21 mm',                metodo: 'Teodolito ou corda de piano' },
-    { id: 'curvatura',     fem: '6.2.4.5', nome: 'Curvatura local do trilho — vertical (em 30 m)',  un: 'mm', tol: 6,   max: 12,  ref: '± 6 mm em 30 m · máx. ± 12 mm',      metodo: 'Teodolito ou corda de piano' },
-    { id: 'inclinacao',    fem: '6.2.4.5', nome: 'Inclinação do trilho',                            un: '%',  tol: 0.1, max: 0.3, ref: '± 0,1 % · máx. ± 0,3 %',             metodo: 'Teodolito ou nível' },
+    { id: 'bitola',        fem: '6.2.4.2', nome: 'Tolerância do vão (entre trilhos)',              un: 'mm', tol: 10,  max: 40,  ref: '± 10 mm na instalação · máx. ± 40 mm antes do realinhamento', metodo: 'Trena' },
+    { id: 'retilineidade', fem: '6.2.4.4', nome: 'Tolerância de retilineidade (em 30 m)',           un: 'mm', tol: 6,   max: 12,  ref: '± 6 mm em qualquer 30 m · máx. ± 12 mm',  metodo: 'Teodolito ou fio de piano' },
+    { id: 'nivel-secao',   fem: '6.2.4.5', nome: 'Desnível relativo dos trilhos (1544 mm)',         un: 'mm', tol: 1.5, max: 5,   ref: 'admissível 1,5 mm · máx. 5 mm',            metodo: 'Teodolito ou nível de precisão' },
+    { id: 'nivel-vao',     fem: '6.2.4.5', nome: 'Desnível relativo dos trilhos (8456 mm)',         un: 'mm', tol: 10,  max: 20,  ref: 'admissível 10 mm · máx. 20 mm',           metodo: 'Teodolito ou nível de precisão' },
+    { id: 'altura-4p',     fem: '6.2.4.5', nome: 'Tolerância de altura em 4 pontos (7 m + 7 m)',    un: 'mm', tol: 7,   max: 21,  ref: '± 7 mm · máx. 21 mm antes do realinhamento', metodo: 'Teodolito ou fio de piano' },
+    { id: 'curvatura',     fem: '6.2.4.5', nome: 'Curvatura vertical local do trilho (em 30 m)',    un: 'mm', tol: 6,   max: 12,  ref: '± 6 mm em qualquer 30 m · máx. ± 12 mm',  metodo: 'Teodolito ou fio de piano' },
+    { id: 'inclinacao',    fem: '6.2.4.5', nome: 'Inclinação do trilho',                            un: '%',  tol: 0.1, max: 0.3, ref: 'admissível ± 0,1 % · máx. ± 0,3 %',       metodo: 'Teodolito ou nível de precisão' },
 ];
+
+// Critério adotado em campo para a diferença de nível entre os trilhos (LD × LE).
+// Não faz parte da Tabela 24 — é listado à parte, marcado com asterisco.
+const CRITERIO_CAMPO = {
+    id: 'dif-nivel', fem: 'Eng. (não FEM)', nome: 'Diferença de nível entre trilhos (LD − LE) *',
+    un: 'mm', tol: 20, max: 40, metodo: 'Nivelamento topográfico',
+    ref: 'Risco Baixo ≤ 20 mm · Risco Médio > 20 até 40 mm · Risco Alto > 40 até 100 mm · Risco Muito Alto > 100 mm',
+    faixas: { conforme: -1, baixo: 20, medio: 40, alto: 100 },
+};
 
 const RISCOS_TOPO = [
     { n: 0, label: 'Conforme',         cor: '#059669', fundo: 'rgba(5,150,105,0.14)' },
@@ -3139,8 +3151,10 @@ function getFEM(idOuNome) {
            TOLERANCIAS_FEM.find(p => p.nome.toLowerCase() === k) || null;
 }
 
-// Faixas de classificação a partir da tolerância de instalação e do máximo antes do realinhamento
+// Faixas de classificação. Quando o critério traz faixas próprias, elas prevalecem;
+// caso contrário, são derivadas da tolerância de instalação e do máximo antes do realinhamento.
 function faixasFEM(p) {
+    if (p.faixas) return p.faixas;
     const baixo = Math.min(2 * p.tol, (p.tol + p.max) / 2);
     return { conforme: p.tol, baixo, medio: p.max, alto: 1.5 * p.max };
 }
@@ -3175,7 +3189,8 @@ function fmtNum(v) {
 // Descreve as faixas de um parâmetro: "≤10 · 10–20 · 20–40 · 40–60 · >60 mm"
 function descreverFaixas(p) {
     const f = faixasFEM(p);
-    return `Conforme ≤ ${fmtNum(f.conforme)} · Baixo ≤ ${fmtNum(f.baixo)} · Médio ≤ ${fmtNum(f.medio)} · ` +
+    return (f.conforme >= 0 ? `Conforme ≤ ${fmtNum(f.conforme)} · ` : '') +
+           `Baixo ≤ ${fmtNum(f.baixo)} · Médio ≤ ${fmtNum(f.medio)} · ` +
            `Alto ≤ ${fmtNum(f.alto)} · Muito Alto > ${fmtNum(f.alto)} ${p.un}`;
 }
 
@@ -3244,10 +3259,7 @@ function paramTransversal() {
     const id = sel ? sel.value : 'dif-nivel';
     // Critério adotado em campo para a diferença de nível entre os trilhos:
     // 10 mm de tolerância e 40 mm como máximo antes do realinhamento.
-    if (id === 'dif-nivel') {
-        return { id: 'dif-nivel', fem: 'Critério de campo', nome: 'Diferença de nível entre trilhos (LD × LE)',
-                 un: 'mm', tol: 10, max: 40, ref: '± 10 mm · máx. ± 40 mm', metodo: 'Nivelamento topográfico' };
-    }
+    if (id === 'dif-nivel') return CRITERIO_CAMPO;
     if (id === 'custom') {
         const tol = numPlanilha((document.getElementById('trans-tol') || {}).value);
         const max = numPlanilha((document.getElementById('trans-max') || {}).value);
@@ -3541,7 +3553,13 @@ function renderTransversal() {
     if (!tbody) return;
     const p = paramTransversal();
     const crit = document.getElementById('trans-criterio');
-    if (crit) crit.textContent = p ? `${p.fem} · ${p.ref} — ${descreverFaixas(p)}` : 'Informe a tolerância e o máximo do critério personalizado.';
+    // com faixas próprias o "ref" já descreve os limites; nos demais, mostra as faixas derivadas
+    if (crit) {
+        crit.textContent = !p ? 'Informe a tolerância e o máximo do critério personalizado.'
+            : p.id === 'dif-nivel' ? `Critério de criticidade definido pela equipe de Engenharia — ${p.ref}`
+            : p.faixas ? `${p.fem} · ${p.ref}`
+            : `${p.fem} · ${p.ref} — ${descreverFaixas(p)}`;
+    }
 
     const pontos = pontosTransversais.map(x => ({ ...x, risco: classificarDif(x.dif) }));
     if (!pontos.length) {
@@ -3675,13 +3693,15 @@ function renderResumoRiscoTopo() {
 function renderCriteriosFEM() {
     const tbody = document.getElementById('femTableBody');
     if (!tbody) return;
-    tbody.innerHTML = TOLERANCIAS_FEM.map(p => {
+    const nota = document.getElementById('femNota');
+    if (nota) nota.textContent = NOTA_CRITERIO_CAMPO;
+    tbody.innerHTML = TOLERANCIAS_FEM.concat([CRITERIO_CAMPO]).map(p => {
         const f = faixasFEM(p);
-        return `<tr>
+        return `<tr${p.id === 'dif-nivel' ? ' style="background:rgba(31,78,121,0.06);"' : ''}>
             <td>${p.fem}</td>
             <td>${p.nome}</td>
             <td style="text-align:center;">${p.ref}</td>
-            <td style="text-align:center;">≤ ${fmtNum(f.conforme)}</td>
+            <td style="text-align:center;">${f.conforme >= 0 ? '≤ ' + fmtNum(f.conforme) : '—'}</td>
             <td style="text-align:center;">≤ ${fmtNum(f.baixo)}</td>
             <td style="text-align:center;">≤ ${fmtNum(f.medio)}</td>
             <td style="text-align:center;">≤ ${fmtNum(f.alto)}</td>
@@ -5135,10 +5155,15 @@ const TEXTO_CRITERIOS = 'Faixas derivadas da tolerância de instalação e do li
     'até a tolerância o trilho está conforme; entre a tolerância e o limite máximo há risco baixo e médio; ' +
     'acima do máximo, risco alto; acima de 1,5 × o máximo, risco muito alto. Os valores são comparados sempre em módulo.';
 
+const NOTA_CRITERIO_CAMPO = '* Critério de campo aplicado ao levantamento transversal (seção 12.2), sobre o valor absoluto da ' +
+    'diferença de nível entre os trilhos (LD − LE). Os limites de 20 mm, 40 mm e 100 mm não constam da Tabela 24 da ' +
+    'FEM Seção II: foram definidos e validados pela equipe de Engenharia responsável pelo ativo, a quem cabe a ' +
+    'responsabilidade técnica por sua adoção. As demais linhas desta tabela seguem integralmente os parâmetros normativos.';
+
 function linhasCriteriosFEM() {
-    return TOLERANCIAS_FEM.map(x => {
+    return TOLERANCIAS_FEM.concat([CRITERIO_CAMPO]).map(x => {
         const f = faixasFEM(x);
-        return [x.fem, x.nome, x.ref, '≤ ' + fmtNum(f.conforme), '≤ ' + fmtNum(f.baixo),
+        return [x.fem, x.nome, x.ref, f.conforme >= 0 ? '≤ ' + fmtNum(f.conforme) : '—', '≤ ' + fmtNum(f.baixo),
                 '≤ ' + fmtNum(f.medio), '≤ ' + fmtNum(f.alto), '> ' + fmtNum(f.alto), x.metodo];
     });
 }
@@ -5560,7 +5585,8 @@ async function exportarPDFMapa() {
                 [`<p class="tx">${esc(TEXTO_CRITERIOS)}</p>`]);
             tabela('', ['FEM', 'Parâmetro', 'Tolerância (instalação · máx.)', 'Conforme', 'Baixo', 'Médio', 'Alto', 'Muito Alto', 'Método de Medição'],
                 linhasCriteriosFEM());
-            bloco('<p class="cap">Níveis de classificação: Conforme · Risco Baixo · Risco Médio · Risco Alto · Risco Muito Alto.</p>');
+            bloco('<p class="cap">Níveis de classificação: Conforme · Risco Baixo · Risco Médio · Risco Alto · Risco Muito Alto.</p>' +
+                  `<p class="cap" style="text-align:left;">${esc(NOTA_CRITERIO_CAMPO)}</p>`);
         }
 
         // ── 10. Anexos topográficos — um por folha ──
@@ -5957,7 +5983,8 @@ async function exportarWordMapa() {
                 tab(['FEM', 'Parâmetro', 'Tolerância (instalação · máx.)', 'Conforme', 'Baixo', 'Médio', 'Alto', 'Muito Alto', 'Método de Medição'],
                     linhasCriteriosFEM(), [900, 3000, 2100, 950, 900, 900, 900, 1000, 2350]),
                 P('Níveis de classificação: Conforme · Risco Baixo · Risco Médio · Risco Alto · Risco Muito Alto.',
-                  { italic: true, size: 20, color: CINZA }), P(''));
+                  { italic: true, size: 20, color: CINZA }),
+                P(NOTA_CRITERIO_CAMPO, { italic: true, size: 20, color: CINZA }), P(''));
         }
 
         // ── ANEXOS DO LEVANTAMENTO TOPOGRÁFICO ──
@@ -6288,28 +6315,34 @@ async function exportarWord() {
                     tabela(['Ponto', 'Baliza', 'Distância', 'LE (Norte)', 'LD (Sul)', 'Dif. (LD−LE)', 'Classificação'],
                         bt.linhasPontos, [900, 900, 1500, 1700, 1700, 1500, 1800]), P(''));
             }
-            const classificadas = medsTopo.filter(m => m.risco);
+            // consolida as medições por trecho (12.1) com os pontos do levantamento transversal (12.2)
+            const classificadas = medsTopo.filter(m => m.risco).concat(
+                pontosTransClassificados().map(x => ({
+                    trecho: x.baliza ? 'Baliza ' + x.baliza : (x.dist ? 'Distância ' + x.dist : ''),
+                    param: 'Diferença de nível entre trilhos (levantamento transversal)', risco: x.risco,
+                })));
             if (classificadas.length) {
                 const resumo = RISCOS_TOPO.map(r => {
                     const doNivel = classificadas.filter(m => m.risco.n === r.n);
+                    const trechos = [...new Set(doNivel.map(m => m.trecho).filter(Boolean))];
                     return [r.label, String(doNivel.length), Math.round(doNivel.length / classificadas.length * 100) + '%',
                         [...new Set(doNivel.map(m => m.param))].join(', ') || '—',
-                        [...new Set(doNivel.map(m => m.trecho).filter(Boolean))].join(', ') || '—'];
+                        trechos.length > 14 ? trechos.slice(0, 14).join(', ') + ' …' : (trechos.join(', ') || '—')];
                 });
                 const pior = classificadas.reduce((a, m) => (m.risco.n > a.risco.n ? m : a), classificadas[0]);
                 filhos.push(H2('12.3 Classificação de Risco Topográfico (Consolidado)'),
-                    P(`Foram classificadas ${classificadas.length} medição(ões) pelos critérios da FEM Seção II, Tabela 24. ` +
-                      `Pior condição registrada: ${pior.risco.label}${pior.trecho ? ' (balizas ' + pior.trecho + ')' : ''}.`),
+                    P(`Foram classificadas ${classificadas.length} ${classificadas.length === 1 ? 'medição' : 'medições'}, ` +
+                      `somando os resultados por trecho e os pontos do levantamento transversal. ` +
+                      `Pior condição registrada: ${pior.risco.label}${pior.trecho ? ' (' + pior.trecho.toLowerCase() + ')' : ''}.`),
                     tabela(['Nível de Risco', 'Medições', '%', 'Parâmetros', 'Trechos / Balizas'], resumo, [2000, 1100, 800, 3800, 2300]),
                     P(''),
                     H2('12.4 Critérios de Classificação — FEM Seção II (Tabela 24)'),
                     tabela(['FEM', 'Parâmetro', 'Tolerância (instalação · máx.)', 'Conforme', 'Baixo', 'Médio', 'Alto', 'Muito Alto'],
-                        TOLERANCIAS_FEM.map(x => { const f = faixasFEM(x);
-                            return [x.fem, x.nome, x.ref, '≤ ' + fmtNum(f.conforme), '≤ ' + fmtNum(f.baixo),
-                                    '≤ ' + fmtNum(f.medio), '≤ ' + fmtNum(f.alto), '> ' + fmtNum(f.alto)]; }),
+                        linhasCriteriosFEM().map(l => l.slice(0, 8)),
                         [900, 3000, 2200, 900, 900, 900, 900, 1000]),
                     P('Faixas derivadas da tolerância de instalação e do limite máximo antes do realinhamento; acima de 1,5 × o máximo a condição é classificada como risco muito alto.',
-                      { italic: true, size: 19, color: CINZA }), P(''));
+                      { italic: true, size: 19, color: CINZA }),
+                    P(NOTA_CRITERIO_CAMPO, { italic: true, size: 19, color: CINZA }), P(''));
             }
             const pranchasT = pranchasTopo();
             if (pranchasT.length) {
