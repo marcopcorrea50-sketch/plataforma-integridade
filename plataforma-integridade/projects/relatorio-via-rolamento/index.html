@@ -50,6 +50,7 @@
         .app-container {
             max-width: 1400px;
             margin: 0 auto;
+            padding-bottom: 96px; /* espaço para a barra flutuante de ações */
         }
 
         /* HEADER */
@@ -117,6 +118,7 @@
         /* TABS */
         .tab-nav {
             display: flex;
+            flex-wrap: wrap;
             gap: 4px;
             background: var(--bg-card);
             border: 1px solid var(--border-subtle);
@@ -128,7 +130,8 @@
         .tab-btn {
             flex: 1;
             min-width: 120px;
-            padding: 12px 16px;
+            white-space: nowrap;
+            padding: 12px 14px;
             background: transparent;
             border: none;
             border-radius: 8px;
@@ -765,7 +768,7 @@
         @media print {
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
             body { background: #fff !important; color: #1A1D26 !important; padding: 0 !important; font-size: 13.5px !important; line-height: 1.45 !important; }
-            .app-container { max-width: 100% !important; }
+            .app-container { max-width: 100% !important; padding-bottom: 0 !important; }
 
             .floating-actions, .tab-nav, .btn-add, .btn-remove, .btn-small,
             .anomaly-form-row, .add-evidence-btn, .anomaly-panel,
@@ -1388,14 +1391,14 @@
                 <div class="kpi-sub">Posições sem anomalia</div>
             </div>
             <div class="kpi-card yellow">
-                <div class="kpi-label">Anomalias LD</div>
+                <div class="kpi-label">Balizas c/ Anomalia — LD</div>
                 <div class="kpi-value" id="kpi-ld" style="color:var(--accent-yellow)">0</div>
-                <div class="kpi-sub">Balizas afetadas — Lado Direito</div>
+                <div class="kpi-sub">Lado Direito</div>
             </div>
             <div class="kpi-card orange">
-                <div class="kpi-label">Anomalias LE</div>
+                <div class="kpi-label">Balizas c/ Anomalia — LE</div>
                 <div class="kpi-value" id="kpi-le" style="color:var(--accent-orange)">0</div>
-                <div class="kpi-sub">Balizas afetadas — Lado Esquerdo</div>
+                <div class="kpi-sub">Lado Esquerdo</div>
             </div>
             <div class="kpi-card red">
                 <div class="kpi-label">Ambos Lados</div>
@@ -1431,8 +1434,8 @@
                 <div class="form-field">
                     <label>Condição de Limpeza / Sujidades</label>
                     <select id="inp-limpeza">
-                        <option value="conforme">Conforme — via limpa e desobstruída</option>
-                        <option value="pontual" selected>Sujidade pontual — trechos localizados</option>
+                        <option value="conforme" selected>Conforme — via limpa e desobstruída</option>
+                        <option value="pontual">Sujidade pontual — trechos localizados</option>
                         <option value="generalizada">Sujidade generalizada — ao longo de toda a via</option>
                         <option value="critica">Crítica — lastro colmatado / drenagem obstruída</option>
                     </select>
@@ -1499,6 +1502,7 @@
                         <th style="width:112px;">Concl. Desejada</th>
                         <th style="width:92px;">CenTrab Respon.</th>
                         <th style="width:98px;">Notificador</th>
+                        <th style="width:104px;" title="Clique duas vezes para alternar">Status</th>
                         <th style="width:40px;"></th>
                     </tr>
                 </thead>
@@ -2685,7 +2689,7 @@ function gerarRecomendacoes() {
         eng.push(`Abrir nota YE para avaliação estrutural das ocorrências de severidade Muito Alto: ${fmtLista(itensYE)}, ${new Set(muitoAlto.map(a => a.baliza)).size === 1 ? 'na baliza' : 'nas balizas'} ${fmtBalizas(muitoAlto.map(a => a.baliza))}.`);
     }
     if (abertas.length) {
-        eng.push(`Analisar a causa raiz da reincidência das anomalias, considerando que ${abertas.length === 1 ? 'a nota' : 'as notas'} ${fmtLista(abertas.map(x => x.n))} ${abertas.length === 1 ? 'continua' : 'continuam'} sem tratativa concluída.`);
+        eng.push(`Avaliar a causa raiz e a possível reincidência das anomalias, considerando que ${abertas.length === 1 ? 'a nota' : 'as notas'} ${fmtLista(abertas.map(x => x.n))} ${abertas.length === 1 ? 'continua' : 'continuam'} sem tratativa concluída.`);
     }
     if (topoCritico.length) {
         eng.push(`Programar o realinhamento da via: ${fmtLista(topoCritico.map(m => m.param.toLowerCase() + ' — desvio de ' + fmtNum(m.risco.desvio) + ' ' + m.un + (m.trecho ? ' nas balizas ' + m.trecho : '') + ' (' + m.risco.label.toLowerCase() + ')'))}. ` +
@@ -2731,14 +2735,20 @@ function gerarRecomendacoes() {
     } else if (nc.length) {
         insp.push(`Cadastrar as notas referentes às ${nc.length} não conformidades identificadas nesta inspeção, vinculando cada nota à respectiva baliza e item.`);
     }
-    if (notas.length) {
-        insp.push(`Acompanhar as notas de inspeções anteriores registradas na carteira do ativo: nº ${notas.map(x => x.n).join(', ')}.`);
+    if (abertas.length) {
+        insp.push(`Acompanhar a tratativa das notas de inspeções anteriores ainda em aberto na carteira do ativo: nº ${abertas.map(x => x.n).join(', ')}.`);
     }
     if (temSujidade) insp.push(`Cadastrar notas de limpeza e reinspecionar os trechos com sujidade após a execução dos serviços, pois o acúmulo de material impede a avaliação completa dos componentes.`);
     if (!temTopo) {
         insp.push(`Realizar levantamento topográfico de nivelamento, alinhamento e bitola.`);
     } else if (!medicoes.length && !transR.length) {
         insp.push(`Lançar na seção 12.0 as medições do levantamento topográfico anexado, para que os desvios sejam classificados pelos critérios da FEM Seção II (Tabela 24).`);
+    }
+    // Prazos-alvo por severidade (a partir da data da inspeção)
+    const sevPresentes = [4, 3, 2, 1].filter(sv => sev[sv] > 0);
+    if (sevPresentes.length) {
+        insp.push(`Prazos-alvo para tratativa, contados da data da inspeção: ` +
+            fmtLista(sevPresentes.map(sv => `${getSeverityLabel(sv)} — ${PRAZO_SEV[sv]} dias (até ${dataAlvo(dataIns, PRAZO_SEV[sv])})`)) + `.`);
     }
     insp.push(`Realizar inspeção de acordo com o plano sistemático.`);
 
@@ -2868,7 +2878,8 @@ function gerarConclusao(comRecomendacoes) {
         }
         const nivel = { pontual: 'sujidade em pontos localizados', generalizada: 'sujidade em toda a extensão da via', critica: 'sujidade crítica, com lastro colmatado e drenagem obstruída' }[cond] || 'sujidade';
         P.push(
-            `Foi constatada ${nivel}${onde ? `, ${onde}` : ''}, com acúmulo de minério e vegetação sobre o lastro. ` +
+            `Foi constatada ${nivel}${onde ? `, ${onde}` : ''}, com acúmulo de material sobre o lastro` +
+            (nc.some(a => /vegeta/i.test((a.tipo || '') + ' ' + (a.desc || ''))) ? ' e presença de vegetação. ' : '. ') +
             `Isso prejudica a drenagem, acelera a corrosão das fixações e impede a inspeção visual completa — ou seja, pode haver anomalias não identificadas nesses trechos. ` +
             `É necessário limpar a via e reinspecionar os trechos afetados` +
             (cond === 'critica' ? `, além de avaliar a substituição do lastro colmatado.` : `.`)
@@ -2879,7 +2890,7 @@ function gerarConclusao(comRecomendacoes) {
     if (notas.length) {
         P.push(
             `Na carteira do ativo ${notas.length === 1 ? 'consta 1 nota' : 'constam ' + notas.length + ' notas'} de inspeções anteriores (${fmtLista(notas.map(x => x.n))})` +
-            (abertas.length ? `, ${abertas.length === 1 ? 'sendo 1 ainda sem tratativa concluída' : `sendo ${abertas.length} ainda sem tratativa concluída`}. Isso indica reincidência: as correções anteriores não foram feitas ou não resolveram o problema.`
+            (abertas.length ? `, ${abertas.length === 1 ? 'sendo 1 ainda sem tratativa concluída' : `sendo ${abertas.length} ainda sem tratativa concluída`}. Enquanto essas tratativas não forem concluídas, as anomalias correspondentes tendem a reincidir nas próximas inspeções.`
                             : `, todas já concluídas.`)
         );
     } else {
@@ -2999,7 +3010,7 @@ function fmtDataBR(v) {
     return s;
 }
 
-function addNotaRow(prioridade, ordem, nota, local, descricao, concl, centrab, notificador) {
+function addNotaRow(prioridade, ordem, nota, local, descricao, concl, centrab, notificador, status) {
     const tbody = document.getElementById('notasTableBody');
     if (!tbody) return;
     const tr = document.createElement('tr');
@@ -3013,7 +3024,13 @@ function addNotaRow(prioridade, ordem, nota, local, descricao, concl, centrab, n
         <td contenteditable="true" style="text-align:center;">${c(fmtDataBR(concl))}</td>
         <td contenteditable="true" style="text-align:center;">${c(centrab)}</td>
         <td contenteditable="true" style="text-align:center;">${c(notificador)}</td>
+        <td class="nota-status" contenteditable="true" title="Clique duas vezes para alternar Em tratativa / Concluída" style="text-align:center;font-weight:600;cursor:pointer;">${c(status || 'Em tratativa')}</td>
         <td><button class="btn-remove" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td>`;
+    const stCell = tr.querySelector('.nota-status');
+    const pintar = () => { const ok = /conclu|encerr|atendid/i.test(stCell.textContent); stCell.style.color = ok ? 'var(--accent-green)' : 'var(--accent-yellow)'; };
+    stCell.addEventListener('dblclick', e => { e.preventDefault(); stCell.textContent = /conclu|encerr|atendid/i.test(stCell.textContent) ? 'Em tratativa' : 'Concluída'; pintar(); });
+    stCell.addEventListener('input', pintar);
+    pintar();
     tbody.appendChild(tr);
     if (!nota && !ordem) tr.cells[2].focus();
     return tr;
@@ -3103,7 +3120,7 @@ function lerNotas() {
             prio: c(0), ordem: c(1), n: c(2), local: c(3), desc,
             data: c(5), cen: c(6), notif: c(7),
             trecho: mBlz ? `${mBlz[1]} a ${mBlz[2]}` : '',
-            st: 'Em tratativa',   // notas da carteira são, por definição, pendentes
+            st: c(8) || 'Em tratativa',   // status editável na tabela (Em tratativa / Concluída)
         };
     }).filter(x => x.n || x.ordem);
 }
@@ -3257,8 +3274,8 @@ function numPlanilha(v) {
 function paramTransversal() {
     const sel = document.getElementById('trans-param');
     const id = sel ? sel.value : 'dif-nivel';
-    // Critério adotado em campo para a diferença de nível entre os trilhos:
-    // 10 mm de tolerância e 40 mm como máximo antes do realinhamento.
+    // Critério adotado em campo para a diferença de nível entre os trilhos (CRITERIO_CAMPO):
+    // Baixo ≤ 20 mm · Médio ≤ 40 mm · Alto ≤ 100 mm · Muito Alto > 100 mm.
     if (id === 'dif-nivel') return CRITERIO_CAMPO;
     if (id === 'custom') {
         const tol = numPlanilha((document.getElementById('trans-tol') || {}).value);
@@ -3822,6 +3839,34 @@ function addAnomaly() {
     showToast('Anomalia registrada: Baliza ' + pad2(baliza) + ' (' + lado + ') — ' + getItemLabel(item));
 }
 
+function editAnomaly(id) {
+    const a = anomalies.find(x => x.id === id);
+    if (!a) return;
+    const gi = getGroupIndex(a.baliza);
+    if (gi >= 0) selectGroup(gi);
+    const set = (elId, v) => { const el = document.getElementById(elId); if (el) el.value = v; };
+    set('inp-baliza', a.baliza);
+    set('inp-lado', a.lado);
+    set('inp-item', a.item);
+    set('inp-tipo', a.sev === 0 ? 'Desgaste' : a.tipo);
+    set('inp-sev', a.sev);
+    set('inp-qtd', a.qtd || 1);
+    set('inp-nota', a.nota || '');
+    set('inp-desc', a.sev === 0 && /^Item verificado/.test(a.desc || '') ? '' : (a.desc || ''));
+    if (document.getElementById('inp-comp')) {
+        try { onCompChange(); } catch (e) {}
+        set('inp-comp', a.compTipo && a.compNum ? a.compTipo + ':' + a.compNum : '');
+    }
+    anomalies = anomalies.filter(x => x.id !== id);
+    renderAnomalyTable();
+    updateKPIs();
+    renderDiagram();
+    renderHeatmaps();
+    document.querySelector('.anomaly-panel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('inp-desc').focus();
+    showToast('✎ Registro carregado no formulário — ajuste e clique em + Adicionar');
+}
+
 function removeAnomaly(id) {
     anomalies = anomalies.filter(a => a.id !== id);
     renderAnomalyTable();
@@ -3853,7 +3898,7 @@ function renderAnomalyTable() {
             <td><span class="severity-badge ${getSeverityClass(a.sev)}">${getSeverityLabel(a.sev)}</span></td>
             <td style="font-family:JetBrains Mono,monospace;font-weight:700;color:${ehConforme ? 'var(--accent-green)' : 'var(--accent-red)'};">${ehConforme ? '—' : (a.qtd || 1)}</td>
             <td style="font-family:JetBrains Mono,monospace;font-size:0.92em;color:var(--accent-purple);">${a.nota || '—'}</td>
-            <td><button class="btn-remove" onclick="removeAnomaly(${a.id})">✕</button></td>
+            <td style="white-space:nowrap;"><button class="btn-add" style="padding:4px 8px;font-size:0.85em;margin-right:4px;" title="Editar" onclick="editAnomaly(${a.id})">✎</button><button class="btn-remove" onclick="removeAnomaly(${a.id})">✕</button></td>
         </tr>`;
     }).join('');
 }
@@ -3875,21 +3920,21 @@ function renderConformidade() {
         const peso = a => (a.lado === 'LD+LE' ? 2 : 1);
         const posNC = ncItem.reduce((s, a) => s + peso(a), 0);
         const posConf = confItem.reduce((s, a) => s + peso(a), 0);
-        const verificadas = posNC + posConf;
         const balizasNC = new Set(ncItem.map(a => a.baliza));
-        // sem lançamento explícito de conformidade, considera-se verificada toda a via (rota da OP.0070)
-        const base = posConf > 0 ? verificadas : totalPos;
+        // Base fixa: toda a extensão da via (rota da OP.0070). Os registros "Conforme"
+        // são evidência de verificação e não alteram a base — assim quem os lança não é penalizado.
+        const base = totalPos;
         const conformes = Math.max(0, base - posNC);
         const pct = base ? Math.round(conformes / base * 100) : 100;
         const situacao = posNC === 0 ? 'Conforme' : (Math.max(...ncItem.map(a => a.sev)) >= 3 ? 'Não conforme (crítico)' : 'Não conforme');
-        return { it, verificadas: base, conformes, posNC, nBalNC: balizasNC.size, pct, situacao, explicito: posConf > 0 };
+        return { it, verificadas: base, conformes, posNC, nBalNC: balizasNC.size, pct, situacao, explicito: posConf > 0, posConfReg: posConf };
     });
 
     tbody.innerHTML = linhas.map(l => {
         const cor = l.posNC === 0 ? 'var(--accent-green)' : (l.situacao.includes('crítico') ? 'var(--accent-red)' : 'var(--accent-orange)');
         return `<tr>
             <td style="font-weight:600;">${l.it.extra ? '' : '<span style="color:var(--accent-green);font-weight:700;">' + l.it.op + '</span> '}${l.it.nome}</td>
-            <td style="text-align:center;">${l.verificadas}${l.explicito ? '' : ' *'}</td>
+            <td style="text-align:center;">${l.verificadas}${l.explicito ? ' <span title="Registros de conformidade lançados explicitamente" style="color:var(--accent-green);font-size:0.85em;">(' + l.posConfReg + ' reg.)</span>' : ' *'}</td>
             <td style="text-align:center;color:var(--accent-green);font-weight:600;">${l.conformes}</td>
             <td style="text-align:center;color:${l.posNC ? 'var(--accent-red)' : 'var(--text-muted)'};font-weight:600;">${l.posNC || '—'}</td>
             <td style="text-align:center;">${l.nBalNC || '—'}</td>
@@ -3898,7 +3943,7 @@ function renderConformidade() {
         </tr>`;
     }).join('') +
     `<tr><td colspan="7" style="color:var(--text-muted);font-size:0.86em;font-style:italic;">
-        * Itens sem lançamento explícito de conformidade: considera-se verificada toda a extensão da via (${totalPos} posições), conforme a rota da OP.0070.
+        Base de cálculo: toda a extensão da via (${totalPos} posições), conforme a rota da OP.0070. * Item sem registro explícito de conformidade; “(n reg.)” indica quantas posições tiveram a conformidade lançada como evidência de verificação.
     </td></tr>`;
 }
 
@@ -4940,7 +4985,7 @@ async function gerarPDF() {
     });
 
     // Evidências: substituir o seletor pelo rótulo impresso da baliza
-    document.querySelectorAll('#evidenceGrid .evidence-card').forEach(card => {
+    document.querySelectorAll('[id^="evidenceGrid-"] .evidence-card').forEach(card => {
         const sel = card.querySelector('.evidence-meta select');
         if (!sel) return;
         let lbl = card.querySelector('.ev-print-label');
@@ -5490,7 +5535,7 @@ async function exportarPDFMapa() {
         const notasCarteira = [...document.querySelectorAll('#notasTableBody tr')]
             .map(tr => [...tr.cells].slice(0, -1).map(c => c.textContent.trim())).filter(r => r[2] || r[1]);
         tabela(`Carteira do Ativo — Notas das Últimas Inspeções (${notasCarteira.length})`,
-            ['Prior.', 'Ordem', 'Nota', 'Loc. Instalação', 'Descrição', 'Concl. Desejada', 'CenTrab', 'Notificador'], notasCarteira);
+            ['Prior.', 'Ordem', 'Nota', 'Loc. Instalação', 'Descrição', 'Concl. Desejada', 'CenTrab', 'Notificador', 'Status'], notasCarteira);
 
         // ── 8. Gráficos (4 por folha, como no Word) ──
         const abaGraf = document.getElementById('tab-graficos');
@@ -5792,8 +5837,8 @@ async function exportarWordMapa() {
             .filter(r => r[2] || r[1]);
         if (notasCarteira.length) {
             filhos.push(H2(`Carteira do Ativo — Notas das Últimas Inspeções (${notasCarteira.length})`),
-                tab(['Prior.', 'Ordem', 'Nota', 'Loc. Instalação', 'Descrição', 'Concl. Desejada', 'CenTrab', 'Notificador'],
-                    notasCarteira, [750, 1450, 1450, 2200, 2500, 1300, 950, 1000]), P(''));
+                tab(['Prior.', 'Ordem', 'Nota', 'Loc. Instalação', 'Descrição', 'Concl. Desejada', 'CenTrab', 'Notificador', 'Status'],
+                    notasCarteira, [650, 1300, 1300, 2000, 2200, 1200, 850, 900, 1200]), P(''));
         }
 
         // ── GRÁFICOS ANALÍTICOS ──
@@ -6184,8 +6229,8 @@ async function exportarWord() {
         const notasT = [...document.querySelectorAll('#notasTableBody tr')].map(tr => [...tr.cells].slice(0, -1).map(c => c.textContent.trim())).filter(r => r[2] || r[1]);
         if (notasT.length) {
             filhos.push(H1('5.0 CARTEIRA DO ATIVO — NOTAS DAS ÚLTIMAS INSPEÇÕES'),
-                tabela(['Prior.', 'Ordem', 'Nota', 'Loc. Instalação', 'Descrição', 'Concl. Desejada', 'CenTrab', 'Notificador'], notasT,
-                    [700, 1350, 1350, 2100, 2400, 1250, 900, 950]));
+                tabela(['Prior.', 'Ordem', 'Nota', 'Loc. Instalação', 'Descrição', 'Concl. Desejada', 'CenTrab', 'Notificador', 'Status'], notasT,
+                    [600, 1200, 1200, 1900, 2100, 1150, 800, 850, 1200]));
             if (val('txt-notas').trim()) filhos.push(P(''), ...paragrafos(val('txt-notas')));
         }
 
@@ -6593,9 +6638,9 @@ async function exportarPPTX() {
             .map(tr => [...tr.cells].slice(0, -1).map(c => c.textContent.trim())).filter(r => r[2] || r[1]);
         for (let i = 0; i < notasCart.length; i += 12) {
             const s = novoSlide(`Carteira do Ativo — Notas de Inspeções Anteriores (${notasCart.length})`, i === 0 ? 'Notas em aberto/tratativa do local de instalação' : 'continuação');
-            tabela(s, ['Prior.', 'Ordem', 'Nota', 'Loc. Instalação', 'Descrição', 'Concl.', 'CenTrab', 'Notif.'],
-                notasCart.slice(i, i + 12).map(r => [r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7]]),
-                [0.6, 1.25, 1.25, 2.0, 2.3, 0.95, 0.5, 0.45], 1.15, 8);
+            tabela(s, ['Prior.', 'Ordem', 'Nota', 'Loc. Instalação', 'Descrição', 'Concl.', 'CenTrab', 'Notif.', 'Status'],
+                notasCart.slice(i, i + 12).map(r => [r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8] || '']),
+                [0.55, 1.15, 1.15, 1.8, 2.1, 0.85, 0.5, 0.45, 0.75], 1.15, 8);
         }
 
         // ── 8. ANÁLISE GRÁFICA ──
@@ -6967,7 +7012,7 @@ function restoreFullState(data) {
             data.notas.forEach(n => {
                 if (!Array.isArray(n)) return;
                 if (n.length >= 8) {
-                    addNotaRow(...n.slice(0, 8));
+                    addNotaRow(...n.slice(0, 9));
                 } else {
                     // formato antigo: [nota, data, tipo, descrição, baliza/trecho, status]
                     const [nota, dt, , desc] = n;
@@ -7133,10 +7178,7 @@ function init() {
         updateKPIs();
         renderHeatmaps();
         // Linhas de exemplo para preenchimento
-        addNotaRow();
-        addTopoRow('', 'LD+LE', 'bitola', '', '', '', '');
-        addTopoRow('', 'LD', 'retilineidade', '', '', '', '');
-        addTopoRow('', 'LD+LE', 'nivel-secao', '', '', '', '');
+        // A tabela de medições topográficas começa vazia — use "+ Inserir Medição".
         renderCriteriosFEM();
         renderResumoRiscoTopo();
         addTopoSlot('Prancha 1: Planta de Nivelamento / Alinhamento', '');
