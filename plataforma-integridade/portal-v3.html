@@ -559,6 +559,7 @@ function render() {
   document.querySelector('#btnVista span').textContent = vista === 'lista' ? 'Cartões' : 'Lista';
   document.querySelector('#btnVista use').setAttribute('href', vista === 'lista' ? '#i-todos' : '#i-lista');
   document.querySelectorAll('#grupoFases .tb-btn').forEach(b => b.classList.toggle('ativo', b.dataset.fase === estado.fase));
+  try { history.replaceState(null, '', estado.fase === 'todos' ? location.pathname : '#fase=' + estado.fase); } catch (e) {}
   document.getElementById('selPratica').value = estado.pratica;
   const titulo = estado.pratica ? rotuloPratica(estado.pratica) : estado.fase === 'todos' ? 'Módulos do portal' : fase(estado.fase).rot;
   document.getElementById('titulo').textContent = titulo;
@@ -593,6 +594,9 @@ document.getElementById('btnVista').addEventListener('click', () => { vista = vi
 document.addEventListener('keydown', e => { if (e.key === '/' && !/input|textarea|select/i.test(document.activeElement.tagName)) { e.preventDefault(); document.getElementById('busca').focus(); } });
 const hoje = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
 document.getElementById('dataHoje').textContent = hoje.charAt(0).toUpperCase() + hoje.slice(1);
+// fase vinda do endereço (atalhos da capa): portal-v3.html#fase=do
+const hf = (location.hash.match(/fase=(\w+)/) || [])[1];
+if (hf && (hf === 'todos' || fase(hf))) estado.fase = hf;
 montarBarra(); renderRecentes(); render();
 </script>
 </body>
