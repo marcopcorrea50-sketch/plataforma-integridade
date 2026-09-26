@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Portal de Integridade Estrutural — Vale S11D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brand: #0a3a30; --brand-2: #0f5a49; --accent: #0b7a5f; --accent-2: #09664f;
+    --ink: #0f172a; --ink-2: #334155; --ink-3: #64748b; --ink-4: #94a3b8;
+    --line: #e2e8f0; --line-2: #cbd5e1; --soft: #f8fafc; --canvas: #f1f4f7;
+    --plan: #2563eb; --do: #0b7a5f; --check: #d97706; --act: #7c3aed; --base: #475569;
+    --shadow: 0 1px 2px rgba(15,23,42,.05), 0 1px 3px rgba(15,23,42,.07);
+    --shadow-2: 0 10px 30px rgba(15,23,42,.10);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: Inter, 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif; background: var(--canvas); color: var(--ink); font-size: 14px; }
+  .ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  button { font-family: inherit; }
+  a { color: inherit; text-decoration: none; }
+
+  /* ---------- estrutura ---------- */
+  .app { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+  .side { position: sticky; top: 0; height: 100vh; overflow-y: auto; background: var(--brand); color: #fff; display: flex; flex-direction: column;
+    background-image: radial-gradient(120% 60% at 0% 0%, rgba(255,255,255,.06), transparent 60%); }
+  .side-top { padding: 22px 20px 16px; }
+  .marca { display: flex; align-items: center; gap: 12px; }
+  .marca-logo { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 7px; border-radius: 9px; background: #fff; }
+  .marca-logo span { width: 10px; height: 10px; border-radius: 2.5px; }
+  .marca strong { display: block; font-size: 15px; letter-spacing: -.01em; }
+  .marca small { display: block; font-size: 11.5px; color: rgba(255,255,255,.6); margin-top: 1px; }
+  .side-busca { margin-top: 18px; position: relative; }
+  .side-busca .ic { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,.55); width: 16px; height: 16px; }
+  .side-busca input { width: 100%; height: 38px; border-radius: 8px; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.07);
+    color: #fff; padding: 0 44px 0 34px; font: inherit; font-size: 13px; outline: none; }
+  .side-busca input::placeholder { color: rgba(255,255,255,.5); }
+  .side-busca input:focus { border-color: rgba(110,231,183,.6); background: rgba(255,255,255,.1); }
+  .side-busca kbd { position: absolute; right: 9px; top: 50%; transform: translateY(-50%); font: 600 11px Inter, sans-serif; color: rgba(255,255,255,.55);
+    border: 1px solid rgba(255,255,255,.2); border-radius: 5px; padding: 1px 6px; }
+  .nav { padding: 6px 12px 16px; flex: 1; }
+  .nav-inicio { margin-bottom: 8px; }
+  .nav-fase { margin-top: 14px; }
+  .nav-fase h4 { display: flex; align-items: center; gap: 8px; padding: 0 10px 6px; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.5); }
+  .nav-fase h4 i { width: 7px; height: 7px; border-radius: 50%; }
+  .nav-item { width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 0; border-radius: 7px; background: transparent;
+    color: rgba(255,255,255,.82); font-size: 13px; text-align: left; cursor: pointer; transition: background .15s, color .15s; }
+  .nav-item:hover { background: rgba(255,255,255,.07); color: #fff; }
+  .nav-item.ativo { background: rgba(255,255,255,.12); color: #fff; font-weight: 600; box-shadow: inset 3px 0 0 #6ee7b7; }
+  .nav-item span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nav-item b { font-size: 11px; font-weight: 600; color: rgba(255,255,255,.6); background: rgba(255,255,255,.08); border-radius: 999px; padding: 1px 7px; }
+  .side-rod { margin: 0 16px 18px; padding: 14px; border-radius: 10px; background: rgba(0,0,0,.18); display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .side-rod div span { display: block; font-size: 11px; color: rgba(255,255,255,.55); }
+  .side-rod div strong { font-size: 22px; font-variant-numeric: tabular-nums; }
+
+  .main { min-width: 0; }
+  .topo { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px; padding: 14px 32px; background: rgba(241,244,247,.88);
+    backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--line); }
+  .migalha { font-size: 13px; color: var(--ink-3); flex: 1; }
+  .migalha b { color: var(--ink); font-weight: 600; }
+  .chip-topo { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line-2);
+    background: #fff; font-size: 12px; font-weight: 600; color: var(--ink-2); }
+  .chip-topo i { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.18); }
+  .btn-menu { display: none; width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--line-2); background: #fff; align-items: center; justify-content: center; cursor: pointer; }
+  .conteudo { padding: 28px 32px 48px; max-width: 1360px; }
+
+  /* ---------- destaque ---------- */
+  .hero { position: relative; overflow: hidden; border-radius: 16px; padding: 30px 34px; color: #fff; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center;
+    background: radial-gradient(120% 140% at 0% 0%, var(--brand-2) 0%, var(--brand) 55%, #062620 100%); box-shadow: var(--shadow-2); }
+  .hero::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5;
+    background-image: linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+    background-size: 28px 28px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 60%); mask-image: linear-gradient(90deg, transparent, #000 60%); }
+  .hero > * { position: relative; z-index: 1; }
+  .hero-tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #6ee7b7;
+    border: 1px solid rgba(110,231,183,.35); border-radius: 999px; padding: 4px 10px; margin-bottom: 14px; }
+  .hero h1 { font-size: clamp(24px, 2.6vw, 34px); line-height: 1.15; letter-spacing: -.02em; font-weight: 800; }
+  .hero p { margin-top: 10px; max-width: 620px; font-size: 14.5px; line-height: 1.6; color: rgba(255,255,255,.72); }
+  .hero-kpis { display: flex; gap: 28px; margin-top: 22px; flex-wrap: wrap; }
+  .hero-kpis div strong { display: block; font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .hero-kpis div span { font-size: 12px; color: rgba(255,255,255,.6); }
+  .pdca { width: 190px; height: 190px; }
+  .pdca text { font: 700 10px Inter, sans-serif; fill: #fff; letter-spacing: .08em; }
+
+  /* ---------- fases ---------- */
+  .fases { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 20px; }
+  .fase { text-align: left; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; cursor: pointer; box-shadow: var(--shadow);
+    border-top: 3px solid var(--c); transition: transform .15s, box-shadow .15s, border-color .15s; }
+  .fase:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
+  .fase.ativo { border-color: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 18%, transparent), var(--shadow); }
+  .fase small { font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--c); }
+  .fase strong { display: block; font-size: 15px; margin-top: 4px; }
+  .fase span { display: block; font-size: 12.5px; color: var(--ink-3); margin-top: 2px; }
+  .fase em { float: right; font-style: normal; font-size: 12px; font-weight: 700; color: var(--c); background: color-mix(in srgb, var(--c) 10%, #fff); border-radius: 999px; padding: 2px 9px; }
+
+  /* ---------- barra de filtros ---------- */
+  .barra { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 26px 0 14px; }
+  .barra h2 { font-size: 18px; letter-spacing: -.01em; margin-right: auto; }
+  .barra h2 small { display: block; font-size: 12.5px; font-weight: 500; color: var(--ink-3); margin-top: 2px; }
+  .busca { position: relative; width: min(360px, 100%); }
+  .busca .ic { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--ink-4); width: 16px; height: 16px; }
+  .busca input { width: 100%; height: 40px; border-radius: 9px; border: 1px solid var(--line-2); background: #fff; padding: 0 12px 0 36px; font: inherit; font-size: 13.5px; outline: none; }
+  .busca input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(11,122,95,.14); }
+  .vista { display: inline-flex; background: #fff; border: 1px solid var(--line-2); border-radius: 9px; padding: 3px; }
+  .vista button { width: 34px; height: 32px; border: 0; background: transparent; border-radius: 6px; color: var(--ink-3); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .vista button.ativo { background: var(--brand); color: #fff; }
+
+  /* ---------- recentes ---------- */
+  .recentes { margin-top: 22px; }
+  .recentes h3, .grupo h3 { display: flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 10px; }
+  .recentes-lista { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
+  .recente { flex: none; display: flex; align-items: center; gap: 10px; padding: 9px 14px 9px 10px; border-radius: 10px; background: #fff; border: 1px solid var(--line); box-shadow: var(--shadow);
+    font-size: 13px; font-weight: 600; color: var(--ink-2); max-width: 280px; }
+  .recente:hover { border-color: var(--accent); color: var(--ink); }
+  .recente .mini { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--c) 10%, #fff); color: var(--c); }
+  .recente .mini .ic { width: 16px; height: 16px; }
+  .recente span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ---------- cartões ---------- */
+  .grupo { margin-top: 26px; }
+  .grupo h3 i { width: 8px; height: 8px; border-radius: 50%; }
+  .grupo h3 b { font-weight: 600; color: var(--ink-4); letter-spacing: 0; text-transform: none; }
+  .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .card { position: relative; display: flex; flex-direction: column; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 18px; box-shadow: var(--shadow);
+    transition: transform .15s, box-shadow .15s, border-color .15s; min-height: 178px; }
+  a.card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); border-color: color-mix(in srgb, var(--c) 45%, var(--line)); }
+  a.card:focus-visible { outline: 3px solid color-mix(in srgb, var(--c) 40%, transparent); outline-offset: 2px; }
+  .card-cab { display: flex; align-items: flex-start; gap: 12px; }
+  .card-ico { width: 42px; height: 42px; flex: none; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--c) 10%, #fff); color: var(--c); }
+  .card-ico .ic { width: 21px; height: 21px; stroke-width: 1.7; }
+  .card-pratica { font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--c); text-transform: uppercase; }
+  .card h4 { font-size: 15px; line-height: 1.3; margin-top: 3px; letter-spacing: -.005em; }
+  .card p { font-size: 13px; line-height: 1.5; color: var(--ink-3); margin-top: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-rod { margin-top: auto; padding-top: 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .tag { font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: var(--soft); border: 1px solid var(--line); color: var(--ink-2); }
+  .tag-alta { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
+  .tag-media { background: #fffbeb; border-color: #fde68a; color: #92400e; }
+  .tag-baixa { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+  .tag-restrito { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; display: inline-flex; align-items: center; gap: 4px; }
+  .tag-restrito .ic { width: 12px; height: 12px; }
+  .card-abrir { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 600; color: var(--c); }
+  .card-abrir .ic { width: 15px; height: 15px; transition: transform .15s; }
+  a.card:hover .card-abrir .ic { transform: translateX(3px); }
+  .card-id { position: absolute; top: 16px; right: 16px; font-size: 11px; font-weight: 600; color: var(--ink-4); font-variant-numeric: tabular-nums; }
+  .card.em-breve { opacity: .72; background: repeating-linear-gradient(135deg, #fff, #fff 12px, #fafbfc 12px, #fafbfc 24px); }
+  .card.em-breve .card-abrir { color: var(--ink-4); }
+
+  /* visão em lista */
+  .lista .grade { grid-template-columns: 1fr; gap: 8px; }
+  .lista .card { flex-direction: row; align-items: center; min-height: 0; padding: 12px 16px; gap: 14px; }
+  .lista .card p { margin-top: 2px; -webkit-line-clamp: 1; }
+  .lista .card-cab { flex: 1; align-items: center; min-width: 0; }
+  .lista .card-rod { margin: 0; padding: 0; flex-wrap: nowrap; }
+  .lista .card-id { position: static; }
+
+  .vazio { text-align: center; padding: 56px 20px; color: var(--ink-3); background: #fff; border: 1px dashed var(--line-2); border-radius: 12px; margin-top: 20px; }
+  .vazio strong { display: block; font-size: 15px; color: var(--ink); margin-bottom: 4px; }
+  .rodape { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-4); display: flex; gap: 12px; flex-wrap: wrap; justify-content: space-between; }
+
+  .veu { display: none; }
+  @media (max-width: 1100px) { .fases { grid-template-columns: repeat(2, 1fr); } .pdca { display: none; } .hero { grid-template-columns: 1fr; } }
+  @media (max-width: 860px) {
+    .app { grid-template-columns: 1fr; }
+    .side { position: fixed; z-index: 50; left: 0; top: 0; width: 290px; transform: translateX(-100%); transition: transform .2s ease; }
+    body.menu-aberto .side { transform: none; }
+    body.menu-aberto .veu { display: block; position: fixed; inset: 0; z-index: 40; background: rgba(15,23,42,.45); }
+    .btn-menu { display: inline-flex; }
+    .topo { padding: 12px 16px; } .conteudo { padding: 18px 16px 40px; }
+    .chip-topo.opc { display: none; }
+    .lista .card { flex-direction: column; align-items: stretch; } .lista .card-rod { flex-wrap: wrap; }
+  }
+  @media (max-width: 520px) { .fases { grid-template-columns: 1fr; } .hero { padding: 24px 20px; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-busca" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol>
+  <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-grade" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></symbol>
+  <symbol id="i-lista" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-casa" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 9.5V20h14V9.5"/></symbol>
+  <symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-cadeado" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol>
+  <!-- ícones dos módulos -->
+  <symbol id="m-alvo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></symbol>
+  <symbol id="m-bussola" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></symbol>
+  <symbol id="m-lider" viewBox="0 0 24 24"><circle cx="12" cy="7.5" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/><path d="M12 11v3"/></symbol>
+  <symbol id="m-pessoas" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M18 14.5a6.5 6.5 0 0 1 3.5 5.5"/></symbol>
+  <symbol id="m-escudo" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+  <symbol id="m-relatorio" viewBox="0 0 24 24"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6"/></symbol>
+  <symbol id="m-inspecao" viewBox="0 0 24 24"><path d="M14 3H6v18h6"/><path d="M14 3v4h4v4"/><circle cx="16.5" cy="16.5" r="3.5"/><path d="M19 19l2.5 2.5"/></symbol>
+  <symbol id="m-risco" viewBox="0 0 24 24"><path d="M12 3L2 20h20z"/><path d="M12 10v4"/><path d="M12 17h.01"/></symbol>
+  <symbol id="m-grafico" viewBox="0 0 24 24"><path d="M4 20V4"/><path d="M4 20h16"/><path d="M8 16v-4M12 16V8M16 16v-6"/></symbol>
+  <symbol id="m-laudo" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 11l2 2 4-4"/><path d="M9 17h6"/></symbol>
+  <symbol id="m-capacete" viewBox="0 0 24 24"><path d="M4 16a8 8 0 0 1 16 0"/><path d="M3 16h18v2H3z"/><path d="M12 8V5"/><path d="M9 9.5V7M15 9.5V7"/></symbol>
+  <symbol id="m-camadas" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+  <symbol id="m-tarefas" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M3.5 6l1 1 2-2M3.5 12l1 1 2-2M3.5 18l1 1 2-2"/></symbol>
+  <symbol id="m-material" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></symbol>
+  <symbol id="m-painel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 14h3M8 17h6"/></symbol>
+  <symbol id="m-calendario" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M8 3v4M16 3v4"/></symbol>
+  <symbol id="m-notas" viewBox="0 0 24 24"><path d="M5 3h14v18H5z"/><path d="M9 7h6M9 11h6M9 15h4"/></symbol>
+  <symbol id="m-auditoria" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><circle cx="11.5" cy="12.5" r="2.5"/><path d="M13.5 14.5L16 17"/></symbol>
+  <symbol id="m-onda" viewBox="0 0 24 24"><path d="M2 12h3l2-6 3 12 3-9 2 5 2-2h5"/></symbol>
+  <symbol id="m-ideia" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></symbol>
+  <symbol id="m-ciclo" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.9-4"/><path d="M4 3v4h4"/><path d="M4 13a8 8 0 0 0 14.9 4"/><path d="M20 21v-4h-4"/></symbol>
+  <symbol id="m-livro" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M8 7h7"/></symbol>
+  <symbol id="m-drone" viewBox="0 0 24 24"><circle cx="5" cy="5" r="2.5"/><circle cx="19" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M7 7l3 3M17 7l-3 3M7 17l3-3M17 17l-3-3"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/></symbol>
+  <symbol id="m-treino" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/><path d="M22 9v6"/></symbol>
+  <symbol id="m-regua" viewBox="0 0 24 24"><path d="M3 17L17 3l4 4L7 21z"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2"/></symbol>
+  <symbol id="m-via" viewBox="0 0 24 24"><path d="M8 3L5 21M16 3l3 18"/><path d="M6.4 7h11.2M5.8 12h12.4M5.1 17h13.8"/></symbol>
+</svg>
+
+<div class="app">
+  <aside class="side" id="side" aria-label="Navegação">
+    <div class="side-top">
+      <div class="marca">
+        <div class="marca-logo"><span style="background:#6b7280"></span><span style="background:#3b82f6"></span><span style="background:#f97316"></span><span style="background:#10b981"></span></div>
+        <div><strong>Integridade Estrutural</strong><small>Vale S11D · Modelo VPS</small></div>
+      </div>
+      <div class="side-busca"><svg class="ic"><use href="#i-busca"/></svg><input id="buscaLateral" type="search" placeholder="Buscar módulo" aria-label="Buscar módulo"><kbd>/</kbd></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-rod"><div><span>Módulos</span><strong id="kModulos">0</strong></div><div><span>Práticas VPS</span><strong>10</strong></div></div>
+  </aside>
+  <div class="veu" onclick="document.body.classList.remove('menu-aberto')"></div>
+
+  <main class="main">
+    <header class="topo">
+      <button class="btn-menu" type="button" aria-label="Abrir menu" onclick="document.body.classList.add('menu-aberto')"><svg class="ic"><use href="#i-menu"/></svg></button>
+      <div class="migalha">Portal <span aria-hidden="true">›</span> <b id="migalha">Todos os módulos</b></div>
+      <span class="chip-topo opc">S11D · Carajás</span>
+      <span class="chip-topo"><i></i><span id="dataHoje"></span></span>
+    </header>
+
+    <div class="conteudo">
+      <section class="hero">
+        <div>
+          <span class="hero-tag">Portal executivo · Modelo VPS</span>
+          <h1>Portal de Integridade Estrutural</h1>
+          <p>Inspeções, laudos, riscos, rotina, auditorias e melhoria contínua da equipe — organizados pelas 10 práticas do Modelo VPS, no ciclo PDCA.</p>
+          <div class="hero-kpis">
+            <div><strong id="kTotal">0</strong><span>módulos</span></div>
+            <div><strong>10</strong><span>práticas VPS</span></div>
+            <div><strong>4</strong><span>fases do PDCA</span></div>
+          </div>
+        </div>
+        <svg class="pdca" viewBox="0 0 200 200" aria-hidden="true">
+          <g fill="none" stroke-width="22">
+            <circle cx="100" cy="100" r="72" stroke="#3b82f6" stroke-dasharray="110 343" transform="rotate(-90 100 100)"/>
+            <circle cx="100" cy="100" r="72" stroke="#10b981" stroke-dasharray="110 343" transform="rotate(0 100 100)"/>
+            <circle cx="100" cy="100" r="72" stroke="#f59e0b" stroke-dasharray="110 343" transform="rotate(90 100 100)"/>
+            <circle cx="100" cy="100" r="72" stroke="#8b5cf6" stroke-dasharray="110 343" transform="rotate(180 100 100)"/>
+          </g>
+          <circle cx="100" cy="100" r="54" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.18)"/>
+          <text x="100" y="96" text-anchor="middle" style="font-size:22px;font-weight:800">VPS</text>
+          <text x="100" y="114" text-anchor="middle" style="fill:rgba(255,255,255,.7)">PDCA</text>
+          <text x="152" y="44" text-anchor="middle">P</text><text x="160" y="160" text-anchor="middle">D</text>
+          <text x="44" y="162" text-anchor="middle">C</text><text x="40" y="44" text-anchor="middle">A</text>
+        </svg>
+      </section>
+
+      <section class="fases" id="fases" aria-label="Fases do PDCA"></section>
+
+      <section class="recentes" id="recentes" hidden>
+        <h3><svg class="ic" style="width:15px;height:15px"><use href="#i-relogio"/></svg>Acessados recentemente</h3>
+        <div class="recentes-lista" id="recentesLista"></div>
+      </section>
+
+      <div class="barra">
+        <h2 id="tituloLista">Todos os módulos<small id="subLista"></small></h2>
+        <div class="busca"><svg class="ic"><use href="#i-busca"/></svg><input id="busca" type="search" placeholder="Buscar por nome, descrição ou prática" aria-label="Buscar módulos"></div>
+        <div class="vista" role="group" aria-label="Modo de exibição">
+          <button type="button" id="vGrade" class="ativo" title="Cartões" aria-label="Ver em cartões"><svg class="ic"><use href="#i-grade"/></svg></button>
+          <button type="button" id="vLista" title="Lista" aria-label="Ver em lista"><svg class="ic"><use href="#i-lista"/></svg></button>
+        </div>
+      </div>
+
+      <div id="modulos"></div>
+
+      <footer class="rodape"><span>© 2026 Vale · Integridade Estrutural S11D · Uso interno</span><span>Modelo VPS · 10 práticas · ciclo PDCA</span></footer>
+    </div>
+  </main>
+</div>
+
+<script>
+/* Lista dos módulos — a mesma do portal atual (portal-v2.html), com os links conferidos. */
+const MODULOS = [
+ {
+  "id": "IE-001",
+  "title": "Propósito e Diretrizes da Área",
+  "description": "Módulo para propósito, diretrizes, requisitos normativos e base institucional da Integridade Estrutural.",
+  "category": "Prática 1 – Propósito e Diretrizes",
+  "priority": "Alta",
+  "audience": "Todos",
+  "link": "projects/pratica-1-proposito-diretrizes/index.html"
+ },
+ {
+  "id": "IE-002",
+  "title": "Estratégia para Criar Valor",
+  "description": "Módulo para metas, objetivos, prioridades e planejamento estratégico da área.",
+  "category": "Prática 2 – Estratégia para Criar Valor",
+  "priority": "Alta",
+  "audience": "Gestão",
+  "link": "projects/pratica-2-estrategia-valor/index.html"
+ },
+ {
+  "id": "IE-003",
+  "title": "Liderança e Engajamento",
+  "description": "Módulo para ritos de liderança, alinhamento, comunicação e engajamento da equipe.",
+  "category": "Prática 3 – Liderança e Engajamento",
+  "priority": "Alta",
+  "audience": "Gestão",
+  "link": "projects/lideranca-engajamento/index.html"
+ },
+ {
+  "id": "IE-004",
+  "title": "FMDS de Pessoas",
+  "description": "Módulo de acompanhamento e organização de pessoas vinculado à gestão da área.",
+  "category": "Prática 4 – Pessoas",
+  "priority": "Média",
+  "audience": "Gestão",
+  "link": "projects/fmds-pessoas/index.html"
+ },
+ {
+  "id": "IE-017",
+  "title": "FMDS Pessoas Moderno",
+  "description": "Versão modernizada do módulo de acompanhamento e organização de pessoas da área.",
+  "category": "Prática 4 – Pessoas",
+  "priority": "Média",
+  "audience": "Gestão",
+  "link": "projects/fmds-pessoas-moderno/index.html"
+ },
+ {
+  "id": "IE-030",
+  "title": "DSSMA Digital — Modo Oficial",
+  "description": "Fluxo completo de DSS: chamada individual com humor (1-Bom / 2-Atenção), rubrica digital touch/mouse, controle semanal SEG-SEX, geração do Anexo 1 oficial para impressão/PDF e exportação CSV.",
+  "category": "Prática 4 – Pessoas",
+  "priority": "Alta",
+  "audience": "Operacional",
+  "link": "projects/dssma-digital-oficial/index.html"
+ },
+ {
+  "id": "IE-031",
+  "title": "Registro DSSMA — Formulário Rápido",
+  "description": "Formulário direto com painel de controle lateral: edição de temas, condutores, participantes e marcações em tempo real. Prévia A4 paisagem, backup JSON e exportação CSV.",
+  "category": "Prática 4 – Pessoas",
+  "priority": "Alta",
+  "audience": "Operacional",
+  "link": "projects/registro-dssma-digital/index.html"
+ },
+ {
+  "id": "IE-005",
+  "title": "Relatório de Inspeção BFD Silo 2",
+  "description": "Relatório técnico voltado ao acompanhamento de inspeção estrutural do BFD Silo 2.",
+  "category": "Prática 5 – Riscos e Segurança",
+  "priority": "Alta",
+  "audience": "Operacional",
+  "link": "projects/relatorio-bfd-silo2/index.html"
+ },
+ {
+  "id": "IE-035",
+  "title": "Relatório Via de Rolamento — Máquinas de Pátio",
+  "description": "Relatório de inspeção das vias de rolamento das máquinas de pátio TLO S11D — áreas 2091 e 2092 (Pátio de Produto) e área 2020 (Pátio de Regularização). Balizas por severidade, gráficos e exportação PPTX.",
+  "category": "Prática 5 – Riscos e Segurança",
+  "priority": "Alta",
+  "audience": "Operacional",
+  "link": "projects/relatorio-via-rolamento/index.html"
+ },
+ {
+  "id": "IE-006",
+  "title": "InspectPro S11D (Offline)",
+  "description": "Sistema operacional voltado ao processo de inspeção estrutural — versão offline com assets embutidos.",
+  "category": "Prática 5 – Riscos e Segurança",
+  "priority": "Alta",
+  "audience": "Campo",
+  "link": "projects/Inspectpro-modo-offline/index.html"
+ },
+ {
+  "id": "IE-007",
+  "title": "InspectPro S11D",
+  "description": "Sistema operacional voltado ao processo de inspeção estrutural com navegação dedicada.",
+  "category": "Prática 5 – Riscos e Segurança",
+  "priority": "Alta",
+  "audience": "Campo",
+  "link": "projects/inspectpro-s11d_V16.2/index.html"
+ },
+ {
+  "id": "IE-008",
+  "title": "FMDS Gestão de Riscos",
+  "description": "Ferramenta executiva para consolidação e acompanhamento de riscos da integridade estrutural.",
+  "category": "Prática 5 – Riscos e Segurança",
+  "priority": "Alta",
+  "audience": "Gestão",
+  "link": "projects/fmds-riscos/index.html"
+ },
+ {
+  "id": "IE-018",
+  "title": "Relatório Executivo de Inspeção",
+  "description": "Plataforma com 3 variantes visuais (Padrão, Dark AMOLED e Verde & Azul). Edição inline, registro fotográfico, tabela de revisões, exportação JSON e geração de PDF.",
+  "category": "Prática 5 – Riscos e Segurança",
+  "priority": "Alta",
+  "audience": "Operacional",
+  "link": "projects/relatorio-executivo/index.html"
+ },
+ {
+  "id": "IE-021",
+  "title": "Laudos Metálica & PAC",
+  "description": "Laudos técnicos oficiais de inspeção estrutural conforme PRO-024969, Rev. 05 — Serra Sul S11D.",
+  "category": "Prática 5 – Riscos e Segurança",
+  "priority": "Alta",
+  "audience": "Operacional",
+  "link": "projects/laudos-metalica-pac/index.html"
+ },
+ {
+  "id": "IE-024",
+  "title": "Gerador de Plano de Atividade Segura",
+  "description": "Ferramenta para elaboração de planos de atividade segura: campos editáveis, etapas com fotos e marcações, análise de riscos com gráfico, EPIs, evidências e geração de relatório em PDF.",
+  "category": "Prática 5 – Riscos e Segurança",
+  "priority": "Alta",
+  "audience": "Operacional",
+  "link": "projects/plano-atividade-segura/index.html"
+ },
+ {
+  "id": "IE-025",
+  "title": "Gerador de Plano de Atividade Segura (v2)",
+  "description": "Versão alternativa do gerador de plano de atividade segura, com tema visual próprio.",
+  "category": "Prática 5 – Riscos e Segurança",
+  "priority": "Alta",
+  "audience": "Operacional",
+  "link": "projects/plano-corte-interativo/index.html"
+ },
+ {
+  "id": "IE-032",
+  "title": "Gerador de Relatório Baseline N2",
+  "description": "Gerador de relatório baseline N2 padrão Vale — estrutura ABNT em 8 seções, numeração hierárquica de figuras, pranchas de 6 fotos por página, logo Vale no cabeçalho, compressão automática e geração DOCX.",
+  "category": "Prática 5 – Riscos e Segurança",
+  "priority": "Alta",
+  "audience": "Operacional",
+  "link": "projects/relatorio-baseline-n2/index.html"
+ },
+ {
+  "id": "IE-009",
+  "title": "Instrução de Tarefas Industrial",
+  "description": "VALE IT Pro v3.1 — plataforma completa com 4 variantes (Verde e Vermelho × Padrão e Labels). Editor, preview, exportação PDF e navegação mobile.",
+  "category": "Prática 6 – Execução com Excelência e Foco no Cliente",
+  "priority": "Média",
+  "audience": "Operacional",
+  "link": "projects/instrucao-tarefas-industrial/index.html"
+ },
+ {
+  "id": "IE-011",
+  "title": "Lista de Material Editor",
+  "description": "Ferramenta para consulta e edição de lista de materiais aplicada ao contexto da integridade.",
+  "category": "Prática 6 – Execução com Excelência e Foco no Cliente",
+  "priority": "Média",
+  "audience": "Apoio",
+  "link": "projects/lista-material-editor/index.html"
+ },
+ {
+  "id": "IE-012",
+  "title": "Painel de Rotina e Performance",
+  "description": "Acompanhamento de indicadores, ritos de rotina, desvios e performance operacional.",
+  "category": "Prática 7 – Rotina e Performance",
+  "priority": "Alta",
+  "audience": "Gestão",
+  "link": "projects/painel-rotina-performance/index.html",
+  "emBreve": true
+ },
+ {
+  "id": "IE-022",
+  "title": "Análise de Programação Semanal",
+  "description": "Planilha de programação e acompanhamento semanal das ordens de manutenção integrada ao SAP IW38.",
+  "category": "Prática 7 – Rotina e Performance",
+  "priority": "Alta",
+  "audience": "Gestão",
+  "link": "projects/programacao-semanal/index.html"
+ },
+ {
+  "id": "IE-023",
+  "title": "Gestão de Notas SAP",
+  "description": "Módulo para acompanhamento e análise das notas de manutenção emitidas pela equipe de integridade.",
+  "category": "Prática 7 – Rotina e Performance",
+  "priority": "Média",
+  "audience": "Gestão",
+  "link": "projects/notas-semanal/index.html"
+ },
+ {
+  "id": "IE-013",
+  "title": "Auditorias e Conformidade",
+  "description": "Módulo para controle de auditorias internas, evidências, não conformidades e eficácia das ações.",
+  "category": "Prática 8 – Avaliações e Auditorias",
+  "priority": "Alta",
+  "audience": "Gestão",
+  "link": "projects/auditorias-conformidade/index.html",
+  "emBreve": true
+ },
+ {
+  "id": "IE-019",
+  "title": "Relatório Inspeção Instrumentada",
+  "description": "Módulo para consulta e emissão do relatório de inspeção instrumentada.",
+  "category": "Prática 8 – Avaliações e Auditorias",
+  "priority": "Média",
+  "audience": "Operacional",
+  "link": "projects/relatorio-inspecao-instrumentada/index.html"
+ },
+ {
+  "id": "IE-020",
+  "title": "Relatório Inspeção Vibração",
+  "description": "Módulo para consulta e emissão do relatório de inspeção de vibração.",
+  "category": "Prática 8 – Avaliações e Auditorias",
+  "priority": "Média",
+  "audience": "Operacional",
+  "link": "projects/relatorio-inspecao-instrumentada/relatorio-inspecao-vibracao.html"
+ },
+ {
+  "id": "IE-014",
+  "title": "Central Kaizen",
+  "description": "Central executiva para iniciativas de melhoria contínua da área de integridade estrutural.",
+  "category": "Prática 9 – Melhoria Contínua e Inovação",
+  "priority": "Média",
+  "audience": "Gestão",
+  "link": "projects/central-kaizen/index.html"
+ },
+ {
+  "id": "IE-015",
+  "title": "Gestão da Mudança e Evolução do Sistema",
+  "description": "Módulo para registro, acompanhamento e sustentação de mudanças técnicas e organizacionais.",
+  "category": "Prática 10 – Mudança e Evolução do Sistema de Gestão",
+  "priority": "Alta",
+  "audience": "Gestão",
+  "link": "projects/gestao-mudanca-sistema/index.html",
+  "emBreve": true
+ },
+ {
+  "id": "IE-016",
+  "title": "Documentos de Referência",
+  "description": "Normas e procedimentos oficiais da Integridade Estrutural com visualizador de PDF integrado.",
+  "category": "Documentos de Referência",
+  "priority": "Alta",
+  "audience": "Todos",
+  "link": "projects/documentos-referencia/index.html"
+ },
+ {
+  "id": "IE-033",
+  "title": "Documentos Para Uso com Drone",
+  "description": "Modelo de avaliação de risco operacional para operações com drone — formulário HTML interativo, PDF e DOCX para impressão.",
+  "category": "Documentos de Referência",
+  "priority": "Alta",
+  "audience": "Operacional",
+  "link": "projects/documentos-drone/index.html"
+ },
+ {
+  "id": "IE-034",
+  "title": "Treinamento Amplificação de Movimento",
+  "description": "Material de treinamento sobre técnica de amplificação de movimento para inspeção estrutural — manual HTML interativo, PDF digitalizado e apresentação PPTX.",
+  "category": "Documentos de Referência",
+  "priority": "Alta",
+  "audience": "Operacional",
+  "link": "projects/treinamento-amplificacao-movimento/index.html"
+ }
+];
+
+const FASES = [
+  { k: 'plan',  rot: 'Planejar',  prat: [1,2,3],  desc: 'Propósito · Estratégia · Liderança', cor: 'var(--plan)' },
+  { k: 'do',    rot: 'Executar',  prat: [4,5,6],  desc: 'Pessoas · Riscos · Excelência',      cor: 'var(--do)' },
+  { k: 'check', rot: 'Checar',    prat: [7,8],    desc: 'Rotina · Auditorias',               cor: 'var(--check)' },
+  { k: 'act',   rot: 'Agir',      prat: [9,10],   desc: 'Melhoria · Evolução',               cor: 'var(--act)' },
+];
+const COR_BASE = 'var(--base)';
+const ICONES = [   // palavra-chave no título → ícone
+  [/prop[óo]sito/i,'m-alvo'], [/estrat[ée]gia/i,'m-bussola'], [/lideran/i,'m-lider'], [/dssma/i,'m-escudo'],
+  [/pessoas/i,'m-pessoas'], [/inspectpro/i,'m-inspecao'], [/via de rolamento/i,'m-via'], [/risco/i,'m-risco'],
+  [/laudo/i,'m-laudo'], [/atividade segura/i,'m-capacete'], [/baseline/i,'m-camadas'], [/instru[çc][ãa]o de tarefas/i,'m-tarefas'],
+  [/material/i,'m-material'], [/rotina|performance/i,'m-painel'], [/programa[çc][ãa]o/i,'m-calendario'], [/notas/i,'m-notas'],
+  [/auditori/i,'m-auditoria'], [/vibra[çc][ãa]o|instrumentada/i,'m-onda'], [/kaizen/i,'m-ideia'], [/mudan[çc]a/i,'m-ciclo'],
+  [/drone/i,'m-drone'], [/treinamento/i,'m-treino'], [/documentos/i,'m-livro'], [/relat[óo]rio/i,'m-relatorio'],
+];
+function praticaNum(c) { const m = String(c).match(/Pr[áa]tica\s+(\d+)/); return m ? +m[1] : 0; }
+function faseDe(c) { const n = praticaNum(c); const f = FASES.find(f => f.prat.includes(n)); return f ? f.k : 'base'; }
+function corDe(c) { const f = FASES.find(x => x.k === faseDe(c)); return f ? f.cor : COR_BASE; }
+function iconeDe(p) { const r = ICONES.find(x => x[0].test(p.title)); return r ? r[1] : 'm-relatorio'; }
+function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function norm(t) { return String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+function rotuloPratica(c) { const n = praticaNum(c); return n ? 'Prática ' + n + ' · ' + String(c).split(/\s+[–-]\s+/).slice(1).join(' ') : c; }
+
+let filtro = { tipo: 'todos', valor: null }, termo = '', vista = 'grade';
+try { vista = localStorage.getItem('portal_vista') || 'grade'; } catch (e) {}
+
+function recentes() { try { return JSON.parse(localStorage.getItem('portal_recentes') || '[]'); } catch (e) { return []; } }
+function registrarAcesso(id) {
+  try { const r = recentes().filter(x => x !== id); r.unshift(id); localStorage.setItem('portal_recentes', JSON.stringify(r.slice(0, 6))); } catch (e) {}
+}
+
+function montarNav() {
+  const praticas = {};
+  MODULOS.forEach(p => { const k = p.category; praticas[k] = (praticas[k] || 0) + 1; });
+  const item = (tipo, valor, rotulo, n, cor) => `<button type="button" class="nav-item" data-tipo="${tipo}" data-valor="${esc(valor || '')}">`
+      + (cor ? `<i style="width:6px;height:6px;border-radius:50%;background:${cor};flex:none"></i>` : `<svg class="ic" style="width:16px;height:16px"><use href="#i-casa"/></svg>`)
+      + `<span>${esc(rotulo)}</span><b>${n}</b></button>`;
+  let h = `<div class="nav-inicio">${item('todos', '', 'Todos os módulos', MODULOS.filter(p => !p.emBreve).length, null)}</div>`;
+  FASES.concat([{ k: 'base', rot: 'Base', cor: COR_BASE }]).forEach(f => {
+    const cats = Object.keys(praticas).filter(c => faseDe(c) === f.k).sort((a, b) => praticaNum(a) - praticaNum(b));
+    if (!cats.length) return;
+    h += `<div class="nav-fase"><h4><i style="background:${f.cor}"></i>${f.rot}</h4>`
+       + cats.map(c => item('pratica', c, praticaNum(c) ? praticaNum(c) + '. ' + String(c).split(/\s+[–-]\s+/).slice(1).join(' ') : c, praticas[c], f.cor)).join('') + '</div>';
+  });
+  document.getElementById('nav').innerHTML = h;
+}
+function montarFases() {
+  document.getElementById('fases').innerHTML = FASES.map(f => {
+    const n = MODULOS.filter(p => faseDe(p.category) === f.k).length;
+    return `<button type="button" class="fase" data-fase="${f.k}" style="--c:${f.cor}"><em>${n}</em><small>${f.rot}</small><strong>Práticas ${f.prat.join(', ').replace(/, (\d+)$/, ' e $1')}</strong><span>${f.desc}</span></button>`;
+  }).join('');
+}
+function cartao(p) {
+  const cor = corDe(p.category), emBreve = !!p.emBreve;
+  const pri = String(p.priority || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const tags = `<span class="tag tag-${esc(pri)}">${esc(p.priority || '')}</span>`
+    + (p.audience ? `<span class="tag">${esc(p.audience)}</span>` : '')
+    + (p.restrito ? `<span class="tag tag-restrito"><svg class="ic"><use href="#i-cadeado"/></svg>Acesso restrito</span>` : '')
+    + (emBreve ? `<span class="tag">Em construção</span>` : '');
+  const corpo = `<span class="card-id">${esc(p.id)}</span>
+    <div class="card-cab"><div class="card-ico"><svg class="ic"><use href="#${iconeDe(p)}"/></svg></div>
+      <div style="min-width:0;padding-right:48px"><div class="card-pratica">${esc(rotuloPratica(p.category))}</div><h4>${esc(p.title)}</h4></div></div>
+    <p>${esc(p.description)}</p>
+    <div class="card-rod">${tags}<span class="card-abrir">${emBreve ? 'Em breve' : 'Abrir'}<svg class="ic"><use href="#i-seta"/></svg></span></div>`;
+  return emBreve ? `<div class="card em-breve" style="--c:${cor}" aria-disabled="true" title="Módulo ainda não publicado">${corpo}</div>`
+                 : `<a class="card" style="--c:${cor}" href="${esc(p.link)}" data-id="${esc(p.id)}">${corpo}</a>`;
+}
+function filtrados() {
+  const q = norm(termo).trim();
+  return MODULOS.filter(p => {
+    if (filtro.tipo === 'fase' && faseDe(p.category) !== filtro.valor) return false;
+    if (filtro.tipo === 'pratica' && p.category !== filtro.valor) return false;
+    if (q && !norm([p.title, p.description, p.category, p.id, p.audience].join(' ')).includes(q)) return false;
+    return true;
+  });
+}
+function render() {
+  const lista = filtrados(), alvo = document.getElementById('modulos');
+  alvo.className = vista === 'lista' ? 'lista' : '';
+  document.getElementById('vGrade').classList.toggle('ativo', vista !== 'lista');
+  document.getElementById('vLista').classList.toggle('ativo', vista === 'lista');
+  let titulo = 'Todos os módulos';
+  if (filtro.tipo === 'fase') titulo = FASES.find(f => f.k === filtro.valor).rot;
+  if (filtro.tipo === 'pratica') titulo = rotuloPratica(filtro.valor);
+  document.getElementById('tituloLista').firstChild.textContent = titulo;
+  document.getElementById('migalha').textContent = titulo;
+  const nEmBreve = lista.filter(p => p.emBreve).length, nDisp = lista.length - nEmBreve;
+  document.getElementById('subLista').textContent = nDisp + (nDisp === 1 ? ' disponível' : ' disponíveis') + (nEmBreve ? ' · ' + nEmBreve + ' em construção' : '') + (termo ? ' · busca "' + termo + '"' : '');
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('ativo',
+    (filtro.tipo === 'todos' && b.dataset.tipo === 'todos') || (filtro.tipo === 'pratica' && b.dataset.valor === filtro.valor)));
+  document.querySelectorAll('.fase').forEach(b => b.classList.toggle('ativo', filtro.tipo === 'fase' && b.dataset.fase === filtro.valor));
+  if (!lista.length) { alvo.innerHTML = '<div class="vazio"><strong>Nenhum módulo encontrado</strong>Tente outro termo ou limpe o filtro.</div>'; return; }
+  // agrupa por fase do PDCA (dentro dela, na ordem das práticas)
+  if (filtro.tipo !== 'todos') { alvo.innerHTML = '<div class="grade">' + lista.map(cartao).join('') + '</div>'; return; }
+  const ordem = FASES.concat([{ k: 'base', rot: 'Base — documentos de referência', cor: COR_BASE, prat: [] }]);
+  alvo.innerHTML = ordem.map(f => {
+    const g = lista.filter(p => faseDe(p.category) === f.k).sort((a, b) => (praticaNum(a.category) || 99) - (praticaNum(b.category) || 99));
+    if (!g.length) return '';
+    const sub = f.prat && f.prat.length ? 'Práticas ' + f.prat.join(', ').replace(/, (\d+)$/, ' e $1') : '';
+    return `<section class="grupo"><h3><i style="background:${f.cor}"></i>${f.rot}${sub ? ' <b>· ' + sub + '</b>' : ''} <b>· ${g.length}</b></h3><div class="grade">${g.map(cartao).join('')}</div></section>`;
+  }).join('');
+}
+function renderRecentes() {
+  const ids = recentes().filter(id => MODULOS.some(p => p.id === id && !p.emBreve));
+  const sec = document.getElementById('recentes'); sec.hidden = !ids.length;
+  document.getElementById('recentesLista').innerHTML = ids.map(id => {
+    const p = MODULOS.find(x => x.id === id);
+    return `<a class="recente" href="${esc(p.link)}" data-id="${esc(p.id)}" style="--c:${corDe(p.category)}"><span class="mini"><svg class="ic"><use href="#${iconeDe(p)}"/></svg></span><span>${esc(p.title)}</span></a>`;
+  }).join('');
+}
+function aplicarFiltro(tipo, valor) {
+  filtro = { tipo, valor };
+  document.body.classList.remove('menu-aberto');
+  render();
+  if (tipo !== 'todos') document.querySelector('.barra').scrollIntoView({ block: 'start' });
+}
+
+document.addEventListener('click', ev => {
+  const n = ev.target.closest('.nav-item'); if (n) return aplicarFiltro(n.dataset.tipo, n.dataset.valor || null);
+  const f = ev.target.closest('.fase');
+  if (f) return (filtro.tipo === 'fase' && filtro.valor === f.dataset.fase) ? aplicarFiltro('todos', null) : aplicarFiltro('fase', f.dataset.fase);
+  const a = ev.target.closest('a[data-id]'); if (a) registrarAcesso(a.dataset.id);
+});
+['busca', 'buscaLateral'].forEach(id => document.getElementById(id).addEventListener('input', e => {
+  termo = e.target.value; const outro = document.getElementById(id === 'busca' ? 'buscaLateral' : 'busca'); outro.value = termo; render();
+}));
+document.getElementById('vGrade').onclick = () => { vista = 'grade'; try { localStorage.setItem('portal_vista', vista); } catch (e) {} render(); };
+document.getElementById('vLista').onclick = () => { vista = 'lista'; try { localStorage.setItem('portal_vista', vista); } catch (e) {} render(); };
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !/input|textarea|select/i.test(document.activeElement.tagName)) { e.preventDefault(); document.getElementById('busca').focus(); }
+  if (e.key === 'Escape') { document.body.classList.remove('menu-aberto'); }
+});
+const hoje = new Date().toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' });
+document.getElementById('dataHoje').textContent = hoje.charAt(0).toUpperCase() + hoje.slice(1);
+document.getElementById('kModulos').textContent = MODULOS.filter(p => !p.emBreve).length;
+document.getElementById('kTotal').textContent = MODULOS.filter(p => !p.emBreve).length;
+montarNav(); montarFases(); renderRecentes(); render();
+</script>
+</body>
+</html>
