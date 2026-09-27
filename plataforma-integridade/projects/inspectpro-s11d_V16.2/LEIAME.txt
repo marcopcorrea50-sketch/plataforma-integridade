@@ -2,37 +2,27 @@ InspectPro S11D — Integridade Estrutural
 =========================================
 
 CONTEÚDO DESTA PASTA
-- InspectPro_S11D_v16.2.html ............ versão NORMAL (carrega as bibliotecas pela internet/CDN).
-- InspectPro_S11D_v16.2_OFFLINE.html .... versão OFFLINE (bibliotecas embutidas; NÃO precisa de internet).
+- index.html .... InspectPro S11D v16.3 — versão da equipe, com acesso por código individual.
 
-QUAL USAR NO PC DA EMPRESA?
-Use a versão OFFLINE. Ela funciona mesmo sem internet ou com o acesso a CDNs bloqueado.
-A versão normal só funciona 100% se o PC tiver internet liberada para cdnjs.cloudflare.com.
+ACESSO
+- Ao abrir, informe o seu código de acesso pessoal (entregue pelo administrador do sistema).
+- Marque "Lembrar neste computador" para não digitar o código a cada vez.
+- O código é pessoal: não compartilhe o código nem o arquivo.
 
-COMO ABRIR
-1. Copie o arquivo para o computador (ou para a pasta do "I:").
-2. Dê duplo clique para abrir no navegador.
-3. Use GOOGLE CHROME ou MICROSOFT EDGE. (O salvamento automático na pasta de rede
-   só funciona nesses navegadores; no Firefox não funciona.)
+FUNCIONA SEM INTERNET
+- As bibliotecas estão embutidas. Para usar em campo sem sinal, baixe o index.html
+  para o computador e abra no Google Chrome ou Microsoft Edge.
 
-SALVAMENTO AUTOMÁTICO NA PASTA DE REDE (I:)
-1. No topo, clique em "Conectar pasta de rede".
-2. Escolha a pasta da Integridade Estrutural no "I:" e autorize a gravação.
-3. O botão fica verde ("Rede: <nome da pasta>").
-4. A partir daí, todo PDF gerado é salvo automaticamente em:
-      <Local de Instalação> / <Nº da Ordem> / <Tipo do documento> / arquivo.pdf
-   Ex.:  FEKS-BFE-PRG-CT_2020-CT05-ST1 / 202362521524 / Relatorios_Inspecao / REL-...pdf
-   Tipos: Relatorios_Inspecao, Laudos_Condicao, Laudos_PAC,
-          Acompanhamento_Risco_Alto, Laudos_Sujidade.
-Observação: a autorização da pasta vale para a sessão; se fechar totalmente o navegador,
-pode ser preciso clicar de novo em "Conectar pasta de rede" (o Chrome geralmente lembra).
+SALVAMENTO NA PASTA DE REDE (I:)
+- No topo, clique em "Conectar pasta de rede" e escolha a pasta da Integridade Estrutural.
+- Todo PDF gerado é salvo em: <Local de Instalação> / <Nº da Ordem> / <Tipo do documento> / arquivo.pdf
+  Tipos: Relatorios_Inspecao, Laudos_Condicao, Laudos_PAC, Acompanhamento_Risco_Alto,
+         Laudos_Sujidade, Solicitacoes_Engenharia.
 
-HISTÓRICO E MEMÓRIA DO NAVEGADOR
-- "Histórico de Relatórios": lista os documentos salvos localmente no navegador (Ver / Baixar / Excluir).
-- "Limpar memória (inspeção)": remove do navegador só os relatórios de inspeção (não afeta os laudos).
-- "Limpar Tudo": remove todo o histórico local do navegador.
-Esses botões mexem só na memória LOCAL do navegador; não apagam nada da pasta de rede.
+LAYOUT DE INSTALAÇÃO
+- Layout_Serra_Sul_2025.pdf fica nesta pasta. No sistema, botão "Layout" → "Abrir Layout_Serra_Sul_2025.pdf
+  da pasta" carrega o arquivo; ele fica guardado no navegador para uso sem internet.
 
-OBSERVAÇÕES
-- A "Prévia editável" (botão dentro dos laudos) ainda usa internet mesmo na versão offline.
-- Os PDFs são de TEXTO REAL (pesquisáveis) e com numeração de páginas.
+RASCUNHOS E HISTÓRICO
+- Ficam salvos no navegador e são separados por endereço: o que foi feito abrindo pelo
+  portal não aparece abrindo pela pasta de rede, e vice-versa. Use sempre o mesmo caminho.
