@@ -231,20 +231,20 @@
   <div class="page-head">
     <div class="eyebrow">Base documental</div>
     <h1 class="page-title">Documentos de Referência</h1>
-    <p class="page-sub">Normas e procedimentos que regem a Integridade Estrutural — revisões vigentes conforme SESuite em 04/10/2026.</p>
+    <p class="page-sub">Normas e procedimentos que regem a Integridade Estrutural — revisões vigentes conforme SISPAV em 04/10/2026.</p>
   </div>
 
   <div class="notice">
     <span class="notice-ic">🔒</span>
     <div>
       <strong>Documentos de uso interno.</strong> Os arquivos não ficam publicados no Portal.
-      Consulte-os na <b>pasta da rede</b> (unidade I:) ou diretamente no <b>SESuite</b>, onde está sempre a revisão vigente.
+      Consulte-os na <b>pasta da rede</b> (unidade I:) ou diretamente no <b>SISPAV</b>, onde está sempre a revisão vigente.
       <div class="acessos">
-        <a class="acesso sese" href="https://vale.softexpert.com/softexpert/workspace?page=home" target="_blank" rel="noopener">🔎 Abrir SESuite</a>
-        <button class="acesso pasta" data-copiar="">📁 Copiar caminho da pasta</button>
+        <a class="acesso sese" href="https://vale.softexpert.com/softexpert/workspace?page=home" target="_blank" rel="noopener">🔎 Abrir SISPAV</a>
+        <a class="acesso pasta" id="abrirPastaBase" href="#" data-abrir="">📁 Abrir pasta de documentos (I:)</a>
         <code class="caminho" id="caminhoBase"></code>
       </div>
-      <div class="dica">Para abrir a pasta: copie o caminho, pressione <b>Win + R</b> (ou abra o Explorador de Arquivos), cole e tecle Enter.</div>
+      <div class="dica">Um clique abre a pasta na rede (é preciso estar conectado à rede Vale). Se o navegador bloquear a abertura, o caminho já fica copiado: pressione <b>Win + R</b>, <b>Ctrl + V</b> e <b>Enter</b>.</div>
     </div>
   </div>
 
@@ -290,8 +290,8 @@
     { cat: "pnrm", tipo: "PNR Transversal Geral", icon: "🏗️",
       cod: "PNR-000047", titulo: "PNR-000047 — Integridade Estrutural · Geral",
       desc: "Requisitos para gestão do risco do sistema estrutural em todo o ciclo de vida. Base para aplicação conjunta com os PNRs por material e por tipo de ativo.",
-      rev: "Rev. 02", data: "", tags: ["Geral", "Prioridade estrutural"],
-      pasta: "SESuite (não incluído no pacote de 04/10/2026)" },
+      rev: "Rev. 03", data: "22/05/2026", tags: ["Geral", "Prioridade estrutural"],
+      pasta: "09_PNR-000047_Geral_Rev03" },
     { cat: "pnrm", tipo: "PNR por Material", icon: "🛠️",
       cod: "PNR-000048", titulo: "PNR-000048 — Integridade Estrutural · Estruturas de Aço",
       desc: "Ativos estruturais de aço: projeto, materiais, proteção à corrosão, montagem, inspeção (níveis 1–3), reparos padronizados e classes de degradação.",
@@ -324,8 +324,11 @@
       pasta: "08_PNR-000126_Passarelas_Rev02" }
   ];
 
-  const SESUITE = "https://vale.softexpert.com/softexpert/workspace?page=home";
+  const SISPAV = "https://vale.softexpert.com/softexpert/workspace?page=home";
   const PASTA_BASE = String.raw`\\Cvrdcjssa01\DADOS\AREA\Integridade_Estrutural_S11D\59_Normas_IE_2026-10`;
+
+  // \\servidor\pasta  ->  file://///servidor/pasta/
+  function arquivoUrl(unc) { return "file:///" + unc.split(String.fromCharCode(92)).join("/") + "/"; }
 
   const ACC = { pgs: "acc-pgs", pnr: "acc-pnr", pnrm: "acc-pnrm" };
   const TYP = { pgs: "type-pgs", pnr: "type-pnr", pnrm: "type-pnrm" };
@@ -336,15 +339,15 @@
     document.getElementById("grid").innerHTML = lista.map(d => {
       const acc = d.cod.startsWith("PRO") ? "acc-pro" : ACC[d.cat];
       const typ = d.cod.startsWith("PRO") ? "type-pro" : TYP[d.cat];
-      const noSesuite = d.pasta.startsWith("SESuite");
-      const caminho = noSesuite ? "" : PASTA_BASE + "\\" + d.pasta;
-      const local = noSesuite
-        ? `<b>Onde consultar:</b> SESuite (não incluído no pacote de 04/10/2026)
-           <div class="foot-btns"><a class="mini" href="${SESUITE}" target="_blank" rel="noopener">🔎 SESuite</a></div>`
+      const noSispav = d.pasta.startsWith("SISPAV");
+      const caminho = noSispav ? "" : PASTA_BASE + "\\" + d.pasta;
+      const local = noSispav
+        ? `<b>Onde consultar:</b> SISPAV (não incluído no pacote de 04/10/2026)
+           <div class="foot-btns"><a class="mini" href="${SISPAV}" target="_blank" rel="noopener">🔎 SISPAV</a></div>`
         : `<b>Onde consultar:</b> pasta da rede · <code>${esc(caminho)}</code>
            <div class="foot-btns">
-             <button class="mini" data-copiar="${esc(caminho)}">📁 Copiar caminho</button>
-             <a class="mini" href="${SESUITE}" target="_blank" rel="noopener">🔎 SESuite</a>
+             <a class="mini" href="${esc(arquivoUrl(caminho))}" data-abrir="${esc(caminho)}">📁 Abrir pasta</a>
+             <a class="mini" href="${SISPAV}" target="_blank" rel="noopener">🔎 SISPAV</a>
            </div>`;
       return `
       <article class="doc-card">
@@ -378,7 +381,8 @@
   });
 
   document.getElementById("caminhoBase").textContent = PASTA_BASE;
-  document.querySelector(".acesso.pasta").dataset.copiar = PASTA_BASE;
+  const base = document.getElementById("abrirPastaBase");
+  base.dataset.abrir = PASTA_BASE; base.href = arquivoUrl(PASTA_BASE);
 
   function toast(msg) {
     const t = document.getElementById("toast");
@@ -399,9 +403,26 @@
     a.remove();
   }
   document.addEventListener("click", e => {
+    const a = e.target.closest("[data-abrir]");
+    if (a && a.dataset.abrir) {
+      // tenta abrir a pasta da rede; em paralelo copia o caminho como garantia
+      e.preventDefault();
+      const caminho = a.dataset.abrir;
+      copiarSilencioso(caminho);
+      let abriu = null;
+      try { abriu = window.open(arquivoUrl(caminho), "_blank"); } catch (err) { abriu = null; }
+      toast(abriu ? "Abrindo a pasta… se não abrir, o caminho foi copiado: Win + R, Ctrl + V, Enter"
+                  : "Caminho copiado — Win + R, Ctrl + V, Enter para abrir a pasta");
+      return;
+    }
     const b = e.target.closest("[data-copiar]");
     if (b && b.dataset.copiar) copiar(b.dataset.copiar);
   });
+  function copiarSilencioso(txt) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(txt).catch(() => copiarAntigo(txt, () => {}));
+    } else copiarAntigo(txt, () => {});
+  }
 
   render("todos");
 </script>
