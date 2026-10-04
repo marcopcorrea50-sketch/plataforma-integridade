@@ -167,13 +167,36 @@
       font-size: 0.7rem; color: var(--text-3); line-height: 1.5;
     }
     .doc-foot b { color: var(--text-2); font-weight: 600; }
-    .doc-foot code {
-      font-family: Consolas, 'Courier New', monospace;
-      font-size: 0.68rem;
-      background: var(--bg); border: 1px solid var(--border);
-      padding: 1px 5px; border-radius: 4px; color: var(--text);
-      word-break: break-all;
+
+    .acessos { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+    .acesso {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.74rem; font-weight: 600; padding: 6px 12px; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--bg); color: var(--text); text-decoration: none;
+      transition: all 0.15s;
     }
+    .acesso:hover { border-color: rgba(21,84,163,0.35); }
+    .acesso.sese { background: var(--primary-2); border-color: var(--primary-2); color: #fff; }
+    .acesso.sese:hover { background: #2d80e8; }
+    .caminho, .doc-foot code {
+      font-family: Consolas, 'Courier New', monospace; font-size: 0.68rem;
+      background: var(--bg); border: 1px solid var(--border); padding: 2px 6px; border-radius: 4px;
+      color: var(--text); word-break: break-all;
+    }
+    .dica { font-size: 0.72rem; color: var(--text-3); margin-top: 6px; }
+    .foot-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .mini {
+      font-size: 0.68rem; font-weight: 600; padding: 4px 9px; border-radius: 6px;
+      border: 1px solid var(--border); background: var(--white); color: var(--text-2); text-decoration: none;
+    }
+    .mini:hover { color: var(--text); border-color: rgba(21,84,163,0.35); }
+    .toast {
+      position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
+      background: var(--navy); color: #fff; font-size: 0.8rem; font-weight: 600;
+      padding: 10px 16px; border-radius: 10px; box-shadow: var(--shadow-md);
+      opacity: 0; pointer-events: none; transition: all 0.2s; z-index: 500; max-width: calc(100% - 32px);
+    }
+    .toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     .empty { display: none; text-align: center; color: var(--text-3); padding: 40px 0; font-size: 0.85rem; }
 
@@ -215,8 +238,13 @@
     <span class="notice-ic">🔒</span>
     <div>
       <strong>Documentos de uso interno.</strong> Os arquivos não ficam publicados no Portal.
-      Consulte-os no <b>diretório corporativo da Integridade Estrutural</b> (pasta <b>Normas_IE_2026-10</b>) ou diretamente no <b>SESuite</b>,
-      onde está sempre a revisão vigente.
+      Consulte-os na <b>pasta da rede</b> (unidade I:) ou diretamente no <b>SESuite</b>, onde está sempre a revisão vigente.
+      <div class="acessos">
+        <a class="acesso sese" href="https://vale.softexpert.com/softexpert/workspace?page=home" target="_blank" rel="noopener">🔎 Abrir SESuite</a>
+        <button class="acesso pasta" data-copiar="">📁 Copiar caminho da pasta</button>
+        <code class="caminho" id="caminhoBase"></code>
+      </div>
+      <div class="dica">Para abrir a pasta: copie o caminho, pressione <b>Win + R</b> (ou abra o Explorador de Arquivos), cole e tecle Enter.</div>
     </div>
   </div>
 
@@ -229,6 +257,7 @@
 
   <div class="grid" id="grid"></div>
   <div class="empty" id="empty">Nenhum documento nesta categoria.</div>
+  <div class="toast" id="toast"></div>
 </main>
 
 <script>
@@ -242,7 +271,7 @@
       cod: "PGS-003241", titulo: "PGS-003241 · Anexo I — Classe de Degradação e Associação de Fatores",
       desc: "Tabelas de CD e AF para estruturas de aço e concreto: pintura, corrosão, deformação, trincas, vibração, fixadores, sobrecarga, fissuras e destacamentos.",
       rev: "Rev. 13", data: "30/09/2026", tags: ["CD · AF", "Aço", "Concreto"],
-      pasta: "01_PGS-003241_Rev13 › Anexos" },
+      pasta: String.raw`01_PGS-003241_Rev13\Anexos` },
     { cat: "pgs", tipo: "Procedimento Operacional", icon: "📘",
       cod: "PRO-024969", titulo: "PRO-024969 — Inspeção de Integridade Estrutural PA",
       desc: "Procedimento de inspeção de Serra Norte, Leste, Sul e Manganês: escopo, centros de trabalho, responsabilidades, frequências e cálculo de risco CD × AF × FE × SC.",
@@ -252,12 +281,12 @@
       cod: "PRO-024969", titulo: "ANS — Inspeção Estrutural × PCM",
       desc: "Regras para abertura de notas pela inspeção (YA, YE, YM, YN, YW), anexos obrigatórios, conclusão desejada, programação S+1 e fluxo de cancelamento de laudos.",
       rev: "PRO-024969", data: "pacote Rev. 07", tags: ["Notas SAP", "PCM"],
-      pasta: "02_PRO-024969_Rev06 › Anexos" },
+      pasta: String.raw`02_PRO-024969_Rev06\Anexos` },
     { cat: "pgs", tipo: "Instrução de Trabalho", icon: "🤖",
       cod: "PRO-024969", titulo: "Anexo II — Utilização do Cão Robô em Operações",
       desc: "Passo a passo para operação, transporte, inspeção e armazenamento do cão robô: verificações pré-operacionais, execução, segurança e registros.",
       rev: "PRO-024969", data: "pacote Rev. 07", tags: ["Cão robô B2", "Inspeção remota"],
-      pasta: "02_PRO-024969_Rev06 › Anexos" },
+      pasta: String.raw`02_PRO-024969_Rev06\Anexos` },
     { cat: "pnrm", tipo: "PNR Transversal Geral", icon: "🏗️",
       cod: "PNR-000047", titulo: "PNR-000047 — Integridade Estrutural · Geral",
       desc: "Requisitos para gestão do risco do sistema estrutural em todo o ciclo de vida. Base para aplicação conjunta com os PNRs por material e por tipo de ativo.",
@@ -295,6 +324,9 @@
       pasta: "08_PNR-000126_Passarelas_Rev02" }
   ];
 
+  const SESUITE = "https://vale.softexpert.com/softexpert/workspace?page=home";
+  const PASTA_BASE = String.raw`\\Cvrdcjssa01\DADOS\AREA\Integridade_Estrutural_S11D\59_Normas_IE_2026-10`;
+
   const ACC = { pgs: "acc-pgs", pnr: "acc-pnr", pnrm: "acc-pnrm" };
   const TYP = { pgs: "type-pgs", pnr: "type-pnr", pnrm: "type-pnrm" };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -304,9 +336,16 @@
     document.getElementById("grid").innerHTML = lista.map(d => {
       const acc = d.cod.startsWith("PRO") ? "acc-pro" : ACC[d.cat];
       const typ = d.cod.startsWith("PRO") ? "type-pro" : TYP[d.cat];
-      const local = d.pasta.startsWith("SESuite")
-        ? `<b>Onde consultar:</b> ${esc(d.pasta)}`
-        : `<b>Onde consultar:</b> diretório corporativo · <code>Normas_IE_2026-10 › ${esc(d.pasta)}</code>`;
+      const noSesuite = d.pasta.startsWith("SESuite");
+      const caminho = noSesuite ? "" : PASTA_BASE + "\\" + d.pasta;
+      const local = noSesuite
+        ? `<b>Onde consultar:</b> SESuite (não incluído no pacote de 04/10/2026)
+           <div class="foot-btns"><a class="mini" href="${SESUITE}" target="_blank" rel="noopener">🔎 SESuite</a></div>`
+        : `<b>Onde consultar:</b> pasta da rede · <code>${esc(caminho)}</code>
+           <div class="foot-btns">
+             <button class="mini" data-copiar="${esc(caminho)}">📁 Copiar caminho</button>
+             <a class="mini" href="${SESUITE}" target="_blank" rel="noopener">🔎 SESuite</a>
+           </div>`;
       return `
       <article class="doc-card">
         <div class="doc-accent ${acc}"></div>
@@ -336,6 +375,32 @@
     if (!b) return;
     document.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c === b));
     render(b.dataset.f);
+  });
+
+  document.getElementById("caminhoBase").textContent = PASTA_BASE;
+  document.querySelector(".acesso.pasta").dataset.copiar = PASTA_BASE;
+
+  function toast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg; t.classList.add("on");
+    clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("on"), 2600);
+  }
+  function copiar(txt) {
+    const ok = () => toast("Caminho copiado — cole no Explorador de Arquivos (Win + R)");
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(txt).then(ok, () => copiarAntigo(txt, ok));
+    } else copiarAntigo(txt, ok);
+  }
+  function copiarAntigo(txt, ok) {
+    const a = document.createElement("textarea");
+    a.value = txt; a.style.position = "fixed"; a.style.opacity = "0";
+    document.body.appendChild(a); a.select();
+    try { document.execCommand("copy"); ok(); } catch (e) { prompt("Copie o caminho:", txt); }
+    a.remove();
+  }
+  document.addEventListener("click", e => {
+    const b = e.target.closest("[data-copiar]");
+    if (b && b.dataset.copiar) copiar(b.dataset.copiar);
   });
 
   render("todos");
